@@ -8,7 +8,7 @@ Web-Fetch the contents of the below examples/documentation of how to use the Ope
 ## References
 
 | Language | Source | Url |
-|----------|--------|
+|----------|--------|-----|
 | C++ | Docs | https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/cpp/instrumentation.md |
 | C++ | Examples | https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples |
 | .NET | Docs | https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md |
