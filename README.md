@@ -21,6 +21,7 @@ npx skills add niwoerner/opentelemetry-agent-skills --skill opentelemetry-manual
 | Skill | Path | Use When |
 | --- | --- | --- |
 | `opentelemetry-manual-instrumentation` | `skills/opentelemetry-manual-instrumentation/` | Planning, adding, or reviewing manual instrumentation; choosing signals and semantic conventions; naming spans, metrics, and attributes; controlling cardinality; handling propagation; and checking released SDK or semantic convention versions. |
+| `span-events-to-logs-migration` | `skills/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. |
 
 
 ## Contributing
