@@ -1,26 +1,28 @@
 ---
 name: opentelemetry-manual-instrumentation
-description: OpenTelemetry best practices for manual instrumentation across any language. Use when planning, adding, or reviewing instrumentation, choosing signals and semantic conventions, naming spans, metrics, and attributes, controlling cardinality, propagating context, or checking released SDK and semantic convention versions.
+description: OpenTelemetry guidance and best practices for manual instrumentation. Use when planning, adding, or reviewing OpenTelemetry instrumentation; choosing runtime boundaries and signals; configuring SDK defaults; controlling cardinality; handling propagation; and performing final instrumentation review.
 ---
 
 # OpenTelemetry Manual Instrumentation
 
-Use this skill for application-level instrumentation design and review.
+Use this skill when working with manual instrumentation design and review.
 
 ## Workflow
 
 0. Prepare before planning or editing code.
-- check `references/generated/otel-version-index.md` to identify the latest available SDK or package version for the project language
-- use the latest version when it is compatible with the project
-- if the latest version is not compatible, use the latest compatible version and note the compatibility reason
-- perform this version lookup once during preparation and reuse the result unless the target language, package, or compatibility constraints change
+- identify the project language and existing SDK setup
+- use the latest compatible OpenTelemetry SDK or package version for that language
+- if the latest release is not compatible, use the latest compatible version and note the compatibility reason
+- consult the `opentelemetry-sdk-versions` skill when available; otherwise use official release sources, setup docs, and source code
 - when implementation details, examples, or SDK behavior are unclear, check the official SDK documentation and source code instead of relying only on model memory
 
 1. Define the instrumentation plan before editing code.
 - identify the runtime boundaries to instrument
 - choose the signal for each boundary
 - propose names and key attributes
+- prefer released semantic conventions before inventing custom keys
 - note propagation requirements and cardinality risks
+- consult the `opentelemetry-semantic-conventions` skill when available; otherwise use the released upstream semantic convention docs
 
 2. Find the runtime boundary.
 Create spans at meaningful boundaries such as incoming requests, outgoing service calls, database calls, message publish or consume, cache or network interactions, and high-value business operations.
@@ -40,7 +42,7 @@ See `references/signal-selection.md`.
 4. Always prefer semantic conventions before inventing custom keys.
 
 For any known boundary type such as `http`, `db`, `messaging`, `rpc`, or another released semantic convention group:
-- query the released semantic convention group before choosing names or attributes
+- check the released semantic convention guidance before choosing names or attributes
 - do this once per boundary type in the change, not before every edit
 - use the released naming and attribute guidance from that group in the implementation
 - derive span names from the released semantic convention naming rule only
@@ -49,12 +51,7 @@ For any known boundary type such as `http`, `db`, `messaging`, `rpc`, or another
 - if the released semantic convention naming rule does not provide a low-cardinality target, use the simpler fallback allowed by that convention instead of inventing a custom name
 - if the code does not match the released semantic conventions for the boundary, fix it before finishing unless a concrete compatibility limitation prevents it
 
-Use the bundled semantic convention lookup workflow:
-- list groups: `./scripts/query-otel-semantic-conventions.sh --groups`
-- inspect one group: `./scripts/query-otel-semantic-conventions.sh http`
-- inspect one attribute: `./scripts/query-otel-semantic-conventions.sh http http.request.method`
-
-See `references/semconv-selection.md` and `references/otel-semantic-conventions.md`. Adhere strictly to the conventions for names and attributes.
+Use the `opentelemetry-semantic-conventions` skill when available. Otherwise consult the released upstream semantic convention documentation directly. Adhere strictly to the released naming and attribute guidance.
 
 5. Configure or reuse the SDK, then implement or update the code.
 
@@ -124,9 +121,9 @@ Include file references as evidence for every completed item.
 If you cannot cite codebase evidence for an item, leave it unresolved and continue the loop.
 
 - `[ ]` Instrumentation is attached to a meaningful runtime boundary, not a helper, loop body, or other low-value location.
-- `[ ]` Preparation used the version index to choose the latest compatible SDK or package version, and official SDK docs or source were checked when needed.
+- `[ ]` Preparation used the latest compatible SDK or package version, and official SDK docs or source were checked when needed.
 - `[ ]` SDK setup uses the common default production pipeline for enabled signals, or preserves an intentional existing project-specific alternative.
-- `[ ]` Released semantic convention groups were queried for each known boundary type in the change.
+- `[ ]` Released semantic convention guidance was checked for each known boundary type in the change.
 - `[ ]` Implemented names and attributes match the released semantic conventions for each known boundary type, or any deviation is explained by a concrete compatibility limitation.
 - `[ ]` For each known boundary type, every semconv-governed span name can be explained directly from the released naming rule.
 - `[ ]` Semconv-governed span names do not include custom prose, protocol prefixes, hostnames, or business labels.
