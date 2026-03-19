@@ -31,12 +31,12 @@ jobs:
       - name: Reconcile Version Index
         run: |
           go run ./tools/otel-agent-tools/cmd/otel-agent-tools reconcile versions \
-            --out skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md
+            --out skills/opentelemetry-sdk-versions/references/generated/otel-version-index.md
 
       - name: Detect Changes
         id: changes
         run: |
-          if git diff --quiet -- skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md; then
+          if git diff --quiet -- skills/opentelemetry-sdk-versions/references/generated/otel-version-index.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -50,7 +50,7 @@ jobs:
           git config user.name "otel-agent-tools"
           git config user.email "otel-agent-tools@users.noreply.github.com"
           git checkout -B "$BRANCH_NAME"
-          git add skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md
+          git add skills/opentelemetry-sdk-versions/references/generated/otel-version-index.md
           git commit -m "chore(deps): update OpenTelemetry SDK versions"
           git push --force-with-lease origin "HEAD:$BRANCH_NAME"
 
