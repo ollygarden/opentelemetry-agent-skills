@@ -2,7 +2,7 @@
 
 | Language | Package/Repo | Latest | Release Source | Setup Docs | Examples |
 |---|---|---|---|---|---|
-| .NET | `OpenTelemetry` | `1.15.1` | [NuGet](https://www.nuget.org/packages/OpenTelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples) |
+| .NET | `OpenTelemetry` | `1.15.2` | [NuGet](https://www.nuget.org/packages/OpenTelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples) |
 | C++ | `open-telemetry/opentelemetry-cpp` | `1.26.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-cpp/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/cpp/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples) |
 | Erlang/Elixir | `opentelemetry` | `1.7.0` | [Hex.pm](https://hex.pm/packages/opentelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/erlang/instrumentation.md) | - |
 | Go | `go.opentelemetry.io/otel/sdk` | `1.43.0` | [Go proxy](https://pkg.go.dev/go.opentelemetry.io/otel/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/go/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples) |
