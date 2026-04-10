@@ -9,6 +9,7 @@ Use this skill for manual instrumentation design, implementation, and review.
 
 Usage:
 - load the bundled references only when they apply
+- use `opentelemetry-sdk-setup` for SDK initialization and configuration when available; otherwise use official SDK setup docs and source code
 - use `opentelemetry-sdk-versions` for version selection when available; otherwise use official release sources, setup docs, and source code
 - use `opentelemetry-semantic-conventions` for semantic convention naming and attributes when available; otherwise use the upstream semantic convention docs via websearch
 
@@ -42,20 +43,14 @@ If a companion skill is unavailable:
 3. Implement or review the code.
 4. Re-open the changed files and verify the result with evidence.
 
-## SDK Defaults
+## SDK Setup
 
-Use these defaults unless the project already has an intentional compatible alternative:
+For SDK initialization, exporter, processor, propagator, and transport configuration, use the `opentelemetry-sdk-setup` companion skill when available. If it is unavailable, apply these minimal defaults:
 - traces: OTLP exporter plus batch span processor
 - metrics: OTLP exporter plus periodic exporting metric reader
 - logs: OTLP exporter plus batching log record processor
 - propagators: `tracecontext,baggage`
-- protocol: prefer the SDK default transport; if choosing explicitly, prefer `http/protobuf` unless the SDK or project requires `grpc`
-
-During implementation:
-- if no SDK is set up yet, configure one for the signals in scope
-- if an SDK is already present, reuse and extend it instead of replacing it
-- preserve existing exporter, processor, and transport choices when they are already intentional and compatible
-- do not add extra signals just because the SDK can support them
+- if no SDK exists, configure one; if one exists, reuse it; do not add extra signals
 
 ## References To Load On Demand
 
@@ -63,6 +58,7 @@ During implementation:
 - signal choice: `references/signal-selection.md`
 - propagation and baggage: `references/propagation.md`
 - semantic conventions naming and attributes skill: `opentelemetry-semantic-conventions`
+- SDK initialization and configuration skill: `opentelemetry-sdk-setup`
 - SDK versions and docs skill: `opentelemetry-sdk-versions`
 
 ## Verification Contract
