@@ -20,12 +20,17 @@ If the broader task is manual instrumentation design or review, pair this with `
 - if the latest release is not compatible, choose the latest compatible version and state the compatibility reason explicitly
 - reuse that decision for the rest of the task unless the language, package, or constraints change
 
-3. Use the linked follow-up sources when needed.
+3. Resolve companion packages from the release source.
+- the index covers one primary SDK package per language
+- if the task requires additional packages from the same ecosystem (exporters, instrumentations, resource detectors), look up their versions from the release source — do not infer or reuse the primary package version
+- sub-packages within the same project often share a version line but not always; confirm each package individually
+
+4. Use the linked follow-up sources when needed.
 - use the Release Source column to confirm the package or repo
 - use the Setup Docs column for SDK setup guidance
 - use the Examples column for implementation references when examples are available
 
-4. Handle gaps explicitly.
+5. Handle gaps explicitly.
 - if the requested language or package is not in the bundled index, say that the index does not cover that exact package
 - then fall back to the official release source and official docs for that package
 - do not assume an unreleased, prerelease, or incompatible version is acceptable without saying so
