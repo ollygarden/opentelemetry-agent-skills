@@ -9,8 +9,6 @@ Use this skill for manual instrumentation design, implementation, and review.
 
 Usage:
 - load the bundled references only when they apply
-- use `opentelemetry-sdk-setup` for SDK initialization and configuration when available; otherwise use official SDK setup docs and source code
-- use `opentelemetry-sdk-versions` for version selection when available; otherwise use official release sources, setup docs, and source code
 - use `opentelemetry-semantic-conventions` for semantic convention naming and attributes when available; otherwise use the upstream semantic convention docs via websearch
 
 If a companion skill is unavailable:
