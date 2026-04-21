@@ -7,13 +7,13 @@ This repository contains reusable agent skills for OpenTelemetry.
 Install any skill using the skills CLI:
 
 ```bash
-npx skills add niwoerner/opentelemetry-agent-skills
+npx skills add ollygarden/opentelemetry-agent-skills
 ```
 
 Install a specific skill from this repository:
 
 ```bash
-npx skills add niwoerner/opentelemetry-agent-skills --skill opentelemetry-manual-instrumentation
+npx skills add ollygarden/opentelemetry-agent-skills --skill opentelemetry-manual-instrumentation
 ```
 
 Replace the skill name with any entry from the table below.
@@ -26,6 +26,7 @@ Replace the skill name with any entry from the table below.
 | `opentelemetry-semantic-conventions` | `skills/opentelemetry-semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking semantic convention compliance; and looking up exact upstream semantic convention entries. |
 | `opentelemetry-sdk-setup` | `skills/opentelemetry-sdk-setup/` | Setting up or reviewing OpenTelemetry SDK initialization; choosing exporters, processors, propagators, and transport configuration; extending an existing SDK setup for new signals. |
 | `opentelemetry-sdk-versions` | `skills/opentelemetry-sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
+| `opentelemetry-go` | `skills/opentelemetry-go/` | Writing, reviewing, or configuring OpenTelemetry instrumentation in Go; looking up current versions, import paths, API surface, contrib libraries, SDK setup, or performance tuning. |
 | `span-events-to-logs-migration` | `skills/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. |
 | `telemetrygen` | `skills/telemetrygen/` | Constructing telemetrygen commands for generating synthetic traces, metrics, and logs; load testing collectors and backends; testing OTTL transforms, tail sampling, and filter rules; multi-tenant and correlated-signal scenarios. |
 
