@@ -1,5 +1,5 @@
 ---
-name: opentelemetry-sdk-setup
+name: sdk-setup
 description: OpenTelemetry SDK initialization and configuration. Use when setting up or reviewing TracerProvider, MeterProvider, or LoggerProvider; choosing exporters, processors, or propagators; configuring OTLP transport; or extending an existing SDK setup for new signals. Use this skill whenever the task involves wiring up the OpenTelemetry SDK, even if the user only mentions "add tracing" or "set up metrics" without saying "SDK."
 ---
 
@@ -8,8 +8,8 @@ description: OpenTelemetry SDK initialization and configuration. Use when settin
 Use this skill when configuring or reviewing OpenTelemetry SDK initialization.
 
 Usage:
-- use `opentelemetry-sdk-versions` for version selection when available; otherwise use official release sources, setup docs, and source code
-- use `opentelemetry-manual-instrumentation` for what to instrument once the SDK is set up
+- use `sdk-versions` for version selection when available; otherwise use official release sources, setup docs, and source code
+- use `manual-instrumentation` for what to instrument once the SDK is set up
 
 If a companion skill is unavailable:
 - do not stop
@@ -21,7 +21,7 @@ If a companion skill is unavailable:
 
 ## Non-Negotiable Rules
 
-- Use the latest compatible OpenTelemetry SDK or package for the project language. Delegate version choice to `opentelemetry-sdk-versions` or official release sources. When SDK behavior, setup details, or API surface is unclear, check official SDK docs and source code instead of relying on model memory.
+- Use the latest compatible OpenTelemetry SDK or package for the project language. Delegate version choice to `sdk-versions` or official release sources. When SDK behavior, setup details, or API surface is unclear, check official SDK docs and source code instead of relying on model memory.
 - If no SDK is set up yet, configure one for the signals in scope. Do not add signals beyond what the current task requires — each signal adds export, batching, and lifecycle overhead that is wasted if nothing produces telemetry for it.
 - If an SDK is already present, reuse and extend it instead of replacing it. Adding a new signal to an existing setup is almost always safer than rewriting initialization.
 - Preserve existing exporter, processor, and transport choices when they are already intentional and compatible. Changing a working pipeline without a concrete reason risks breaking collection.

@@ -1,5 +1,5 @@
 ---
-name: opentelemetry-semantic-conventions
+name: semantic-conventions
 description: OpenTelemetry semantic convention lookup and naming guidance. Use when selecting released semantic convention groups, attributes, or span naming rules, or when checking semantic convention compliance.
 ---
 
@@ -7,7 +7,7 @@ description: OpenTelemetry semantic convention lookup and naming guidance. Use w
 
 Use this skill when you need released semantic convention guidance for naming, attributes, or compliance checks.
 
-If the broader task is manual instrumentation design or review, pair this with `opentelemetry-manual-instrumentation`.
+If the broader task is manual instrumentation design or review, pair this with `manual-instrumentation`.
 
 ## Workflow
 
