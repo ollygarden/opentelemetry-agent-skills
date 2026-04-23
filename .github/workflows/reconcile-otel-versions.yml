@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   reconcile:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith
 
     steps:
       - name: Checkout Repo

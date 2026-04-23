@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   tool-tests:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith
 
     steps:
       - name: Checkout Repo
@@ -43,7 +43,7 @@ jobs:
         run: go test ./tools/otel-agent-tools/...
 
   check-links:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith
 
     steps:
       - name: Checkout Repo
