@@ -3,6 +3,7 @@ package otelagenttools
 import (
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -220,30 +221,52 @@ func fetchMavenVersion(ctx context.Context, target string) (string, error) {
 		return "", fmt.Errorf("maven target must be group:artifact: %s", target)
 	}
 
-	query := url.QueryEscape(fmt.Sprintf(`g:"%s" AND a:"%s"`, parts[0], parts[1]))
-	u := fmt.Sprintf("https://search.maven.org/solrsearch/select?q=%s&rows=1&wt=json", query)
-	doc, err := fetchJSONDocument(ctx, u)
+	groupPath := strings.ReplaceAll(parts[0], ".", "/")
+	u := fmt.Sprintf("https://repo1.maven.org/maven2/%s/%s/maven-metadata.xml",
+		groupPath, url.PathEscape(parts[1]))
+	return fetchMavenMetadataRelease(ctx, u)
+}
+
+func fetchMavenMetadataRelease(ctx context.Context, rawURL string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("Accept", "application/xml")
+	req.Header.Set("User-Agent", "otel-agent-tools/1.0")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("request %s: %w", rawURL, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return "", fmt.Errorf("request %s: unexpected status %d: %s", rawURL, resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
-	responseValue, err := extractValueAtPath(doc, "response", "docs")
-	if err != nil {
-		return "", fmt.Errorf("%s: %w", u, err)
+	var meta struct {
+		Versioning struct {
+			Release  string   `xml:"release"`
+			Latest   string   `xml:"latest"`
+			Versions []string `xml:"versions>version"`
+		} `xml:"versioning"`
 	}
-	items, ok := responseValue.([]any)
-	if !ok || len(items) == 0 {
-		return "", fmt.Errorf("%s: no version found", u)
+	if err := xml.NewDecoder(resp.Body).Decode(&meta); err != nil {
+		return "", fmt.Errorf("decode %s: %w", rawURL, err)
 	}
-	first, ok := items[0].(map[string]any)
-	if !ok {
-		return "", fmt.Errorf("%s: invalid docs payload", u)
+
+	if v := strings.TrimSpace(meta.Versioning.Release); v != "" && !strings.Contains(v, "-") {
+		return v, nil
 	}
-	version, err := extractStringAtPath(first, "latestVersion")
-	if err != nil {
-		return "", fmt.Errorf("%s: %w", u, err)
+	for i := len(meta.Versioning.Versions) - 1; i >= 0; i-- {
+		v := strings.TrimSpace(meta.Versioning.Versions[i])
+		if v != "" && !strings.Contains(v, "-") {
+			return v, nil
+		}
 	}
-	return version, nil
+	return "", fmt.Errorf("%s: no stable version found", rawURL)
 }
 
 func fetchGitHubVersion(ctx context.Context, target string) (string, error) {
