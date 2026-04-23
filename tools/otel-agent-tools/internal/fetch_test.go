@@ -67,6 +67,33 @@ func TestFetchLastStableString(t *testing.T) {
 	}
 }
 
+func TestFetchMavenMetadataRelease(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/xml")
+		_, _ = w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <versioning>
+    <latest>1.61.0</latest>
+    <release>1.61.0</release>
+    <versions>
+      <version>1.59.0</version>
+      <version>1.60.0</version>
+      <version>1.61.0</version>
+    </versions>
+  </versioning>
+</metadata>`))
+	}))
+	defer server.Close()
+
+	version, err := fetchMavenMetadataRelease(context.Background(), server.URL)
+	if err != nil {
+		t.Fatalf("fetchMavenMetadataRelease returned error: %v", err)
+	}
+	if version != "1.61.0" {
+		t.Fatalf("fetchMavenMetadataRelease returned %q, want %q", version, "1.61.0")
+	}
+}
+
 func TestNormalizeVersion(t *testing.T) {
 	if got := normalizeVersion(" v1.2.3 "); got != "1.2.3" {
 		t.Fatalf("normalizeVersion returned %q, want %q", got, "1.2.3")
