@@ -16,7 +16,7 @@ See `references/deprecation-plan.md` for the full context.
 ## Workflow
 
 0. Prepare before migrating.
-- check the project's OpenTelemetry SDK version supports log-based events (check the `opentelemetry-manual-instrumentation` skill's version index if available)
+- check the project's OpenTelemetry SDK version supports log-based events (check the `manual-instrumentation` skill's version index if available)
 - identify whether the project has a LoggerProvider configured; if not, one must be set up
 - determine if downstream consumers (backends, dashboards, alerts) depend on span events appearing in the span proto envelope
 

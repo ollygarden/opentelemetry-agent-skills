@@ -1,5 +1,5 @@
 ---
-name: opentelemetry-go
+name: go-sdk
 description: >
   OpenTelemetry Go API, SDK, and instrumentation library mechanics.
   Use when writing, reviewing, or configuring OpenTelemetry instrumentation
