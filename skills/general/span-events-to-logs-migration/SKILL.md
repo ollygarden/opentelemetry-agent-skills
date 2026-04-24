@@ -32,7 +32,7 @@ See `references/deprecation-plan.md` for the full context.
 3. Apply the migration for each call site.
 - see `references/migration-patterns.md` for language-specific before/after patterns
 - ensure the replacement log record carries the correct span context, event name, attributes, and timestamp
-- for exceptions, ensure `exception.type`, `exception.message`, and `exception.stacktrace` attributes are preserved
+- for exceptions, preserve the applicable semconv attributes: `exception.type` and `exception.message` (at least one is required), plus `exception.stacktrace` when the language/error type makes it meaningful (in Go, omit it unless an error library preserves the origin stack -- do not call `runtime.Stack` at the emit site)
 
 4. If backward compatibility is needed, configure the SDK bridge.
 - see `references/backward-compat.md`
@@ -66,7 +66,7 @@ Include file references as evidence for every completed item.
 - `[ ]` All `RecordException` / `record_exception` / `recordException` call sites identified and classified.
 - `[ ]` A LoggerProvider is configured in the SDK setup (or already existed).
 - `[ ]` Each migrated event uses the Logs API with the correct event name and attributes.
-- `[ ]` Each migrated exception preserves `exception.type`, `exception.message`, and `exception.stacktrace`.
+- `[ ]` Each migrated exception preserves the applicable semconv attributes: `exception.type` and `exception.message` (at least one is required), plus `exception.stacktrace` when the language/error type makes it meaningful.
 - `[ ]` Migrated log records carry the active span context for trace correlation.
 - `[ ]` Call sites classified as "convert to span attributes" now use span attributes instead.
 - `[ ]` Call sites classified as "remove" have been removed with justification.

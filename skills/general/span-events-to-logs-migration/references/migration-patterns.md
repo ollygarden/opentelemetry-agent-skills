@@ -20,16 +20,24 @@ After:
 logger := otel.GetLoggerProvider().Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
+record.SetEventName("exception")
 record.SetSeverity(log.SeverityError)
+// exception.stacktrace is intentionally omitted: the Go error value does
+// not carry its origin stack, and capturing runtime.Stack here would
+// point at the emit site, not where the error arose. Per semconv, the
+// attribute is Recommended, not Required. If the project uses an error
+// library that preserves the origin stack (e.g., github.com/pkg/errors,
+// github.com/cockroachdb/errors), extract the stack from the error and
+// add an exception.stacktrace attribute. Do not call runtime.Stack here.
 record.AddAttributes(
-    log.String("event.name", "exception"),
     log.String("exception.type", fmt.Sprintf("%T", err)),
     log.String("exception.message", err.Error()),
-    log.String("exception.stacktrace", captureStack()),
 )
 logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
 ```
+
+Prefer `record.SetEventName(name)` over adding an `event.name` attribute in Go: it is a first-class field on `log.Record` and produces cleaner output in backends that special-case event records.
 
 ### General Event
 
@@ -45,8 +53,8 @@ After:
 logger := otel.GetLoggerProvider().Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
+record.SetEventName("cache.miss")
 record.AddAttributes(
-    log.String("event.name", "cache.miss"),
     log.String("cache.key", key),
 )
 logger.Emit(ctx, record)
@@ -225,7 +233,7 @@ logger.LogWarning("validation.failure for field {Field} rule {Rule}", fieldName,
 
 ## Key Rules Across All Languages
 
-1. The `event.name` attribute on the log record replaces the event name from `AddEvent`.
+1. The event name replaces the name from `AddEvent`. Use the dedicated API when available (e.g., `record.SetEventName(...)` in Go); otherwise set an `event.name` attribute.
 2. All original attributes transfer to the log record attributes.
 3. The log record automatically inherits the active span context from `ctx` / the current context -- this is how trace correlation is maintained.
 4. `span.SetStatus` (or equivalent) is still set on the span for error cases -- the migration only moves event emission, not status.
