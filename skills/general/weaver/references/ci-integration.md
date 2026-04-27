@@ -92,4 +92,4 @@ gofmt -w internal/telemetry/
 git diff -- internal/telemetry/
 ```
 
-A pinned local binary (`scripts/install-weaver.sh`) avoids the Docker startup cost while developing.
+A pinned local binary from the [Weaver releases page](https://github.com/open-telemetry/weaver/releases) avoids the Docker startup cost while developing.

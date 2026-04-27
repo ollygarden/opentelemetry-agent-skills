@@ -24,7 +24,7 @@ FILTER="${2:-.}"
 
 WEAVER="${WEAVER:-weaver}"
 if ! command -v "$WEAVER" >/dev/null 2>&1; then
-  echo "weaver binary not found on PATH (set WEAVER=... or run install-weaver.sh)" >&2
+  echo "weaver binary not found on PATH (set WEAVER=... or install per https://github.com/open-telemetry/weaver#install)" >&2
   exit 1
 fi
 

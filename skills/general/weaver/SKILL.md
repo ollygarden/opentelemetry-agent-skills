@@ -30,7 +30,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 
 ## Non-Negotiable Rules
 
-- Install Weaver from `open-telemetry/weaver` GitHub releases or the `otel/weaver:vX.Y.Z` Docker image. Never `brew install weaver` — that resolves to an unrelated Scribd tool.
+- Install Weaver via one of the methods documented at <https://github.com/open-telemetry/weaver#install> (release binary, `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action). Never `brew install weaver` — that resolves to an unrelated Scribd tool.
 - Reference upstream semconv attributes by `ref` rather than redeclaring them. Boundary domains (`http`, `db`, `messaging`, `rpc`, `network`, `gen-ai`, ...) belong in upstream OTel semconv, not in a local registry. Use the language SDK's semconv package for those at runtime.
 - Every entry needs `stability`. Weaver refuses to generate without it.
 - Use a domain prefix (e.g. `ecommerce.`, `acme.`) for org-local attributes, metrics, and spans.
@@ -39,7 +39,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 
 ## Workflow
 
-1. **Install or locate Weaver.** Prefer a pinned binary release. `scripts/install-weaver.sh` downloads a pinned version to `~/.local/bin/weaver`. Use `otel/weaver:vX.Y.Z` for CI and reproducible local runs.
+1. **Install or locate Weaver.** Follow the upstream install instructions at <https://github.com/open-telemetry/weaver#install> — pick a pinned release binary, the `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action. Use Docker for CI and reproducible local runs.
 2. **Author the registry.** Required: `manifest.yaml` plus at least one of `attributes.yaml` / `metrics.yaml` / `spans.yaml` / `events.yaml`. See `references/registry-authoring.md`.
 3. **Author templates.** One target dir per language under `templates/registry/<lang>/` with `weaver.yaml` plus `*.j2`. See `references/template-authoring.md`.
 4. **Validate and generate.** `weaver registry check -r ./telemetry/registry/` for fast feedback. `weaver registry generate --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
