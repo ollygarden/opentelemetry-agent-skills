@@ -40,6 +40,7 @@ Additional language folders (`java/`, `js/`, `python/`, …) will be added as sk
 | `sdk-versions` | `skills/general/sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
 | `span-events-to-logs-migration` | `skills/general/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. |
 | `telemetrygen` | `skills/general/telemetrygen/` | Constructing telemetrygen commands for generating synthetic traces, metrics, and logs; load testing collectors and backends; testing OTTL transforms, tail sampling, and filter rules; multi-tenant and correlated-signal scenarios. |
+| `weaver` | `skills/general/weaver/` | Authoring or reviewing an OpenTelemetry Weaver registry; writing Jinja2 templates against the resolved schema; migrating hand-maintained telemetry constants to generated code; wiring `weaver registry check`/`generate`/`diff` into CI. |
 | `go-sdk` | `skills/go/sdk/` | Writing, reviewing, or configuring OpenTelemetry instrumentation in Go; looking up current versions, import paths, API surface, contrib libraries, SDK setup, or performance tuning. |
 
 ## Contributing
