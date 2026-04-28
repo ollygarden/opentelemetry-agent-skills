@@ -1,5 +1,5 @@
 ---
-name: telemetrygen
+name: otel-telemetrygen
 description: Construct telemetrygen commands for generating synthetic OpenTelemetry traces, metrics, and logs via OTLP. Use this skill whenever the user wants to generate test telemetry, load test a collector or backend, create synthetic OTLP data, send sample traces/metrics/logs to an endpoint, test collector pipelines or processors, validate OTTL transforms, test tail sampling, or mentions telemetrygen in any context. Also trigger when the user asks how to simulate telemetry traffic, stress test an observability stack, or produce sample data for dashboards.
 ---
 
