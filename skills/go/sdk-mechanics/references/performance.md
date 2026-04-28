@@ -464,17 +464,3 @@ if histogram.Enabled(ctx, attrs) {
 ```
 
 This is the metric equivalent of `Logger.Enabled()` for logs. When combined with Views that drop metrics, `Enabled()` returns `false` for dropped instruments.
-
----
-
-## SDK Performance Improvements
-
-As of v1.40.0, the SDK includes significant performance improvements:
-
-- Concurrent histogram measurements: uses `sync.Map` and atomics instead of mutex (2-4x improvement)
-- Concurrent synchronous gauge measurements: uses `sync.Map` and atomics
-- Concurrent exponential histogram measurements: defers count computation until collection
-- `HistogramReservoir` exemplar sampling: 4x concurrent performance improvement
-- `FixedSizeReservoir` exemplar sampling: optimized with atomics
-
-The HTTP instrumentation libraries (`otelhttp`, `otelgin`, `otelmux`, `otelecho`, `otelhttptrace`, `otelrestful`) include reduced allocations for common request protocols.

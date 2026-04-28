@@ -1,5 +1,5 @@
 ---
-name: go-sdk
+name: go-sdk-mechanics
 description: >
   OpenTelemetry Go API, SDK, and instrumentation library mechanics.
   Use when writing, reviewing, or configuring OpenTelemetry instrumentation
@@ -33,13 +33,3 @@ Mechanics reference for the OpenTelemetry Go API, SDK, and instrumentation libra
 - Propagator must be set manually via `otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))` until contrib issue #6712 is resolved.
 - `WithMetricAttributesFn` deprecated in otelhttp (contrib v1.41.0). Use `Labeler` instead.
 - `log.Record.SetErr(err)` (v1.42.0) — the SDK automatically sets `exception.type` and `exception.message` attributes.
-
-## References
-
-Load these on demand based on the task:
-
-- Setting up the SDK, configuring providers, or initializing telemetry? Read `references/sdk-setup.md`.
-- Using the tracing, metrics, or logs API? Read `references/api.md`.
-- Adding or configuring instrumentation libraries (otelhttp, otelgrpc, otelgin, otelsql, logging bridges)? Read `references/instrumentation-libraries.md`.
-- Tuning batch sizes, sampling, cardinality limits, or export intervals? Read `references/performance.md`.
-- Using file-based YAML configuration for the SDK? Use the `opentelemetry-sdk-configuration` skill for the schema, then see `references/sdk-setup.md` for Go-specific loading via `otelconf`.

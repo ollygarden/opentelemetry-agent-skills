@@ -1,10 +1,19 @@
-# OpenTelemetry Go SDK Setup
+---
+name: go-sdk-setup-declarative-config
+description: Set up OpenTelemetry SDK in Go applications using declarative YAML configuration (otelconf). Use when initializing tracing, metrics, or logging in a Go service, adding OpenTelemetry to a Go project, or setting up OTel providers in Go. Triggers on "setup otel in go", "go telemetry setup", "go tracing setup", "otelconf go", "TracerProvider go", "MeterProvider go", or when working on a Go project that needs observability.
+---
+
+# Go SDK Setup with otelconf
+
+Set up OpenTelemetry in Go using `otelconf` — the declarative YAML configuration package.
+This is the recommended approach over programmatic SDK construction or scattered env vars.
+
+For the YAML configuration schema, read the `general/declarative-config` skill.
 
 ## Dependencies
 
 ```go
 import (
-    "context"
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/log/global"
     "go.opentelemetry.io/otel/propagation"
@@ -14,9 +23,25 @@ import (
 )
 ```
 
-> **Migration note (contrib v1.35.0):** The `go.opentelemetry.io/contrib/config` module is deprecated. Use `go.opentelemetry.io/contrib/otelconf` instead. The API is identical — only the import path changes.
+> **Migration note (contrib v1.35.0):** `go.opentelemetry.io/contrib/config` is deprecated.
+> Use `go.opentelemetry.io/contrib/otelconf` instead. API is identical, only the import path changes.
 
-## Provider Setup
+## Project Structure
+
+```
+internal/telemetry/
+├── const.go          # Service scope and telemetry constants
+├── setup.go          # SDK initialization (code below)
+├── providers.go      # Provider management utilities
+└── carriers.go       # Custom propagation carriers (if needed)
+configs/
+└── otel.yaml         # Declarative configuration
+```
+
+## Setup Pattern
+
+The core setup reads a YAML config file, injects runtime attributes, and creates an SDK
+instance that provides all three providers (tracer, meter, logger).
 
 ```go
 package telemetry
@@ -41,7 +66,6 @@ import (
     "go.uber.org/zap/zapcore"
 )
 
-// Providers holds the OpenTelemetry providers and logger
 type Providers struct {
     TracerProvider trace.TracerProvider
     MeterProvider  metric.MeterProvider
@@ -50,7 +74,6 @@ type Providers struct {
     Closer         func(ctx context.Context) error
 }
 
-// SetupTelemetry initializes OpenTelemetry providers from configuration
 func SetupTelemetry(ctx context.Context, serviceName, version, configFile string) (*Providers, error) {
     providers, err := providersFromConfig(ctx, serviceName, version, configFile)
     if err != nil {
@@ -61,8 +84,8 @@ func SetupTelemetry(ctx context.Context, serviceName, version, configFile string
     otel.SetTracerProvider(providers.TracerProvider)
     otel.SetMeterProvider(providers.MeterProvider)
     global.SetLoggerProvider(providers.LoggerProvider)
-    
-    // Set up context propagation, needed until this is fixed: https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712
+
+    // Set propagation — needed until https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712 is fixed
     otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
         propagation.TraceContext{},
         propagation.Baggage{},
@@ -71,14 +94,12 @@ func SetupTelemetry(ctx context.Context, serviceName, version, configFile string
     return providers, nil
 }
 
-// providersFromConfig creates providers from YAML configuration file
 func providersFromConfig(ctx context.Context, scope, version, cfgFile string) (*Providers, error) {
     b, err := os.ReadFile(cfgFile)
     if err != nil {
         if errors.Is(err, os.ErrNotExist) {
-            // Return default providers if config doesn't exist
             logger := zap.Must(zap.NewProduction())
-            logger.Warn("OpenTelemetry config file not found, using no-op providers", 
+            logger.Warn("OpenTelemetry config file not found, using no-op providers",
                 zap.String("config_file", cfgFile))
             return &Providers{
                 TracerProvider: trace.NewNoOpTracerProvider(),
@@ -91,43 +112,38 @@ func providersFromConfig(ctx context.Context, scope, version, cfgFile string) (*
         return nil, fmt.Errorf("failed to read config file %s: %w", cfgFile, err)
     }
 
-    // Expand environment variables in config
     b = []byte(os.ExpandEnv(string(b)))
 
-    // Parse OpenTelemetry configuration
     conf, err := otelconf.ParseYAML(b)
     if err != nil {
         return nil, err
     }
 
-    // Set resource attributes
+    // Inject runtime resource attributes
     if conf.Resource == nil {
         conf.Resource = &otelconf.Resource{}
     }
     if conf.Resource.Attributes == nil {
         conf.Resource.Attributes = []otelconf.AttributeNameValue{}
     }
-
-    // Add service metadata
-    conf.Resource.Attributes = insertAttribute(conf.Resource.Attributes, 
+    conf.Resource.Attributes = insertAttribute(conf.Resource.Attributes,
         string(semconv.ServiceVersionKey), version)
-    conf.Resource.Attributes = insertAttribute(conf.Resource.Attributes, 
+    conf.Resource.Attributes = insertAttribute(conf.Resource.Attributes,
         string(semconv.ServiceInstanceIDKey), uuid.New().String())
 
-    // Create SDK
     sdk, err := otelconf.NewSDK(
-        otelconf.WithContext(ctx), 
+        otelconf.WithContext(ctx),
         otelconf.WithOpenTelemetryConfiguration(*conf),
     )
     if err != nil {
         return nil, err
     }
 
-    // Create zap logger with OpenTelemetry bridge
+    // Zap logger with OTel bridge — logs go to both stdout and OTel
     core := zapcore.NewTee(
         zapcore.NewCore(
-            zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), 
-            zapcore.AddSync(os.Stdout), 
+            zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+            zapcore.AddSync(os.Stdout),
             zapcore.InfoLevel,
         ),
         otelzap.NewCore(scope, otelzap.WithLoggerProvider(global.GetLoggerProvider())),
@@ -152,126 +168,55 @@ func insertAttribute(attrs []otelconf.AttributeNameValue, name, value string) []
 }
 ```
 
-## Global Provider Registration
-
-After creating the providers, register them globally so instrumentation libraries and application code can access them via the OpenTelemetry API:
+## Main Integration
 
 ```go
-otel.SetTracerProvider(providers.TracerProvider)
-otel.SetMeterProvider(providers.MeterProvider)
-global.SetLoggerProvider(providers.LoggerProvider)
-```
-
-Set up context propagation for distributed tracing:
-
-```go
-otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
-    propagation.TraceContext{},
-    propagation.Baggage{},
-))
-```
-
-> **Note:** Explicit propagator setup is needed as a workaround until [contrib issue #6712](https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712) is resolved. The declarative configuration should handle this automatically once that issue is fixed.
-
-## Service Integration
-
-```go
-package main
-
-import (
-    "context"
-    "fmt"
-    "log"
-    "os"
-    "os/signal"
-    "syscall"
-
-    "myservice/internal/telemetry"
-)
-
 func main() {
     ctx := context.Background()
 
-    // Setup telemetry
-    providers, err := telemetry.SetupTelemetry(ctx, 
-        telemetry.ServiceName, 
+    providers, err := telemetry.SetupTelemetry(ctx,
+        telemetry.ServiceName,
         telemetry.ServiceVersion,
         "configs/otel.yaml")
     if err != nil {
         log.Fatalf("Failed to setup telemetry: %v", err)
     }
 
-    // Graceful shutdown
     defer func() {
-        shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+        shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
         defer cancel()
         if err := providers.Closer(shutdownCtx); err != nil {
             providers.Logger.Error("Failed to shutdown telemetry", zap.Error(err))
         }
     }()
 
-    // Start your application
-    app := NewApp(providers.Logger)
-    if err := app.Run(ctx); err != nil {
-        providers.Logger.Fatal("Application failed", zap.Error(err))
-    }
-}
+    // Get tracer/meter from global providers
+    tracer := otel.Tracer(telemetry.Scope)
+    meter := otel.Meter(telemetry.Scope)
 
-type App struct {
-    logger *zap.Logger
-    tracer trace.Tracer
-    meter  metric.Meter
-}
-
-func NewApp(logger *zap.Logger) *App {
-    return &App{
-        logger: logger,
-        tracer: otel.Tracer(telemetry.Scope),
-        meter:  otel.Meter(telemetry.Scope),
-    }
-}
-
-func (a *App) Run(ctx context.Context) error {
-    ctx, span := a.tracer.Start(ctx, "app startup")
-
-    a.logger.Info("Application starting")
-    
-    // Application logic here
-    
-    span.End() // Close span before blocking
-    
-    // Wait for shutdown signal
-    sigChan := make(chan os.Signal, 1)
-    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-    <-sigChan
-
-    a.logger.Info("Application shutting down")
-    return nil
+    // Application logic...
 }
 ```
 
-## Configuration File
+## YAML Config (file_format "0.3")
 
-Example OpenTelemetry configuration file (`configs/otel.yaml`):
+Go's otelconf v0.3.0 uses file_format `"0.3"`:
 
 ```yaml
 file_format: "0.3"
 resource:
-  schema_url: https://opentelemetry.io/schemas/1.26.0
   attributes:
     - name: service.name
-      value: "user-service"
+      value: "my-service"
     - name: deployment.environment.name
       value: "development"
 
 propagator:
-  composite: [ tracecontext, baggage ]
+  composite: [tracecontext, baggage]
 
 tracer_provider:
   processors:
     - batch:
-        timeout: 1s
-        send_batch_size: 1024
         exporter:
           otlp:
             protocol: http/protobuf
@@ -280,7 +225,7 @@ tracer_provider:
 meter_provider:
   readers:
     - periodic:
-        interval: 30s
+        interval: 30000
         exporter:
           otlp:
             protocol: http/protobuf
@@ -295,29 +240,9 @@ logger_provider:
             endpoint: "http://localhost:4318"
 ```
 
-## Declarative Configuration with otelconf
+## Key Details
 
-The `otelconf` package (`go.opentelemetry.io/contrib/otelconf`) implements the language-agnostic OpenTelemetry declarative configuration schema in Go. It parses a YAML configuration file conforming to the OpenTelemetry configuration schema and creates fully configured SDK providers.
-
-The full YAML schema is covered by the `opentelemetry-sdk-configuration` skill.
-
-Key functions:
-
-```go
-// Parse a YAML configuration file
-conf, err := otelconf.ParseYAML(yamlBytes)
-
-// Create an SDK instance from the parsed configuration
-sdk, err := otelconf.NewSDK(
-    otelconf.WithContext(ctx),
-    otelconf.WithOpenTelemetryConfiguration(*conf),
-)
-
-// Access providers from the SDK
-tracerProvider := sdk.TracerProvider()
-meterProvider := sdk.MeterProvider()
-loggerProvider := sdk.LoggerProvider()
-
-// Shut down all providers, flushing pending telemetry
-err = sdk.Shutdown(ctx)
-```
+- **No-op fallback**: If the config file doesn't exist, the setup returns no-op providers instead of failing. The application runs without telemetry.
+- **Propagator workaround**: `otel.SetTextMapPropagator()` must be called manually due to [open-telemetry/opentelemetry-go-contrib#6712](https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712). The YAML `propagator` section alone is not sufficient.
+- **Runtime attributes**: `service.version` and `service.instance.id` are injected programmatically because they vary per deployment, not per environment.
+- **Zap bridge**: The `otelzap` bridge sends structured logs to the OTel LoggerProvider, enabling log correlation with traces.
