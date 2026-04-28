@@ -1,5 +1,5 @@
 ---
-name: span-events-to-logs-migration
+name: otel-span-events-to-logs-migration
 description: Migrate OpenTelemetry Span Events (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. Use when migrating instrumentation from span events to log-based events, reviewing code that still uses AddEvent or RecordException, or planning a migration across a codebase.
 ---
 

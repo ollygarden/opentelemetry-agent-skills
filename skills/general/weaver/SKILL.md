@@ -1,5 +1,5 @@
 ---
-name: weaver
+name: otel-weaver
 description: OpenTelemetry Weaver registry authoring, codegen, and CI enforcement. Use when adopting Weaver, authoring or reviewing a registry (manifest, attributes, metrics, spans, events), writing Jinja2 templates against the resolved schema, migrating hand-maintained telemetry constants, or wiring `weaver registry check`/`generate`/`diff` into CI.
 ---
 
@@ -8,9 +8,8 @@ description: OpenTelemetry Weaver registry authoring, codegen, and CI enforcemen
 Use this skill when an organization wants to define its own semantic conventions on top of upstream OTel and generate language bindings from them.
 
 Usage:
-- pair with `semantic-conventions` to decide which attributes already exist upstream and should not be redeclared in the local registry
-- pair with `manual-instrumentation` when wiring generated symbols into application code
-- use `sdk-versions` only for SDK package selection; Weaver versions are tracked separately at <https://github.com/open-telemetry/weaver/releases>
+- pair with `otel-semantic-conventions` to decide which attributes already exist upstream and should not be redeclared in the local registry
+- use `otel-sdk-versions` only for SDK package selection; Weaver versions are tracked separately at <https://github.com/open-telemetry/weaver/releases>
 
 If a companion skill is unavailable:
 - do not stop
@@ -72,7 +71,7 @@ These cost time and are not obvious from the upstream docs:
 - Jinja2 patterns, jq filters, resolved-shape cheat sheet: `references/template-authoring.md`
 - ready-to-lift GitHub Actions example: `references/ci-integration.md`
 - hand-maintained-constants → registry walkthrough: `references/migration-playbook.md`
-- semantic conventions skill: `semantic-conventions`
+- semantic conventions skill: `otel-semantic-conventions`
 - manual instrumentation skill: `manual-instrumentation`
 
 ## Out Of Scope

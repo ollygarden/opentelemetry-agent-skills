@@ -1,14 +1,11 @@
 ---
-name: sdk-versions
+name: otel-sdk-versions
 description: OpenTelemetry SDK and package version lookup across languages. Use when choosing the latest compatible released OpenTelemetry SDK or package version and locating setup docs or examples.
 ---
 
 # OpenTelemetry SDK Versions
 
 Use this skill when you need the latest released OpenTelemetry SDK or package version for a language.
-
-If the broader task is manual instrumentation design or review, pair this with `manual-instrumentation`.
-If the task involves SDK initialization or configuration, pair this with `sdk-setup`.
 
 ## Workflow
 
