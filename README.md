@@ -49,6 +49,7 @@ descriptive (no prefix) for readability.
 | Skill | Path | Use When |
 | --- | --- | --- |
 | `otel-declarative-config` | `skills/general/declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
+| `otel-ottl` | `skills/general/ottl/` | Authoring or reviewing OTTL statements for `transform`, `filter`, `routing`, and `tail_sampling` processors; debugging OTTL syntax and semantics; transforming traces, metrics, logs, and profiles in the Collector. |
 | `otel-sdk-versions` | `skills/general/sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
 | `otel-semantic-conventions` | `skills/general/semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking compliance; looking up exact upstream entries via the bundled query script. |
 | `otel-span-events-to-logs-migration` | `skills/general/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (`AddEvent`, `RecordException`) to the Logs API following the OTEP 4430 deprecation plan. |
