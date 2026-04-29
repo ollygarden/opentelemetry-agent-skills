@@ -186,6 +186,73 @@ docker run --rm --network host \
 # See references/flags.md for a complete Job manifest example
 ```
 
+## Verifying a collector config
+
+Pair telemetrygen with a short-lived `otelcol-contrib` container plus a `file` exporter to verify processor configs without leaving the laptop. The pattern is:
+
+1. Write a minimal config: OTLP receiver → processor under test → file exporter writing to a host-mounted directory.
+2. Run `otelcol-contrib` in Docker with `--network host` so telemetrygen can reach `localhost:4317`. Run as your host UID (`--user "$(id -u):$(id -g)"`) so the file exporter can write to the bind-mounted output directory.
+3. Generate the *exact* shape of telemetry the processor is supposed to handle (matching service.name, attributes, span kind, etc.).
+4. Stop the collector to flush, then read the JSON output back to confirm the transformation.
+
+Minimal config example:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  transform/under_test:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          - set(severity_text, "INFO") where IsMatch(severity_text, "(?i)^info$")
+
+exporters:
+  file:
+    path: /output/result.json
+    flush_interval: 200ms
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [transform/under_test]
+      exporters: [file]
+```
+
+Run it:
+
+```bash
+mkdir -p ./out
+docker run -d --rm --name otelcol-verify \
+  --network host \
+  --user "$(id -u):$(id -g)" \
+  -v "./config.yaml:/etc/otelcol-contrib/config.yaml:ro" \
+  -v "./out:/output" \
+  otel/opentelemetry-collector-contrib:0.142.0 \
+  --config=/etc/otelcol-contrib/config.yaml
+
+# wait for the collector to be ready, then send the telemetry shape under test
+until ss -ltn | grep -q ':4317 '; do sleep 0.25; done
+telemetrygen logs --otlp-insecure --logs 1 --severity-text Info
+
+# stop the collector to flush, then inspect
+docker stop otelcol-verify
+cat ./out/result.json | python3 -c 'import sys,json; print(json.load(sys.stdin))'
+```
+
+Two recipes worth knowing for this pattern:
+
+- **Verify a filter drops matching records**: send a matching record, expect output to be empty (file size 0). Then send a non-matching record, expect output to contain it. Both halves are needed: empty output alone could also mean the collector crashed.
+- **Verify a transform that needs specific attributes**: telemetrygen alone can set resource and telemetry attributes but cannot rename spans or change kind. To exercise rules that depend on those, prepend a `transform/setup` processor in the same pipeline that sets the input shape, then chain the processor under test after it.
+
+On SELinux systems (Fedora, RHEL), append `:z` to the bind mounts so they get relabeled. On rootless Podman, the `--user` flag may not be needed because the container already runs as the invoking user.
+
 ## Anti-patterns
 
 These are the mistakes that cause real problems -- review before running against anything shared:
