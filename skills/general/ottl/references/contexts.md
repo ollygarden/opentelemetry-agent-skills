@@ -161,8 +161,7 @@ metric.metadata
 
 ```ottl
 # Normalize metric names to safe characters
-set(metric.name,
-    replace_all_patterns(metric.name, "value", "[^a-zA-Z0-9_]", "_"))
+set(metric.name, replace_pattern(metric.name, "[^a-zA-Z0-9_]", "_"))
 
 # Normalize legacy units
 set(metric.unit, "s") where metric.unit == "seconds"

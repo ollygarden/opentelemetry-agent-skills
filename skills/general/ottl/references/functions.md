@@ -74,7 +74,7 @@ UTF-8 safe by default since v0.148 — truncates at character boundaries, so the
 replace_match(target, pattern, replacement, function?, format?)
 replace_all_matches(target, pattern, replacement, function?, format?)
 replace_match(span.name, "GET ", "")
-replace_all_matches(log.body, "/user/*/id/*", "/user/{userId}/id/{id}")
+replace_all_matches(span.attributes, "/user/*/id/*", "/user/{userId}/id/{id}")
 ```
 
 Glob patterns (not regex). Use `replace_pattern`/`replace_all_patterns` for regex.
@@ -87,7 +87,7 @@ replace_all_patterns(target, "key" | "value", regex, replacement, function?, for
 # Strip query string
 replace_pattern(attributes["http.url"], "\\?.*$", "")
 
-# Redact a token query parameter — note the $${1} backreference escape
+# Redact a token query parameter (YAML form; in a raw OTTL string use ${1})
 replace_pattern(attributes["http.url"], "([?&]token=)[^&]+", "$${1}REDACTED")
 
 # Map-wide patterns over keys or values
@@ -301,7 +301,6 @@ ProfileID(bytes | hex_string)                 # v0.124+
 IsRootSpan()                                  # span context only
 IsValidLuhn(s)                                # credit card checksum
 CommunityID(srcIP, srcPort, dstIP, dstPort, protocol?, seed?)   # v0.131+; network flow hash
-IsInCIDR(ip, [networks])                      # v0.146+
 ToKeyValueString(map, delim?, pair_delim?, sort?)
 ```
 
