@@ -8,19 +8,19 @@ They are designed for **token-efficient, agent-friendly retrieval**: small fetch
 
 ## Installation
 
-Install any skill using the skills CLI:
+Install via [skills.sh](https://skills.sh/docs):
+
+Install general OTel skills:
 
 ```bash
-npx skills add ollygarden/opentelemetry-agent-skills
+npx skills add https://github.com/ollygarden/opentelemetry-agent-skills/tree/main/skills/general
 ```
 
-Install a specific skill from this repository:
+Install language-specific OTel skills (e.g. Go):
 
 ```bash
-npx skills add ollygarden/opentelemetry-agent-skills --skill otel-go
+npx skills add https://github.com/ollygarden/opentelemetry-agent-skills/tree/main/skills/go
 ```
-
-Replace the skill name with any entry from the table below.
 
 ## Repository Structure
 
