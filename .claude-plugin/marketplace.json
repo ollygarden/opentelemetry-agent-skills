@@ -9,6 +9,11 @@
   },
   "plugins": [
     {
+      "name": "otel-collector",
+      "source": "./skills/otel-collector",
+      "description": "OpenTelemetry Collector component configuration: config keys, defaults, validation rules, signal support, stability, and gotchas. Progressive disclosure via components/<type>.md; currently covers log_dedup and interval processors."
+    },
+    {
       "name": "otel-declarative-config",
       "source": "./skills/otel-declarative-config",
       "description": "OpenTelemetry declarative YAML configuration for SDK setup (otelconf, OTEL_CONFIG_FILE, file_format). Points at upstream schema, env-var substitution, and configuration precedence."
