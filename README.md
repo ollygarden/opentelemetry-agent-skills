@@ -8,56 +8,87 @@ They are designed for **token-efficient, agent-friendly retrieval**: small fetch
 
 ## Installation
 
-Install via [skills.sh](https://skills.sh/docs):
+### skills.sh
 
-Install general OTel skills:
-
-```bash
-npx skills add https://github.com/ollygarden/opentelemetry-agent-skills/tree/main/skills/general
-```
-
-Install language-specific OTel skills (e.g. Go):
+Install all skills:
 
 ```bash
-npx skills add https://github.com/ollygarden/opentelemetry-agent-skills/tree/main/skills/go
+npx skills add https://github.com/ollygarden/opentelemetry-agent-skills
 ```
+
+Or install a single skill by pointing at its folder, e.g.:
+
+```bash
+npx skills add https://github.com/ollygarden/opentelemetry-agent-skills/tree/main/skills/otel-go
+```
+
+### Claude Code
+
+1. Register the repository as a plugin marketplace:
+
+   ```
+   /plugin marketplace add ollygarden/opentelemetry-agent-skills
+   ```
+
+2. Install a skill:
+
+   ```
+   /plugin install <skill-name>@opentelemetry-agent-skills
+   ```
+
+   For example:
+
+   ```
+   /plugin install otel-go@opentelemetry-agent-skills
+   ```
 
 ## Repository Structure
 
-Skills are grouped by audience. Each language has a single entry-point skill at the
-language root, with task-specific references underneath:
+Each skill is a self-contained folder under `skills/`, named to match its `name:` field per
+the [agentskills.io specification](https://agentskills.io/specification). Language-specific
+skills bundle task-focused references; language-agnostic skills sit alongside them.
 
 ```
 skills/
-  general/             # language-agnostic skills (otel-declarative-config, otel-sdk-versions, ...)
-  go/
+  otel-go/
     SKILL.md           # name: otel-go
     references/        # declarative-setup, api, instrumentation-libraries, performance, breaking-changes
-  java/
-    SKILL.md           # name: otel-java
+  otel-java/
+    SKILL.md
     references/
-  js/
-    SKILL.md           # name: otel-js
+  otel-js/
+    SKILL.md
     references/
+  otel-declarative-config/
+  otel-ottl/
+  otel-sdk-versions/
+  otel-semantic-conventions/
+  otel-span-events-to-logs-migration/
+  otel-telemetrygen/
+  otel-weaver/
 ```
 
 ## Available Skills
 
-All skill names carry the `otel-` prefix to declare the topic namespace. Folder names stay
-descriptive (no prefix) for readability.
+Language-agnostic skills:
 
 | Skill | Path | Use When |
 | --- | --- | --- |
-| `otel-declarative-config` | `skills/general/declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
-| `otel-ottl` | `skills/general/ottl/` | Authoring or reviewing OTTL statements for `transform`, `filter`, `routing`, and `tail_sampling` processors; debugging OTTL syntax and semantics; transforming traces, metrics, logs, and profiles in the Collector. |
-| `otel-sdk-versions` | `skills/general/sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
-| `otel-semantic-conventions` | `skills/general/semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking compliance; looking up exact upstream entries via the bundled query script. |
-| `otel-span-events-to-logs-migration` | `skills/general/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (`AddEvent`, `RecordException`) to the Logs API following the OTEP 4430 deprecation plan. |
-| `otel-telemetrygen` | `skills/general/telemetrygen/` | Constructing `telemetrygen` commands for generating synthetic traces, metrics, and logs; load-testing collectors; validating OTTL transforms, tail sampling, and filter rules. |
-| `otel-weaver` | `skills/general/weaver/` | Authoring an OpenTelemetry Weaver registry, writing Jinja2 templates, generating language bindings, and wiring `weaver registry check`/`generate`/`diff` into CI. |
-| `otel-go` | `skills/go/` | OpenTelemetry in Go: declarative SDK setup with `otelconf`, API surface, contrib instrumentation libraries (otelhttp, otelgrpc, etc.), performance tuning, and breaking-change audits. |
-| `otel-java` | `skills/java/` | OpenTelemetry in Java: Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, and BOM dependency management. |
-| `otel-js` | `skills/js/` | OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK setup, declarative YAML configuration via `@opentelemetry/configuration`, auto-instrumentations, and ESM vs CJS import patterns. |
+| `otel-declarative-config` | `skills/otel-declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
+| `otel-ottl` | `skills/otel-ottl/` | Authoring or reviewing OTTL statements for `transform`, `filter`, `routing`, and `tail_sampling` processors; debugging OTTL syntax and semantics; transforming traces, metrics, logs, and profiles in the Collector. |
+| `otel-sdk-versions` | `skills/otel-sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
+| `otel-semantic-conventions` | `skills/otel-semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking compliance; looking up exact upstream entries via the bundled query script. |
+| `otel-span-events-to-logs-migration` | `skills/otel-span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (`AddEvent`, `RecordException`) to the Logs API following the OTEP 4430 deprecation plan. |
+| `otel-telemetrygen` | `skills/otel-telemetrygen/` | Constructing `telemetrygen` commands for generating synthetic traces, metrics, and logs; load-testing collectors; validating OTTL transforms, tail sampling, and filter rules. |
+| `otel-weaver` | `skills/otel-weaver/` | Authoring an OpenTelemetry Weaver registry, writing Jinja2 templates, generating language bindings, and wiring `weaver registry check`/`generate`/`diff` into CI. |
+
+Language-specific skills:
+
+| Skill | Path | Use When |
+| --- | --- | --- |
+| `otel-go` | `skills/otel-go/` | OpenTelemetry in Go: declarative SDK setup with `otelconf`, API surface, contrib instrumentation libraries (otelhttp, otelgrpc, etc.), performance tuning, and breaking-change audits. |
+| `otel-java` | `skills/otel-java/` | OpenTelemetry in Java: Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, and BOM dependency management. |
+| `otel-js` | `skills/otel-js/` | OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK setup, declarative YAML configuration via `@opentelemetry/configuration`, auto-instrumentations, and ESM vs CJS import patterns. |
 
 ## Contributing
 
