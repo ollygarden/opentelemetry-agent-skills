@@ -1,0 +1,85 @@
+---
+name: otel-collector
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), and other Collector components covered in `components/`.
+---
+
+# OpenTelemetry Collector
+
+This skill covers the configuration surface of individual OpenTelemetry Collector components. It targets [opentelemetry-collector](https://github.com/open-telemetry/opentelemetry-collector) and [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib).
+
+It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK configuration (`otel-declarative-config`), or end-to-end pipeline design choices. Reach for those skills when the question is about transformation language, SDK setup, or pipeline composition.
+
+## Workflow
+
+1. **Identify the component.** Find the `type` in the user's config or question (`log_dedup`, `interval`, `otlp`, …). Note that several components were renamed to snake_case in v0.150.0–v0.151.0 with deprecated aliases preserved — see [Recent renames](#recent-renames).
+2. **Load the component page.** If the component is in the [Component index](#component-index), read `components/<name>.md` for the full config reference, examples, gotchas, and anti-patterns. Do not load pages you don't need.
+3. **If the component is not indexed**, say so explicitly and fall back to the upstream README under `processor/<name>/`, `receiver/<name>/`, `exporter/<name>/`, `connector/<name>/`, or `extension/<name>/` in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib). Don't invent config keys from memory — Collector components evolve quickly.
+4. **Apply Collector-wide conventions.** Named instances (`type/name`), stability levels, and pipeline placement rules in [Collector-wide conventions](#collector-wide-conventions) apply to every component.
+5. **Verify.** Use `telemetrygen` (see the `otel-telemetrygen` skill) plus a `debug` or `file` exporter to confirm the component behaves as the docs claim — Alpha-stability components are common in this space, and behavior changes between releases.
+
+## Component index
+
+Pages live in `components/`. Each page is self-contained: when to use / when not, full config reference, examples, troubleshooting, anti-patterns.
+
+| Type | File | Kind | Signals | Stability | Summary |
+|------|------|------|---------|-----------|---------|
+| `log_dedup` | `components/log_dedup.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |
+| `interval` | `components/interval.md` | processor | metrics | Alpha | Buffers cumulative monotonic metrics (and optionally gauges/summaries) and emits the latest value once per interval. Delta and non-monotonic sums pass through unchanged. |
+
+## Collector-wide conventions
+
+### Named instances
+
+Every component type supports the `type/name` pattern so the same type can be configured more than once. The pipeline references the named form:
+
+```yaml
+processors:
+  log_dedup/health-checks:
+    interval: 30s
+    conditions:
+      - 'attributes["log.type"] == "health_check"'
+  log_dedup/access-logs:
+    interval: 10s
+
+service:
+  pipelines:
+    logs/health:
+      processors: [log_dedup/health-checks]
+    logs/access:
+      processors: [log_dedup/access-logs]
+```
+
+### Stability levels
+
+Components publish a stability level per signal. Treat these as load-bearing when recommending production use:
+
+| Level | Use in |
+|-------|--------|
+| Development | Tests and prototypes only — breaking changes expected. |
+| Alpha | Limited, non-critical workloads — config keys can still change. |
+| Beta | Production viable — breaking changes rare. |
+| Stable | Production — backward compatibility guaranteed. |
+
+The components currently indexed here (`log_dedup`, `interval`) are **Alpha**. Surface that to the user when they ask about production readiness.
+
+### Recent renames
+
+Many components were renamed to snake_case in v0.150.0–v0.151.0. The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
+
+Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
+
+### Pipeline placement
+
+Two rules of thumb that apply across components:
+
+- `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
+- Batching is now done by the exporter's `sending_queue.batch`, not by a separate `batch` processor. Don't add `batch` to new pipelines.
+
+## Adding a new component to this skill
+
+When extending coverage:
+
+1. Create `components/<type>.md`. Use the existing pages as a template — frontmatter is **not** required on component pages, only on `SKILL.md`.
+2. Each component page should cover: when to use / when not, config reference table with defaults and validation rules, at least one working YAML example, troubleshooting for common symptoms, and anti-patterns.
+3. Add a row to the [Component index](#component-index) above.
+4. Update the description trigger phrases in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
