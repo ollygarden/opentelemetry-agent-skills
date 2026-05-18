@@ -1,0 +1,62 @@
+{
+  "name": "opentelemetry-agent-skills",
+  "owner": {
+    "name": "OllyGarden"
+  },
+  "metadata": {
+    "description": "Reusable OpenTelemetry agent skills (language-agnostic and per-language)",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "otel-declarative-config",
+      "source": "./skills/otel-declarative-config",
+      "description": "OpenTelemetry declarative YAML configuration for SDK setup (otelconf, OTEL_CONFIG_FILE, file_format). Points at upstream schema, env-var substitution, and configuration precedence."
+    },
+    {
+      "name": "otel-ottl",
+      "source": "./skills/otel-ottl",
+      "description": "OpenTelemetry Transformation Language (OTTL) expert for writing and debugging telemetry transformations in the Collector (transform, filter, routing, tail_sampling)."
+    },
+    {
+      "name": "otel-sdk-versions",
+      "source": "./skills/otel-sdk-versions",
+      "description": "OpenTelemetry SDK and package version lookup across languages."
+    },
+    {
+      "name": "otel-semantic-conventions",
+      "source": "./skills/otel-semantic-conventions",
+      "description": "OpenTelemetry semantic convention lookup and naming guidance for attributes, groups, and span naming."
+    },
+    {
+      "name": "otel-span-events-to-logs-migration",
+      "source": "./skills/otel-span-events-to-logs-migration",
+      "description": "Migrate OpenTelemetry Span Events (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan."
+    },
+    {
+      "name": "otel-telemetrygen",
+      "source": "./skills/otel-telemetrygen",
+      "description": "Construct telemetrygen commands for generating synthetic OpenTelemetry traces, metrics, and logs via OTLP; load-test collectors and validate pipelines."
+    },
+    {
+      "name": "otel-weaver",
+      "source": "./skills/otel-weaver",
+      "description": "OpenTelemetry Weaver registry authoring, codegen, and CI enforcement (registry check/generate/diff)."
+    },
+    {
+      "name": "otel-go",
+      "source": "./skills/otel-go",
+      "description": "OpenTelemetry in Go: declarative SDK setup with otelconf, API surface, contrib instrumentation libraries (otelhttp, otelgrpc), performance tuning, breaking-change audits."
+    },
+    {
+      "name": "otel-java",
+      "source": "./skills/otel-java",
+      "description": "OpenTelemetry in Java: Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, BOM dependency management."
+    },
+    {
+      "name": "otel-js",
+      "source": "./skills/otel-js",
+      "description": "OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK, declarative YAML configuration, auto-instrumentations, ESM vs CJS import patterns."
+    }
+  ]
+}

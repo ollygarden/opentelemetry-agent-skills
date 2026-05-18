@@ -1,0 +1,17 @@
+{
+  "name": "opentelemetry-agent-skills",
+  "description": "Reusable OpenTelemetry agent skills (language-agnostic and per-language)",
+  "version": "1.0.0",
+  "author": {
+    "name": "OllyGarden"
+  },
+  "homepage": "https://github.com/ollygarden/opentelemetry-agent-skills",
+  "repository": "https://github.com/ollygarden/opentelemetry-agent-skills",
+  "keywords": [
+    "ollygarden",
+    "opentelemetry",
+    "otel",
+    "observability",
+    "skills"
+  ]
+}
