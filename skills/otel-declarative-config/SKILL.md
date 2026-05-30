@@ -10,6 +10,7 @@ programmatic SDK setup with a single YAML file. One file configures all SDK comp
 provider, meter provider, logger provider, propagators, and resource.
 
 For the current per-language SDK status, fetch the SDK compatibility matrix (see Sources of Truth).
+Use it to understand implementation coverage, not as the only source for YAML literals.
 
 ## Sources of Truth
 
@@ -20,7 +21,7 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
 | Fact | Fetch |
 |---|---|
 | Latest schema release tag | `gh release view --repo open-telemetry/opentelemetry-configuration --json tagName,publishedAt` |
-| SDK ↔ schema compatibility matrix | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
+| SDK ↔ schema compatibility matrix (coverage advisory, not authoritative for literal `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
 | Field-by-field schema docs | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/schema-docs.md` |
 | Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/opentelemetry_configuration.json` |
 | Canonical full example | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/examples/otel-sdk-config.yaml` |
@@ -29,10 +30,25 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
 
 **Workflow when generating YAML:**
 
-1. Fetch `language-support-status.md` → pick the `file_format` string for the target SDK version.
-2. Fetch `examples/otel-sdk-config.yaml` → use as the structural template.
-3. Overlay the user's specific values (service name, endpoint, sampling, headers).
-4. If validation matters, fetch `opentelemetry_configuration.json` and validate the result.
+1. Identify the exact runtime/package/agent version that will parse the file.
+2. Fetch that runtime/package source, docs, or test fixtures and confirm the accepted
+   `file_format` literal. If this conflicts with `language-support-status.md`, the
+   runtime/package wins.
+3. Fetch `examples/otel-sdk-config.yaml` → use as the structural template only after
+   adapting the `file_format` and fields to the selected runtime/package.
+4. Overlay the user's specific values (service name, endpoint, sampling, headers).
+5. If validation matters, fetch `opentelemetry_configuration.json` and validate the result,
+   then still verify against the selected runtime/package because SDK implementations may
+   lag or differ from the schema repository.
+
+The `latestSupportedFileFormat` values in `language-support-status.md` are schema/version
+coverage metadata. Do not mechanically copy values like `1.0.0-rc.3` into YAML unless the
+target SDK parser, agent docs, or package fixtures prove that exact literal is accepted.
+
+Terminology trap: schema coverage identifiers and YAML `file_format` literals are related,
+but not interchangeable. A matrix entry may use a semver-shaped value such as
+`1.0.0-rc.3`, while an SDK parser may accept a config literal such as `1.0-rc.3` or
+`1.0`. Generated YAML must use the parser-accepted literal.
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`).

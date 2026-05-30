@@ -19,6 +19,8 @@ skill. For JS-specific facts:
 | Latest `@opentelemetry/sdk-node` | `npm view @opentelemetry/sdk-node version` |
 | Latest `@opentelemetry/auto-instrumentations-node` | `npm view @opentelemetry/auto-instrumentations-node version` |
 | Package status / breaking changes | `WebFetch https://www.npmjs.com/package/@opentelemetry/configuration` |
+| File config parser for current source (`file_format` acceptance) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/configuration/src/FileConfigFactory.ts` |
+| File config fixtures for current source | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/configuration/test/fixtures/sdk-config.yaml` |
 | `sdk-node` CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/opentelemetry-sdk-node/CHANGELOG.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
@@ -40,13 +42,13 @@ The config file must have a `.yaml` or `.yml` extension.
 
 ## YAML Config
 
-For the canonical structure and the correct `file_format` string for your `@opentelemetry/configuration`
-version, fetch `examples/otel-sdk-config.yaml` and `language-support-status.md` (see the
-`otel-declarative-config` skill's Sources of Truth). The minimal example below illustrates
-the JS-specific quirk.
+For the canonical structure, fetch `examples/otel-sdk-config.yaml` (see the
+`otel-declarative-config` skill's Sources of Truth). For the correct `file_format` string,
+inspect the installed `@opentelemetry/configuration` package or its matching source/fixtures.
+Package releases may accept a different literal than the generic language support matrix.
 
 ```yaml
-# file_format: pick from language-support-status.md based on your @opentelemetry/configuration version
+# file_format: use the exact literal accepted by the installed @opentelemetry/configuration parser
 resource:
   attributes:
     - name: service.name
