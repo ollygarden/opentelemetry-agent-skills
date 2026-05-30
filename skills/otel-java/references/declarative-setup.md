@@ -16,6 +16,7 @@ skill. For Java-specific facts:
 | Latest BOM (`opentelemetry-bom`) | `gh api repos/open-telemetry/opentelemetry-java/releases/latest -q '.tag_name'` |
 | Latest Javaagent | `gh api repos/open-telemetry/opentelemetry-java-instrumentation/releases/latest -q '.tag_name'` |
 | Javaagent declarative-config docs (current activation flag, supported `file_format`) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/configuration/` |
+| Javaagent declarative-config smoke fixture (parser truth for current main) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/main/smoke-tests/src/test/resources/declarative-config.yaml` |
 | Javaagent CHANGELOG (when each schema rc landed) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/main/CHANGELOG.md` |
 | Spring Boot starter docs | `WebFetch https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/` |
 
@@ -38,8 +39,8 @@ java -javaagent:opentelemetry-javaagent.jar \
 ```
 
 Declarative config support landed in Javaagent 2.26.0. Newer agent versions track newer
-schema versions — fetch the agent CHANGELOG (see Sources of Truth) to confirm which
-`file_format` your agent accepts.
+schema versions. Confirm the exact `file_format` literal from the Javaagent docs or test
+fixtures for the selected agent version, not from the generic language support matrix alone.
 
 When `-Dotel.config.file` is set, all other `-Dotel.*` properties are ignored except
 agent-only properties (see Key API Facts).
@@ -49,13 +50,13 @@ For the autoconfigure SDK extension (no Javaagent), the same flag works, plus th
 
 ## YAML Config
 
-For the canonical structure and the correct `file_format` string for your agent version,
-fetch `examples/otel-sdk-config.yaml` and `language-support-status.md` (see the
-`otel-declarative-config` skill's Sources of Truth). The minimal example below illustrates
-the Java-specific quirk.
+For the canonical structure, fetch `examples/otel-sdk-config.yaml` (see the
+`otel-declarative-config` skill's Sources of Truth). For the correct `file_format` string,
+use the selected Javaagent parser/docs/fixtures. The generic language support matrix is
+coverage metadata and may not be the exact YAML literal accepted by the Javaagent.
 
 ```yaml
-# file_format: pick from language-support-status.md based on your Javaagent version
+# file_format: use the exact literal accepted by the selected Javaagent version
 resource:
   attributes:
     - name: service.name
