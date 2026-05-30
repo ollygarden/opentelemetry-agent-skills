@@ -15,14 +15,17 @@ skill. For Go-specific facts:
 | Latest `otelconf` module tag | `gh api repos/open-telemetry/opentelemetry-go-contrib/git/matching-refs/tags/otelconf -q '.[-1].ref'` |
 | `otelconf` CHANGELOG (which schema rc each release supports, breaking changes) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/main/CHANGELOG.md` |
 | Current API surface (`SDK` methods, options) | `WebFetch https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf` |
+| Current parser fixtures (`file_format` examples) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/main/otelconf/testdata/v1.0.0.yaml` |
 | Latest `go.opentelemetry.io/otel` core release | `gh api repos/open-telemetry/opentelemetry-go/releases/latest -q '.tag_name'` |
 
 ## Choosing an Import Path
 
 The `otelconf` repo ships two flavors of the package:
 
-- **Root** `go.opentelemetry.io/contrib/otelconf` — tracks the current schema (file_format
-  `1.0.0-rc.x` or later). Active development. Includes `sdk.Propagator()` for installing
+- **Root** `go.opentelemetry.io/contrib/otelconf` — tracks the current schema. Active
+  development. Confirm the accepted `file_format` literal from the selected module's
+  parser fixtures, not from the generic language support matrix alone. Includes
+  `sdk.Propagator()` for installing
   propagators from YAML.
 - **Schema-pinned** `go.opentelemetry.io/contrib/otelconf/v0.3.0` — frozen at file_format
   `"0.3"` (a 2024 schema). Has no `Propagator()` method; propagators must be installed
@@ -55,10 +58,10 @@ import (
 For the canonical structure, fetch `examples/otel-sdk-config.yaml` from the schema repo
 (see the `otel-declarative-config` skill's Sources of Truth). The minimal example below
 illustrates the Go-specific quirk; the exact `file_format` string and exporter field names
-should come from upstream.
+should come from the selected `otelconf` module's package fixtures/source.
 
 ```yaml
-# file_format: pick from language-support-status.md based on your otelconf version
+# file_format: use the exact literal accepted by the selected otelconf module
 resource:
   attributes:
     - name: service.name
