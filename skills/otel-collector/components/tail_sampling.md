@@ -85,12 +85,15 @@ Each policy has `name` and `type`, plus a config block named after the type.
 | `status_code` | Sample if any span has a matching status code. |
 | `string_attribute` | Sample by string span/resource attribute value (exact or regex). |
 | `rate_limiting` | Sample up to a maximum spans-per-second. |
+| `bytes_limiting` | Sample up to a maximum bytes-per-second via a token bucket; `bytes_per_second` (required) + `burst_capacity` (optional, default 2× the rate). |
 | `span_count` | Sample by number of spans in the trace. |
 | `trace_state` | Sample by W3C TraceState key/value. |
+| `trace_flags` | Sample if the W3C `sampled` flag is set on any span; config `flags: ["sampled"]`. |
 | `boolean_attribute` | Sample by boolean attribute value. |
 | `ottl_condition` | Sample when OTTL conditions on spans/span-events match. |
 | `and` | Combine sub-policies with AND — all must match to sample. |
 | `composite` | Combine sub-policies with priority order and per-policy rate allocation. |
+| `not` | Invert the decision of a single wrapped sub-policy via `not_sub_policy`. |
 | `drop` | Force-drop traces where all sub-policies match; takes precedence over sampling. |
 
 Key sub-fields for the common policies:
@@ -143,7 +146,7 @@ Key sub-fields for the common policies:
 
 All policies are evaluated (unless `sample_on_first_match: true`), then a single decision is chosen: a `drop` decision wins over everything; otherwise any `sample` decision keeps the trace; if no policy matches, the trace is **not** sampled.
 
-> **`invert_match` note:** as of recent contrib releases the legacy "inverted decisions" are disabled — `invert_match: true` now yields a plain sample/not-sample on the negated condition and no longer vetoes other policies. To explicitly suppress traces, use a `drop` policy instead.
+> **`invert_match` note:** as of recent contrib releases the legacy "inverted decisions" are disabled — `invert_match: true` now yields a plain sample/not-sample on the negated condition and no longer vetoes other policies. To explicitly suppress traces, use a `drop` policy; to sample on the opposite of a wrapped policy's decision, use a `not` policy instead.
 
 ## Verification
 
