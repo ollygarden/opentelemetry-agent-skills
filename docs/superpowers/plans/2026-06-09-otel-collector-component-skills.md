@@ -33,8 +33,8 @@ Every `components/<type>.md` page has these sections, in order. No frontmatter o
 | `interval` | existing page + `.../ai-context/collector/components/intervalprocessor/` |
 | `cardinality_guardian` | `.../ai-context/collector/components/cardinalityguardianprocessor/README.md` + `METADATA.md` |
 | `tail_sampling` | `.../ai-context/sampling/tail-sampling.md` + `.../ai-context/collector/components/tailsamplingprocessor/README.md` |
-| `drain` | WebFetch `https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/drainprocessor` |
-| `redaction` | WebFetch `https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/redactionprocessor` |
+| `drain` | `.../ai-context/collector/components/drainprocessor/README.md` + `METADATA.md` |
+| `redaction` | `.../ai-context/collector/components/redactionprocessor/README.md` + `METADATA.md` |
 
 `telemetrygen` flag reference for Verification recipes: `skills/otel-telemetrygen/SKILL.md` and `references/flags.md`.
 
@@ -416,9 +416,9 @@ if not, substitute a policy you can trigger (e.g. `latency` with `--span-duratio
 **Files:**
 - Create: `skills/otel-collector/components/drain.md`
 
-- [ ] **Step 1: Read the source** — WebFetch `https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/drainprocessor` (and `config.go`/`metadata.yaml` under that path if needed to confirm keys/defaults/stability).
+- [ ] **Step 1: Read the source** — `.../ai-context/collector/components/drainprocessor/README.md` and `METADATA.md` in full.
 
-- [ ] **Step 2: Draft to the template.** Encode: `type: drain`; logs only; **Alpha**; confirm distributions from `metadata.yaml`. §2 explain the Drain clustering algorithm (derives templates like `user <*> logged in from <*>`). §4 config keys with defaults: `tree_depth` (4), `merge_threshold` (0.4), `max_node_children` (100), `max_clusters` (0=unlimited), `extra_delimiters` ([]), `body_field` (""), `template_attribute` ("log.record.template"), `warmup_min_clusters` (0), `storage` (""), `save_interval` (0s). §7 quirks: memory unbounded if `max_clusters: 0` on high log diversity; warmup period before annotation; persistence requires a storage extension.
+- [ ] **Step 2: Draft to the template.** Encode: `type: drain`; logs only; **Alpha**; confirm distributions from `METADATA.md`. §2 explain the Drain clustering algorithm (derives templates like `user <*> logged in from <*>`). §4 config keys with defaults: `tree_depth` (4), `merge_threshold` (0.4), `max_node_children` (100), `max_clusters` (0=unlimited), `extra_delimiters` ([]), `body_field` (""), `template_attribute` ("log.record.template"), `warmup_min_clusters` (0), `storage` (""), `save_interval` (0s). §7 quirks: memory unbounded if `max_clusters: 0` on high log diversity; warmup period before annotation; persistence requires a storage extension.
 
 - [ ] **Step 3: Verify section:**
 
@@ -464,7 +464,7 @@ telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 \
 to the same template.
 ````
 
-- [ ] **Step 4: Verify** against definition of done (every key confirmed against `config.go`/README).
+- [ ] **Step 4: Verify** against definition of done (every key confirmed against the ai-context README/METADATA).
 - [ ] **Step 5: Commit** (`docs(otel-collector): add drain component page`).
 
 ### Task 2.5: Write `components/redaction.md`
@@ -472,7 +472,7 @@ to the same template.
 **Files:**
 - Create: `skills/otel-collector/components/redaction.md`
 
-- [ ] **Step 1: Read the source** — WebFetch `https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/redactionprocessor` (and `config.go` for exact key names/defaults).
+- [ ] **Step 1: Read the source** — `.../ai-context/collector/components/redactionprocessor/README.md` and `METADATA.md` in full.
 
 - [ ] **Step 2: Draft to the template.** Encode: `type: redaction`; signals traces (**Beta**), logs + metrics (**Alpha**); in contrib/k8s distributions. §4 config keys: `allow_all_keys` (false), `allowed_keys` ([]), `ignored_keys` ([]), `ignored_key_patterns` ([]), `blocked_key_patterns` ([]), `blocked_values` ([]), `allowed_values` ([]), `hash_function` (none → asterisks; options md5/sha1/sha3/hmac-sha256/hmac-sha512), `summary` (debug/info/silent), `url_sanitizer`, `db_sanitizer`. §7 quirks: with `allow_all_keys: false` and an empty `allowed_keys`, everything is dropped (allowlist semantics); redaction adds audit attributes (`redaction.masked.keys` / counts) depending on `summary`; order of allow vs block evaluation.
 
@@ -521,7 +521,7 @@ with asterisks, or hashed if `hash_function` is set) while non-matching attribut
 through; with `summary: info` the span carries redaction-count audit attributes.
 ````
 
-- [ ] **Step 4: Verify** against definition of done (confirm key names/defaults against `config.go`).
+- [ ] **Step 4: Verify** against definition of done (confirm key names/defaults against the ai-context README/METADATA).
 - [ ] **Step 5: Commit** (`docs(otel-collector): add redaction component page`).
 
 ### Task 2.6: Update the `SKILL.md` component index + frontmatter triggers
