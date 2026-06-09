@@ -3,13 +3,14 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `drain` |
 | Signals | logs |
 | Stability | Alpha (processor); Development (telemetry metrics `otelcol_processor_drain_*`) |
 | Distributions | contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/drainprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/drainprocessor> |
 
-The `type` is `drain`. Logs support is Alpha since v0.151.0; configuration keys and behavior may change between releases.
+Logs support is Alpha since v0.151.0; configuration keys and behavior may change between releases.
 
 ## Description
 

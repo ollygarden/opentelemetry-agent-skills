@@ -3,10 +3,10 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `tail_sampling` |
 | Signals | traces |
 | Stability | Beta |
 | Distributions | contrib, k8s |
-| `type` | `tail_sampling` |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/tailsamplingprocessor> |
 

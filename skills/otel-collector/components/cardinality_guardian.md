@@ -3,10 +3,10 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `cardinality_guardian` |
 | Signals | metrics |
 | Stability | Development (contrib v0.152.0) |
 | Distributions | none — build into a custom collector via OCB |
-| Type | `cardinality_guardian` |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/cardinalityguardianprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/cardinalityguardianprocessor> |
 

@@ -3,10 +3,10 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `redaction` |
 | Signals | traces, logs, metrics |
 | Stability | Beta (traces); Alpha (logs, metrics) |
 | Distributions | contrib, k8s |
-| `type` | `redaction` |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/redactionprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/redactionprocessor> |
 
