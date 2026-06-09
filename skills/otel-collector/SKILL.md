@@ -79,7 +79,16 @@ Two rules of thumb that apply across components:
 
 When extending coverage:
 
-1. Create `components/<type>.md`. Use the existing pages as a template — frontmatter is **not** required on component pages, only on `SKILL.md`.
-2. Each component page should cover: when to use / when not, config reference table with defaults and validation rules, at least one working YAML example, troubleshooting for common symptoms, and anti-patterns.
-3. Add a row to the [Component index](#component-index) above.
-4. Update the description trigger phrases in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
+1. **Create `components/<type>.md`.** Component pages carry no frontmatter — only `SKILL.md` has frontmatter.
+2. **Follow the canonical 8-section template, in this order:**
+   1. **Header metadata table** — kind, signals, per-signal stability, distributions, `type` name, Go module, upstream README link, and a rename note if the component was renamed.
+   2. **Description** — what the component does and the mechanism behind it.
+   3. **Main use-cases** — "Use when" / "Avoid when".
+   4. **Typical config** — minimal working YAML inside a `service.pipelines` block, plus the full config-reference table (key, type, default, validation).
+   5. **Verification** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill.
+   6. **Advanced use-cases** — named instances, multi-pipeline setups, combinations, and edge configs.
+   7. **Known quirks** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.
+   8. **Related components** — cross-links to related pages.
+3. **Use `components/log_dedup.md` and `components/interval.md` as reference implementations** of this template.
+4. **Add a row to the [Component index](#component-index)** above.
+5. **Update the description trigger phrases** in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
