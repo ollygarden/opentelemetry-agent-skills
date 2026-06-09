@@ -3,6 +3,7 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `interval` |
 | Signals | metrics |
 | Stability | Alpha |
 | Distributions | contrib, k8s |

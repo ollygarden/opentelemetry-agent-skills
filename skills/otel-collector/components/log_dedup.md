@@ -3,6 +3,7 @@
 | | |
 |-|-|
 | Kind | processor |
+| Type | `log_dedup` |
 | Signals | logs |
 | Stability | Alpha (processor); Development (telemetry metric `otelcol_dedup_processor_aggregated_logs`) |
 | Distributions | contrib, k8s |
