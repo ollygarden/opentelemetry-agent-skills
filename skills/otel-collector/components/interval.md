@@ -95,11 +95,11 @@ service:
       exporters: [debug]
 ```
 
-Generate cumulative-sum metrics frequently (see the `otel-telemetrygen` skill):
+Generate cumulative-sum metrics frequently (see the `otel-telemetrygen` skill). The explicit `--aggregation-temporality cumulative` is load-bearing — `interval` only aggregates cumulative series; delta sums pass through unchanged and would show no volume drop:
 
 ```bash
 telemetrygen metrics --otlp-insecure --otlp-endpoint localhost:4317 \
-  --metric-type Sum --rate 5 --duration 25s
+  --metric-type Sum --aggregation-temporality cumulative --rate 5 --duration 25s
 ```
 
 **What proves it worked:** instead of ~5 points/sec reaching `debug`, the exporter prints the metric roughly once per 10s interval (one latest value per series). Compare against the same run with the processor removed to see the volume drop.

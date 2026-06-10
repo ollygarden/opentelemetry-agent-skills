@@ -15,7 +15,7 @@ It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK config
 2. **Load the component page.** If the component is in the [Component index](#component-index), read `components/<name>.md` for the full config reference, examples, gotchas, and anti-patterns. Do not load pages you don't need.
 3. **If the component is not indexed**, say so explicitly and fall back to the upstream README under `processor/<name>/`, `receiver/<name>/`, `exporter/<name>/`, `connector/<name>/`, or `extension/<name>/` in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib). Don't invent config keys from memory — Collector components evolve quickly.
 4. **Apply Collector-wide conventions.** Named instances (`type/name`), stability levels, and pipeline placement rules in [Collector-wide conventions](#collector-wide-conventions) apply to every component.
-5. **Verify.** Use `telemetrygen` (see the `otel-telemetrygen` skill) plus a `debug` or `file` exporter to confirm the component behaves as the docs claim — Alpha-stability components are common in this space, and behavior changes between releases.
+5. **Verify.** Run the component page's **Verification** recipe — `telemetrygen` (see the `otel-telemetrygen` skill) plus a `debug` or `file` exporter — to confirm the component behaves as the docs claim. Alpha- and Development-stability components are common here, and behavior changes between releases. See [Verification harness](#verification-harness) for how to run a recipe end-to-end.
 
 ## Component index
 
@@ -75,6 +75,16 @@ Two rules of thumb that apply across components:
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
 - Batching is now done by the exporter's `sending_queue.batch`, not by a separate `batch` processor. Don't add `batch` to new pipelines.
 
+### Verification harness
+
+Each component page's **Verification** section gives a config, a `telemetrygen` command, and the expected output. To run any of them:
+
+1. Save the YAML to a file and start a collector that bundles the component — for components in the `contrib`/`k8s` distributions, `otelcol-contrib --config <file>.yaml`; for components not in any distribution, build a custom collector with the [OpenTelemetry Collector Builder (OCB)](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder) first.
+2. Send telemetry with `telemetrygen` (see the `otel-telemetrygen` skill).
+3. Watch the `debug` exporter's stdout (or the `file` exporter's output) for the expected result.
+
+The Verification configs are **minimal repros**: they omit `memory_limiter` and other production scaffolding on purpose, to isolate the component under test. Don't copy them verbatim into production.
+
 ## Adding a new component to this skill
 
 When extending coverage:
@@ -85,7 +95,7 @@ When extending coverage:
    2. **Description** — what the component does and the mechanism behind it.
    3. **Main use-cases** — "Use when" / "Avoid when".
    4. **Typical config** — minimal working YAML inside a `service.pipelines` block, plus the full config-reference table (key, type, default, validation).
-   5. **Verification** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill.
+   5. **Verification** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
    6. **Advanced use-cases** — named instances, multi-pipeline setups, combinations, and edge configs.
    7. **Known quirks** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.
    8. **Related components** — cross-links to related pages.
