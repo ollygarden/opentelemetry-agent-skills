@@ -1,17 +1,20 @@
 # `interval` processor
 
-Buffers cumulative metrics and emits the latest value once per interval. Reduces metric point volume from chatty sources while preserving the most recent reading per series.
-
 | | |
 |-|-|
 | Kind | processor |
+| Type | `interval` |
 | Signals | metrics |
 | Stability | Alpha |
 | Distributions | contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/intervalprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/intervalprocessor> |
 
-## What it does to each metric type
+## Description
+
+Buffers cumulative metrics and emits the latest value once per interval. Reduces metric point volume from chatty sources while preserving the most recent reading per series.
+
+### What it does to each metric type
 
 | Metric type | Default behavior | Pass-through option |
 |-------------|------------------|---------------------|
@@ -28,7 +31,7 @@ Buffers cumulative metrics and emits the latest value once per interval. Reduces
 - Monotonic cumulative series: you lose **precision** (intermediate values), not totals — the final cumulative value still represents the full count.
 - Gauges and summaries: actual **data loss**. A value that rose and fell back inside the interval is reduced to whatever the last reading happened to be. If the up-and-down matters (latency spikes, queue depth bursts), set `pass_through.gauge: true` / `pass_through.summary: true` to keep them flowing as-is.
 
-## When to use
+## Main use-cases
 
 Use it when:
 - A receiver scrapes or emits cumulative metrics far more often than your backend needs (e.g., Prometheus receiver at 1s for a backend that ingests at 60s).
@@ -40,49 +43,7 @@ Avoid it when:
 - Gauge spikiness matters and you can't set `pass_through.gauge: true` for the relevant signals.
 - The collector restarts often — buffered state is in-memory only and is lost on restart (see [State and restart behavior](#state-and-restart-behavior)).
 
-## Configuration
-
-| Key | Type | Default | Notes |
-|-----|------|---------|-------|
-| `interval` | duration | `60s` | Emission cadence. After each emission, internal state is cleared. |
-| `pass_through.gauge` | bool | `false` | If `true`, gauges are forwarded unchanged instead of buffered. |
-| `pass_through.summary` | bool | `false` | If `true`, summaries are forwarded unchanged instead of buffered. |
-
-Upstream documents no explicit validation rules. The Collector will reject an unparseable `interval` duration at startup.
-
-> **Doc typo, upstream:** the README's configuration block shows `summary: <boo>l`. It's a typo for `<bool>` — the parameter is a plain boolean.
-
-## State and restart behavior
-
-- Internal state is keyed by metric name + attribute set and is held entirely in memory.
-- After each emission the buffer is cleared. **If no new points arrive in the next interval, nothing is emitted for that series in that interval.**
-- The state is not persisted — a collector restart drops every buffered point. For monotonic cumulative metrics this is usually fine (the next scrape carries the running total); for buffered gauges/summaries the most recent value is simply lost until the next sample.
-
-## Behavior example
-
-Source metrics arriving into the processor:
-
-| Time | Metric | Temporality | Attributes | Value |
-|------|--------|-------------|------------|------:|
-| 0 | `test_metric` | Cumulative | `labelA: foo` | 4.0 |
-| 2 | `test_metric` | Cumulative | `labelA: bar` | 3.1 |
-| 4 | `other_metric` | Delta | `fruitType: orange` | 77.4 |
-| 6 | `test_metric` | Cumulative | `labelA: foo` | 8.2 |
-| 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
-| 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
-
-`other_metric` (delta) is forwarded immediately. At the next interval boundary, only the latest value per series is forwarded:
-
-| Time | Metric | Temporality | Attributes | Value |
-|------|--------|-------------|------------|------:|
-| 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
-| 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
-
-Then state is cleared.
-
-## Examples
-
-### Default — aggregate cumulative, drop gauge spikes
+## Typical config
 
 ```yaml
 processors:
@@ -95,6 +56,55 @@ service:
       processors: [memory_limiter, interval]
       exporters: [otlphttp]
 ```
+
+### Configuration reference
+
+| Key | Type | Default | Notes |
+|-----|------|---------|-------|
+| `interval` | duration | `60s` | Emission cadence. After each emission, internal state is cleared. |
+| `pass_through.gauge` | bool | `false` | If `true`, gauges are forwarded unchanged instead of buffered. |
+| `pass_through.summary` | bool | `false` | If `true`, summaries are forwarded unchanged instead of buffered. |
+
+Upstream documents no explicit validation rules. The Collector will reject an unparseable `interval` duration at startup.
+
+> **Doc typo, upstream:** the README's configuration block shows `summary: <boo>l`. It's a typo for `<bool>` — the parameter is a plain boolean.
+
+## Verification
+
+`interval` ships in the `contrib` and `k8s` distributions.
+
+Config (`interval-verify.yaml`):
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+processors:
+  interval:
+    interval: 10s
+exporters:
+  debug:
+    verbosity: detailed
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [interval]
+      exporters: [debug]
+```
+
+Generate cumulative-sum metrics frequently (see the `otel-telemetrygen` skill). The explicit `--aggregation-temporality cumulative` is load-bearing — `interval` only aggregates cumulative series; delta sums pass through unchanged and would show no volume drop:
+
+```bash
+telemetrygen metrics --otlp-insecure --otlp-endpoint localhost:4317 \
+  --metric-type Sum --aggregation-temporality cumulative --rate 5 --duration 25s
+```
+
+**What proves it worked:** instead of ~5 points/sec reaching `debug`, the exporter prints the metric roughly once per 10s interval (one latest value per series). Compare against the same run with the processor removed to see the volume drop.
+
+## Advanced use-cases
 
 ### Keep gauges spiky, smooth everything else
 
@@ -130,7 +140,37 @@ service:
       exporters: [otlp/warehouse]
 ```
 
-## Troubleshooting
+### Behavior example
+
+Source metrics arriving into the processor:
+
+| Time | Metric | Temporality | Attributes | Value |
+|------|--------|-------------|------------|------:|
+| 0 | `test_metric` | Cumulative | `labelA: foo` | 4.0 |
+| 2 | `test_metric` | Cumulative | `labelA: bar` | 3.1 |
+| 4 | `other_metric` | Delta | `fruitType: orange` | 77.4 |
+| 6 | `test_metric` | Cumulative | `labelA: foo` | 8.2 |
+| 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
+| 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
+
+`other_metric` (delta) is forwarded immediately. At the next interval boundary, only the latest value per series is forwarded:
+
+| Time | Metric | Temporality | Attributes | Value |
+|------|--------|-------------|------------|------:|
+| 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
+| 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
+
+Then state is cleared.
+
+## Known quirks
+
+### State and restart behavior
+
+- Internal state is keyed by metric name + attribute set and is held entirely in memory.
+- After each emission the buffer is cleared. **If no new points arrive in the next interval, nothing is emitted for that series in that interval.**
+- The state is not persisted — a collector restart drops every buffered point. For monotonic cumulative metrics this is usually fine (the next scrape carries the running total); for buffered gauges/summaries the most recent value is simply lost until the next sample.
+
+### Troubleshooting
 
 **Nothing comes out of the processor.**
 - All upstream metrics are delta or non-monotonic sums — those would already pass through but produce no buffered emission. Confirm a cumulative monotonic metric reaches the processor.
@@ -145,7 +185,7 @@ service:
 **Output cadence is irregular after a restart.**
 - Expected. The first interval after startup may emit less than usual because state was empty. Subsequent intervals settle once the upstream resends.
 
-## Anti-patterns
+### Anti-patterns
 
 **Stacking `interval` with delta-only metrics.**
 
@@ -169,7 +209,7 @@ If the source emits only deltas, remove the processor.
 
 The default aggregates gauges and summaries. If you didn't explicitly think about it, flip `pass_through.gauge: true` until you have — losing a latency spike is harder to debug than ingesting one extra point per minute.
 
-## Related
+## Related components
 
 - `batch` / exporter `sending_queue.batch` — batches by size/time, does not collapse per-series points. Complementary, not a replacement.
 - `metricstransform`, `transform` — rewrite metrics; do not aggregate over time.
