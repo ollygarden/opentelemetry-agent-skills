@@ -26,14 +26,14 @@ service:
       exporters: [debug]
 ```
 
-Send a decent number of traces — each gets a fresh random TraceID, so roughly half clear the 50% threshold (see the `otel-telemetrygen` skill):
+Send a good number of traces — each gets a fresh random TraceID, so roughly half clear the 50% threshold (see the `otel-telemetrygen` skill):
 
 ```bash
-telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 100
+telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 500
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, and `--traces` (int, traces per worker; ignored if `--duration` is set, so no `--duration` here or the count would not be 100). telemetrygen assigns a random TraceID per trace, which is what makes the hash spread evenly.
+Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, and `--traces` (int, traces per worker; ignored if `--duration` is set, so no `--duration` here or the count would not be 500). telemetrygen assigns a random TraceID per trace, which is what makes the hash spread evenly.
 
-Use a larger `N` (e.g. `--traces 100`) so the ratio is clearly readable — with only a handful of traces the kept fraction is noisy.
+Use a large `N` (≥ 500) so the ratio is clearly readable — with only a handful of traces the kept fraction is noisy.
 
-**What proves it worked:** noticeably fewer traces reach the `debug` exporter than were sent — roughly half of the 100. Because the decision is statistical, the exact count varies run to run (e.g. 45–55 is normal); the signal is "clearly fewer than sent, in the neighborhood of 50%", not an exact number.
+**What proves it worked:** noticeably fewer traces reach the `debug` exporter than were sent — close to half. Because the decision is statistical, the exact fraction varies run to run, but at `N = 500` it lands near 50% (a verified run kept 257/500 ≈ 51%). The signal is "clearly fewer than sent, in the neighborhood of 50%", not an exact number.
