@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, and other Collector components covered in `components/`.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, and other Collector components covered in `components/`.
 ---
 
 # OpenTelemetry Collector
@@ -30,6 +30,7 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 | `redaction` | `components/redaction/README.md` | processor | traces, logs, metrics | Beta (traces), Alpha (logs/metrics) | Allow/block-list masking or removal of sensitive attribute keys and values, with hashing and URL/DB sanitizers. |
 | `filter` | `components/filter/README.md` | processor | traces, metrics, logs | Alpha | Drops spans, metric data points, and log records that match OTTL conditions (or legacy metric-name / severity filters). The most direct telemetry-volume lever. |
 | `transform` | `components/transform/README.md` | processor | traces, metrics, logs | Beta | Applies OTTL statements to mutate spans, metric data points, and log records in place (rename/redact/convert/aggregate attributes). The OTTL language itself lives in the `otel-ottl` skill. |
+| `probabilistic_sampler` | `components/probabilistic_sampler/README.md` | processor | traces, logs | Beta (traces), Alpha (logs) | Head sampling — deterministically keeps a configured percentage of traces/logs by hashing the trace ID (or an attribute). The cheaper, stateless counterpart to `tail_sampling`. |
 
 ## Collector-wide conventions
 
