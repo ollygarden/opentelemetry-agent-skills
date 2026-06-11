@@ -30,7 +30,9 @@ Generate many identical log records (see the `otel-telemetrygen` skill):
 
 ```bash
 telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 \
-  --logs 50 --body "health check ok" --duration 4s
+  --logs 50 --body "health check ok"
 ```
 
-**What proves it worked:** the `debug` exporter prints **one** aggregated log per 5s interval carrying a `log_count` attribute near 50 (plus `first_observed_timestamp` / `last_observed_timestamp`), not 50 separate records.
+Don't add `--duration` here: telemetrygen ignores `--logs` when `--duration` is set, so the count would be whatever its default rate happens to emit instead of 50.
+
+**What proves it worked:** the `debug` exporter prints **one** aggregated log per 5s interval carrying a `log_count` attribute of 50 (plus `first_observed_timestamp` / `last_observed_timestamp`), not 50 separate records.
