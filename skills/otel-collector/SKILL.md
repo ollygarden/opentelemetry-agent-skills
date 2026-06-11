@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, and other Collector components covered in `components/`.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, and other Collector components covered in `components/`.
 ---
 
 # OpenTelemetry Collector
@@ -28,6 +28,7 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 | `tail_sampling` | `components/tail_sampling/README.md` | processor | traces | Beta | Buffers whole traces and makes a single keep/drop decision after a wait window via policies. Requires a loadbalancing layer to scale across instances. |
 | `drain` | `components/drain/README.md` | processor | logs | Alpha | Clusters log bodies with the Drain algorithm and annotates each record with a derived template string. |
 | `redaction` | `components/redaction/README.md` | processor | traces, logs, metrics | Beta (traces), Alpha (logs/metrics) | Allow/block-list masking or removal of sensitive attribute keys and values, with hashing and URL/DB sanitizers. |
+| `filter` | `components/filter/README.md` | processor | traces, metrics, logs | Alpha | Drops spans, metric data points, and log records that match OTTL conditions (or legacy metric-name / severity filters). The most direct telemetry-volume lever. |
 
 ## Collector-wide conventions
 
