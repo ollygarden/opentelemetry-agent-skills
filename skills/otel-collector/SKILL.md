@@ -12,14 +12,14 @@ It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK config
 ## Workflow
 
 1. **Identify the component.** Find the `type` in the user's config or question (`log_dedup`, `interval`, `otlp`, …). Note that several components were renamed to snake_case in v0.150.0–v0.151.0 with deprecated aliases preserved — see [Recent renames](#recent-renames).
-2. **Load the component page.** If the component is in the [Component index](#component-index), read `components/<name>.md` for the full config reference, examples, gotchas, and anti-patterns. Do not load pages you don't need.
+2. **Load the component page.** If the component is in the [Component index](#component-index), read `components/<type>/README.md` first — it carries the metadata, description, main use-cases, and a **Details** index. Open the linked detail files (`configuration.md`, `verification.md`, `advanced.md`, `quirks.md`, …) only as the question requires; don't load files you don't need.
 3. **If the component is not indexed**, say so explicitly and fall back to the upstream README under `processor/<name>/`, `receiver/<name>/`, `exporter/<name>/`, `connector/<name>/`, or `extension/<name>/` in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib). Don't invent config keys from memory — Collector components evolve quickly.
 4. **Apply Collector-wide conventions.** Named instances (`type/name`), stability levels, and pipeline placement rules in [Collector-wide conventions](#collector-wide-conventions) apply to every component.
 5. **Verify.** Run the component page's **Verification** recipe — `telemetrygen` (see the `otel-telemetrygen` skill) plus a `debug` or `file` exporter — to confirm the component behaves as the docs claim. Alpha- and Development-stability components are common here, and behavior changes between releases. See [Verification harness](#verification-harness) for how to run a recipe end-to-end.
 
 ## Component index
 
-Pages live in `components/`. Each page is self-contained: when to use / when not, full config reference, examples, troubleshooting, anti-patterns.
+Each component is a directory under `components/<type>/`. The `File` column points at the lean `README.md` (metadata, description, main use-cases, and a **Details** index); the full config reference, verification recipe, advanced use-cases, and quirks live in on-demand detail files linked from that README.
 
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
@@ -89,16 +89,19 @@ The Verification configs are **minimal repros**: they omit `memory_limiter` and 
 
 When extending coverage:
 
-1. **Create `components/<type>.md`.** Component pages carry no frontmatter — only `SKILL.md` has frontmatter.
-2. **Follow the canonical 8-section template, in this order:**
-   1. **Header metadata table** — kind, signals, per-signal stability, distributions, `type` name, Go module, upstream README link, and a rename note if the component was renamed.
-   2. **Description** — what the component does and the mechanism behind it.
-   3. **Main use-cases** — "Use when" / "Avoid when".
-   4. **Typical config** — minimal working YAML inside a `service.pipelines` block, plus the full config-reference table (key, type, default, validation).
-   5. **Verification** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
-   6. **Advanced use-cases** — named instances, multi-pipeline setups, combinations, and edge configs.
-   7. **Known quirks** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.
-   8. **Related components** — cross-links to related pages.
-3. **Use `components/interval.md` (single-file) and `components/log_dedup/` (per-component directory: lean `README.md` plus on-demand detail files) as reference implementations** of this template.
-4. **Add a row to the [Component index](#component-index)** above.
-5. **Update the description trigger phrases** in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
+1. **Create the directory `components/<type>/`.** Files carry no frontmatter — only `SKILL.md` has frontmatter.
+2. **Write a lean `README.md`** — always loaded, kept small:
+   - **Header metadata table** — kind, `type` name, signals, per-signal stability, distributions, Go module, upstream README link, and a rename note if the component was renamed.
+   - **Description** — what the component does and the mechanism, in 1–2 tight paragraphs (push detailed mechanism/reference into `configuration.md`).
+   - **Main use-cases** — "Use when" / "Avoid when".
+   - **Related components** — cross-links.
+   - **Details index** — a bullet list linking each detail file with a one-line "open when…" hint, so the reader loads only what a question needs.
+3. **Split the rest into on-demand detail files** under the same directory:
+   - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables.
+   - **`verification.md`** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
+   - **`advanced.md`** — named instances, multi-pipeline setups, combinations, and edge configs.
+   - **`quirks.md`** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.
+   - Split a heavy section into its own file when it's large (e.g. `policies.md` for a big policy catalog); merge trivial sections into a sibling rather than create a stub. Repoint any in-page anchor links that now cross files.
+4. **Use `components/log_dedup/` and `components/interval/` as reference implementations** of this structure.
+5. **Add a row to the [Component index](#component-index)** above (the `File` column points at `components/<type>/README.md`).
+6. **Update the description trigger phrases** in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
