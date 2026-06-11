@@ -23,7 +23,7 @@ Pages live in `components/`. Each page is self-contained: when to use / when not
 
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
-| `log_dedup` | `components/log_dedup.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |
+| `log_dedup` | `components/log_dedup/README.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |
 | `interval` | `components/interval.md` | processor | metrics | Alpha | Buffers cumulative monotonic metrics (and optionally gauges/summaries) and emits the latest value once per interval. Delta and non-monotonic sums pass through unchanged. |
 
 ## Collector-wide conventions
@@ -99,6 +99,6 @@ When extending coverage:
    6. **Advanced use-cases** — named instances, multi-pipeline setups, combinations, and edge configs.
    7. **Known quirks** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.
    8. **Related components** — cross-links to related pages.
-3. **Use `components/log_dedup.md` and `components/interval.md` as reference implementations** of this template.
+3. **Use `components/interval.md` (single-file) and `components/log_dedup/` (per-component directory: lean `README.md` plus on-demand detail files) as reference implementations** of this template.
 4. **Add a row to the [Component index](#component-index)** above.
 5. **Update the description trigger phrases** in this file's frontmatter if the new component introduces a clearly distinct user-facing keyword.
