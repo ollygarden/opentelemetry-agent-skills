@@ -24,7 +24,7 @@ Pages live in `components/`. Each page is self-contained: when to use / when not
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
 | `log_dedup` | `components/log_dedup/README.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |
-| `interval` | `components/interval.md` | processor | metrics | Alpha | Buffers cumulative monotonic metrics (and optionally gauges/summaries) and emits the latest value once per interval. Delta and non-monotonic sums pass through unchanged. |
+| `interval` | `components/interval/README.md` | processor | metrics | Alpha | Buffers cumulative monotonic metrics (and optionally gauges/summaries) and emits the latest value once per interval. Delta and non-monotonic sums pass through unchanged. |
 
 ## Collector-wide conventions
 
