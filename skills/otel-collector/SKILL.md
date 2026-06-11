@@ -95,7 +95,7 @@ When extending coverage:
    - **Description** — what the component does and the mechanism, in 1–2 tight paragraphs (push detailed mechanism/reference into `configuration.md`).
    - **Main use-cases** — "Use when" / "Avoid when".
    - **Related components** — cross-links.
-   - **Details index** — a bullet list linking each detail file with a one-line "open when…" hint, so the reader loads only what a question needs.
+   - **Details index** — a bullet list where each item links a detail file followed by an em dash and a short description of its contents (e.g. `- [Configuration](configuration.md) — config keys, defaults, validation`), so the reader loads only what a question needs.
 3. **Split the rest into on-demand detail files** under the same directory:
    - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables.
    - **`verification.md`** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
