@@ -46,10 +46,4 @@ Each `(metric, label)` pair holds a HyperLogLog sketch. On a pipeline with a hug
 
 ## Interpreting the internal telemetry
 
-| Metric | Type | Use |
-|--------|------|-----|
-| `otelcol_processor_cardinality_trackers_active` | Gauge | Active `(metric, label)` trackers across all shards. |
-| `otelcol_processor_cardinality_labels_stripped` | Counter | Labels stripped or tagged. Alert on `rate(...[5m])` for spike detection. |
-| `otelcol_processor_cardinality_top_offenders` | Gauge | Top-N highest-delta pairs (`metric_name`, `label_key` attributes) — find the exact pair exploding. |
-| `otelcol_processor_cardinality_trackers_rejected` | Counter | New pairs ignored after hitting `max_tracker_count`. |
-| `otelcol_processor_cardinality_savings_estimated` | Counter | Estimated dollar value of series prevented from reaching the TSDB. |
+See the [Internal telemetry](configuration.md#internal-telemetry) table in `configuration.md` for the full metric list. When tuning, the most useful signals are `otelcol_processor_cardinality_top_offenders` (find the exact `(metric, label)` pair exploding), `otelcol_processor_cardinality_labels_stripped` (alert on `rate(...[5m])` for spikes), and `otelcol_processor_cardinality_trackers_rejected` (whether `max_tracker_count` is too low).
