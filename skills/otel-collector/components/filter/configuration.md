@@ -45,6 +45,8 @@ Each field below takes a list of OTTL boolean expressions. An item is **dropped*
 
 Hierarchy: if a span is dropped, its `spanevent` conditions are not evaluated; if all datapoints of a metric are dropped, the metric is removed too. See [Known quirks](quirks.md).
 
+> Two surfaces are intentionally not detailed here: an **inferred-context** condition form (`trace_conditions` / `metric_conditions` / `log_conditions`, v0.146.0+) that lets a single list span multiple contexts, and a **`profiles.profile`** block (Development stability). Both are documented in the [upstream README](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) if you need them.
+
 ## Error mode
 
 | Mode | Behavior | When |
