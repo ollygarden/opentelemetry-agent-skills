@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, `k8s_attributes` / `k8sattributes` (Kubernetes metadata enrichment), `routing` (connector — route telemetry to pipelines by OTTL condition), and other Collector components covered in `components/`.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, `k8s_attributes` / `k8sattributes` (Kubernetes metadata enrichment), `routing` (connector — route telemetry to pipelines by OTTL condition), `memory_limiter` (OOM safety valve / backpressure), and other Collector components covered in `components/`.
 ---
 
 # OpenTelemetry Collector
@@ -35,6 +35,7 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 | `resource` | `components/resource/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Modifies the **resource** attributes of telemetry via the same action grammar as `attributes` (e.g. set `service.name`, drop noisy resource keys). No include/exclude matching. |
 | `k8s_attributes` | `components/k8s_attributes/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Enriches telemetry with Kubernetes pod/namespace/node/workload metadata, associating each record to a pod by IP or resource attribute. Renamed from `k8sattributes` in v0.146.0; alias preserved. |
 | `routing` | `components/routing/README.md` | connector | traces, metrics, logs | Alpha | Routes same-signal telemetry to different pipelines by OTTL `condition`/`statement` per context; ordered table, first match wins, `default_pipelines` fallback. Replaces the deprecated `routingprocessor`. |
+| `memory_limiter` | `components/memory_limiter/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Alpha (profiles) | Safety valve against OOM: refuses data with backpressure when Go heap exceeds a soft/hard limit, forcing GC above the hard limit. Belongs first in every pipeline; pairs with `GOMEMLIMIT`. |
 
 ## Collector-wide conventions
 
