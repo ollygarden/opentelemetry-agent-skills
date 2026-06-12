@@ -110,9 +110,10 @@ Cheaper RBAC (no `replicasets`) and less memory, but it sets a wrong name for po
 Block startup until the metadata cache has synced, so telemetry arriving immediately on boot is still enriched:
 
 ```yaml
-k8s_attributes:
-  wait_for_metadata: true
-  metadata_sync_timeout: 30s
+processors:
+  k8s_attributes:
+    wait_for_metadata: true
+    metadata_sync_timeout: 30s
 ```
 
 Trade-off: guaranteed enrichment of early data, but a slower start — and if the sync doesn't finish within `metadata_sync_timeout` the collector **fails to start**. Leave it `false` (default) when fast, best-effort startup matters more than enriching the first few records.
