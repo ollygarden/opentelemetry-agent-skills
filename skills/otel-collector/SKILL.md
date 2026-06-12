@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, and other Collector components covered in `components/`.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, `k8s_attributes` / `k8sattributes` (Kubernetes metadata enrichment), and other Collector components covered in `components/`.
 ---
 
 # OpenTelemetry Collector
@@ -33,6 +33,7 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 | `probabilistic_sampler` | `components/probabilistic_sampler/README.md` | processor | traces, logs | Beta (traces), Alpha (logs) | Head sampling — deterministically keeps a configured percentage of traces/logs by hashing the trace ID (or an attribute). The cheaper, stateless counterpart to `tail_sampling`. |
 | `attributes` | `components/attributes/README.md` | processor | traces, metrics, logs | Beta | Modifies span/log/datapoint **attributes** via an ordered action list (insert/update/upsert/delete/hash/extract/convert), scoped by include/exclude matching. |
 | `resource` | `components/resource/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Modifies the **resource** attributes of telemetry via the same action grammar as `attributes` (e.g. set `service.name`, drop noisy resource keys). No include/exclude matching. |
+| `k8s_attributes` | `components/k8s_attributes/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Enriches telemetry with Kubernetes pod/namespace/node/workload metadata, associating each record to a pod by IP or resource attribute. Renamed from `k8sattributes` in v0.146.0; alias preserved. |
 
 ## Collector-wide conventions
 
