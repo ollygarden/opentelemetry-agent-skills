@@ -1,0 +1,40 @@
+# `routing`: known quirks
+
+## Unmatched telemetry is dropped without `default_pipelines`
+
+If a piece of telemetry matches no route and `default_pipelines` is not set, it is **silently dropped** — no error, no log. This is the most common cause of "where did my data go?" with this connector. Always configure `default_pipelines` (even just a catch-all archive or a `debug` pipeline) unless dropping unmatched data is genuinely what you want.
+
+## `error_mode: propagate` drops the payload on OTTL errors
+
+With the default `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In production use `error_mode: ignore`, which logs the error and sends the payload to `default_pipelines` instead — so `ignore` only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Guard fragile conditions with nil checks (`attributes["k"] != nil and attributes["k"] == "v"`) so a missing key doesn't error in the first place.
+
+## `statement` and `condition` are mutually exclusive
+
+Each route needs **exactly one** of `statement` or `condition`. Setting both, or neither, fails config validation. `statement` is the `route() where <expr>` form (and can also run editors like `delete_key` in the same pass); `condition` is a bare boolean expression. Pick one per route.
+
+## `request` context has a limited grammar
+
+`request` routing supports only a single `==` or `!=` comparison — no `and`/`or`, and a `statement` is rejected (it must be `condition`). For compound request logic, use multiple `request` routes or move the decision to `resource` context. HTTP headers match case-insensitively, but gRPC metadata keys are lowercased — use lowercase keys (`request["x-tenant"]`) for gRPC traffic. The receiver must actually propagate request metadata (the `otlp` receiver does; file-based receivers don't).
+
+## Item-level contexts can split a Resource bundle across pipelines
+
+`span`, `metric`, `datapoint`, and `log` contexts evaluate per item, so a single incoming ResourceSpans/ResourceMetrics/ResourceLogs bundle can be torn apart — some items to one pipeline, others to another (or to the default). This is usually intended, but it means downstream pipelines may receive partial resource bundles. Use `resource` context when you want whole bundles kept together.
+
+## Validation errors → fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `the routing table is empty` | `table` missing or empty | Add at least one route. |
+| `no condition or statement provided` | route has neither | Add one of `statement`/`condition`. |
+| `both condition and statement provided` | route has both | Remove one. |
+| `no pipelines defined` | route missing `pipelines` | Add at least one pipeline ID. |
+| `'request' context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context. |
+| `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, or `request` (and one valid for the signal). |
+
+## `match_once` was removed in v0.120.0
+
+`match_once` (deprecated v0.116.0, removed v0.120.0) is gone — each item now matches **at most one route**. Configs using `match_once: false` no longer load. To fan out, list multiple pipelines in one route; to route on independent dimensions, use parallel named instances (see [advanced](advanced.md#migrating-from-match_once)).
+
+## Stability caveats
+
+All three signal pairs (traces, metrics, logs) are **Alpha**. Config surface and behavior can shift between releases — confirm against the upstream README for your exact collector version. The connector replaces the deprecated `routingprocessor`; new configs should use the connector form.

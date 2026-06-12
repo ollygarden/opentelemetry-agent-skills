@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, `k8s_attributes` / `k8sattributes` (Kubernetes metadata enrichment), and other Collector components covered in `components/`.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on questions about specific components such as `log_dedup` / `logdedup`, `interval` (metric aggregation), `tail_sampling`, `drain`, `redaction`, `filter`, `transform`, `probabilistic_sampler`, `attributes`, `resource`, `k8s_attributes` / `k8sattributes` (Kubernetes metadata enrichment), `routing` (connector — route telemetry to pipelines by OTTL condition), and other Collector components covered in `components/`.
 ---
 
 # OpenTelemetry Collector
@@ -34,6 +34,7 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 | `attributes` | `components/attributes/README.md` | processor | traces, metrics, logs | Beta | Modifies span/log/datapoint **attributes** via an ordered action list (insert/update/upsert/delete/hash/extract/convert), scoped by include/exclude matching. |
 | `resource` | `components/resource/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Modifies the **resource** attributes of telemetry via the same action grammar as `attributes` (e.g. set `service.name`, drop noisy resource keys). No include/exclude matching. |
 | `k8s_attributes` | `components/k8s_attributes/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Enriches telemetry with Kubernetes pod/namespace/node/workload metadata, associating each record to a pod by IP or resource attribute. Renamed from `k8sattributes` in v0.146.0; alias preserved. |
+| `routing` | `components/routing/README.md` | connector | traces, metrics, logs | Alpha | Routes same-signal telemetry to different pipelines by OTTL `condition`/`statement` per context; ordered table, first match wins, `default_pipelines` fallback. Replaces the deprecated `routingprocessor`. |
 
 ## Collector-wide conventions
 
