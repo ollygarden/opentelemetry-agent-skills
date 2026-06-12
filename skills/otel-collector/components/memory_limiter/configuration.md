@@ -26,7 +26,7 @@ Hard limit 4000 MiB, soft limit 3200 MiB, checked every second. `memory_limiter`
 | `check_interval` | duration | `0s` (**required**, must be `> 0`) | Time between memory measurements. `1s` is recommended; `500ms` for spiky traffic. |
 | `limit_mib` | uint32 | `0` | Hard limit, in MiB of **heap**. Required unless `limit_percentage` is set; **takes precedence** over `limit_percentage` if both are set. |
 | `spike_limit_mib` | uint32 | 20% of `limit_mib` | Expected max heap increase between checks. Must be `< limit_mib`. Soft limit = `limit_mib - spike_limit_mib`. |
-| `limit_percentage` | uint32 | `0` | Hard limit as a percentage of total memory (`> 0`, `<= 100`). Used **only when `limit_mib` is unset/0**. Needs Linux cgroups, else falls back to `/proc/meminfo`. |
+| `limit_percentage` | uint32 | `0` | Hard limit as a percentage of total memory (`> 0`, `<= 100`). Used **only when `limit_mib` is unset/0**. On Linux reads the cgroup limit, falling back to `/proc/meminfo`; on non-Linux it reads total *system* memory (rarely a container limit). See [Known quirks](quirks.md). |
 | `spike_limit_percentage` | uint32 | 20% of `limit_percentage` | Spike as a percentage of total memory. Must be `< limit_percentage` and `<= 100`. Only used with `limit_percentage`. |
 | `min_gc_interval_when_soft_limited` | duration | `10s` | Minimum time between forced GCs while above the soft limit. Must be `>= min_gc_interval_when_hard_limited`. |
 | `min_gc_interval_when_hard_limited` | duration | `0s` | Minimum time between forced GCs while above the hard limit (`0s` = GC on every over-limit check). Should be `<=` the soft-limited interval. |
