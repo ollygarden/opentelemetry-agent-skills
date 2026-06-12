@@ -165,4 +165,4 @@ service:
 - **Scope** — `resource` edits resource attributes; `attributes` edits span/log/datapoint attributes.
 - **Matching** — `attributes` has `include`/`exclude` (which can even match on resource attributes); `resource` has none.
 
-If you need to edit resource attributes *only for matching telemetry*, reach for `attributes` (with a `resources:` matcher) or `transform`, not `resource`.
+If you need to edit resource attributes *only for matching telemetry*, reach for `transform` (with a `where`/OTTL condition), not `resource`. `attributes` can *match* on resource attributes via its `resources:` matcher, but it only edits span/log/datapoint attributes — never the resource — so it can't do conditional resource edits either.

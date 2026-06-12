@@ -81,7 +81,7 @@ Unlike the [`attributes`](../attributes/README.md) processor, `resource` has **n
 
 - **`client.address`** — the client IP (plain key, no prefix). Only available for network receivers (OTLP, Jaeger, …), not file/push ingestion.
 - **`metadata.*`** — gRPC metadata / HTTP headers, e.g. `metadata.x-trace-id`. Requires the receiver to set `include_metadata: true`. Multiple values are joined with `;`.
-- **`auth.*`** — data from a server authenticator extension, e.g. `auth.username`, `auth.tenant_id`. Requires an authenticator on the receiver; available keys depend on the authenticator. If the `auth.` key doesn't match an auth attribute, the processor falls back to checking metadata with the full key.
+- **`auth.*`** — data from a server authenticator extension, e.g. `auth.username`, `auth.tenant_id`. Requires an authenticator on the receiver; available keys depend on the authenticator. `auth.` and `metadata.` are separate namespaces — there is no fallback between them.
 
 ```yaml
 receivers:

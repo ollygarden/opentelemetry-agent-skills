@@ -25,7 +25,7 @@ A frequent bug: using `insert` and seeing nothing change because the key already
 
 ## Regexp performance
 
-`match_type: regexp` filters and `pattern`-based `delete`/`hash` compile and run Go regexes per record. On high-throughput pipelines enable the LRU cache (`regexp.cacheenabled: true`, bound with `cachemaxnumentries`) and keep patterns simple — anchored prefixes (`^foo_.*`) are far cheaper than unanchored, backtracking-heavy expressions. Remember `.` matches any character; use `\.` for a literal dot.
+`match_type: regexp` filters and `pattern`-based `delete`/`hash` compile and run Go regexes per record. On high-throughput pipelines enable the LRU cache (`regexp.cacheenabled: true`, bound with `cachemaxnumentries`) and keep patterns simple — anchored prefixes (`^foo_.*`) let the engine reject non-matches early, while unanchored patterns scan the whole value. (Go's `regexp` is RE2-based and linear-time, so there's no catastrophic backtracking; the cost is per-record CPU and cache pressure, not exponential blow-up.) Remember `.` matches any character; use `\.` for a literal dot.
 
 ## Metric support caveats (identity conflict)
 
