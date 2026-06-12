@@ -29,10 +29,10 @@ service:
 Send a good number of traces — each gets a fresh random TraceID, so roughly half clear the 50% threshold (see the `otel-telemetrygen` skill):
 
 ```bash
-telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 500
+telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 500 --workers 1
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, and `--traces` (int, traces per worker; ignored if `--duration` is set, so no `--duration` here or the count would not be 500). telemetrygen assigns a random TraceID per trace, which is what makes the hash spread evenly.
+Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, `--traces` (int, traces **per worker**; ignored if `--duration` is set, so no `--duration` here or the count would not be 500), and `--workers` (default 1). With `--workers 1` the total is exactly 500 — the denominator for the ratio below; raising `--workers` multiplies the total. telemetrygen assigns a random TraceID per trace, which is what makes the hash spread evenly.
 
 Use a large `N` (≥ 500) so the ratio is clearly readable — with only a handful of traces the kept fraction is noisy.
 
