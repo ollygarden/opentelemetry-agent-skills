@@ -14,7 +14,7 @@ upstream in [`pkg/stanza/docs/operators`](https://github.com/open-telemetry/open
   (used for branching after a `router`).
 - For `file_log` the input is **implicit** — the receiver *is* the `file_input`. Do **not** add
   `file_input` or other input operators to `operators`; start with a parser or general-purpose
-  operator. Only "parsers and general purpose operators should be used" here.
+  operator. Only parsers and general-purpose operators should be used here.
 - The raw line is in the entry **body**. Parsers read from `parse_from` (default `body`) and
   write to `parse_to` (default `attributes`).
 
