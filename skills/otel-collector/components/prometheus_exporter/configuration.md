@@ -42,7 +42,7 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 
 ## `sending_queue`
 
-`configoptional.Optional[exporterhelper.QueueBatchConfig]` — the standard exporterhelper queue block. Because this is a **pull** exporter that accumulates in memory and is scraped, queue/retry semantics are far less meaningful here than for a pushing exporter. Tune it only if you have a specific reason; for the full queue reference see the [`otlp_grpc` exporter's configuration](../otlp_exporter/configuration.md#sending_queue).
+Optional. The standard `exporterhelper` queue block. Because this is a **pull** exporter that accumulates in memory and is scraped, queue/retry semantics are far less meaningful here than for a pushing exporter. Tune it only if you have a specific reason; for the full queue reference see the [`otlp_grpc` exporter's configuration](../otlp_exporter/configuration.md#sending_queue).
 
 ## Validation summary
 

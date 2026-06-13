@@ -53,7 +53,7 @@ curl -s localhost:19464/metrics
 
 produces exactly:
 
-```
+```text
 # HELP testns_gen_total 
 # TYPE testns_gen_total counter
 testns_gen_total{job="telemetrygen",otel_scope_name="",otel_scope_schema_url="",otel_scope_version="",tg_label="v1",verified_by="ollygarden"} 2 1781369164374
