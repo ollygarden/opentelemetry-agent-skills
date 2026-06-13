@@ -63,7 +63,7 @@ Each instance still writes one bbolt file per consuming component inside its own
 
 The classic case for online compaction: a persistent exporter queue balloons during a network outage, then drains once connectivity returns. bbolt is mmap-backed, so the freed pages stay **allocated** — the file does not shrink on its own. Rebound compaction reclaims that space, but only after the spike has clearly passed:
 
-```
+```text
 allocated MiB
    │            ┌──────────┐   <- spike: queue fills during outage
    │            │          │

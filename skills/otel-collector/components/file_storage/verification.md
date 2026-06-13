@@ -77,6 +77,7 @@ docker rm -f fsrun2
 Same restart, but with the `storage:` line removed from the receiver (`fs_nostore.yaml` = `fs.yaml` minus that line):
 
 ```bash
+sed '/storage: file_storage/d' fs.yaml > fs_nostore.yaml   # fs.yaml minus the receiver's storage: line
 docker run -d --name fsctl \
   -v "$PWD/fs_nostore.yaml:/etc/otelcol-contrib/config.yaml" \
   -v "$PWD/storage:/storage" -v "$PWD/logs:/logs" $IMG
