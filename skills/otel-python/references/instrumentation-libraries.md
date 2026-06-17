@@ -66,7 +66,9 @@ app = FastAPI()
 FastAPIInstrumentor.instrument_app(app)   # attaches ASGI middleware to this app instance
 ```
 
-`instrument_app` is the per-app variant. It was verified to produce `SpanKind.SERVER` spans with `http.method`, `http.route`, and `http.status_code` attributes. See the validation spike in `local/otel-python-validation/`.
+`instrument_app` is the per-app variant: it attaches the ASGI middleware to a specific app instance and produces `SpanKind.SERVER` spans for incoming requests.
+
+> The API shape differs across instrumentors. FastAPI uses the class method `FastAPIInstrumentor.instrument_app(app)`; Flask uses an instance method `FlaskInstrumentor().instrument_app(app)`; Django uses `DjangoInstrumentor().instrument()` with no app argument. Check the contrib package for the exact form.
 
 ### Flask
 
@@ -177,13 +179,15 @@ Source of truth: `instrumentation/` directory in the [opentelemetry-python-contr
 
 ## Manual Instrumentation Patterns
 
-Use these when no contrib instrumentor covers the target. Follow semconv — see `otel-semantic-conventions` for attribute names.
+Use these when no contrib instrumentor covers the target. Follow semconv — see the `otel-semantic-conventions` skill for attribute names.
+
+Use the current stable attribute constants from `opentelemetry.semconv.attributes` (e.g. `http.request.method`, `url.full`, `db.collection.name`). These match what the contrib instrumentors emit. The older `opentelemetry.semconv.trace.SpanAttributes.HTTP_*` / `DB_*` names (`http.method`, `http.url`, `db.sql.table`) are deprecated — avoid them so manual and auto-instrumented spans stay consistent.
 
 ### HTTP Client Call
 
 ```python
 from opentelemetry import trace
-from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.semconv.attributes import http_attributes, url_attributes
 
 tracer = trace.get_tracer(__name__)
 
@@ -192,12 +196,14 @@ def call_external_api(url: str) -> dict:
         "GET",
         kind=trace.SpanKind.CLIENT,
         attributes={
-            SpanAttributes.HTTP_METHOD: "GET",
-            SpanAttributes.HTTP_URL: url,
+            http_attributes.HTTP_REQUEST_METHOD: "GET",
+            url_attributes.URL_FULL: url,
         },
     ) as span:
         resp = requests.get(url)
-        span.set_attribute(SpanAttributes.HTTP_STATUS_CODE, resp.status_code)
+        span.set_attribute(
+            http_attributes.HTTP_RESPONSE_STATUS_CODE, resp.status_code
+        )
         return resp.json()
 ```
 
@@ -205,7 +211,7 @@ def call_external_api(url: str) -> dict:
 
 ```python
 from opentelemetry import trace
-from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.semconv.attributes import db_attributes
 
 tracer = trace.get_tracer(__name__)
 
@@ -214,9 +220,9 @@ def fetch_user(conn, user_id: str) -> dict:
         "SELECT users",
         kind=trace.SpanKind.CLIENT,
         attributes={
-            SpanAttributes.DB_SYSTEM: "postgresql",
-            SpanAttributes.DB_OPERATION: "SELECT",
-            SpanAttributes.DB_SQL_TABLE: "users",
+            db_attributes.DB_SYSTEM_NAME: "postgresql",
+            db_attributes.DB_OPERATION_NAME: "SELECT",
+            db_attributes.DB_COLLECTION_NAME: "users",
         },
     ) as span:
         row = conn.execute("SELECT * FROM users WHERE id = %s", (user_id,)).fetchone()
