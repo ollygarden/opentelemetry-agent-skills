@@ -83,7 +83,7 @@ from opentelemetry.sdk._configuration._logger_provider import configure_logger_p
 from opentelemetry.sdk._configuration._propagator import configure_propagator
 
 # Parses YAML + performs env-var substitution. Nested fields are plain dicts.
-_raw = load_config_file(os.environ.get("OTEL_PY_CONFIG", "otel.yaml"))
+_raw = load_config_file(os.environ.get("OTEL_PY_CONFIG", "otel.yaml"))  # OTEL_PY_CONFIG: local convention, not an SDK-defined variable
 
 # Build Resource from the dict returned by the loader.
 _resource_data = _raw.resource or {}

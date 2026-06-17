@@ -25,7 +25,7 @@ Python OpenTelemetry uses two independent version tracks:
 | Track | Packages | Example |
 |---|---|---|
 | Stable (SemVer 1.x) | `opentelemetry-api`, `opentelemetry-sdk` | `1.42.0` |
-| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, `opentelemetry-exporter-*`, contrib packages, some SDK extras | `0.63b0` |
+| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, contrib packages, some SDK extras (OTLP exporters track stable 1.x) | `0.63b0` |
 
 The two tracks move in lock-step: SDK `1.42.x` pairs with contrib `0.63bx`. When the CHANGELOG
 entry says "version 0.63b0", look up the paired SDK version before concluding which SDK release
@@ -75,7 +75,7 @@ grep -r "LoggingHandler" .  # adjust pattern per finding
 Instrumentation libraries adopt updated semconv attribute names on their own schedule; the SDK
 CHANGELOG and contrib CHANGELOG both carry these entries. Common patterns include:
 
-- HTTP: `http.method` → `http.request.method`, `http.url` → `http.url.full`
+- HTTP: `http.method` → `http.request.method`, `http.url` → `url.full`
 - DB: `db.sql.table` → `db.collection.name`
 - RPC: `rpc.system` values and metric names shift with each stable semconv release
 
