@@ -54,10 +54,15 @@ In the CHANGELOG output, search for:
 **Example deprecation an audit would catch:** The SDK's `opentelemetry.sdk._logs.LoggingHandler`
 is deprecated; the class emits a `DeprecationWarning` at construction reading "`LoggingHandler` in
 `opentelemetry-sdk` is deprecated. Use the handler from `opentelemetry-instrumentation-logging`
-instead." The replacement lives in the contrib `opentelemetry-instrumentation-logging` package —
-wired up via its `LoggingInstrumentor` rather than imported as a drop-in class. Code using the old
-SDK handler keeps working until removal, but the deprecation entry marks the migration window.
-Add the contrib package to `requirements.txt` and switch to `LoggingInstrumentor`.
+instead." The replacement is the `LoggingHandler` class from the contrib
+`opentelemetry-instrumentation-logging` package, imported as a drop-in replacement:
+```python
+from opentelemetry.instrumentation.logging.handler import LoggingHandler
+```
+Code using the old SDK handler keeps working until removal, but the deprecation entry marks the
+migration window. Add the contrib package to `requirements.txt`. See `references/api.md` for wiring
+details. (Note: `LoggingInstrumentor` is a separate feature for injecting trace context into log
+text formatting; it is not the deprecation replacement.)
 
 For each finding, grep the codebase for the old symbol before concluding impact:
 
