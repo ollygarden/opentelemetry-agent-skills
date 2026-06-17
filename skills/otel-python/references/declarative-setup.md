@@ -164,7 +164,7 @@ meter_provider:
     - periodic:
         interval: 5000
         exporter:
-          console: {}
+          console: {}  # Must be ConsoleMetricExporter() in code, not empty dict
 logger_provider:
   processors:
     - simple:
@@ -195,7 +195,7 @@ by `load_config_file` before the YAML is further processed.
   provider factory calls `.temporality_preference` on the exporter object.
 
 - **`LoggingHandler` import.** The deprecated
-  `opentelemetry.sdk._logs.LoggingHandler` (removed in 0.63b1+) should be
+  `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 0.63b1+) should be
   replaced with `opentelemetry.instrumentation.logging.handler.LoggingHandler`
   (from `opentelemetry-instrumentation-logging`).
 
