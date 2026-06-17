@@ -48,6 +48,7 @@ set_logger_provider(logger_provider)
 ```python
 tracer = trace.get_tracer("my.library")
 meter  = metrics.get_meter("my.library")
+logger = get_logger_provider().get_logger("my.library")
 ```
 
 Use the instrumenting library's import path or package name as the scope name. Pass `schema_url` to align with a semantic conventions version — see `otel-semantic-conventions`.
@@ -65,8 +66,7 @@ with tracer.start_as_current_span("operation.name") as span:
 
 # Manual form — use when you need the span across call boundaries
 span = tracer.start_span("operation.name")
-ctx  = trace.use_span(span, end_on_exit=False)
-token = context.attach(ctx)
+token = context.attach(trace.set_span_in_context(span))
 try:
     do_work()
 finally:
@@ -127,7 +127,7 @@ counter = meter.create_counter(
     description="Total HTTP requests",
     unit="1",
 )
-counter.add(1, {"http.request.method": "GET", "http.response.status_code": "200"})
+counter.add(1, {"http.request.method": "GET", "http.response.status_code": 200})
 
 # UpDownCounter — non-monotonic, additive (e.g., queue depth)
 queue_size = meter.create_up_down_counter("queue.size", unit="1")
@@ -209,7 +209,7 @@ propagate.set_global_textmap(
 
 The OTel Python SDK does not replace `logging` — it bridges it. The bridge converts stdlib `logging.LogRecord` objects into OTel log records and forwards them to the configured `LoggerProvider`.
 
-### Wiring (verified in Task 2 spike)
+### Manual wiring
 
 Package required: `opentelemetry-instrumentation-logging`
 
