@@ -339,7 +339,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 
 exporter = OTLPSpanExporter(
     endpoint="http://localhost:4317",
-    compression=Compression.Gzip,  # from opentelemetry.exporter.otlp.proto.grpc import Compression
+    compression=Compression.Gzip,  # from grpc import Compression
 )
 
 # HTTP exporter
@@ -361,7 +361,7 @@ OTEL_EXPORTER_OTLP_COMPRESSION=gzip
 Or programmatically for gRPC:
 
 ```python
-from opentelemetry.exporter.otlp.proto.grpc import Compression
+from grpc import Compression
 
 exporter = OTLPSpanExporter(compression=Compression.Gzip)
 ```
@@ -393,7 +393,7 @@ The OpenTelemetry Python SDK integrates with Python's standard `logging` module 
 import logging
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.sdk._logs._internal import LoggingHandler
+from opentelemetry.instrumentation.logging.handler import LoggingHandler
 
 logger_provider = LoggerProvider()
 logger_provider.add_log_record_processor(
@@ -458,7 +458,7 @@ In an asyncio application, wrap provider shutdown in a coroutine or run it from 
 import asyncio
 
 async def shutdown_providers():
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     # Providers are synchronous; run in executor to avoid blocking the loop
     await loop.run_in_executor(None, tracer_provider.shutdown)
     await loop.run_in_executor(None, meter_provider.shutdown)
