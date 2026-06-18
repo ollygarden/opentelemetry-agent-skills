@@ -51,7 +51,12 @@ but not interchangeable. A matrix entry may use a semver-shaped value such as
 `1.0`. Generated YAML must use the parser-accepted literal.
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
-in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`).
+in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
+
+**Python note:** declarative config is supported via the experimental, private
+`opentelemetry.sdk._configuration.file` module (install `opentelemetry-sdk[file-configuration]`).
+Activation is programmatic — there is no `OTEL_CONFIG_FILE` CLI wiring like Go/JS; you must call
+the loader in code at startup. See the `otel-python` skill and its `declarative-setup.md` reference.
 
 ## Activation
 
@@ -91,4 +96,4 @@ Programmatic API  >  Environment Variables  >  Configuration File
 
 ## Cross-References
 
-- Language-specific setup: `otel-go`, `otel-java`, `otel-js` (each loads its own `references/declarative-setup.md`).
+- Language-specific setup: `otel-go`, `otel-java`, `otel-js`, `otel-python` (each loads its own `references/declarative-setup.md`).

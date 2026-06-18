@@ -62,6 +62,11 @@
       "name": "otel-js",
       "source": "./skills/otel-js",
       "description": "OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK, declarative YAML configuration, auto-instrumentations, ESM vs CJS import patterns."
+    },
+    {
+      "name": "otel-python",
+      "source": "./skills/otel-python",
+      "description": "OpenTelemetry in Python: declarative SDK setup (experimental file config), API surface and logging bridge, zero-code instrumentation (opentelemetry-distro / opentelemetry-instrument) and contrib catalog, performance tuning, breaking-change audits."
     }
   ]
 }
