@@ -186,6 +186,7 @@ Use the current stable attribute constants from `opentelemetry.semconv.attribute
 ### HTTP Client Call
 
 ```python
+import requests
 from opentelemetry import trace
 from opentelemetry.semconv.attributes import http_attributes, url_attributes
 

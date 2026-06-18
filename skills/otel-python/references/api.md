@@ -233,12 +233,12 @@ The handler automatically injects the active span's `trace_id` and `span_id` int
 
 > **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated as of SDK 0.63b1. Always import from `opentelemetry.instrumentation.logging.handler`.
 
-### Auto-instrumentation alternative
+### `LoggingInstrumentor` is a different feature
 
-`opentelemetry-instrumentation-logging` can also be invoked via the `opentelemetry-instrument` CLI or `LoggingInstrumentor().instrument()`, which wires the handler automatically without manual bootstrap code. The manual wiring above is equivalent and preferred when using declarative or custom bootstrap.
+`LoggingInstrumentor().instrument()` (also reachable via the `opentelemetry-instrument` CLI) is **not** equivalent to the handler above. It only injects the active `otelTraceID` / `otelSpanID` into stdlib log *text* formatting (it calls `logging.basicConfig` with an enriched format) — it does **not** route log records through the `LoggerProvider` to the OTel logs pipeline. Use it for trace-context correlation in plain-text logs; use the `LoggingHandler` above to actually export logs as OTel log records.
 
 ```python
-# Auto-instrumentation equivalent (no manual handler needed)
+# Trace-context injection into log TEXT only — does NOT export logs to OTLP
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
-LoggingInstrumentor().instrument()
+LoggingInstrumentor().instrument(set_logging_format=True)
 ```

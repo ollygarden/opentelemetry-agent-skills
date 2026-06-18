@@ -136,7 +136,7 @@ Resolve current versions first (use the `otel-sdk-versions` skill / PyPI JSON), 
 cd local/otel-python-validation
 python3 -m venv .venv && . .venv/bin/activate
 pip install fastapi uvicorn \
-  opentelemetry-sdk opentelemetry-api \
+  "opentelemetry-sdk[file-configuration]" opentelemetry-api \
   opentelemetry-distro \
   opentelemetry-instrumentation-fastapi \
   opentelemetry-exporter-otlp

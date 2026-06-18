@@ -82,7 +82,7 @@ ALWAYS_OFF                  -> All spans noop — useful for benchmarking app ov
 
 `ParentBased` is the recommended production default: it honors upstream sampling decisions propagated via W3C TraceContext while allowing ratio-based sampling at service entry points.
 
-> **Tail sampling**: For sampling decisions based on complete trace data (error status, latency), use the OpenTelemetry Collector's `tailsampling` processor rather than SDK-level head sampling. SDK head sampling combined with Collector tail sampling is a common production pattern.
+> **Tail sampling**: For sampling decisions based on complete trace data (error status, latency), use the OpenTelemetry Collector's `tail_sampling` processor rather than SDK-level head sampling. SDK head sampling combined with Collector tail sampling is a common production pattern.
 
 ---
 
