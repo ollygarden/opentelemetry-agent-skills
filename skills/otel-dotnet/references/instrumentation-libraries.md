@@ -49,13 +49,9 @@ The script downloads the agent to `$OTEL_DOTNET_AUTO_HOME` (defaults to `$HOME/.
 
 **Windows (PowerShell):**
 
-```powershell
-$module = "$env:USERPROFILE\.otel-dotnet-auto\instrument.psm1"
-Invoke-WebRequest -Uri "https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/latest/download/otel-dotnet-auto-install.ps1" -OutFile install.ps1
-.\install.ps1
-Import-Module $module
-Register-OpenTelemetryForCurrentSession
-```
+The Windows install uses a PowerShell module flow. For the exact current command, see the
+[zero-code .NET docs](https://opentelemetry.io/docs/zero-code/dotnet/) — the Source of Truth
+for Windows installation steps and script filenames.
 
 ### Activation (CLR Profiler)
 
@@ -168,8 +164,8 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
-| `OpenTelemetry.Instrumentation.ConfluentKafka` | — (registers via `IConsumer`/`IProducer` builder) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
-| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
+| `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (on `TracerProviderBuilder`; producer also on `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
+| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` — **deprecated; MassTransit ≤ v7 only**. For MassTransit v8+ use built-in support: call `.AddSource("MassTransit")` on the `TracerProviderBuilder` instead. | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
 | `OpenTelemetry.Instrumentation.Hangfire` | `.AddHangfireInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Hangfire) |
 
 ### Runtime / System
@@ -197,21 +193,22 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 Use these when no contrib package covers the target library. Attributes must follow semantic
 conventions — load the `otel-semantic-conventions` skill for the authoritative attribute names.
 
+These patterns use the native BCL `ActivitySource` API (the primary path for .NET), not the
+OTel API shim (`tracerProvider.GetTracer(...)`). Declare a module-level source and start
+activities from it directly.
+
 ### HTTP Client Call
 
 ```csharp
 using System.Diagnostics;
-using OpenTelemetry.Trace;
 
-var tracer = tracerProvider.GetTracer("my-service");
+// Module-level — one instance per library/component
+static readonly ActivitySource ActivitySource = new("my-service");
 
-using var activity = tracer.StartActiveSpan("GET",
-    kind: ActivityKind.Client,
-    initialAttributes: new ActivityTagsCollection
-    {
-        ["http.request.method"] = "GET",
-        ["url.full"] = requestUrl,
-    });
+// At call site:
+using var activity = ActivitySource.StartActivity("GET", ActivityKind.Client);
+activity?.SetTag("http.request.method", "GET");
+activity?.SetTag("url.full", requestUrl);
 
 var response = await httpClient.GetAsync(requestUrl);
 activity?.SetTag("http.response.status_code", (int)response.StatusCode);
@@ -222,15 +219,11 @@ Semconv reference: `otel-semantic-conventions` → HTTP client spans.
 ### Database Call
 
 ```csharp
-using var activity = tracer.StartActiveSpan("SELECT users",
-    kind: ActivityKind.Client,
-    initialAttributes: new ActivityTagsCollection
-    {
-        ["db.system"] = "postgresql",
-        ["db.namespace"] = databaseName,
-        ["db.operation.name"] = "SELECT",
-        ["db.collection.name"] = "users",
-    });
+using var activity = ActivitySource.StartActivity("SELECT users", ActivityKind.Client);
+activity?.SetTag("db.system", "postgresql");
+activity?.SetTag("db.namespace", databaseName);
+activity?.SetTag("db.operation.name", "SELECT");
+activity?.SetTag("db.collection.name", "users");
 
 // execute query …
 
@@ -246,13 +239,9 @@ Semconv reference: `otel-semantic-conventions` → database spans.
 ### Background Job
 
 ```csharp
-using var activity = tracer.StartActiveSpan("process batch",
-    kind: ActivityKind.Internal,
-    initialAttributes: new ActivityTagsCollection
-    {
-        ["batch.id"] = batchId,
-        ["worker.id"] = workerId,
-    });
+using var activity = ActivitySource.StartActivity("process batch", ActivityKind.Internal);
+activity?.SetTag("batch.id", batchId);
+activity?.SetTag("worker.id", workerId);
 
 var items = await repo.GetBatchItems(batchId);
 activity?.SetTag("batch.size", items.Count);
@@ -270,6 +259,9 @@ foreach (var item in items)
 activity?.SetTag("batch.processed", processed);
 activity?.SetTag("batch.failed", items.Count - processed);
 ```
+
+Semconv reference: `otel-semantic-conventions` → messaging/general spans (use `messaging.system`,
+`messaging.operation`, etc. for queue-backed jobs; omit if purely internal).
 
 ---
 
