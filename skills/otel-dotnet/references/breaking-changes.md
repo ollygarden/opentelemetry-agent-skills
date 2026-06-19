@@ -26,7 +26,7 @@ released at the same time (for example, `OpenTelemetry.Instrumentation.AspNetCor
 packages are often released as pre-release (e.g. `1.12.0-beta.1`) until the underlying semantic
 conventions they implement are finalized. Check the NuGet stability label before pinning a version:
 
-```
+```bash
 WebFetch https://www.nuget.org/packages/<PackageId>
 ```
 
@@ -41,7 +41,7 @@ Breaking changes, deprecations, and renames are documented per package in each r
 
 ### 2a. Core packages (`opentelemetry-dotnet`)
 
-```
+```bash
 # Discover current core release tag
 gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'
 
@@ -59,7 +59,7 @@ Common core package names (match the directory under `src/`):
 
 ### 2b. Contrib / instrumentation packages (`opentelemetry-dotnet-contrib`)
 
-```
+```bash
 # Fetch CHANGELOG for a contrib package — replace <Package> with the directory name
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/<Package>/CHANGELOG.md
 ```
@@ -93,7 +93,7 @@ Run this sequence when upgrading any package:
 
 For a full service upgrade (e.g. upgrading all `OpenTelemetry.*` packages):
 
-```
+```bash
 # Step 1: pin down the current core tag
 gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'
 
@@ -122,7 +122,7 @@ without a major version bump.
 To discover which flags are in effect in a given release, search the CHANGELOG and the source for
 `OTEL_DOTNET_EXPERIMENTAL_` after fetching:
 
-```
+```bash
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/OpenTelemetry/CHANGELOG.md
 ```
 
@@ -170,7 +170,7 @@ Search the fetched CHANGELOG text for:
 For each deprecated or removed API, the CHANGELOG typically names the replacement. If not,
 fetch the current API docs:
 
-```
+```bash
 # Per-package CHANGELOG is the authoritative source — fetch it as shown in Section 2.
 # If you need a general API reference, search the .NET API browser:
 WebFetch https://learn.microsoft.com/en-us/dotnet/api/?term=OpenTelemetry

@@ -324,7 +324,7 @@ using OpenTelemetry.Context.Propagation;
 var propagator = Propagators.DefaultTextMapPropagator;
 var carrier = new Dictionary<string, string>();
 propagator.Inject(
-    new PropagationContext(Activity.Current!.Context, Baggage.Current),
+    new PropagationContext(Activity.Current?.Context ?? default, Baggage.Current),
     carrier,
     (dict, key, value) => dict[key] = value);
 // Serialize 'carrier' alongside your message/request.

@@ -16,7 +16,9 @@ and `.WithLogging(...)` via `OpenTelemetry.Extensions.Hosting`.
 ## Hosted Setup
 
 For ASP.NET Core or any service using the .NET generic host, install
-`OpenTelemetry.Extensions.Hosting` and call `AddOpenTelemetry()` on `builder.Services`.
+`OpenTelemetry.Extensions.Hosting` plus the exporter package you use (for example
+`OpenTelemetry.Exporter.OpenTelemetryProtocol` for `AddOtlpExporter()`), and call
+`AddOpenTelemetry()` on `builder.Services`.
 The snippet below is the verified baseline from the spike (all three signals produced
 working output):
 

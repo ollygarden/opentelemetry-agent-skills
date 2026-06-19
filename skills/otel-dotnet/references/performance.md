@@ -64,7 +64,7 @@ See the [OpenTelemetry spec sampler names](https://opentelemetry.io/docs/specs/o
 
 ### Sampling Decision Impact
 
-```
+```text
 AlwaysOnSampler             -> Full Activity lifecycle: allocation + recording + export
 ParentBasedSampler(new TraceIdRatioBasedSampler(0.1)) -> 90% noop (near-zero cost), 10% fully recorded
 TraceIdRatioBasedSampler(0.1) -> Consistent 10% sampling ignoring parent
@@ -81,7 +81,7 @@ AlwaysOffSampler            -> All Activities noop; useful for load testing
 
 ### How It Works
 
-```
+```text
 Application thread                 BatchActivityExportProcessor thread
       |                                          |
   activity.Stop() --enqueue-->  queue (MaxQueueSize)
