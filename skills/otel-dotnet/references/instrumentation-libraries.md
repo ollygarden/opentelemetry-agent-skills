@@ -164,7 +164,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
-| `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (on `TracerProviderBuilder`; producer also on `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
+| `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (both available on `TracerProviderBuilder` and `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
 | `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` — **deprecated; MassTransit ≤ v7 only**. For MassTransit v8+ use built-in support: call `.AddSource("MassTransit")` on the `TracerProviderBuilder` instead. | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
 | `OpenTelemetry.Instrumentation.Hangfire` | `.AddHangfireInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Hangfire) |
 
