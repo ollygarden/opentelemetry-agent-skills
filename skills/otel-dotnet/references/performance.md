@@ -27,7 +27,7 @@ Exact numeric defaults can shift between releases. For authoritative values, che
 | Batch span queue size | `OTEL_BSP_MAX_QUEUE_SIZE` |
 | Batch span export size | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` |
 | Batch scheduled delay | `OTEL_BSP_SCHEDULE_DELAY` |
-| Batch exporter timeout | _(see source)_ |
+| Batch exporter timeout | `OTEL_BSP_EXPORT_TIMEOUT` |
 | Metric export interval | `OTEL_METRIC_EXPORT_INTERVAL` |
 | Metric export timeout | `OTEL_METRIC_EXPORT_TIMEOUT` |
 | OTLP export timeout | `OTEL_EXPORTER_OTLP_TIMEOUT` |
@@ -66,7 +66,7 @@ See the [OpenTelemetry spec sampler names](https://opentelemetry.io/docs/specs/o
 
 ```
 AlwaysOnSampler             -> Full Activity lifecycle: allocation + recording + export
-ParentBasedSampler(0.1)     -> 90% noop (near-zero cost), 10% fully recorded
+ParentBasedSampler(new TraceIdRatioBasedSampler(0.1)) -> 90% noop (near-zero cost), 10% fully recorded
 TraceIdRatioBasedSampler(0.1) -> Consistent 10% sampling ignoring parent
 AlwaysOffSampler            -> All Activities noop; useful for load testing
 ```
