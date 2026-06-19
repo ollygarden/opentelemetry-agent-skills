@@ -106,6 +106,9 @@ WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/m
 # Contrib examples:
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/OpenTelemetry.Instrumentation.AspNetCore/CHANGELOG.md
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/OpenTelemetry.Instrumentation.Http/CHANGELOG.md
+
+# Zero-code / CLR-profiler agent (single-repo product — CHANGELOG is at the repo root, not per-package):
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-instrumentation/main/CHANGELOG.md
 ```
 
 ---
@@ -168,7 +171,9 @@ For each deprecated or removed API, the CHANGELOG typically names the replacemen
 fetch the current API docs:
 
 ```
-WebFetch https://learn.microsoft.com/en-us/dotnet/api/overview/azure/opentelemetry
+# Per-package CHANGELOG is the authoritative source — fetch it as shown in Section 2.
+# If you need a general API reference, search the .NET API browser:
+WebFetch https://learn.microsoft.com/en-us/dotnet/api/?term=OpenTelemetry
 ```
 
 or the in-repo migration guide linked from the CHANGELOG entry.
