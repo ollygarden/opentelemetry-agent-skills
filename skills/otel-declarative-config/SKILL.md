@@ -52,11 +52,17 @@ but not interchangeable. A matrix entry may use a semver-shaped value such as
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
+`otel-dotnet` is listed in Cross-References below but does **not** support declarative YAML config yet — see the .NET note.
 
 **Python note:** declarative config is supported via the experimental, private
 `opentelemetry.sdk._configuration.file` module (install `opentelemetry-sdk[file-configuration]`).
 Activation is programmatic — there is no `OTEL_CONFIG_FILE` CLI wiring like Go/JS; you must call
 the loader in code at startup. See the `otel-python` skill and its `declarative-setup.md` reference.
+
+**\.NET note:** declarative YAML config is **not yet implemented** in OpenTelemetry .NET
+(tracked by [`open-telemetry/opentelemetry-dotnet#6380`](https://github.com/open-telemetry/opentelemetry-dotnet/issues/6380)).
+.NET configures via the DI/builder API, `OTEL_*` env vars, and `IConfiguration`. Do **not**
+use `OTEL_CONFIG_FILE` with .NET runtimes. See the `otel-dotnet` skill and its `setup.md` reference.
 
 ## Activation
 
@@ -96,4 +102,4 @@ Programmatic API  >  Environment Variables  >  Configuration File
 
 ## Cross-References
 
-- Language-specific setup: `otel-go`, `otel-java`, `otel-js`, `otel-python` (each loads its own `references/declarative-setup.md`).
+- Language-specific setup: `otel-go`, `otel-java`, `otel-js`, `otel-python` (each loads its own `references/declarative-setup.md`); `otel-dotnet` (declarative YAML config not yet supported — see .NET note above).

@@ -62,6 +62,9 @@ skills/
   otel-python/
     SKILL.md
     references/
+  otel-dotnet/
+    SKILL.md
+    references/
   otel-collector/
     SKILL.md
     components/        # one file per Collector component (log_dedup, interval, …)
@@ -97,6 +100,7 @@ Language-specific skills:
 | `otel-java` | `skills/otel-java/` | OpenTelemetry in Java: Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, and BOM dependency management. |
 | `otel-js` | `skills/otel-js/` | OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK setup, declarative YAML configuration via `@opentelemetry/configuration`, auto-instrumentations, and ESM vs CJS import patterns. |
 | `otel-python` | `skills/otel-python/` | OpenTelemetry in Python: declarative SDK setup via file config, API surface and logging bridge, zero-code instrumentation (opentelemetry-distro / opentelemetry-instrument) and contrib catalog, performance tuning, breaking-change audits. |
+| `otel-dotnet` | `skills/otel-dotnet/` | OpenTelemetry in .NET: DI/builder SDK setup (`OpenTelemetry.Extensions.Hosting`), native BCL instrumentation (`ActivitySource`, `Meter`, `ILogger`), zero-code CLR-profiler agent and contrib instrumentation catalog, performance tuning, breaking-change audits. |
 
 ## Contributing
 
