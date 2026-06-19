@@ -74,7 +74,9 @@ shared across all three signals, which is why `service.name`, `service.version`,
 ## Non-Hosted Setup
 
 For console apps or worker processes that do not use the generic host, build and own the
-providers manually:
+providers manually. These are core `OpenTelemetry`-package APIs confirmed against the SDK's
+public surface; unlike the hosted path above, this non-hosted setup was not exercised
+end-to-end in validation.
 
 ```csharp
 using OpenTelemetry;
@@ -93,8 +95,9 @@ using var meterProvider = Sdk.CreateMeterProviderBuilder()
     .AddOtlpExporter()
     .Build();
 
-// Logging: wire through ILoggingBuilder on a HostBuilder, or use
-// OpenTelemetry.Logs.OpenTelemetryLoggerProvider directly.
+// Logging (host-free): use LoggerFactory.Create(b => b.AddOpenTelemetry(...))
+// or OpenTelemetryLoggerProvider directly. The ILoggingBuilder route shown in
+// the Hosted section above requires the generic host and does not apply here.
 ```
 
 `using var` ensures `Dispose()` is called on exit, which flushes the batch processors and
