@@ -67,6 +67,11 @@
       "name": "otel-python",
       "source": "./skills/otel-python",
       "description": "OpenTelemetry in Python: declarative SDK setup (experimental file config), API surface and logging bridge, zero-code instrumentation (opentelemetry-distro / opentelemetry-instrument) and contrib catalog, performance tuning, breaking-change audits."
+    },
+    {
+      "name": "otel-dotnet",
+      "source": "./skills/otel-dotnet",
+      "description": "OpenTelemetry in .NET: DI/builder SDK setup (OpenTelemetry.Extensions.Hosting), native BCL instrumentation (ActivitySource, Meter, ILogger), zero-code CLR-profiler agent and contrib instrumentation catalog, performance tuning, breaking-change audits. Note: .NET has no declarative YAML config yet."
     }
   ]
 }
