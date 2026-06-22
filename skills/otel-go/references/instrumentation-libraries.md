@@ -31,6 +31,42 @@ router.Use(otelgin.Middleware("service-name"))             // gin (also emits HT
 router.Use(otelmux.Middleware("service-name"))             // gorilla/mux (also emits HTTP metrics)
 ```
 
+## Context Propagation (read first)
+
+In Go, spans link to their parent **only** through `context.Context`. An instrumentation library
+installs correctly and still emits *detached* spans if the active context never reaches the call. A
+SERVER span living in `c.Request.Context()` (gin) or `r.Context()` (net/http) parents a downstream
+DB/client span **only if that exact context is passed into it**.
+
+> **Symptom:** DB or client spans show up as CLIENT-kind *roots* in their own traces, disconnected
+> from the request. OllyGarden flags this as "Root Client Span"; it means trace context was dropped
+> at an internal boundary.
+
+The usual cause is structural, not a missing option:
+
+```go
+// ANTI-PATTERN: global handle + ctx-less call → span parented to context.Background()
+db := common.GetDB()             // package-level *gorm.DB
+db.Where("id = ?", id).First(&u) // no ctx → detached CLIENT-root span
+
+// CORRECT: thread the request context from the handler down to the call
+func (h *Handler) GetUser(c *gin.Context) {
+    u, err := h.users.Find(c.Request.Context(), id) // ctx flows in
+}
+func (r *UserRepo) Find(ctx context.Context, id int) (*User, error) {
+    var u User
+    return &u, r.db.WithContext(ctx).First(&u, id).Error // GORM links via WithContext(ctx)
+}
+```
+
+A data layer built on a global `*gorm.DB` (or `*sql.DB`) plus functions that don't accept `ctx`
+**cannot** produce connected traces — the call signatures have to carry `ctx`. Rules:
+
+- Every DB/client/outbound call runs with the incoming request's context.
+- For GORM, call `db.WithContext(ctx)` on every query; for `database/sql`, use the `...Context`
+  methods (`QueryContext`, `ExecContext`).
+- Never call instrumented clients with `context.Background()` or `context.TODO()` on a request path.
+
 ## Library Catalog
 
 ### HTTP
@@ -105,6 +141,22 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 |---------|---------|
 | database/sql | `go.opentelemetry.io/contrib/instrumentation/database/sql/otelsql` |
 | MongoDB | `go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo` |
+| GORM | `gorm.io/plugin/opentelemetry/tracing` (registered via `db.Use(tracing.NewPlugin(...))`) |
+
+> **PII in `db.query.text`:** the GORM plugin records the executed statement with bound parameter
+> values **inlined** by default, so a query like `INSERT INTO users (email, ...) VALUES ('a@b.com', ...)`
+> leaks the literal email onto the span. Disable query-variable capture so the statement is
+> parameterized:
+>
+> ```go
+> db.Use(tracing.NewPlugin(tracing.WithoutQueryVariables()))
+> // db.query.text becomes: INSERT INTO "users" (...) VALUES (?, ?, ?)
+> ```
+>
+> Treat this as the default for any service that touches user data. The same trap applies to other
+> SQL instrumentation that captures full statement text — for `otelsql`, suppress it with
+> `otelsql.WithSpanOptions(otelsql.SpanOptions{DisableQuery: true})`. Keep parameter values out of
+> `db.query.text`, or redact them downstream.
 
 ### AWS
 
