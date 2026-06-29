@@ -28,7 +28,7 @@ and version churn:
 |---|---|---|
 | Stable signals (traces, metrics) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, OTLP trace/metric exporters | **v1.x** (e.g. v1.44.0) |
 | Logs | `otel/log`, `otel/sdk/log`, `otel/exporters/otlp/otlplog/otlploghttp` | **v0.x** (separate, lower line) |
-| Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v1.x** |
+| Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v0.x** (separate line, e.g. v0.69.0) |
 | Contrib log bridges | `contrib/bridges/otelslog`, `otelzap`, `otelzerolog` | **v0.x** |
 
 **The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/log@v1.44.0`)
@@ -42,8 +42,9 @@ go get go.opentelemetry.io/otel@latest go.opentelemetry.io/otel/sdk@latest
 # logs (separate v0.x line — do NOT force the core version):
 go get go.opentelemetry.io/otel/log@latest go.opentelemetry.io/otel/sdk/log@latest \
        go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp@latest
-# contrib (bridges resolve to their own v0.x; instrumentation to v1.x):
-go get go.opentelemetry.io/contrib/bridges/otelslog@latest
+# contrib (instrumentation and bridges each resolve to their own v0.x line):
+go get go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp@latest \
+       go.opentelemetry.io/contrib/bridges/otelslog@latest
 go mod tidy && go build ./...
 ```
 
