@@ -123,19 +123,23 @@ import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 import { WebVitalsInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/web-vitals';
 
 registerInstrumentations({
-  // REQUIRED for span-based instrumentations (fetch, XHR, document-load) when you use a
-  // non-global provider: pass the WebTracerProvider you created above. Omit it and those
-  // instrumentations attach to the global no-op tracer and silently emit NO spans.
+  // Span-based instrumentations (fetch, XHR, document-load) resolve their tracer AT THIS CALL:
+  // from `tracerProvider` if given, otherwise the global tracer provider. Passing it explicitly
+  // is the robust, order-independent choice. Relying on the global instead works only if
+  // `provider.register()` ran BEFORE this call — register after, and they bind to the no-op
+  // tracer and silently emit nothing.
   tracerProvider: provider,
   instrumentations: [
-    new FetchInstrumentation(),     // span-based → uses tracerProvider above
+    new FetchInstrumentation(),     // span-based → uses the tracer provider resolved here
     new WebVitalsInstrumentation(), // event-based → uses the global LoggerProvider set above
   ],
 });
 ```
 
-Event-based instrumentations emit through whatever `logs.setGlobalLoggerProvider()` was given, so
-set that **before** `registerInstrumentations`. Span-based ones need the `tracerProvider` here.
+**Order matters.** Each instrumentation resolves its tracer/logger when `registerInstrumentations`
+runs, so `provider.register()` and `logs.setGlobalLoggerProvider()` must run **before** it. Passing
+`tracerProvider` explicitly (above) removes the ordering dependency for spans; event-based
+instrumentations always read the global logger, so set that first regardless.
 
 ### Verify it actually emits
 
@@ -223,7 +227,7 @@ new FetchInstrumentation({
 - [ ] `service.name` (and ideally `service.version`) set as resource attributes
 - [ ] Resource built by merging the **default** resource (so `telemetry.sdk.*` survives), and the **same** resource passed to both the tracer and logger providers
 - [ ] Exporting OTLP/**HTTP** to a Collector you control (not gRPC, not directly to a backend store)
-- [ ] `tracerProvider` passed to `registerInstrumentations` for span-based instrumentations (else they no-op silently)
+- [ ] Providers registered globally (`provider.register()`, `logs.setGlobalLoggerProvider()`) **before** `registerInstrumentations`, or `tracerProvider` passed to it explicitly — else span instrumentations resolve the no-op tracer
 - [ ] `ZoneContextManager` registered if you need trace context across async boundaries
 - [ ] `BatchSpanProcessor` / `BatchLogRecordProcessor` (not `Simple*`) for export efficiency
 - [ ] Session processor registered **before** the export processor
@@ -244,4 +248,4 @@ new FetchInstrumentation({
 | Shipping `sdk-trace-web` without a context manager | Async user interactions lose parent context | Register `ZoneContextManager` |
 | `resource: resourceFromAttributes({...})` as the whole resource | Replaces the default resource; drops `telemetry.sdk.*` and env-detected attributes | Merge: `defaultResource().merge(resourceFromAttributes({...}))` |
 | Building a `LoggerProvider` with no `resource` | Events carry no `service.name`; can't be attributed or correlated with spans | Pass the same merged resource to the logger provider |
-| `registerInstrumentations` without `tracerProvider` (non-global provider) | Span-based instrumentations bind to the global no-op tracer and emit nothing | Pass `tracerProvider: provider` |
+| `registerInstrumentations` running before `provider.register()` (and no explicit `tracerProvider`) | Span instrumentations resolve the no-op tracer at registration time and emit nothing | Register the provider (or pass `tracerProvider`) **before** registering instrumentations |

@@ -22,8 +22,8 @@ with a real begin/end and parent/child relationship.
 Entry points are subpath exports under `./experimental/*`; they emit through the global
 `LoggerProvider` (see [setup-sdk.md](setup-sdk.md#logger-provider-events)), so call
 `logs.setGlobalLoggerProvider(...)` **before** `registerInstrumentations`. (Span-based
-instrumentations instead need `tracerProvider` passed to `registerInstrumentations` — see
-[setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
+instrumentations resolve their tracer at registration time too — pass `tracerProvider` or register
+the provider globally first; see [setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
 
 ```typescript
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -142,8 +142,8 @@ bundle:
 
 ```typescript
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
-// Pass tracerProvider when you use a non-global WebTracerProvider, or these span-based
-// instrumentations bind to the global no-op tracer and emit nothing.
+// Pass tracerProvider (or register the provider globally BEFORE this call); otherwise these
+// span-based instrumentations resolve the no-op tracer at registration time and emit nothing.
 registerInstrumentations({
   tracerProvider: provider,
   instrumentations: [getWebAutoInstrumentations()],
