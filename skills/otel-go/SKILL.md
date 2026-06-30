@@ -18,6 +18,39 @@ task; each reference is self-contained.
 | [`references/performance.md`](references/performance.md) | Tuning sampling, batch processor, metric reader, exporter compression/retry, attribute allocation, log `Enabled()` short-circuiting, graceful shutdown. |
 | [`references/breaking-changes.md`](references/breaking-changes.md) | Auditing existing code for deprecated calls, renamed semantic conventions, and removed APIs across recent SDK / contrib releases. |
 
+## Module versioning — read before adding dependencies
+
+opentelemetry-go is split into **independently versioned module groups**. They do NOT
+share one version number. Assuming they do is the most common cause of broken builds
+and version churn:
+
+| Module group | Example modules | Version line |
+|---|---|---|
+| Stable signals (traces, metrics) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, OTLP trace/metric exporters | **v1.x** (e.g. v1.44.0) |
+| Logs | `otel/log`, `otel/sdk/log`, `otel/exporters/otlp/otlplog/otlploghttp` | **v0.x** (separate, lower line) |
+| Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v0.x** (separate line, e.g. v0.69.0) |
+| Contrib log bridges | `contrib/bridges/otelslog`, `otelzap`, `otelzerolog` | **v0.x** |
+
+**The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/log@v1.44.0`)
+fails — log and bridge modules have no v1.x tag. Hand-picking and re-guessing each `@vX`
+is the churn to avoid.
+
+**Do this instead** — add each module with `@latest` and let Go resolve a compatible set:
+
+```bash
+go get go.opentelemetry.io/otel@latest go.opentelemetry.io/otel/sdk@latest
+# logs (separate v0.x line — do NOT force the core version):
+go get go.opentelemetry.io/otel/log@latest go.opentelemetry.io/otel/sdk/log@latest \
+       go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp@latest
+# contrib (instrumentation and bridges each resolve to their own v0.x line):
+go get go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp@latest \
+       go.opentelemetry.io/contrib/bridges/otelslog@latest
+go mod tidy && go build ./...
+```
+
+If exact versions are required, fetch each module group's tag from its own source
+(see below) — never infer one group's version from another's.
+
 ## Sources of Truth
 
 For YAML schema details, fetch the upstream sources listed in the `otel-declarative-config` skill.
