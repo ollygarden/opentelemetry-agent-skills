@@ -4,9 +4,10 @@ Setting up OpenTelemetry in the browser for **traces (spans)** and **events (log
 is no MeterProvider story in the browser yet.
 
 > **Stability**: `@opentelemetry/browser-sdk` is experimental and may be unpublished — confirm with
-> `npm view @opentelemetry/browser-sdk version`. The stable path today is the web tracing SDK
-> (`@opentelemetry/sdk-trace-web`) plus event-based instrumentations from
-> `@opentelemetry/browser-instrumentation`. Both are shown below.
+> `npm view @opentelemetry/browser-sdk version`. The most settled path today wires the providers
+> directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
+> for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
+> still on the 0.x line) for events. Both approaches are shown below.
 
 ## Core principles
 
@@ -28,7 +29,10 @@ a vendor edge endpoint) rather than directly to a backend store is what makes CO
 sampling, redaction, rate limiting, and trustworthy server-side resource attributes (real client IP,
 geo) possible. See [performance.md](performance.md#the-collector-is-your-cost-and-safety-valve).
 
-## Approach A — stable primitives
+## Approach A — direct providers
+
+Spans use the **stable** tracing SDK; events use the **experimental** Logs SDK (0.x). There is no
+stable browser events path yet — the Logs SDK is the current mechanism.
 
 ### Dependencies
 
@@ -99,9 +103,10 @@ global `LoggerProvider`. See [instrumentation.md](instrumentation.md).
 
 ## Approach B — Browser SDK (experimental)
 
-`@opentelemetry/browser-sdk` collapses the boilerplate above into one call. It is experimental and
-may be unreleased — config options change frequently, so re-check the package README (see the
-Sources of Truth in [SKILL.md](../SKILL.md#sources-of-truth)).
+`@opentelemetry/browser-sdk` collapses the boilerplate above into one call. It exports two combined
+initializers — `quickStartBrowserSdk` (simplified) and `startBrowserSdk` (deeper control) — plus
+per-signal entry points. It is experimental and may be unreleased; config options change frequently,
+so re-check the package README (see the Sources of Truth in [SKILL.md](../SKILL.md#sources-of-truth)).
 
 ```javascript
 import { quickStartBrowserSdk } from '@opentelemetry/browser-sdk';

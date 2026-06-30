@@ -18,7 +18,7 @@ each reference is self-contained.
 
 | File | Use when |
 |---|---|
-| [`references/setup-sdk.md`](references/setup-sdk.md) | Wiring up the SDK: stable primitives (`WebTracerProvider` + `ZoneContextManager` + `LoggerProvider`) vs the experimental `browser-sdk`, sessions, frontend→backend `traceparent`/CORS propagation, and why a Collector sits in front. |
+| [`references/setup-sdk.md`](references/setup-sdk.md) | Wiring up the SDK: the direct providers (`WebTracerProvider` + `ZoneContextManager` for spans; `LoggerProvider` for events) vs the experimental `browser-sdk`, sessions, frontend→backend `traceparent`/CORS propagation, and why a Collector sits in front. |
 | [`references/instrumentation.md`](references/instrumentation.md) | Choosing and configuring instrumentations: the event-based catalog (navigation, web vitals, console, errors, …), the span-based catalog (fetch, XHR, document-load, long-task, …), per-instrumentation options, and what each captures. |
 | [`references/performance.md`](references/performance.md) | Keeping it cheap, fast, and private: bundle size, off-main-thread processing, page-lifecycle flushing, telemetry volume/cost, and PII vectors. |
 
