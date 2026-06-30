@@ -72,6 +72,11 @@
       "name": "otel-dotnet",
       "source": "./skills/otel-dotnet",
       "description": "OpenTelemetry in .NET: DI/builder SDK setup (OpenTelemetry.Extensions.Hosting), native BCL instrumentation (ActivitySource, Meter, ILogger), zero-code CLR-profiler agent and contrib instrumentation catalog, performance tuning, breaking-change audits. Note: .NET has no declarative YAML config yet."
+    },
+    {
+      "name": "otel-browser",
+      "source": "./skills/otel-browser",
+      "description": "OpenTelemetry in the browser (Real User Monitoring / RUM): web tracing SDK (sdk-trace-web, context-zone) and experimental browser-sdk, event- and span-based browser instrumentations (web vitals, navigation, errors, fetch/XHR), sessions, frontend-to-backend trace propagation, bundle size / cost / PII trade-offs."
     }
   ]
 }
