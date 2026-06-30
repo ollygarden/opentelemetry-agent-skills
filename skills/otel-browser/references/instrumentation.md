@@ -20,7 +20,10 @@ with a real begin/end and parent/child relationship.
 ## Event-based instrumentations (`@opentelemetry/browser-instrumentation`)
 
 Entry points are subpath exports under `./experimental/*`; they emit through the global
-`LoggerProvider` (see [setup-sdk.md](setup-sdk.md#logger-provider-events)).
+`LoggerProvider` (see [setup-sdk.md](setup-sdk.md#logger-provider-events)), so call
+`logs.setGlobalLoggerProvider(...)` **before** `registerInstrumentations`. (Span-based
+instrumentations instead need `tracerProvider` passed to `registerInstrumentations` — see
+[setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
 
 ```typescript
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -139,7 +142,12 @@ bundle:
 
 ```typescript
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
-registerInstrumentations({ instrumentations: [getWebAutoInstrumentations()] });
+// Pass tracerProvider when you use a non-global WebTracerProvider, or these span-based
+// instrumentations bind to the global no-op tracer and emit nothing.
+registerInstrumentations({
+  tracerProvider: provider,
+  instrumentations: [getWebAutoInstrumentations()],
+});
 ```
 
 | Package | Repo | What it does |
@@ -190,3 +198,4 @@ The server must list `traceparent` (and `tracestate`/`baggage` if used) in
 | Tracing your own OTLP export calls | Infinite telemetry-about-telemetry loop | `ignoreUrls` the `/v1/traces` and `/v1/logs` endpoints |
 | Forcing spans around point-in-time facts | Wrong model; bloats traces | Use the event-based instrumentations for vitals/navigation/errors |
 | Relying on navigation *timing* for page-view counts | Lost when `load` never fires / user leaves early | Use the navigation *event* for counts, timing for performance |
+| Assuming an instrumentation works because registration threw no error | These packages are experimental; a misconfigured or no-op instrumentation emits neither errors nor telemetry | Verify each one reaches the Collector (diag logging + `debug` exporter) — see [setup-sdk.md](setup-sdk.md#verify-it-actually-emits) |

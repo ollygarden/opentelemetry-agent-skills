@@ -55,14 +55,25 @@ npm install @opentelemetry/api-logs \
 ### Tracer provider (spans)
 
 ```typescript
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
+import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { WebTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
+// Merge with the default resource so `telemetry.sdk.*` (and any env-detected attributes)
+// are preserved. `resourceFromAttributes()` ALONE replaces the default resource and drops
+// them — telemetry then arrives with only the attributes you listed. Reuse this one
+// `resource` for BOTH the tracer and logger providers so spans and events correlate.
+const resource = defaultResource().merge(
+  resourceFromAttributes({
+    [ATTR_SERVICE_NAME]: 'my-web-app',
+    [ATTR_SERVICE_VERSION]: '1.0.0',
+  }),
+);
+
 const provider = new WebTracerProvider({
-  resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'my-web-app' }),
+  resource,
   spanProcessors: [
     new BatchSpanProcessor(
       new OTLPTraceExporter({ url: 'https://collector.example.com/v1/traces' }),
@@ -89,6 +100,9 @@ import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 
 const loggerProvider = new LoggerProvider({
+  // Pass the SAME merged resource as the tracer provider. Without a resource, events carry
+  // no `service.name` and cannot be correlated with the spans from the same app.
+  resource,
   processors: [
     new BatchLogRecordProcessor(
       new OTLPLogExporter({ url: 'https://collector.example.com/v1/logs' }),
@@ -100,6 +114,44 @@ logs.setGlobalLoggerProvider(loggerProvider);
 
 The event-based instrumentations (navigation, web vitals, console, errors, …) emit through this
 global `LoggerProvider`. See [instrumentation.md](instrumentation.md).
+
+### Register the instrumentations
+
+```typescript
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+import { WebVitalsInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/web-vitals';
+
+registerInstrumentations({
+  // REQUIRED for span-based instrumentations (fetch, XHR, document-load) when you use a
+  // non-global provider: pass the WebTracerProvider you created above. Omit it and those
+  // instrumentations attach to the global no-op tracer and silently emit NO spans.
+  tracerProvider: provider,
+  instrumentations: [
+    new FetchInstrumentation(),     // span-based → uses tracerProvider above
+    new WebVitalsInstrumentation(), // event-based → uses the global LoggerProvider set above
+  ],
+});
+```
+
+Event-based instrumentations emit through whatever `logs.setGlobalLoggerProvider()` was given, so
+set that **before** `registerInstrumentations`. Span-based ones need the `tracerProvider` here.
+
+### Verify it actually emits
+
+These packages are experimental and their wiring is easy to get subtly wrong (a missing
+`tracerProvider`, a provider registered too late, an instrumentation that no-ops silently). After
+wiring up, confirm each enabled instrumentation actually produces telemetry rather than assuming it
+does:
+
+- Turn on SDK diagnostics during bring-up and watch the console:
+  `import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';`
+  `diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);` (remove for production).
+- Point at a local Collector with the `debug` exporter (`verbosity: detailed`) and check that the
+  span names and event names you expect (e.g. a `fetch` span, an `exception` event) actually arrive
+  — exercise each path (navigate, click, fetch, throw) and look for it downstream.
+- Treat "no error in the console" as **not** proof of capture: a silently inactive instrumentation
+  produces neither errors nor telemetry.
 
 ## Approach B — Browser SDK (experimental)
 
@@ -169,12 +221,15 @@ new FetchInstrumentation({
 
 - [ ] SDK initialized **before** app/framework code and before libraries patch globals
 - [ ] `service.name` (and ideally `service.version`) set as resource attributes
+- [ ] Resource built by merging the **default** resource (so `telemetry.sdk.*` survives), and the **same** resource passed to both the tracer and logger providers
 - [ ] Exporting OTLP/**HTTP** to a Collector you control (not gRPC, not directly to a backend store)
+- [ ] `tracerProvider` passed to `registerInstrumentations` for span-based instrumentations (else they no-op silently)
 - [ ] `ZoneContextManager` registered if you need trace context across async boundaries
 - [ ] `BatchSpanProcessor` / `BatchLogRecordProcessor` (not `Simple*`) for export efficiency
 - [ ] Session processor registered **before** the export processor
 - [ ] `propagateTraceHeaderCorsUrls` set and server `Access-Control-Allow-Headers` includes `traceparent`
 - [ ] Telemetry flushed on `visibilitychange`/`pagehide` (keepalive), not `unload`
+- [ ] **Verified** each enabled instrumentation actually emits to the Collector (diag logging + `debug` exporter), not just assumed
 
 ## Anti-patterns
 
@@ -187,3 +242,6 @@ new FetchInstrumentation({
 | Flushing on `unload` | Unreliable on mobile/bfcache; blocks navigation | Flush on `visibilitychange`/`pagehide` with `keepalive` |
 | Session processor after the batch processor | Records exported before `session.id` is attached | Put the session processor first |
 | Shipping `sdk-trace-web` without a context manager | Async user interactions lose parent context | Register `ZoneContextManager` |
+| `resource: resourceFromAttributes({...})` as the whole resource | Replaces the default resource; drops `telemetry.sdk.*` and env-detected attributes | Merge: `defaultResource().merge(resourceFromAttributes({...}))` |
+| Building a `LoggerProvider` with no `resource` | Events carry no `service.name`; can't be attributed or correlated with spans | Pass the same merged resource to the logger provider |
+| `registerInstrumentations` without `tracerProvider` (non-global provider) | Span-based instrumentations bind to the global no-op tracer and emit nothing | Pass `tracerProvider: provider` |
