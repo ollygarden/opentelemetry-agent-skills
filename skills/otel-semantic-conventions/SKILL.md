@@ -15,7 +15,7 @@ Use this skill when you need released semantic convention guidance for naming, a
 - use the bundled lookup script to query only the needed released group or attribute
 
 2. Choose the closest released group before inventing custom keys.
-- identify the boundary type such as `http`, `db`, `messaging`, `rpc`, `network`, `gen-ai`, or `mcp`
+- identify the boundary type such as `http`, `db`, `messaging`, `rpc`, or `network`
 - pick one primary group first, then add related groups only when they add needed context
 - see `references/semconv-selection.md`
 

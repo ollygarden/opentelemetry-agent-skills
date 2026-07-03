@@ -18,4 +18,4 @@ Rules:
 - the script resolves the latest released semantic conventions version and reads `model/<group>/registry.yaml` from that tag
 
 Common groups:
-`http`, `db`, `messaging`, `rpc`, `network`, `url`, `server`, `error`, `user-agent`, `gen-ai`, `mcp`
+`http`, `db`, `messaging`, `rpc`, `network`, `url`, `server`, `error`, `user-agent`

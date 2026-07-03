@@ -1,6 +1,6 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.149.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.155.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
 ## Editors (data manipulation)
 
@@ -68,6 +68,26 @@ truncate_all(span.attributes, 256)
 ```
 
 UTF-8 safe by default since v0.148 — truncates at character boundaries, so the result may be slightly shorter than `max_length`. Pass `utf8_safe = false` for the previous byte-level behavior.
+
+### `stringify_all`
+```ottl
+stringify_all(target)
+stringify_all(log.attributes)
+stringify_all(resource.attributes)
+```
+
+Converts every non-string value in a map to its string representation. Numbers and booleans become scalar strings, bytes become base64, maps and slices become JSON strings, and empty values become `""`. Added in collector-contrib v0.155.0.
+
+### Dynamic indexing of converter results
+
+Converter results can be indexed with expressions that evaluate to a string or integer, not only literals:
+
+```ottl
+Split(log.body.string, ",")[log.attributes["index"]]
+ParseJSON(log.body.string)[log.attributes["field_name"]]
+```
+
+This was added in collector-contrib v0.155.0. On older collectors, keep converter-result indexes literal, such as `[0]` or `["field"]`.
 
 ### `replace_match` / `replace_all_matches`
 ```ottl

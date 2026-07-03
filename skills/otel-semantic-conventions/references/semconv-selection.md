@@ -13,8 +13,6 @@ Pick the closest released semantic convention group before inventing custom keys
 - `server` for server endpoint metadata
 - `error` for error classification
 - `user-agent` for client user-agent details
-- `gen-ai` for model and generation operations
-- `mcp` for Model Context Protocol operations
 
 ## Selection Rules
 
@@ -40,4 +38,4 @@ Use the one-argument form first. Use the two-argument form only when you need th
 - Database: `db`, then maybe `server`, `error`
 - Messaging: `messaging`, then maybe `network`, `server`, `error`
 - RPC: `rpc`, then maybe `server`, `network`, `error`
-- GenAI: `gen-ai`, then maybe `error`
+If a domain is not listed by `./scripts/query-otel-semantic-conventions.sh --groups`, treat it as not available in the currently released semantic conventions and use a stable custom namespace.

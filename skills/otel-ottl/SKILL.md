@@ -7,7 +7,7 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 
 OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, `routing`, and `tail_sampling` processors (and a few others) in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
 
-This skill targets `pkg/ottl` as of collector-contrib **v0.149.0**. Function and path availability before that version differs; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in any older release.
+This skill targets `pkg/ottl` as of collector-contrib **v0.155.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
 
 ## Statement syntax
 
@@ -58,6 +58,7 @@ keep_keys(target, [k1, k2])           # keep only these keys
 merge_maps(target, source, "upsert")  # "insert" | "update" | "upsert"
 truncate_all(target, max_len)         # UTF-8 safe by default in v0.148+
 replace_pattern(target, regex, replacement)
+stringify_all(target)                 # map values -> strings (v0.155+)
 
 # Converters (return values)
 Concat([a, b], "-")
@@ -72,6 +73,13 @@ ExtractGrokPatterns(s, "%{IP:client}") # Grok (v0.130+)
 IsInCIDR(ip, ["10.0.0.0/8"])          # CIDR membership (v0.146+)
 SHA256(v) / Murmur3Hash(v) / XXH3(v)  # hashing
 UUID() / UUIDv7()
+```
+
+Converter results can be indexed by dynamic string or integer expressions in v0.155+:
+
+```ottl
+set(log.attributes["last"], Split(log.body.string, ",")[Len(Split(log.body.string, ",")) - 1])
+set(log.attributes["selected"], ParseJSON(log.body.string)[log.attributes["field_name"]])
 ```
 
 Full catalog with signatures in `references/functions.md`.
@@ -234,6 +242,7 @@ Recently added (still useful to know which release introduced them when supporti
 | `Murmur3Hash*`, `XXH3`, `XXH128` | v0.129, v0.135 |
 | `Sort`, `Index`, `SliceToMap` | v0.125, v0.126, v0.128 |
 | `UUIDv7`, `ParseSeverity`, `CommunityID` | v0.138, v0.133, v0.131 |
+| `stringify_all` editor; dynamic keys when indexing converter results | v0.155 |
 
 ## References
 

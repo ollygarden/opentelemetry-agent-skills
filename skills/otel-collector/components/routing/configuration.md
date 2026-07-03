@@ -37,7 +37,7 @@ service:
 |-----|------|---------|----------|---------|
 | `table` | array of RoutingTableItem | — | **yes** (≥1 route) | The routing table. Routes are evaluated in order; each piece of telemetry matches at most one route. |
 | `default_pipelines` | array of pipeline IDs | none | no | Pipelines for telemetry that matches no route. **If unset, unmatched telemetry is dropped.** |
-| `error_mode` | string | `propagate` | no | How OTTL evaluation errors are handled: `propagate`, `ignore`, or `silent` (see below). |
+| `error_mode` | string | version-dependent; set explicitly | no | How OTTL evaluation errors are handled: `propagate`, `ignore`, or `silent` (see below). |
 
 ## RoutingTableItem reference
 
@@ -98,11 +98,11 @@ Controls what happens when an OTTL expression fails to evaluate (missing attribu
 
 | Value | Behavior |
 |-------|----------|
-| `propagate` (default) | The connector returns an error and the **payload is dropped** from the collector. |
+| `propagate` | The connector returns an error and the **payload is dropped** from the collector. |
 | `ignore` | The error is logged and the payload is sent to `default_pipelines`. |
 | `silent` | Same as `ignore`, but the error is not logged. |
 
-Prefer `ignore` in production so a transient OTTL error doesn't drop data.
+Prefer `ignore` in production so a transient OTTL error doesn't drop data. Set `error_mode` explicitly in reusable configs because defaults can change across Collector versions and feature gates.
 
 ## Pipeline wiring
 
