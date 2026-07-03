@@ -72,8 +72,9 @@ The standard environment variable is `OTEL_CONFIG_FILE`:
 export OTEL_CONFIG_FILE=/app/configs/otel.yaml
 ```
 
-When set, the SDK reads this file at startup. All other `OTEL_*` env vars are ignored except
-those referenced via `${env:VAR}` substitution inside the config file.
+When set, the SDK reads this file at startup. In file-config mode, SDKs ignore `OTEL_*`
+environment variables except those referenced through environment-variable substitution
+inside the config file.
 
 Language-specific activation varies — see the language `sdk-setup` skills for details.
 
@@ -93,12 +94,16 @@ Rules:
 - No recursive substitution
 - Invalid references produce a parse error
 
-## Configuration Precedence
+## Configuration Interaction
 
-```
-Programmatic API  >  Environment Variables  >  Configuration File
-   (highest)                                      (lowest)
-```
+Declarative configuration is a file-config mode, not a lower-precedence layer under
+`OTEL_*` environment variables:
+
+| Mode | Behavior |
+|------|----------|
+| File config (`OTEL_CONFIG_FILE`, `-Dotel.config.file`, or programmatic loader) | The file supplies SDK configuration. `OTEL_*` env vars are ignored unless the file explicitly references them with substitution such as `${OTEL_SERVICE_NAME}`. |
+| Env-var config | Applies only when the selected SDK/runtime is not parsing a declarative config file. |
+| Programmatic setup | Application code can still decide whether to load a file, override parsed values, or build providers directly. Treat the programmatic code path as the runtime source of truth. |
 
 ## Cross-References
 

@@ -31,7 +31,7 @@ Percentage mode reads the container's memory limit from cgroups v2 (`/sys/fs/cgr
 
 ## It is a safety net, not a sizing tool
 
-The limiter does not make a small collector handle more load — below capacity it simply **refuses data constantly** (high `processor_refused_*`, persistent *"Refusing data"* logs, receivers seeing backpressure). The fix is to size the collector for the workload or scale out, then keep `memory_limiter` as the backstop. Treat sustained refusal as an under-provisioning signal, not a tuning problem.
+The limiter does not make a small collector handle more load — below capacity it simply **refuses data constantly** (refusal metrics, persistent *"Refusing data"* logs, receivers seeing backpressure). Memory-limiter metric names have changed across Collector releases, so check the exact Collector version before writing alerts. The fix is to size the collector for the workload or scale out, then keep `memory_limiter` as the backstop. Treat sustained refusal as an under-provisioning signal, not a tuning problem.
 
 ## Refusal is non-permanent — receivers must retry
 

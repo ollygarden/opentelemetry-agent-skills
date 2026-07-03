@@ -1,6 +1,6 @@
 # OTTL Contexts Reference
 
-Context paths and enums for collector-contrib **v0.149.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
+Context paths and enums for collector-contrib **v0.155.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
 
 ## Context hierarchy
 
