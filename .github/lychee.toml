@@ -1,3 +1,7 @@
 accept = ["200", "206", "429"]
 max_retries = 2
 retry_wait_time = 2
+exclude = [
+  "^https://search\\.maven\\.org/artifact/io\\.opentelemetry/opentelemetry-sdk$",
+  "^https://www\\.npmjs\\.com/package/@opentelemetry/sdk-node$",
+]
