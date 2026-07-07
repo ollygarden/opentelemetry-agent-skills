@@ -61,7 +61,7 @@ func fetchJSON(ctx context.Context, rawURL string, dst any) error {
 	if err != nil {
 		return fmt.Errorf("request %s: %w", rawURL, err)
 	}
-	defer resp.Body.Close()
+	defer closeBody(resp.Body)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
@@ -239,7 +239,7 @@ func fetchMavenMetadataRelease(ctx context.Context, rawURL string) (string, erro
 	if err != nil {
 		return "", fmt.Errorf("request %s: %w", rawURL, err)
 	}
-	defer resp.Body.Close()
+	defer closeBody(resp.Body)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
@@ -375,4 +375,8 @@ func parseVersionParts(version string) []int {
 		parts = append(parts, value)
 	}
 	return parts
+}
+
+func closeBody(body io.Closer) {
+	_ = body.Close()
 }
