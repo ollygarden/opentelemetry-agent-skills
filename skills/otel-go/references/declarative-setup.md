@@ -48,7 +48,7 @@ import (
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/log/global"
     "go.opentelemetry.io/otel/propagation"
-    semconv "go.opentelemetry.io/otel/semconv/v1.40.0"
+    semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
     otelconf "go.opentelemetry.io/contrib/otelconf"
 )
 ```
