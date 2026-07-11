@@ -61,4 +61,4 @@ processors:
 
 ## The audit summary
 
-When `summary` is not `silent`, the processor records what it did as attributes on each record (zero-count attributes are omitted). See the [audit attributes table](configuration.md#audit-attributes) for the full list of `redaction.*` (and `redaction.body.*`) names and their verbosity levels. Use `summary: info` for counts in production; reserve `summary: debug` (which records key names) for short-lived investigation.
+When `summary` is `debug` or `info`, the processor records what it did as attributes on each record (zero-count attributes are omitted); the default (empty) and `silent` emit nothing. See the [audit attributes table](configuration.md#audit-attributes) for the full list of `redaction.*` (and `redaction.body.*`) names and their verbosity levels. Use `summary: info` for counts in production; reserve `summary: debug` (which records key names) for short-lived investigation.

@@ -14,7 +14,7 @@ The trace path is Beta (production viable, breaking changes rare). The log and m
 
 ## Description
 
-An allow/block-list redaction processor that enforces a data-governance policy on the attributes flowing through a pipeline. It masks or removes sensitive attribute keys and values across span, log, and metric data points, and can additionally sanitize URLs and database query strings. Two mechanisms compose: allow-listing keys (any key not on `allowed_keys` is deleted, failing closed) and masking values (values matching `blocked_values`, or whose key matches `blocked_key_patterns`, are masked with asterisks or replaced by a hash). On top of attribute redaction it can sanitize URLs (strip high-cardinality path segments and query content) and database queries (SQL, Redis, Memcached, MongoDB, OpenSearch, Elasticsearch). It **modifies in place** — it never drops or reroutes telemetry.
+An allow/block-list redaction processor that enforces a data-governance policy on the attributes flowing through a pipeline. It masks or removes sensitive attribute keys and values across span, log, and metric data points, and can additionally sanitize URLs and database query strings. Two mechanisms compose: allow-listing keys (any key not on `allowed_keys` is deleted, failing closed) and masking values (values matching `blocked_values`, or whose key matches `blocked_key_patterns`, are masked with asterisks or replaced by a hash). On top of attribute redaction it can sanitize URLs (strip high-cardinality path segments and query content) and database queries (SQL, Redis, Valkey, Memcached, MongoDB, OpenSearch, Elasticsearch). It **modifies in place** — it never drops or reroutes telemetry.
 
 ## Main use-cases
 

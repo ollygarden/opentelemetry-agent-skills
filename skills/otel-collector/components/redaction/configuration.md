@@ -36,12 +36,12 @@ service:
 | `redact_all_types` | bool | `false` | When `true`, non-string values are checked via their `AsString()` form against `blocked_values`. When `false`, only string values are checked. |
 | `hash_function` | string | `""` | Replace masked values with a hash instead of asterisks. One of `md5`, `sha1`, `sha3`, `hmac-sha256`, `hmac-sha512`. Empty = asterisk masking. |
 | `hmac_key` | string | `""` | Secret key for `hmac-sha256` / `hmac-sha512`. Supports env expansion (`${env:REDACTION_HMAC_KEY}`). |
-| `summary` | string | `info` | Audit verbosity: `debug` (key names + counts), `info` (counts only), `silent` (no audit attributes). |
+| `summary` | string | `""` | Audit verbosity. Empty (the default) emits **no** audit attributes, same as `silent`. `debug` = key names + counts, `info` = counts only, `silent` = none. |
 | `url_sanitizer.enabled` | bool | `false` | Enable URL sanitization. |
 | `url_sanitizer.attributes` | []string | `[]` | Attribute keys whose URL values are sanitized. |
 | `url_sanitizer.sanitize_span_name` | bool | `true` | Sanitize span names containing `/`. |
 | `db_sanitizer.sanitize_span_name` | bool | `true` | Sanitize database query span names. |
-| `db_sanitizer.<engine>.enabled` | bool | `false` | Enable per-engine query sanitization. `<engine>` is one of `sql`, `redis`, `memcached`, `mongo`, `opensearch`, `es`. |
+| `db_sanitizer.<engine>.enabled` | bool | `false` | Enable per-engine query sanitization. `<engine>` is one of `sql`, `redis`, `valkey`, `memcached`, `mongo`, `opensearch`, `es`. |
 | `db_sanitizer.<engine>.attributes` | []string | `[]` | Attributes holding the query/command text for that engine. |
 
 ## Processing order and precedence
@@ -57,7 +57,7 @@ Key allow-listing is fail-closed; value matching is not. Relying only on `blocke
 
 ## Audit attributes
 
-When `summary` is not `silent`, the processor records what it did as attributes on each record (zero-count attributes are omitted):
+When `summary` is `debug` or `info`, the processor records what it did as attributes on each record (zero-count attributes are omitted). The default (empty) and `silent` emit nothing:
 
 | Attribute | Verbosity | Description |
 |-----------|-----------|-------------|
