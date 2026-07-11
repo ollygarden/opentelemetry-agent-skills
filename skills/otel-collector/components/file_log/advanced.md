@@ -155,7 +155,7 @@ receivers:
     operators: [ { type: json_parser } ]
   file_log/access:
     include: [ /var/log/nginx/access.log ]
-    operators: [ { type: regex_parser, regex: '...' } ]
+    operators: [ { type: regex_parser, regex: '(?P<msg>.*)' } ]
 
 service:
   pipelines:
