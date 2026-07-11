@@ -62,12 +62,12 @@ receivers:
   otlp:
     protocols:
       grpc:
-        middlewares: [memory_limiter]
+        middlewares: [{id: memory_limiter}]
 service:
   extensions: [memory_limiter]
 ```
 
-It is **experimental** — use the processor form for production.
+It is **experimental** — use the processor form for production. Note: the extension is **not compiled into the stock `otelcol-contrib` distribution** (verified on v0.156.0, which rejects it with `'extensions' unknown type: "memory_limiter"`); it requires a custom build.
 
 ## Stability caveats
 
