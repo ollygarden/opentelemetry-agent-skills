@@ -9,7 +9,8 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 The `file_log` receiver ships in the `contrib` and `k8s` distributions. This recipe runs **one**
 collector — `file_log` tailing a mounted directory, feeding a `debug` exporter — and proves the
 pipeline by writing three pre-formatted lines and reading them back parsed. Verified on
-`otel/opentelemetry-collector-contrib:0.154.0`.
+`otel/opentelemetry-collector-contrib:0.154.0`; the config schema and debug output are unchanged
+through v0.156.0.
 
 Config (`file_log.yaml`) — note `start_at: beginning`, without which an existing idle file is
 skipped (the receiver's top gotcha):
