@@ -42,7 +42,7 @@ RPC attribute changes:
 
 ## Baggage limits (core v1.44.0)
 
-- The 8192-byte baggage size limit is now enforced during extraction/parsing (`otel/baggage`, `otel/propagation`); malformed/oversized baggage headers are rejected rather than silently accepted.
+- The 8192-byte baggage size limit is now enforced during extraction/parsing (`otel/baggage`, `otel/propagation`): baggage strings over the limit are rejected outright, while malformed members are skipped — valid members are retained and an error is reported.
 
 ## HTTP instrumentation behaviour (contrib v1.44.0)
 

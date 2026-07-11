@@ -209,8 +209,9 @@ Metric attribute cardinality is the product of unique values across all recorded
 > **Default cardinality limit (v1.44.0+):** `sdk/metric` now enforces a default cardinality
 > limit of **2000** series per instrument (spec-compliant). Series beyond the limit are dropped
 > and aggregated into an overflow series marked `attribute.Bool("otel.metric.overflow", true)`.
-> This is a breaking change from the previous unlimited default. Override per reader with
-> `sdkmetric.WithCardinalityLimit(n)` (use `0` for unlimited), or per instrument kind with
+> This is a breaking change from the previous unlimited default. Override globally with the
+> MeterProvider option `sdkmetric.WithCardinalityLimit(n)` (zero or negative disables the
+> limit), or per instrument kind with the reader option
 > `sdkmetric.WithCardinalityLimitSelector` (v1.43.0+). Views remain the correct tool for
 > *shaping* cardinality; the limit is a backstop.
 
@@ -329,8 +330,8 @@ Retries honor `Retry-After` headers from the backend.
 
 All OTLP exporters (trace/metric/log, gRPC and HTTP) cap the request payload at **64 MiB** by
 default. The limit is applied *before* compression; oversized requests are treated as
-non-retryable errors and dropped. Tune with `WithMaxRequestSize(bytes)` on the exporter (`0`
-keeps the default).
+non-retryable errors and dropped. Tune with `WithMaxRequestSize(bytes)` on the exporter —
+zero or negative disables the limit entirely (not recommended).
 
 ### Timeout Tuning
 
