@@ -35,7 +35,7 @@ service:
 | `allowed_values` | []string | `[]` | Regex patterns for values considered safe. **Takes precedence** over `blocked_values` when both match. |
 | `redact_all_types` | bool | `false` | When `true`, non-string values are checked via their `AsString()` form against `blocked_values`. When `false`, only string values are checked. |
 | `hash_function` | string | `""` | Replace masked values with a hash instead of asterisks. One of `md5`, `sha1`, `sha3`, `hmac-sha256`, `hmac-sha512`. Empty = asterisk masking. |
-| `hmac_key` | string | `""` | Secret key for `hmac-sha256` / `hmac-sha512`. Supports env expansion (`${env:REDACTION_HMAC_KEY}`). |
+| `hmac_key` | string | `""` | Secret key for `hmac-sha256` / `hmac-sha512`. Required and length-validated: ≥ 32 bytes for `hmac-sha256`, ≥ 64 bytes for `hmac-sha512`. Supports env expansion (`${env:REDACTION_HMAC_KEY}`). |
 | `summary` | string | `""` | Audit verbosity. Empty (the default) emits **no** audit attributes, same as `silent`. `debug` = key names + counts, `info` = counts only, `silent` = none. |
 | `url_sanitizer.enabled` | bool | `false` | Enable URL sanitization. |
 | `url_sanitizer.attributes` | []string | `[]` | Attribute keys whose URL values are sanitized. |
