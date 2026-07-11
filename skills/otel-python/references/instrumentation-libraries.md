@@ -168,6 +168,7 @@ Source of truth: `instrumentation/` directory in the [opentelemetry-python-contr
 | Library | Package |
 |---------|---------|
 | logging (stdlib) | `opentelemetry-instrumentation-logging` |
+| uncaught exceptions (process/thread/asyncio → logs) | `opentelemetry-instrumentation-exceptions` |
 | system-metrics | `opentelemetry-instrumentation-system-metrics` |
 | Jinja2 | `opentelemetry-instrumentation-jinja2` |
 | asyncio | `opentelemetry-instrumentation-asyncio` |

@@ -12,7 +12,7 @@ the task; each reference is self-contained.
 
 | File | Use when |
 |---|---|
-| [`references/declarative-setup.md`](references/declarative-setup.md) | Configuring the SDK via declarative YAML (`opentelemetry.sdk._configuration.file`): `load_config_file`, `configure_*`, `file_format`, env substitution, programmatic activation. |
+| [`references/declarative-setup.md`](references/declarative-setup.md) | Configuring the SDK via declarative YAML (`opentelemetry.sdk._configuration.file`): `load_config_file`, `configure_sdk`, `file_format`, env substitution, `OTEL_CONFIG_FILE` and programmatic activation. |
 | [`references/api.md`](references/api.md) | Import paths, global API access, tracer/meter/logger usage, attributes, propagation, the Python logging bridge (`LoggingHandler`). |
 | [`references/instrumentation-libraries.md`](references/instrumentation-libraries.md) | Zero-code (`opentelemetry-distro`, `opentelemetry-bootstrap`, `opentelemetry-instrument`), the contrib catalog, and manual instrumentation following semconv. |
 | [`references/performance.md`](references/performance.md) | Tuning sampling, batch span processor, periodic metric reader, views, asyncio context, exporters, graceful shutdown. |
