@@ -26,8 +26,7 @@ service:
 
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `auth_type` | string | `serviceAccount` | How to reach the API: `serviceAccount` (in-cluster), `kubeConfig` (local dev), or `none`. |
-| `kubeconfig_path` | string | `""` | Path to a kubeconfig file; used when `auth_type: kubeConfig`. |
+| `auth_type` | string | `serviceAccount` | How to reach the API: `serviceAccount` (in-cluster), `kubeConfig` (local dev, reads `~/.kube/config` or `$KUBECONFIG`), or `none`. |
 | `context` | string | `""` | Kubeconfig context to use; only with `auth_type: kubeConfig`. |
 | `kube_api_qps` | float32 | `5` | Max queries/sec to the API. Raise if you see client-side throttling warnings. |
 | `kube_api_burst` | int | `10` | Max request burst to the API. Raise alongside `kube_api_qps` under throttling. |
