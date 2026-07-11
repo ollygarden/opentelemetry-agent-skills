@@ -67,15 +67,17 @@ service:
 
 ## Tuning the GC intervals
 
-The two `min_gc_interval_*` keys throttle forced GC so it does not pin the CPU when memory hovers near the limit. Keep the soft-limited interval `>=` the hard-limited one (the hard limit is more urgent, so it should GC at least as eagerly):
+Four keys shape forced GC so it does not pin the CPU when memory hovers near the limit. The `min_gc_interval_*` keys are the **floor** between forced GCs; the `max_gc_interval_*` keys **cap the exponential backoff** the processor applies when a GC reclaims `< 5%` of heap (memory pinned by live references — see [Known quirks](quirks.md)). Keep the soft-limited interval `>=` the hard-limited one on both pairs (the hard limit is more urgent, so it should GC at least as eagerly):
 
 ```yaml
 processors:
   memory_limiter:
     check_interval: 1s
     limit_mib: 4000
-    min_gc_interval_when_soft_limited: 10s   # default — opportunistic
+    min_gc_interval_when_soft_limited: 10s   # default — opportunistic floor
     min_gc_interval_when_hard_limited: 0s    # default — GC every over-hard-limit check
+    max_gc_interval_when_soft_limited: 30s   # default — backoff cap
+    max_gc_interval_when_hard_limited: 30s   # default — backoff cap
 ```
 
-Reach for these only if debug logs show `Forcing a GC` firing so often that CPU suffers; the defaults are right for most deployments.
+Reach for these only if debug logs show `Forcing a GC` firing so often that CPU suffers (raise the `min`), or the backoff messages (`Forced GC did not reclaim enough memory…`) show GC still burning CPU during a downstream outage (lower the `max`, or set it to `0` only if you want to keep GC pinned at the `min`). The defaults are right for most deployments.
