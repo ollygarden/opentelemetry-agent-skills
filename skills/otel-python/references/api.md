@@ -231,7 +231,7 @@ log.info("handled request")  # emitted as OTel log record with trace context
 
 The handler automatically injects the active span's `trace_id` and `span_id` into each log record, correlating logs to traces.
 
-> **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated as of SDK 0.63b1. Always import from `opentelemetry.instrumentation.logging.handler`.
+> **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated as of SDK 1.40.0/0.61b0. Always import from `opentelemetry.instrumentation.logging.handler`.
 
 ### `LoggingInstrumentor` is a different feature
 

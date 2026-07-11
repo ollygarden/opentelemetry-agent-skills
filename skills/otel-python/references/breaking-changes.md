@@ -24,11 +24,11 @@ Python OpenTelemetry uses two independent version tracks:
 
 | Track | Packages | Example |
 |---|---|---|
-| Stable (SemVer 1.x) | `opentelemetry-api`, `opentelemetry-sdk` | `1.42.0` |
-| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, contrib packages, some SDK extras (OTLP exporters track stable 1.x) | `0.63b0` |
+| Stable (SemVer 1.x) | `opentelemetry-api`, `opentelemetry-sdk` | `1.43.0` |
+| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, contrib packages, some SDK extras (OTLP exporters track stable 1.x) | `0.64b0` |
 
-The two tracks move in lock-step: SDK `1.42.x` pairs with contrib `0.63bx`. When the CHANGELOG
-entry says "version 0.63b0", look up the paired SDK version before concluding which SDK release
+The two tracks move in lock-step: SDK `1.43.x` pairs with contrib `0.64bx`. When the CHANGELOG
+entry says "version 0.64b0", look up the paired SDK version before concluding which SDK release
 introduced the change.
 
 The definitive indicator of which track a given package follows is its version string, not its

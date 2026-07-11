@@ -42,90 +42,48 @@ pip install opentelemetry-exporter-otlp opentelemetry-distro \
 
 ## Activation
 
-**Programmatic only** — there is no `OTEL_CONFIG_FILE` environment variable
-wiring. A bootstrap module must be imported before any application code.
+As of SDK **1.43.0 / 0.64b0** there are two supported activation paths.
 
-### The dataclass-conversion gotcha
+### Zero-code: `OTEL_CONFIG_FILE`
 
-`load_config_file()` returns an `OpenTelemetryConfiguration` dataclass, but
-its nested fields (`resource`, `tracer_provider`, `meter_provider`,
-`logger_provider`) are plain `dict` objects, **not** the typed dataclasses
-from `models.py`. The `configure_*` functions call attribute access (e.g.
-`.processors`, `.sampler`) on these fields and will fail if they receive raw
-dicts.
+Point the SDK configurator at a config file and it loads it in place of the
+env-var init path — no bootstrap module required. This works with the
+`opentelemetry-instrument` CLI (and any distro that runs the SDK configurator):
 
-**Workaround:** use `load_config_file` only for YAML parsing and env-var
-substitution, then build the dataclass tree manually before calling
-`configure_*`.
+```bash
+OTEL_CONFIG_FILE=otel.yaml opentelemetry-instrument python -m uvicorn app:app
+```
 
-### Minimal bootstrap pattern
+When `OTEL_CONFIG_FILE` is set, the file is the **sole** source of SDK
+construction: spec-defined `OTEL_*` variables that have schema equivalents are
+ignored. Env vars are still read via `${env:VAR}` substitution inside the file
+and by components the file enables (e.g. resource detectors).
+
+### Programmatic: `configure_sdk`
+
+`configure_sdk` is the single entry point that takes a parsed
+`OpenTelemetryConfiguration`, builds the resource, and applies the
+tracer/meter/logger providers and propagator globally — honoring the top-level
+`disabled` flag. A bootstrap module must be imported before any application code.
 
 ```python
 """bootstrap.py — import before any application code."""
-import os
+from opentelemetry.sdk._configuration.file import load_config_file, configure_sdk
 
-from opentelemetry.sdk._configuration.file import load_config_file
-from opentelemetry.sdk._configuration.models import (
-    AttributeNameValue,
-    Resource as ResourceConfig,
-    TracerProvider as TracerProviderConfig,
-    SpanProcessor, SimpleSpanProcessor, SpanExporter,
-    MeterProvider as MeterProviderConfig,
-    MetricReader, PeriodicMetricReader,
-    PushMetricExporter, ConsoleMetricExporter,
-    LoggerProvider as LoggerProviderConfig,
-    LogRecordProcessor, SimpleLogRecordProcessor, LogRecordExporter,
-)
-from opentelemetry.sdk._configuration._resource import create_resource
-from opentelemetry.sdk._configuration._tracer_provider import configure_tracer_provider
-from opentelemetry.sdk._configuration._meter_provider import configure_meter_provider
-from opentelemetry.sdk._configuration._logger_provider import configure_logger_provider
-from opentelemetry.sdk._configuration._propagator import configure_propagator
-
-# Parses YAML + performs env-var substitution. Nested fields are plain dicts.
-_raw = load_config_file(os.environ.get("OTEL_PY_CONFIG", "otel.yaml"))  # OTEL_PY_CONFIG: local convention, not an SDK-defined variable
-
-# Build Resource from the dict returned by the loader.
-_resource_data = _raw.resource or {}
-_attrs = [
-    AttributeNameValue(name=a["name"], value=a["value"])
-    for a in (_resource_data.get("attributes") or [])
-]
-_resource = create_resource(ResourceConfig(attributes=_attrs or None))
-
-# Configure each provider by constructing typed dataclasses explicitly.
-configure_tracer_provider(
-    TracerProviderConfig(
-        processors=[SpanProcessor(simple=SimpleSpanProcessor(exporter=SpanExporter(console={})))]
-    ),
-    _resource,
-)
-
-configure_meter_provider(
-    MeterProviderConfig(
-        readers=[MetricReader(periodic=PeriodicMetricReader(
-            interval=5000,
-            exporter=PushMetricExporter(console=ConsoleMetricExporter()),
-        ))]
-    ),
-    _resource,
-)
-
-configure_logger_provider(
-    LoggerProviderConfig(
-        processors=[LogRecordProcessor(simple=SimpleLogRecordProcessor(exporter=LogRecordExporter(console={})))]
-    ),
-    _resource,
-)
-
-# WARNING: do NOT call configure_propagator(None).
-# Passing None installs an empty CompositePropagator whose extract() returns
-# None. context.attach(None) then corrupts the active context, crashing ASGI
-# middleware during span creation.
-# Only configure propagators when explicitly present in the config file.
-if _raw.propagator is not None:
-    configure_propagator(_raw.propagator)
+configure_sdk(load_config_file("otel.yaml"))
 ```
+
+`load_config_file` parses YAML/JSON, performs `${env:VAR}` substitution,
+validates against the vendored schema, and returns a **fully-typed**
+`OpenTelemetryConfiguration` — nested fields (`resource`, `tracer_provider`,
+`meter_provider`, `logger_provider`) are typed dataclasses, not raw dicts. (Prior
+to 1.43.0 the loader returned raw dicts for nested fields and callers had to
+build the dataclass tree by hand.) Both `load_config_file` and `configure_sdk`
+are exported from `opentelemetry.sdk._configuration.file`.
+
+For finer control, the per-signal factories (`configure_tracer_provider`,
+`configure_meter_provider`, `configure_logger_provider`, `configure_propagator`,
+`create_resource`) are also exported from the same package.
 
 ### Application entry point
 
@@ -137,7 +95,7 @@ from opentelemetry import trace, metrics
 ```
 
 The import order matters. Any OTel API call that happens before `bootstrap` is
-imported will use no-op providers.
+imported (or before the CLI activates the config) uses no-op providers.
 
 ## YAML Config
 
@@ -164,7 +122,7 @@ meter_provider:
     - periodic:
         interval: 5000
         exporter:
-          console: {}  # Must be ConsoleMetricExporter() in code, not empty dict
+          console: {}
 logger_provider:
   processors:
     - simple:
@@ -179,23 +137,19 @@ by `load_config_file` before the YAML is further processed.
 
 ## Key Facts
 
-- **`configure_*` sets globals.** `configure_tracer_provider` calls
+- **`configure_sdk` / `configure_*` set globals.** `configure_sdk` applies every
+  signal; individually `configure_tracer_provider` calls
   `trace.set_tracer_provider(...)`, `configure_meter_provider` calls
   `metrics.set_meter_provider(...)`, and `configure_logger_provider` calls
   `set_logger_provider(...)`. After the bootstrap runs, `trace.get_tracer(...)` etc.
   return providers backed by the configured SDK.
 
-- **Absent section ⇒ global left unset.** If you omit `tracer_provider` from the
-  YAML (and skip the corresponding `configure_tracer_provider` call), the global
-  tracer provider remains the no-op default. Each signal is independent.
-
-- **`ConsoleMetricExporter` must be a typed dataclass.** For metrics,
-  `PushMetricExporter(console=ConsoleMetricExporter())` is required. Passing
-  `{}` (which works for trace/log console exporters) fails because the meter
-  provider factory calls `.temporality_preference` on the exporter object.
+- **Absent section ⇒ global left unset.** A config section that is absent
+  (`None`) leaves the corresponding global untouched — it stays the no-op
+  default. Each signal is independent.
 
 - **`LoggingHandler` import.** The deprecated
-  `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 0.63b1+) should be
+  `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 1.40.0/0.61b0) should be
   replaced with `opentelemetry.instrumentation.logging.handler.LoggingHandler`
   (from `opentelemetry-instrumentation-logging`).
 
