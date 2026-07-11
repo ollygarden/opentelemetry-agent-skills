@@ -32,6 +32,9 @@ documented in the upstream [Prometheus configuration reference][promcfg]; it is 
 | `trim_metric_suffixes` | bool | `false` | [**Experimental**] Trims unit and counter-type suffixes from metric names, e.g. `singing_duration_seconds_total` → `singing_duration`. Useful to restore OpenTelemetry-style names. |
 | `target_allocator` | object | — | Optional. Client config to fetch dynamically-assigned scrape targets from the OpenTelemetry Operator's Target Allocator. See table below and [advanced.md](advanced.md). |
 | `api_server` | object | — | Optional. Hosts a local Prometheus agent-mode API server for debugging. See table below and [advanced.md](advanced.md). |
+| `scrape_on_shutdown` | bool | `false` | Perform one final scrape before the receiver closes. This last scrape ignores the configured scrape interval. (v0.155.0) |
+| `discovery_reload_on_startup` | bool | `false` | Discover targets immediately on start-up instead of waiting for the configured interval before initializing the scrape pools. (v0.155.0) |
+| `initial_scrape_offset` | duration | `0s` | Fixed delay added before the initial scrape of targets, on top of the receiver's internal load-balancing offset. Avoids readiness races and backend rate-limits right after start-up. (v0.155.0) |
 
 [promcfg]: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 
@@ -56,7 +59,8 @@ The block squashes the Collector `confighttp` [client configuration][confighttp]
 | Key | Type | Default | Notes |
 |-----|------|---------|-------|
 | `enabled` | bool | `false` | Turn the debug API server on. |
-| `server_config` | `confighttp.ServerConfig` | — | Standard confighttp [server config][confighttp-server] (`endpoint`, `tls`, …). If `enabled: true`, `endpoint` must be non-empty. |
+| `max_connections` | int | `512` | Maximum number of simultaneous HTTP connections the server accepts. |
+| `server_config` | `confighttp.ServerConfig` | endpoint `127.0.0.1:9090`, `read_timeout: 10m` | Standard confighttp [server config][confighttp-server] (`endpoint`, `tls`, CORS, timeouts). The endpoint is populated by default, so enabling the server does not require setting it. |
 
 [confighttp-server]: https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/confighttp/README.md#server-configuration
 
@@ -66,7 +70,6 @@ The block squashes the Collector `confighttp` [client configuration][confighttp]
 |------|---------------|
 | At least one of `config.scrape_configs`, `config.scrape_config_files`, or `target_allocator` must be set. | `no Prometheus scrape_configs or target_allocator set` |
 | Prometheus server-only features are rejected: `remote_write`, `remote_read`, `rule_files`, `alert_config.relabel_configs`, `alert_config.alertmanagers`. | `unsupported features: …` (the offending features, one per line) |
-| If `api_server.enabled: true`, `server_config.endpoint` must be non-empty. | `invalid API server configuration settings: if api_server is enabled, it requires a non-empty server_config endpoint` |
 | `target_allocator.endpoint` must parse as a valid request URI. | `TargetAllocator endpoint is not valid: …` |
 | `target_allocator.collector_id` must be non-empty and must not contain `${`. | `CollectorID is not a valid ID` |
 | `target_allocator.interval` must be a positive duration. | `interval must be a positive duration, got …` |

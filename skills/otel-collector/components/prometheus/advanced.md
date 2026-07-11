@@ -51,8 +51,9 @@ replicas — it shards targets across the collectors rather than every replica s
 ## Native histograms
 
 The receiver auto-converts scraped Prometheus native histograms to OTel exponential histograms.
-The `receiver.prometheusreceiver.EnableNativeHistograms` feature gate is **stable / always enabled**,
-but you still need **two** things in the Prometheus scrape config:
+This is now unconditional — the old `receiver.prometheusreceiver.EnableNativeHistograms` gate
+graduated to stable and has been removed, so there is no gate to toggle. You still need **two**
+things in the Prometheus scrape config:
 
 1. `scrape_native_histograms: true` (globally under `global`, or per-job)
 2. `PrometheusProto` included in `scrape_protocols` (required until Prometheus supports native histograms over text formats)
@@ -83,8 +84,11 @@ receivers:
     api_server:
       enabled: true
       server_config:
-        endpoint: "localhost:9090"
+        endpoint: "localhost:9090"   # defaults to 127.0.0.1:9090 if omitted
 ```
+
+`server_config` is the standard confighttp server config (defaults: endpoint `127.0.0.1:9090`,
+`read_timeout: 10m`), and `max_connections` (default `512`) caps simultaneous HTTP connections.
 
 Endpoints mirror the Prometheus agent-mode API:
 
@@ -134,5 +138,5 @@ receivers:
 
 ## Feature gates
 
-- `receiver.prometheusreceiver.EnableCreatedTimestampZeroIngestion` (alpha, off by default, from v0.113.0) — injects created-timestamps as 0-valued samples. Off by default due to higher CPU cost at high metric volume.
-- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — ignore `otel_scope_info` for scope attribute extraction. Promoted to **beta (on by default) in v0.156.0**; disable with `--feature-gates=-receiver.prometheusreceiver.IgnoreScopeInfoMetric` to restore the old behavior.
+- `receiver.prometheusreceiver.EnableCreatedTimestampZeroIngestion` (from v0.113.0) — **alpha, off by default**. Injects created-timestamps as 0-valued samples. Off by default due to higher CPU cost at high metric volume.
+- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — **beta, on by default since v0.156.0**. The `otel_scope_info` metric is now ignored for scope-attribute extraction by default; scope attributes come from `otel_scope_<name>` labels. To temporarily restore the old behavior, disable it with `--feature-gates=-receiver.prometheusreceiver.IgnoreScopeInfoMetric`.

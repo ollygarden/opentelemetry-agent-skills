@@ -13,7 +13,7 @@
 
 Scrapes metrics from Prometheus-format HTTP endpoints and converts them to OTLP metrics. It embeds the **scrape manager and parser from `prometheus/prometheus`**, so the configuration under the top-level `config:` key is the same YAML you would put in a `prometheus.yml` — `global`, `scrape_configs`, `scrape_config_files`, service discovery, and relabeling all behave exactly as in Prometheus. The receiver is a *scrape-only* drop-in: it pulls from targets, it does not run a Prometheus server. Anything omitted under `config:` falls back to Prometheus's own defaults for that setting.
 
-Beyond the embedded Prometheus config, the receiver exposes only three extra top-level keys: `trim_metric_suffixes` (restore OTel-style metric names), `target_allocator` (fetch dynamically-assigned targets from the OpenTelemetry Operator's Target Allocator), and `api_server` (host a local Prometheus agent-mode debug API). Scraped `target_info`/`otel_scope_*` series are consumed to populate the OTel Resource and Instrumentation Scope, and native histograms are auto-converted to OTel exponential histograms.
+Beyond the embedded Prometheus config, the receiver exposes a handful of extra top-level keys: `trim_metric_suffixes` (restore OTel-style metric names), `target_allocator` (fetch dynamically-assigned targets from the OpenTelemetry Operator's Target Allocator), `api_server` (host a local Prometheus agent-mode debug API), and three start-up/shutdown scrape tuning knobs added in v0.155.0 (`scrape_on_shutdown`, `discovery_reload_on_startup`, `initial_scrape_offset`). Scraped `target_info`/`otel_scope_*` series are consumed to populate the OTel Resource and Instrumentation Scope, and native histograms are auto-converted to OTel exponential histograms.
 
 The two facts that catch people out: the receiver is **stateful and does not auto-shard** — running multiple replicas with the same config scrapes every target multiple times (duplicate metrics); use the Target Allocator or manual sharding instead. And the `$` character in the Prometheus config is interpreted by the Collector as an environment variable, so a literal `$` (in a relabel regex or replacement) must be escaped as `$$`. See [quirks.md](quirks.md).
 
@@ -39,7 +39,7 @@ Avoid when:
 
 ## Details
 
-- [Configuration](configuration.md) — the four top-level keys (`config`, `trim_metric_suffixes`, `target_allocator`, `api_server`), every validation rule, scrape protocols, and representative `scrape_config` examples.
+- [Configuration](configuration.md) — every top-level key (`config`, `trim_metric_suffixes`, `target_allocator`, `api_server`, plus the v0.155.0 `scrape_on_shutdown` / `discovery_reload_on_startup` / `initial_scrape_offset` knobs), every validation rule, scrape protocols, and representative `scrape_config` examples.
 - [Verification](verification.md) — a self-scrape recipe (the collector scrapes its own `:8888` telemetry endpoint → `debug`), verified on contrib v0.154.0. Notes why `telemetrygen` cannot drive this receiver.
 - [Advanced use-cases](advanced.md) — named instances, the Target Allocator, native histograms, the `api_server`, relabeling, and `scrape_config_files`.
 - [Known quirks](quirks.md) — the no-auto-shard/duplicate-scrape warning, `$$` escaping, the `collector_id` `${...}` trap, removed `use_start_time_metric`, rejected server features, and stability.

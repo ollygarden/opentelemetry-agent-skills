@@ -61,7 +61,6 @@ preserving the older lenient behavior. If you scrape native histograms you must 
 |-------|-------|-----|
 | `no Prometheus scrape_configs or target_allocator set` | Neither inline `scrape_configs`, nor `scrape_config_files`, nor `target_allocator` provided. | Add at least one scrape source. |
 | `unsupported features: …` | A Prometheus server-only section is present under `config:`. | Remove `remote_write`/`remote_read`/`rule_files`/`alert_config.*`. |
-| `invalid API server configuration settings: if api_server is enabled, it requires a non-empty server_config endpoint` | `api_server.enabled: true` without `server_config.endpoint`. | Set `server_config.endpoint`. |
 | `TargetAllocator endpoint is not valid: …` | `target_allocator.endpoint` is not a valid request URI. | Use a full URL like `http://my-ta-service`. |
 | `CollectorID is not a valid ID` | `collector_id` is empty or contains `${`. | Use a literal id (e.g. `collector-1`). |
 | `interval must be a positive duration, got …` | `target_allocator.interval` is zero/negative/unset. | Set a positive duration (e.g. `30s`). |
