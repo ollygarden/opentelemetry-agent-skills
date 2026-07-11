@@ -1,6 +1,6 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.155.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.156.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
 ## Editors (data manipulation)
 

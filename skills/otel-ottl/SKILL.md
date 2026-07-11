@@ -7,7 +7,7 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 
 OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, `routing`, and `tail_sampling` processors (and a few others) in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
 
-This skill targets `pkg/ottl` as of collector-contrib **v0.155.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
+This skill targets `pkg/ottl` as of collector-contrib **v0.156.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
 
 ## Statement syntax
 
@@ -24,7 +24,7 @@ set(span.attributes["env"], "prod") where resource.attributes["env"] == nil
 ## Workflow
 
 1. **Pick the processor.** `transform` rewrites; `filter` drops; `routing` fans out by pipeline; `tail_sampling` keeps/drops traces. The processor decides which contexts and function set are usable.
-2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `log`, `profile`, `profilesample`. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
+2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `exemplar`, `log`, `profile`, `profilesample`. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
 3. **Write statements.** Reach for `references/quick-reference.md` for common recipes; `references/contexts.md` for paths/enums; `references/functions.md` for the editor and converter catalog.
 4. **Set `error_mode`.** `ignore` (default) keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure (use only when you want a bad config to fail loud in tests).
 5. **Verify.** OTTL gotchas are the kind that pass the eye test (see [Common gotchas](#common-gotchas)). Use the [telemetrygen verification recipe](../telemetrygen/SKILL.md#verifying-a-collector-config) — `otelcol-contrib` + file exporter + telemetrygen — to confirm the snippet does what the prose claims before shipping.
@@ -41,6 +41,7 @@ OTTL paths are scoped by signal. Higher levels are reachable from lower ones (e.
 | Span Event | `spanevent.name`, `spanevent.attributes["…"]`, `spanevent.event_index` |
 | Metric | `metric.name`, `metric.unit`, `metric.type`, `metric.aggregation_temporality` |
 | DataPoint | `datapoint.value_double`, `datapoint.value_int`, `datapoint.attributes["…"]` |
+| Exemplar | `exemplar.double_value`, `exemplar.int_value`, `exemplar.filtered_attributes["…"]` (transform `metric_statements` only, v0.156+) |
 | Log | `log.body`, `log.body.string`, `log.severity_number`, `log.attributes["…"]` |
 | Profile | `profile.profile_id`, `profile.attributes["…"]` (Development) |
 
@@ -225,6 +226,7 @@ Recently added (still useful to know which release introduced them when supporti
 
 | Feature | Since |
 |---------|-------|
+| Exemplar context (transform `metric_statements` only) | v0.156 |
 | Profile / ProfileSample contexts | v0.124 / v0.132 (Development) |
 | Cache paths require context prefix; `spanevent` rename | v0.120 (breaking) |
 | `delete_index` editor | v0.145 |

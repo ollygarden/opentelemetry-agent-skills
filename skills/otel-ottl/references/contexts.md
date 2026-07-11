@@ -1,6 +1,6 @@
 # OTTL Contexts Reference
 
-Context paths and enums for collector-contrib **v0.155.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
+Context paths and enums for collector-contrib **v0.156.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
 
 ## Context hierarchy
 
@@ -8,7 +8,7 @@ Context paths and enums for collector-contrib **v0.155.0**. Higher-level context
 Resource
   └── Scope (instrumentation library)
       ├── Span → Span Event
-      ├── Metric → DataPoint
+      ├── Metric → DataPoint → Exemplar
       ├── Log
       └── Profile → Profile Sample
 ```
@@ -194,6 +194,28 @@ set(datapoint.attributes["value_range"], "high")
 # Rename an attribute
 set(datapoint.attributes["host.name"], datapoint.attributes["hostname"])
 delete_key(datapoint.attributes, "hostname")
+```
+
+## Exemplar context (v0.156+)
+
+Individual metric exemplars. Available only in the `transform` processor's `metric_statements` (the `filter` processor does not expose it). Reachable up through `datapoint.*`, `metric.*`, `scope`, and `resource`.
+
+```ottl
+exemplar.time_unix_nano
+exemplar.time                        # time.Time
+exemplar.double_value
+exemplar.int_value
+exemplar.trace_id / exemplar.trace_id.string
+exemplar.span_id  / exemplar.span_id.string
+exemplar.filtered_attributes         # map
+exemplar.filtered_attributes["key"]
+exemplar.cache["key"]
+# datapoint.*, metric.*, scope, resource paths are reachable.
+```
+
+```ottl
+# Redact a filtered attribute carried on exemplars
+delete_matching_keys(exemplar.filtered_attributes, "(?i).*(token|secret).*")
 ```
 
 ## Log context (Beta)
