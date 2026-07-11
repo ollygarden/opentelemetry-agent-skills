@@ -49,7 +49,7 @@ The filter processor supports **only** the contexts above — notably **no `exem
 
 **Hierarchy.** Conditions run higher-to-lower (`resource` → `scope` → signal-specific). If a higher-level item is dropped, lower-level conditions for it are skipped: a dropped span skips its `spanevent` conditions. If all datapoints of a metric are dropped, the metric is dropped too; if all span events of a span are dropped, the span is left intact. When one condition mixes paths from two contexts, it is evaluated in the **lower** context (e.g. `resource` + `spanevent` → evaluated per span event). See [Known quirks](quirks.md).
 
-**Metric-only converters.** This processor adds two functions that must run in the **`metric`** context: `HasAttrKeyOnDatapoint(key)` (true if any datapoint carries that attribute key) and `HasAttrOnDatapoint(key, value)` (true if any datapoint has that string key/value).
+**Metric-only converters.** This processor adds two functions that must run in the **`metric`** context: `HasAttrKeyOnDatapoint(key)` (true if any datapoint carries that attribute key) and `HasAttrOnDatapoint(key, value)` (true if any datapoint has that string key/value). Because they carry no path prefix, their context **cannot be inferred** — pin `context: metric` explicitly (advanced style), or validation fails with `unable to infer context from conditions`.
 
 ### Basic vs advanced style
 

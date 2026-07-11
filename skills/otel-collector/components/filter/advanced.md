@@ -63,12 +63,17 @@ processors:
   filter:
     error_mode: ignore
     metric_conditions:
-      - 'IsMatch(metric.name, "internal\\..*")'
-      - 'metric.type == METRIC_DATA_TYPE_HISTOGRAM'
-      # metric-only converters (inferred as metric context)
-      - 'HasAttrKeyOnDatapoint("internal")'
-      - 'HasAttrOnDatapoint("environment", "test")'
-      - 'metric.name == "k8s.pod.phase" and datapoint.value_int == 4'
+      # metric-only converters (HasAttrKeyOnDatapoint / HasAttrOnDatapoint) carry no
+      # path prefix, so their context can't be inferred — pin context: metric explicitly.
+      - context: metric
+        conditions:
+          - 'IsMatch(metric.name, "internal\\..*")'
+          - 'metric.type == METRIC_DATA_TYPE_HISTOGRAM'
+          - 'HasAttrKeyOnDatapoint("internal")'
+          - 'HasAttrOnDatapoint("environment", "test")'
+      # datapoint-level check, inferred separately (metric context can't see datapoint.value_int)
+      - conditions:
+          - 'metric.name == "k8s.pod.phase" and datapoint.value_int == 4'
 ```
 
 Filter at `metric` level when you want to drop the whole series — it is cheaper than evaluating every datapoint. See [Known quirks](quirks.md) for the drop-last-datapoint rule.

@@ -69,9 +69,9 @@ Filter leaf/noise spans, or move whole-trace decisions to `tail_sampling`.
 **Complex negative-lookahead regex.**
 
 ```yaml
-# Hard to maintain, error-prone
+# Rejected at config load — Go's RE2 engine has no lookahead
 log_conditions:
   - 'IsMatch(log.body, "^(?!.*(error|warn|fail)).*$")'
 ```
 
-Prefer explicit positive conditions (`log.severity_number < SEVERITY_NUMBER_WARN`).
+`IsMatch` compiles with Go's RE2 engine, which does not support lookahead (`(?!`); the pattern above fails validation outright (`invalid or unsupported Perl syntax: `(?!``). Prefer explicit positive conditions (`log.severity_number < SEVERITY_NUMBER_WARN`).
