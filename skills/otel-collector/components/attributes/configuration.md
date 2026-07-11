@@ -18,7 +18,7 @@ Each entry in `actions` is one operation:
 |-------|------|----------|-------------|
 | `key` | string | Conditional | Attribute key to act on. Required for all actions except `delete`/`hash` when only a `pattern` is given. |
 | `action` | string | Yes | One of `insert`, `update`, `upsert`, `delete`, `hash`, `extract`, `convert` (case-insensitive). |
-| `value` | any | Conditional | Literal value to set (string/int/double/bool). Required for `insert`/`update`/`upsert` unless `from_attribute` or `from_context` is used. Mutually exclusive with `from_attribute`/`from_context`. |
+| `value` | any | Conditional | Value to set (string/int/double/bool). Supports env-var expansion (`${env:VAR}`); an unset reference falls back to `default_value`. Required for `insert`/`update`/`upsert` unless `from_attribute`, `from_context`, or `default_value` is used. Mutually exclusive with `from_attribute`/`from_context`. |
 | `from_attribute` | string | Conditional | Copy the value from another attribute on the same record. Mutually exclusive with `value` and `from_context`. |
 | `from_context` | string | Conditional | Pull the value from request context. Mutually exclusive with `value` and `from_attribute`. See [Context values](#context-values). |
 | `default_value` | any | No | Fallback value when the `value`/`from_attribute`/`from_context` source is missing (`insert`/`update`/`upsert` only; v0.152.0). Prevents the action from being skipped; ignored by other actions. |
@@ -29,9 +29,9 @@ Each entry in `actions` is one operation:
 
 | Action | Requires | Behavior |
 |--------|----------|----------|
-| `insert` | `key` + one of `value`/`from_attribute`/`from_context` | Adds the attribute only if the key does **not** already exist. No-op if the key exists or the source is missing. |
-| `update` | `key` + one of `value`/`from_attribute`/`from_context` | Replaces the value only if the key **already** exists. No-op if the key is absent or the source is missing. |
-| `upsert` | `key` + one of `value`/`from_attribute`/`from_context` | Insert if absent, update if present (insert + update). No-op only if the source value is missing. |
+| `insert` | `key` + one of `value`/`from_attribute`/`from_context` | Adds the attribute only if the key does **not** already exist. No-op if the key exists, or if the source is missing and no `default_value` is set. |
+| `update` | `key` + one of `value`/`from_attribute`/`from_context` | Replaces the value only if the key **already** exists. No-op if the key is absent, or if the source is missing and no `default_value` is set. |
+| `upsert` | `key` + one of `value`/`from_attribute`/`from_context` | Insert if absent, update if present (insert + update). No-op only if the source value is missing and no `default_value` is set. |
 | `delete` | `key` and/or `pattern` | Removes the named key and/or every key matching `pattern`. |
 | `hash` | `key` and/or `pattern` | Replaces the value(s) of the named key and/or keys matching `pattern` with their SHA-256 hash (hex string). |
 | `extract` | `key` + `pattern` (named groups) | Applies the regex to the **string** value of `key` and creates one attribute per named capture group. Source value is left unchanged. Only acts on string values; overwrites existing attributes when group names collide. |
