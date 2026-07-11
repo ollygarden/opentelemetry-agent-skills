@@ -13,6 +13,10 @@ All from `config.go` `Validate()`:
 | `directory` (or `compaction.directory` when `on_start`/`on_rebound` is set) does not exist, and `create_directory: false` | `directory must exist: … You can enable the create_directory option to automatically create it` | Create the dir, or set `create_directory: true`. |
 | Path exists but is not a directory | `<path> is not a directory` | Point `directory` at an actual directory. |
 | `compaction.max_transaction_size` < 0 | `max transaction size for compaction cannot be less than 0` | Use `0` (ignore sizes) or a positive value. |
+| `max_size` < 0 | `max size cannot be less than 0` | Use `0` (unlimited) or a positive byte count. |
+| `max_size` > `math.MaxInt` | `max size is too large` | Keep `max_size` within `math.MaxInt` bytes. |
+| `max_size` > 0, `on_rebound: true`, `rebound_needed_threshold_mib` × 1,048,576 > `max_size` | `compaction rebound needed threshold cannot be greater than max size` | Lower `rebound_needed_threshold_mib` or raise `max_size`. |
+| `max_size` > 0, `on_rebound: true`, `rebound_trigger_threshold_mib` × 1,048,576 > `max_size` | `compaction rebound trigger threshold cannot be greater than max size` | Lower `rebound_trigger_threshold_mib` or raise `max_size`. |
 | `compaction.on_rebound: true` with `check_interval <= 0` | `compaction check interval must be positive when rebound compaction is set` | Set `compaction.check_interval` to a positive duration (default `5s`). |
 | `create_directory: true` with non-octal `directory_permissions` | `directory_permissions value must be a valid octal representation` | Use a valid octal string, e.g. `"0750"`. |
 | `directory_permissions` with bits outside `0777` | `directory_permissions contain invalid bits for file access` | Keep permissions within `0777` (file-access bits only). |

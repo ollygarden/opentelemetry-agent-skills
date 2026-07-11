@@ -80,6 +80,8 @@ allocated MiB
 
 Raise the thresholds if your steady-state working set is large (so normal operation never trips compaction); lower them if you want space reclaimed more eagerly after smaller spikes. `compaction.max_transaction_size` (default `65536`) bounds how many items move per compaction transaction.
 
+To hard-cap growth instead of just reclaiming after the fact, set `max_size` (bytes, default `0` = unlimited). It bounds **each** per-consumer bbolt file: once a file is at the cap, a write that needs to grow it is rejected with a storage-full error (writes that fit existing free space still succeed), so a runaway persistent queue can't fill the disk. If you also enable `on_rebound`, both rebound thresholds (×1,048,576) must be ≤ `max_size` or validation fails — see [quirks.md](quirks.md).
+
 ## `create_directory` / `directory_permissions` for ephemeral and container environments
 
 In containers or fresh hosts the data directory often does not exist yet. Rather than pre-creating it in an init step, let the extension do it:
