@@ -94,7 +94,7 @@ exporters:
     resolver:
       dns:
         hostname: tail-sampling-layer
-        port: 4317
+        port: "4317"
 service:
   pipelines:
     traces:
