@@ -34,11 +34,13 @@ When reviewing an existing config, `filelog:` is **not** broken — it's the leg
 Some keys do nothing (or error) unless a feature gate is enabled at startup
 (`--feature-gates=<gate>`):
 
-| Option | Required gate | State |
+| Option | Required gate | State (v0.156.0) |
 |--------|---------------|-------|
-| `delete_after_read` | `filelog.allowFileDeletion` | — |
-| `header` parsing | `filelog.allowHeaderMetadataParsing` | — |
-| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Beta (**on by default**) since v0.156.0 (Alpha/off from v0.148.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
+| `delete_after_read` | `filelog.allowFileDeletion` | Alpha (off by default) — pass `--feature-gates=filelog.allowFileDeletion` |
+| `header` parsing | `filelog.allowHeaderMetadataParsing` | Beta (on by default) — no flag needed |
+| `ordering_criteria.sort_by.sort_type: mtime` | `filelog.mtimeSortType` | Alpha (off by default) |
+| include/exclude case-insensitive globbing (Windows) | `filelog.windows.caseInsensitive` | Alpha (off by default) |
+| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Beta (**on by default** since v0.156.0; Alpha off in v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
 
 ## `delete_after_read` conflicts with `start_at: end`
 

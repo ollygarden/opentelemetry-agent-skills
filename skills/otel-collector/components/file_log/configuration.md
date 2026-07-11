@@ -1,6 +1,6 @@
 # `file_log` receiver: configuration
 
-Every key below traces to the contrib v0.154.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
+Every key below traces to the contrib v0.156.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
 
 Only `include` is required.
 
@@ -94,9 +94,9 @@ Tracks only the top-N files after grouping and sorting — useful when many rota
 | `ordering_criteria.group_by` | regex | — | Named-capture regex for pre-sort grouping. |
 | `ordering_criteria.top_n` | int | `1` | Number of files to track after ordering. |
 | `ordering_criteria.sort_by.regex_key` | string | — | Named group (from `ordering_criteria.regex`) to sort on. |
-| `ordering_criteria.sort_by.sort_type` | `numeric` \| `alphabetical` \| `timestamp` \| `mtime` | — | Sort strategy. |
+| `ordering_criteria.sort_by.sort_type` | `numeric` \| `alphabetical` \| `timestamp` \| `mtime` | — | Sort strategy. `mtime` requires the `filelog.mtimeSortType` feature gate (Alpha, off by default). |
 | `ordering_criteria.sort_by.location` | string | — | Timestamp location (when `sort_type: timestamp`). |
-| `ordering_criteria.sort_by.format` | strptime | — | Timestamp format (when `sort_type: timestamp`). |
+| `ordering_criteria.sort_by.layout` | strptime | — | Timestamp format, strptime (when `sort_type: timestamp`). ⚠️ The upstream README documents this key as `format`, but the actual field (matcher source + `config.schema.yaml`) is `layout` — `format:` is rejected as an invalid key (verified on v0.156.0). |
 | `ordering_criteria.sort_by.ascending` | bool | — | Sort direction. |
 
 ## Supported encodings
