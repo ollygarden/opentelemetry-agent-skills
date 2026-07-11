@@ -34,10 +34,10 @@ The HTTP endpoint accepts both OTLP/protobuf and **OTLP/JSON** on the same paths
 
 Per-request headers/metadata are dropped unless `include_metadata: true`. Header-based auth extensions, metadata [`routing`](../routing/README.md), and [`load_balancing`](../load_balancing/README.md) keyed on client-metadata attributes all silently see no metadata without it. There is no error — the feature just behaves as if the headers weren't sent.
 
-## No profiles URL path
+## No configurable profiles URL path
 
-The HTTP config exposes `traces_url_path`, `metrics_url_path`, and `logs_url_path` only. There is no profiles URL-path override — profiles are **Alpha** stability.
+The HTTP config exposes `traces_url_path`, `metrics_url_path`, and `logs_url_path` overrides only. There is no `profiles_url_path` key — profiles (Alpha) are still served over HTTP, but on a fixed path the receiver hardcodes: `/v1development/profiles`. (Note: the upstream README mentions a `profiles_url_path` and a `/v1/profiles` default; neither exists in the config struct or the handler — the path is fixed.)
 
 ## Stability is per signal
 
-Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile ingestion as experimental and subject to breaking change, even though the same receiver serves it.
+Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile ingestion as still-evolving and subject to breaking change, even though the same receiver serves it.
