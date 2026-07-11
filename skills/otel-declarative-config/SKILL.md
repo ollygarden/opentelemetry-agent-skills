@@ -41,14 +41,17 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
    then still verify against the selected runtime/package because SDK implementations may
    lag or differ from the schema repository.
 
-The `latestSupportedFileFormat` values in `language-support-status.md` are schema/version
-coverage metadata. Do not mechanically copy values like `1.0.0-rc.3` into YAML unless the
-target SDK parser, agent docs, or package fixtures prove that exact literal is accepted.
+The "Latest supported file format" values in `language-support-status.md` are schema/version
+coverage metadata. Do not mechanically copy them into YAML unless the target SDK parser,
+agent docs, or package fixtures prove that exact literal is accepted.
 
 Terminology trap: schema coverage identifiers and YAML `file_format` literals are related,
-but not interchangeable. A matrix entry may use a semver-shaped value such as
-`1.0.0-rc.3`, while an SDK parser may accept a config literal such as `1.0-rc.3` or
-`1.0`. Generated YAML must use the parser-accepted literal.
+but not interchangeable. A matrix entry uses a full semver-shaped coverage value (e.g.
+`1.0.0`, or a pre-release such as `1.0.0-rc.3` for implementations still tracking an older
+schema), while the YAML `file_format` literal is a `MAJOR.MINOR` string such as `1.0` or
+`1.1`. Parsers validate on `MAJOR.MINOR` and strip any pre-release/meta tag before comparing.
+Generated YAML must use the `MAJOR.MINOR` literal. The current stable schema is v1.1.0
+(`file_format: "1.1"`); confirm the exact release with the `gh release` fetch above.
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
