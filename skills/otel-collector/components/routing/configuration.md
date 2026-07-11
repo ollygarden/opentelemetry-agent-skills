@@ -82,6 +82,8 @@ Use `condition` for a plain match (recommended for clarity); reach for `statemen
 
 ### `request` context (limited grammar)
 
+> **Deprecated in v0.156.0.** The `request` context and `request["key"]` syntax are deprecated in favor of the `otelcol.*` OTTL paths — `otelcol.client.metadata["key"][0]` for HTTP/client metadata and `otelcol.grpc.metadata["key"][0]` for gRPC metadata. Those paths work in **any** signal context (no `error_mode`/grammar limits below) and the connector logs a warning when `request` is still configured. Prefer them in new configs; the `request` form still works for now.
+
 `request` reads HTTP headers / gRPC metadata and requires `condition` (a `statement` is rejected). It supports only a single simple comparison — `==` or `!=` — with no `and`/`or`:
 
 ```yaml

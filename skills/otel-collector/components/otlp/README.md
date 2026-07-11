@@ -4,14 +4,14 @@
 |-|-|
 | Kind | receiver |
 | Type | `otlp` |
-| Signals | traces (Stable), metrics (Stable), logs (Stable), profiles (Development) |
+| Signals | traces (Stable), metrics (Stable), logs (Stable), profiles (Alpha) |
 | Distributions | core, contrib, k8s, otlp |
 | Go module | `go.opentelemetry.io/collector/receiver/otlpreceiver` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver> |
 
 ## Description
 
-Receives telemetry in the **OpenTelemetry Protocol (OTLP)** over gRPC and/or HTTP — the native wire format of the OpenTelemetry SDKs, the Collector's own `otlp` exporter, and most other OTLP-speaking agents. It is the default, canonical ingress for a Collector pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Development**). The single config block is `protocols:`, holding optional `grpc:` and `http:` sub-blocks; you must enable at least one. The gRPC side listens on `4317`, the HTTP side on `4318` (accepting both OTLP/protobuf and OTLP/JSON on the same endpoint).
+Receives telemetry in the **OpenTelemetry Protocol (OTLP)** over gRPC and/or HTTP — the native wire format of the OpenTelemetry SDKs, the Collector's own `otlp` exporter, and most other OTLP-speaking agents. It is the default, canonical ingress for a Collector pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Alpha**). The single config block is `protocols:`, holding optional `grpc:` and `http:` sub-blocks; you must enable at least one. The gRPC side listens on `4317`, the HTTP side on `4318` (accepting both OTLP/protobuf and OTLP/JSON on the same endpoint).
 
 The most important operational fact is the **default endpoint**: each protocol binds to `localhost` (`localhost:4317` / `localhost:4318`), not `0.0.0.0`. That is a deliberate security default — inside a container or Kubernetes pod, traffic arrives on a non-loopback interface, so a `localhost`-bound receiver silently accepts nothing from outside. To receive external traffic you must set `endpoint: 0.0.0.0:4317` (and `:4318`). This is the single most common "the receiver gets no data in Docker/k8s" gotcha — see [quirks.md](quirks.md).
 

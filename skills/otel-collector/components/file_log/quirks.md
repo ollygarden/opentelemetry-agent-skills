@@ -38,7 +38,7 @@ Some keys do nothing (or error) unless a feature gate is enabled at startup
 |--------|---------------|-------|
 | `delete_after_read` | `filelog.allowFileDeletion` | — |
 | `header` parsing | `filelog.allowHeaderMetadataParsing` | — |
-| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Alpha (off) since v0.148.0 — ~7× faster decode, ~31% smaller; reads both formats either way |
+| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Beta (**on by default**) since v0.156.0 (Alpha/off from v0.148.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
 
 ## `delete_after_read` conflicts with `start_at: end`
 

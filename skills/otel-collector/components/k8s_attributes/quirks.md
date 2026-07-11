@@ -22,7 +22,7 @@ The old `extract.labels[].regex` / `extract.annotations[].regex` fields (which p
 
 ## Semantic-convention label/annotation format is changing
 
-By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). Migrate by enabling the first gate, repointing dashboards/queries to the singular names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate is deprecated in favor of these.)
+By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). Migrate by enabling the first gate, repointing dashboards/queries to the singular names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed in v0.154.0** in favor of these.)
 
 ## Don't use it for sidecars, or outside Kubernetes
 
