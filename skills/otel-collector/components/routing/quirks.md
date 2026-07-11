@@ -6,15 +6,19 @@ If a piece of telemetry matches no route and `default_pipelines` is not set, it 
 
 ## `error_mode: propagate` drops the payload on OTTL errors
 
-With the default `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In production use `error_mode: ignore`, which logs the error and sends the payload to `default_pipelines` instead — so `ignore` only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Guard fragile conditions with nil checks (`attributes["k"] != nil and attributes["k"] == "v"`) so a missing key doesn't error in the first place.
+With the default `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In production use `error_mode: ignore`, which logs the error and sends the payload to `default_pipelines` instead — so `ignore` only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Guard fragile conditions with nil checks (`resource.attributes["k"] != nil and resource.attributes["k"] == "v"`) so a missing key doesn't error in the first place. The default flips to `ignore` under the `connector.routing.defaultErrorModeIgnore` feature gate (alpha, since v0.155.0), so don't assume `propagate` — set `error_mode` explicitly.
+
+## `action` defaults to `move`, so matched data skips `default_pipelines`
+
+The default `action` is `move`: a matched item is removed from further route evaluation and does **not** also reach `default_pipelines` or later routes. Use `action: copy` when you want matched data to stay available for subsequent routes and the default (e.g. an archive-everything route placed first).
 
 ## `statement` and `condition` are mutually exclusive
 
 Each route needs **exactly one** of `statement` or `condition`. Setting both, or neither, fails config validation. `statement` is the `route() where <expr>` form (and can also run editors like `delete_key` in the same pass); `condition` is a bare boolean expression. Pick one per route.
 
-## `request` context has a limited grammar
+## `request` context is deprecated and has a limited grammar
 
-`request` routing supports only a single `==` or `!=` comparison — no `and`/`or`, and a `statement` is rejected (it must be `condition`). For compound request logic, use multiple `request` routes or move the decision to `resource` context. HTTP headers match case-insensitively, but gRPC metadata keys are lowercased — use lowercase keys (`request["x-tenant"]`) for gRPC traffic. The receiver must actually propagate request metadata (the `otlp` receiver does; file-based receivers don't).
+The `request` context is **deprecated as of v0.156.0** (a warning is logged when it is used) — prefer the `otelcol.client.metadata["key"][0]` (HTTP) / `otelcol.grpc.metadata["key"][0]` (gRPC) paths, which are valid in every signal context and support the full OTTL grammar. The legacy `request` context supports only a single `==` or `!=` comparison — no `and`/`or`, and a `statement` is rejected (it must be `condition`). gRPC metadata keys are lowercased, so use lowercase keys (`request["x-tenant"]` / `otelcol.grpc.metadata["x-tenant"][0]`) for gRPC traffic. The receiver must actually propagate request metadata (the `otlp` receiver does; file-based receivers don't).
 
 ## Item-level contexts can split a Resource bundle across pipelines
 
@@ -28,8 +32,9 @@ Each route needs **exactly one** of `statement` or `condition`. Setting both, or
 | `no condition or statement provided` | route has neither | Add one of `statement`/`condition`. |
 | `both condition and statement provided` | route has both | Remove one. |
 | `no pipelines defined` | route missing `pipelines` | Add at least one pipeline ID. |
-| `'request' context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context. |
-| `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, or `request` (and one valid for the signal). |
+| `invalid routing action: if provided should be one of move/copy` | `action` set to something other than `move`/`copy` | Use `move` or `copy` (or omit for the `move` default). |
+| `"request" context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context (or migrate to `otelcol.*` paths). |
+| `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request` (and one valid for the signal). |
 
 ## `match_once` was removed in v0.120.0
 

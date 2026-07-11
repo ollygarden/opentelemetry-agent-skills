@@ -1,22 +1,24 @@
 # `routing`: advanced use-cases
 
+Examples below use context-qualified paths (`resource.attributes[...]`, `span.…`, `log.…`), the recommended style since v0.156.0 — the `context` field is inferred and omitted. Bare paths with an explicit `context` still work for backward compatibility.
+
 ## Named instances for independent dimensions
 
-Each piece of telemetry matches at most one route, so a single `routing` instance can't route on two independent dimensions at once. Use one named instance per dimension and list both as exporters of the input pipeline — each gets an independent copy of the data:
+Under the default `action: move`, each piece of telemetry matches at most one route, so a single `routing` instance can't route on two independent dimensions at once. Use one named instance per dimension and list both as exporters of the input pipeline — each gets an independent copy of the data:
 
 ```yaml
 connectors:
   routing/tenant:
     table:
-      - condition: attributes["tenant"] == "acme"
+      - condition: resource.attributes["tenant"] == "acme"
         pipelines: [logs/acme]
-      - condition: attributes["tenant"] == "ecorp"
+      - condition: resource.attributes["tenant"] == "ecorp"
         pipelines: [logs/ecorp]
   routing/region:
     table:
-      - condition: attributes["region"] == "us-east"
+      - condition: resource.attributes["region"] == "us-east"
         pipelines: [logs/east]
-      - condition: attributes["region"] == "us-west"
+      - condition: resource.attributes["region"] == "us-west"
         pipelines: [logs/west]
 
 service:
@@ -32,40 +34,35 @@ To send the same matched telemetry to several pipelines, list them all under one
 
 ```yaml
 table:
-  - context: span
-    condition: duration > 5000000000          # > 5s
+  - condition: span.end_time_unix_nano - span.start_time_unix_nano > 5000000000   # > 5s
     pipelines: [traces/slow, traces/all]       # slow traces go to BOTH
 ```
 
 ## Multi-tenant routing on request metadata
 
-`request` context routes once per incoming request, before telemetry is parsed — ideal for tenant isolation from an HTTP header or gRPC metadata. It requires `condition` and supports only `==`/`!=`:
+Route on HTTP headers or gRPC metadata using the `otelcol.client.metadata` (HTTP/client) and `otelcol.grpc.metadata` (gRPC) paths — valid in every signal context. Metadata values are lists, so index with `[0]`:
 
 ```yaml
 connectors:
   routing:
     default_pipelines: [logs/default]
     table:
-      - context: request
-        condition: request["X-Tenant"] == "acme"
+      - condition: otelcol.client.metadata["X-Tenant"][0] == "acme"
         pipelines: [logs/acme]
-      - context: request
-        condition: request["X-Tenant"] == "ecorp"
+      - condition: otelcol.client.metadata["X-Tenant"][0] == "ecorp"
         pipelines: [logs/ecorp]
 ```
 
-HTTP headers match case-insensitively; for gRPC metadata use lowercase keys (`request["x-tenant"]`).
+For gRPC traffic use lowercase keys: `otelcol.grpc.metadata["x-tenant"][0]`. The older `request["X-Tenant"]` / `context: request` form still works but is **deprecated as of v0.156.0** (see [quirks](quirks.md)).
 
 ## Severity and environment routing
 
 ```yaml
 # logs: cheap storage for low severity, expensive for errors
 table:
-  - context: log
-    condition: severity_number < SEVERITY_NUMBER_ERROR
+  - condition: log.severity_number < SEVERITY_NUMBER_ERROR
     pipelines: [logs/cheap]
-  - context: log
-    condition: severity_number >= SEVERITY_NUMBER_ERROR
+  - condition: log.severity_number >= SEVERITY_NUMBER_ERROR
     pipelines: [logs/important]
 ```
 
@@ -75,24 +72,26 @@ connectors:
   routing:
     default_pipelines: [traces/dev]
     table:
-      - context: resource
-        condition: attributes["deployment.environment"] == "production"
+      - condition: resource.attributes["deployment.environment"] == "production"
         pipelines: [traces/prod]
 ```
 
 Order routes from specific to general — the first match wins, so a broad route placed first will shadow a narrower one below it.
 
-## `action: move` vs `copy`
+## `action: copy` vs the default `move`
 
-`copy` (default) leaves matched data available to later routes and `default_pipelines`; `move` removes it from any further evaluation. Use `move` when a match is terminal and the data must not also reach the default:
+`move` (the default) removes matched data from any further evaluation, so it never also reaches later routes or `default_pipelines`. `copy` leaves matched data available downstream — use it for an "archive everything, then route" pattern where the same data must hit both the archive route and a more specific one:
 
 ```yaml
 table:
-  - context: log
-    condition: severity_number >= SEVERITY_NUMBER_ERROR
-    action: move                       # errors leave here, never hit default_pipelines
-    pipelines: [logs/errors]
+  - condition: resource.attributes["archive"] == "true"
+    action: copy                       # copied to archive, still evaluated below
+    pipelines: [logs/archive]
+  - condition: log.severity_number >= SEVERITY_NUMBER_ERROR
+    pipelines: [logs/errors]           # default move: errors leave here
 ```
+
+Because `move` is already the default, you rarely set it explicitly; reach for `copy` only when a match must not be terminal.
 
 ## Migrating from `routingprocessor`
 
@@ -120,8 +119,7 @@ connectors:
   routing:
     default_pipelines: [logs/default]
     table:
-      - context: resource
-        condition: attributes["X-Tenant"] == "acme"
+      - condition: otelcol.client.metadata["X-Tenant"][0] == "acme"
         pipelines: [logs/acme]
 service:
   pipelines:
@@ -132,9 +130,9 @@ service:
 
 ## Migrating from `match_once`
 
-`match_once` was removed in v0.120.0; each item now matches at most one route. To reproduce the old `match_once: false` (multi-match) behavior:
+`match_once` was removed in v0.120.0; each item now matches at most one route (under the default `move`). To reproduce the old `match_once: false` (multi-match) behavior:
 
 - **Parallel routers** — split independent dimensions into separate named instances (see above). Each gets its own copy, so an item can match in both. Simplest when no `default_pipelines` is needed.
-- **Enumerate combinations** — for a small fixed set, write one route per combination and list all target pipelines in it (e.g. `condition: env=="prod" and region=="east"` → `pipelines: [logs/prod, logs/east]`). Practical only for a handful of dimensions.
+- **Enumerate combinations** — for a small fixed set, write one route per combination and list all target pipelines in it (e.g. `condition: resource.attributes["env"] == "prod" and resource.attributes["region"] == "east"` → `pipelines: [logs/prod, logs/east]`). Practical only for a handful of dimensions.
 
 Prefer parallel routers; enumeration grows combinatorially.
