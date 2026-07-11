@@ -47,7 +47,7 @@ are the authoritative, current map. Summary:
 | `@opentelemetry/instrumentation-xml-http-request` | opentelemetry-js | spans | experimental |
 | `@opentelemetry/browser-detector` | opentelemetry-js | resource | experimental |
 | `@opentelemetry/browser-instrumentation` | opentelemetry-browser | events | experimental |
-| `@opentelemetry/browser-sdk` | opentelemetry-browser | SDK | experimental (unreleased) |
+| `@opentelemetry/browser-sdk` | opentelemetry-browser | SDK | experimental (0.x) |
 | `@opentelemetry/auto-instrumentations-web` | opentelemetry-js-contrib | bundle | experimental |
 | `instrumentation-document-load` / `-long-task` / `-user-interaction` | opentelemetry-js-contrib | spans | experimental |
 | `instrumentation-browser-navigation` / `-web-exception` | opentelemetry-js-contrib | events | experimental |
@@ -78,7 +78,7 @@ relying on these notes.
 |---|---|
 | `opentelemetry-browser` package versions / status | `gh api repos/open-telemetry/opentelemetry-browser/releases -q '.[].tag_name'` |
 | Latest `@opentelemetry/browser-instrumentation` | `npm view @opentelemetry/browser-instrumentation version` |
-| Latest `@opentelemetry/browser-sdk` (may be unpublished) | `npm view @opentelemetry/browser-sdk version` |
+| Latest `@opentelemetry/browser-sdk` (0.x, published) | `npm view @opentelemetry/browser-sdk version` |
 | Latest `@opentelemetry/sdk-trace-web` | `npm view @opentelemetry/sdk-trace-web version` |
 | Latest `@opentelemetry/auto-instrumentations-web` | `npm view @opentelemetry/auto-instrumentations-web version` |
 | Authoritative browser package map | `WebFetch https://github.com/open-telemetry/opentelemetry-browser#browser-packages` |
