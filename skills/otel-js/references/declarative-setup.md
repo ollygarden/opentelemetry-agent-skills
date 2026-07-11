@@ -21,7 +21,7 @@ skill. For JS-specific facts:
 | Package status / breaking changes | `WebFetch https://www.npmjs.com/package/@opentelemetry/configuration` |
 | File config parser for current source (`file_format` acceptance) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/configuration/src/FileConfigFactory.ts` |
 | File config fixtures for current source | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/configuration/test/fixtures/sdk-config.yaml` |
-| `sdk-node` CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/opentelemetry-sdk-node/CHANGELOG.md` |
+| `sdk-node` CHANGELOG (experimental packages) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/CHANGELOG.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
 ## Activation

@@ -25,7 +25,7 @@ For Node.js-specific facts:
 | Latest `@opentelemetry/sdk-node` | `npm view @opentelemetry/sdk-node version` |
 | Latest `@opentelemetry/auto-instrumentations-node` | `npm view @opentelemetry/auto-instrumentations-node version` |
 | Package status / breaking changes | `WebFetch https://www.npmjs.com/package/@opentelemetry/configuration` |
-| `sdk-node` CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/opentelemetry-sdk-node/CHANGELOG.md` |
+| `sdk-node` CHANGELOG (experimental packages) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/CHANGELOG.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
 ## Cross-References
