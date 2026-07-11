@@ -27,10 +27,10 @@ Each entry in `attributes` is one operation. The fields are identical to the `at
 |-------|------|----------|-------------|
 | `key` | string | Conditional | Resource attribute key to act on. Required for all actions except `delete`/`hash` when only a `pattern` is given. |
 | `action` | string | Yes | One of `insert`, `update`, `upsert`, `delete`, `hash`, `extract`, `convert` (case-insensitive). |
-| `value` | any | Conditional | Literal value to set (string/int/double/bool). Required for `insert`/`update`/`upsert` unless `from_attribute` or `from_context` is used. Mutually exclusive with `from_attribute`/`from_context`. |
+| `value` | any | Conditional | Literal value to set (string/int/double/bool). Required for `insert`/`update`/`upsert` unless `from_attribute`, `from_context`, or `default_value` is used. Mutually exclusive with `from_attribute`/`from_context`. |
 | `from_attribute` | string | Conditional | Copy the value from another **resource** attribute. Mutually exclusive with `value` and `from_context`. |
 | `from_context` | string | Conditional | Pull the value from request context. Mutually exclusive with `value` and `from_attribute`. See [Context values](#context-values). |
-| `default_value` | any | No | Fallback value when the `from_attribute`/`from_context` source is missing (v0.152.0). Prevents the action from being skipped. |
+| `default_value` | any | No | Fallback used when the chosen source yields nothing — a missing `from_attribute`/`from_context`, or a `value` that resolved to empty from an unset `${env:…}` expansion (v0.152.0). **Honored only by `insert`/`update`/`upsert`** (silently ignored on other actions). It counts as a value source, so an action with only `default_value` is valid; it prevents the action from being skipped. |
 | `pattern` | string | Conditional | Regex (Go syntax). For `delete`/`hash`, matches attribute **keys** to act on. For `extract`, the regex applied to the value (must use named capture groups). |
 | `converted_type` | string | Conditional | Target type for `convert`: `int`, `double`, or `string`. Required for `convert`. |
 
