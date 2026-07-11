@@ -59,7 +59,7 @@ processors:
   log_dedup/health-checks:
     interval: 30s
     conditions:
-      - 'attributes["log.type"] == "health_check"'
+      - 'log.attributes["log.type"] == "health_check"'
   log_dedup/access-logs:
     interval: 10s
 
