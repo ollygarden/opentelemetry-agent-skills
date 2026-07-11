@@ -22,7 +22,7 @@ service:
 | `pass_through.gauge` | bool | `false` | If `true`, gauges are forwarded unchanged instead of buffered. |
 | `pass_through.summary` | bool | `false` | If `true`, summaries are forwarded unchanged instead of buffered. |
 
-Upstream documents no explicit validation rules. The Collector will reject an unparseable `interval` duration at startup.
+Validation: `interval` must be greater than `0`. A zero or negative value fails startup with `invalid interval value` (`ErrInvalidIntervalValue` in source). `pass_through` booleans have no validation.
 
 > **Doc typo, upstream:** the README's configuration block shows `summary: <boo>l`. It's a typo for `<bool>` — the parameter is a plain boolean.
 
