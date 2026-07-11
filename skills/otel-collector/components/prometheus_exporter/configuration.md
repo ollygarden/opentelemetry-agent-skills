@@ -1,6 +1,6 @@
 # `prometheus` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.154.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
+All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.156.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
 
 ## Top-level keys
 
