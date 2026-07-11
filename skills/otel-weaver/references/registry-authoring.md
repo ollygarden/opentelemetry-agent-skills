@@ -20,13 +20,12 @@ Files other than `manifest.yaml` are discovered by their `file_format: definitio
 Minimal example:
 
 ```yaml
-name: ecommerce
+schema_url: https://example.com/schemas/ecommerce/0.1.0
 description: "Telemetry conventions for the ecommerce monolith"
-semconv_version: 0.1.0
-schema_url: https://example.com/schemas/ecommerce
+stability: development
 ```
 
-`semconv_version` is yours to manage — bump it on any schema change. `schema_url` is what consumers see; pick a stable URL even if it does not yet resolve.
+`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. (The older `name` and `semconv_version`/`schema_base_url` fields are deprecated in favor of `schema_url`.)
 
 ## Attributes
 
@@ -42,7 +41,6 @@ attributes:
 
   - key: ecommerce.payment.method
     type:
-      allow_custom_values: true
       members:
         - id: credit_card
           value: credit_card
@@ -59,7 +57,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Set `allow_custom_values: false` to refuse anything outside the listed `id`s.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). The member `value` type (`string`/`int`/`boolean`) determines the attribute type.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -143,4 +141,4 @@ Fast feedback loop:
 weaver registry check -r ./telemetry/registry/
 ```
 
-Expected stderr noise: `File format definition/2 is not yet stable`. This is normal as of 0.22.1.
+Expected stderr noise: `File format definition/2 is not yet stable` (a warning). This is normal as of 0.24.2.

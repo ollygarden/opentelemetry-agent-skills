@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Resolve a Weaver registry to JSON and pretty-print a slice with jq.
 #
-# Use this before writing or debugging a template — resolved field names
-# differ from input field names (key→name, name→metric_name, type→id).
+# Use this for a quick raw dump of the resolved schema. Note: `weaver registry
+# resolve` is deprecated (still works; errors under --future), and its raw shape
+# is PRE-filter — it differs from the `ctx` a template receives via the
+# semconv_grouped_* jq helpers. To see the exact template fields, render
+# {{ ctx | tojson }} through the real filter (see references/template-authoring.md).
 #
 # Usage:
 #   inspect-resolved.sh <registry-dir> [jq-filter]
