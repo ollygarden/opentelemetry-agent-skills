@@ -21,7 +21,7 @@ If a companion skill is unavailable:
 
 Three moving parts:
 
-1. **Registry** — directory of YAML files. `manifest.yaml` is required and names the registry, declares `semconv_version` and `schema_url`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The local registry's `semconv_version` is yours to manage; bump it on changes.
+1. **Registry** — directory of YAML files. `manifest.yaml` is required; its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`semconv_version` and `schema_base_url` are deprecated in favor of `schema_url`.)
 2. **Templates** — directory of Jinja2 files plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
 3. **Policies** — Rego rules. Built-in OTel policies are the floor; custom policies layer on org rules.
 
@@ -34,7 +34,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 - Every entry needs `stability`. Weaver refuses to generate without it.
 - Use a domain prefix (e.g. `ecommerce.`, `acme.`) for org-local attributes, metrics, and spans.
 - Run the language formatter (`gofmt -w`, `prettier`, `ruff format`, ...) on generated output. Jinja whitespace produces multiple blank lines; without formatting, the diff check in CI will fail spuriously.
-- Confirm the resolved schema shape before writing a template. Run `weaver registry resolve -r <reg> -f json -o /tmp/r.json` and inspect — input `key`/`name`/`type` fields are renamed at resolve time (see `references/template-authoring.md`).
+- Confirm the resolved schema shape before writing a template. Input `key`/`name`/`type` fields are renamed by the jq helpers that feed the template `ctx` (see `references/template-authoring.md` for how to dump the exact shape).
 
 ## Workflow
 
@@ -52,12 +52,8 @@ These cost time and are not obvious from the upstream docs:
 2. Generated output is not formatter-clean. Always run the language formatter after `weaver registry generate`.
 3. Resolved field names differ from input. Attribute input `key` → resolved `name`. Metric input `name` → resolved `metric_name`. Span input `type` → resolved `id` of the form `span.<type>`, with a flat `name` string equal to the input `name.note`. Always resolve and inspect before writing a template.
 4. The `comment` Jinja filter takes a keyword argument: `attr.brief | comment(format="go")`. It already emits the `// ` prefix; do not add another.
-5. There is no prebuilt jq filter for spans. Use:
-   ```
-   semconv_signal("span"; {}) | group_by(.root_namespace) | map({root_namespace: .[0].root_namespace, spans: . | sort_by(.id)})
-   ```
-   It **must be single-quoted** in `weaver.yaml`; the colons in jq syntax collide with YAML mapping rules otherwise.
-6. `weaver registry check` emits "File format `definition/2` is not yet stable" on every run as of 0.22.1. This is normal; do not treat it as a failure.
+5. Spans, events, and entities have prebuilt grouped jq filters — `semconv_grouped_spans`, `semconv_grouped_events`, `semconv_grouped_entities` — alongside `semconv_grouped_attributes` and `semconv_grouped_metrics`. Use `semconv_grouped_spans` (a bareword, like the others). Only a raw multi-clause jq expression needs single-quoting in `weaver.yaml`, because the colons collide with YAML mapping rules.
+6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) on every run as of 0.24.2. This is normal; do not treat it as a failure.
 7. `--future` is opt-in but breaks today on `definition/2`. Note this in CI guidance and re-enable once the format goes stable.
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and using the resolved `span.name` string at runtime is clean.
@@ -97,13 +93,13 @@ Report the final check with:
 - `[ ]` unresolved
 
 Use these items:
-- registry has `manifest.yaml` with `name`, `semconv_version`, `schema_url`
+- registry has `manifest.yaml` with a `schema_url` whose final path segment is the version
 - every entry has `stability`
 - org-local attributes/metrics/spans use a domain prefix
 - no boundary-domain (http/db/messaging/rpc/network/gen-ai) entries duplicated locally
 - counter names have no `.total` suffix
 - duration histograms use `s` (seconds)
-- templates use jq filters that match the resolved schema, with the spans filter single-quoted
+- templates use jq filters that match the resolved schema (prefer the prebuilt `semconv_grouped_*` helpers; single-quote only raw jq expressions)
 - generated output is formatter-clean
 - CI runs `check`, `generate` + `git diff --exit-code`, and `diff` against the base branch
 - changed files were re-read

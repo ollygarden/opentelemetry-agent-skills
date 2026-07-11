@@ -1,21 +1,33 @@
 # Template Authoring
 
-Templates render the **resolved** registry, not the input YAML. Resolved field names differ — always confirm the shape before writing a template:
+Templates render the output of the `weaver.yaml` jq `filter`, not the input YAML. Field names differ — always confirm the shape before writing a template. The most reliable way to see the exact `ctx` a template receives is to render it through the real filter with a throwaway template:
 
 ```
-weaver registry resolve -r ./telemetry/registry/ -f json -o /tmp/r.json
-jq '.' /tmp/r.json | less
+# templates/registry/dbg/weaver.yaml
+#   templates:
+#     - template: dump.j2
+#       filter: semconv_grouped_spans   # or semconv_grouped_attributes, etc.
+#       application_mode: single
+#       file_name: dump.json
+# templates/registry/dbg/dump.j2 contains only: {{ ctx | tojson }}
+weaver registry generate --registry ./telemetry/registry/ --templates ./telemetry/templates/ dbg /tmp/out
+jq '.' /tmp/out/dump.json | less
 ```
+
+(`weaver registry resolve` still works for a raw dump but is deprecated — and it errors under `--future` — and its raw shape differs from the filtered `ctx` above.)
 
 ## Resolved-shape cheat sheet
 
-| Input field            | Resolved field                                        |
+Field names as they appear in the template `ctx` after the `semconv_grouped_*` filters:
+
+| Input field            | In `ctx`                                              |
 |------------------------|-------------------------------------------------------|
 | attribute `key`        | `name`                                                |
 | metric `name`          | `metric_name`                                         |
 | span `type`            | `id` of the form `span.<type>`, plus flat `name` (= input `name.note`) |
+| span `kind`            | `span_kind`                                           |
 
-Other resolved fields are mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `kind`, `attributes`, ...).
+The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events|entities> }]`. Other fields are mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
 
 ## Layout
 
@@ -62,15 +74,15 @@ templates:
     file_name: "metrics_gen.go"
 
   - template: spans.go.j2
-    filter: 'semconv_signal("span"; {}) | group_by(.root_namespace) | map({root_namespace: .[0].root_namespace, spans: . | sort_by(.id)})'
+    filter: semconv_grouped_spans
     application_mode: single
     file_name: "spans_gen.go"
 ```
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters (`semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_signal`, ...) live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo.
-- **The spans filter must be single-quoted.** Colons in jq syntax collide with YAML mapping rules; an unquoted form fails with `mapping values are not allowed in this context`.
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. Each signal has a grouped helper: `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, `semconv_grouped_entities` (all barewords).
+- **Single-quote only raw jq expressions.** The `semconv_grouped_*` helpers are barewords and need no quoting. If you write a custom multi-clause jq expression, single-quote it — colons in jq syntax otherwise collide with YAML mapping rules (`mapping values are not allowed in this context`).
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
 
@@ -168,4 +180,4 @@ Equivalents: `prettier -w`, `ruff format`, `rustfmt`, etc.
 
 ## Inspecting the resolved schema
 
-`scripts/inspect-resolved.sh` wraps `weaver registry resolve` and pretty-prints with `jq`. Useful when a template field is missing or named differently than expected.
+`scripts/inspect-resolved.sh` wraps `weaver registry resolve` and pretty-prints with `jq`. Useful for a quick raw dump, but note `resolve` is deprecated and its raw shape is pre-filter — to see the exact fields a template gets, dump `{{ ctx | tojson }}` through the real `semconv_grouped_*` filter as shown at the top of this file.
