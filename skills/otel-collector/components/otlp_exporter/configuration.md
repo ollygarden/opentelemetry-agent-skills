@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.60.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
+All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.62.0 / v0.156.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
 
 ## Top-level (gRPC client) keys
 
@@ -17,6 +17,7 @@ All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }
 | `wait_for_ready` | bool | `false` | Block RPCs until the connection is ready instead of failing fast. |
 | `balancer_name` | string | `round_robin` | gRPC client-side load-balancing policy across resolved addresses. |
 | `authority` | string | — | Overrides the `:authority` pseudo-header. |
+| `user_agent` | string | — (build-info default) | Overrides the default gRPC user-agent header. Empty keeps the build-derived default. |
 | `auth` | object | — | `authenticator:` referencing an auth extension (e.g. bearer/OAuth2). |
 | `middlewares` | list | — | gRPC client middleware extensions. |
 
@@ -88,4 +89,5 @@ Present by default — flushes at `flush_timeout` or when `min_size` is reached,
 | `batch.sizer` not `items`/`bytes` | rejected | config validation |
 | `batch.min_size` > `queue_size` (matching sizers) | rejected | config validation |
 | `batch.max_size` < `min_size` (when `max_size` > 0) | rejected | config validation |
-| `queue_size` ≤ 0 | rejected | config validation |
+| `queue_size` ≤ 0 | `` `queue_size` must be positive `` | config validation |
+| `num_consumers` ≤ 0 | `` `num_consumers` must be positive `` | config validation |
