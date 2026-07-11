@@ -26,7 +26,7 @@ service:
 | `sampling_precision` | int | `4` | Number of hex digits used to encode the sampling threshold (range `1`–`14`). Higher precision is more exact but capped per mode (see [Known quirks](quirks.md)). |
 | `attribute_source` | string | `traceID` | **Logs only.** Randomness source: `traceID` or `record`. |
 | `from_attribute` | string | `""` | **Logs only.** Log attribute used for sampling when `attribute_source: record`. |
-| `sampling_priority` | string | `""` | **Logs only.** Attribute name that, when present on a record, overrides the sampling decision for that record. |
+| `sampling_priority` | string | `""` | **Logs only.** Name of a log-record attribute read as a per-record sampling percentage (0–100) that overrides `sampling_percentage`: `0` never samples, `>= 100` always samples. |
 
 ## Modes
 
@@ -36,14 +36,14 @@ service:
 | `proportional` | W3C 56-bit randomness | Ignores any prior sampling decision and samples a predictable 1-in-N fraction. Best for a consistent ratio across tiers. |
 | `equalizing` | W3C 56-bit randomness | Factors in prior sampling decisions and lowers probability to a floor across a pipeline, so a downstream sampler does not re-cut already-sampled data below the target. |
 
-The 56-bit modes use the W3C Trace Context randomness (`tracestate` `ot=rv:`/`th:`), which makes their decisions composable across multiple samplers; `hash_seed` is self-contained and seed-dependent.
+The 56-bit modes use the W3C Trace Context randomness (`tracestate` `ot=rv:`/`th:`), which makes their decisions composable across multiple samplers; `hash_seed` uses its own seed-dependent FNV hash and does not compose. All three modes still record the effective threshold on the outgoing item.
 
 ## Traces vs logs
 
 | Aspect | Traces | Logs |
 |--------|--------|------|
 | Randomness source | Always the TraceID | TraceID (`attribute_source: traceID`) or a record attribute (`attribute_source: record` + `from_attribute`) |
-| Per-item priority override | Fixed `sampling.priority` attribute | Configurable via `sampling_priority` |
+| Per-item priority override | Fixed `sampling.priority` attribute (binary: `0` drops, non-zero keeps) | Configurable via `sampling_priority` (percentage: `0`–`100`) |
 | Threshold encoding (downstream) | W3C `tracestate` (`ot=th:...`) | Log attributes (`sampling.threshold` / `sampling.randomness`) |
 | Stability | Beta | Alpha |
 
