@@ -1,6 +1,6 @@
 # `file_storage`: configuration
 
-All keys live under the extension instance (e.g. `extensions: { file_storage: { … } }`), and the extension must be listed under `service.extensions:` to load. Facts below are traced to the `v0.154.0` contrib source (`config.go`, `factory.go`, `default_others.go`).
+All keys live under the extension instance (e.g. `extensions: { file_storage: { … } }`), and the extension must be listed under `service.extensions:` to load. Facts below are traced to the `v0.156.0` contrib source (`config.go`, `factory.go`, `default_others.go`).
 
 ## Top-level keys
 
@@ -8,6 +8,7 @@ All keys live under the extension instance (e.g. `extensions: { file_storage: { 
 |-----|------|---------|---------|
 | `directory` | string | `/var/lib/otelcol/file_storage` (non-Windows) / `%ProgramData%\Otelcol\FileStorage` (Windows) | Dedicated data directory holding the per-consumer bbolt files. **Must already exist** unless `create_directory: true`. |
 | `timeout` | duration | `1s` | Max time to wait for a file lock before failing the operation. Rarely needs changing. |
+| `max_size` | int (bytes) | `0` | Max on-disk size of **each** per-consumer bbolt file, in bytes. A write that would grow the file past this is rejected with a storage-full error; writes that fit in already-allocated free space still succeed. `0` means unlimited. **Must be ≥ 0** and not exceed `math.MaxInt`. Added in v0.156.0. |
 | `fsync` | bool | `false` | When `true`, force an `fsync` after each DB write (integrity over performance; flips bbolt's `DB.NoSync`). |
 | `create_directory` | bool | `false` | When `true`, create the data (and compaction) directory if missing instead of failing validation. |
 | `directory_permissions` | string (octal) | `"0750"` (rwxr-x---) | Permissions used when creating directories, minus the process umask. Only relevant when `create_directory: true`. |
@@ -31,6 +32,8 @@ bbolt is mmap-backed: when usage spikes, the file's allocated size grows and doe
 | `compaction.cleanup_on_start` | bool | `false` | Remove leftover `tempdb*` files from the compaction directory at start (left behind if a prior process was killed mid-compaction). |
 
 **Rebound (online) compaction** reclaims space after a transient spike drains: the flag arms only once allocated size has exceeded `rebound_needed_threshold_mib`, then compaction fires when usage drops back below `rebound_trigger_threshold_mib`. See [advanced.md](advanced.md) for tuning.
+
+When `max_size` is set (> 0) **and** `on_rebound: true`, both rebound thresholds (converted MiB → bytes, i.e. ×1,048,576) must be ≤ `max_size`, or validation fails — otherwise the rebound machinery could never fire within the cap. See the validation table in [quirks.md](quirks.md).
 
 ## Per-consumer files and naming
 

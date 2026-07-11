@@ -9,6 +9,10 @@ extensions:
   file_storage:
     directory: /var/lib/otelcol/storage
     create_directory: true
+receivers:
+  otlp:
+    protocols:
+      grpc:
 exporters:
   otlp:
     endpoint: backend:4317
@@ -79,6 +83,8 @@ allocated MiB
 - `check_interval` (default `5s`) — how often these conditions are evaluated; **must be > 0** when `on_rebound: true`.
 
 Raise the thresholds if your steady-state working set is large (so normal operation never trips compaction); lower them if you want space reclaimed more eagerly after smaller spikes. `compaction.max_transaction_size` (default `65536`) bounds how many items move per compaction transaction.
+
+To hard-cap growth instead of just reclaiming after the fact, set `max_size` (bytes, default `0` = unlimited). It bounds **each** per-consumer bbolt file: once a file is at the cap, a write that needs to grow it is rejected with a storage-full error (writes that fit existing free space still succeed), so a runaway persistent queue can't fill the disk. If you also enable `on_rebound`, both rebound thresholds (×1,048,576) must be ≤ `max_size` or validation fails — see [quirks.md](quirks.md). In practice keep `rebound_needed_threshold_mib × 1,048,576` strictly **below** `max_size`: the "needed" flag only arms once allocation *exceeds* the threshold, and allocation can never exceed `max_size`, so a threshold exactly at the cap validates but can never fire.
 
 ## `create_directory` / `directory_permissions` for ephemeral and container environments
 
