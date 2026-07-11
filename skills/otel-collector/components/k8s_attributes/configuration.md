@@ -73,7 +73,7 @@ extract:
 
 ### Default-extracted metadata
 
-Even with no `extract.metadata` list, these are added: `k8s.namespace.name`, `k8s.pod.name`, `k8s.pod.uid`, `k8s.pod.start_time`, `k8s.deployment.name`, `k8s.node.name`, and (when a container identifier is present) `container.image.name`, `container.image.tag`, `container.image.tags`. Set an explicit `metadata` list to narrow this.
+Even with no `extract.metadata` list, these are added: `k8s.namespace.name`, `k8s.pod.name`, `k8s.pod.uid`, `k8s.pod.start_time`, `k8s.deployment.name`, `k8s.node.name`, and (when a container identifier is present) `container.image.name` plus the image-tag attribute selected by the semantic-convention gates (`container.image.tag` on v0, `container.image.tags` on v1 — see [quirks](quirks.md)). Set an explicit `metadata` list to narrow this.
 
 ### Available metadata fields
 
