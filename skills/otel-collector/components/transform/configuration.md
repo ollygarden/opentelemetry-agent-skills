@@ -28,7 +28,7 @@ service:
 | `profile_statements` | list | `[]` | Statements run against profile data (Development stability). |
 
 > The default `error_mode` is `ignore`, set by the `processor.transform.defaultErrorModeIgnore` feature gate, which reached **beta (enabled by default) in v0.153.0**. To restore the old `propagate` default, disable it: `--feature-gates=-processor.transform.defaultErrorModeIgnore`.
-
+>
 > A `flatten_data` boolean (default `false`, behind the `transform.flatten.logs` alpha feature gate) gives each log record a distinct copy of its resource and scope before transformation, then regroups afterwards — useful when log-level data drives resource/scope edits. It copies and hashes every record, so enable only when needed.
 
 ## Error mode
