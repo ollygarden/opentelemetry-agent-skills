@@ -125,16 +125,22 @@ span.setStatus(StatusCode.ERROR, exception.getMessage());
 
 After:
 ```java
+// ExceptionAttributes lives in the io.opentelemetry.semconv artifact
+// (the old SemanticAttributes class was removed).
 Logger logger = GlobalOpenTelemetry.getLogsBridge().loggerBuilder("my-class").build();
 logger.logRecordBuilder()
     .setSeverity(Severity.ERROR)
-    .setAttribute(AttributeKey.stringKey("event.name"), "exception")
-    .setAttribute(SemanticAttributes.EXCEPTION_TYPE, exception.getClass().getName())
-    .setAttribute(SemanticAttributes.EXCEPTION_MESSAGE, exception.getMessage())
-    .setAttribute(SemanticAttributes.EXCEPTION_STACKTRACE, getStackTrace(exception))
+    .setEventName("exception")
+    .setAttribute(ExceptionAttributes.EXCEPTION_TYPE, exception.getClass().getName())
+    .setAttribute(ExceptionAttributes.EXCEPTION_MESSAGE, exception.getMessage())
+    .setAttribute(ExceptionAttributes.EXCEPTION_STACKTRACE, getStackTrace(exception))
     .emit();
 span.setStatus(StatusCode.ERROR, exception.getMessage());
 ```
+
+`setEventName(...)` is a first-class method on the stable `LogRecordBuilder`
+(stabilized in opentelemetry-java 1.x); prefer it over setting an
+`event.name` attribute.
 
 ### General Event
 
@@ -149,7 +155,7 @@ span.addEvent("state.transition", Attributes.of(
 After:
 ```java
 logger.logRecordBuilder()
-    .setAttribute(AttributeKey.stringKey("event.name"), "state.transition")
+    .setEventName("state.transition")
     .setAttribute(AttributeKey.stringKey("state.from"), oldState)
     .setAttribute(AttributeKey.stringKey("state.to"), newState)
     .emit();
@@ -170,8 +176,8 @@ After:
 const logger = logs.getLogger('my-module');
 logger.emit({
   severityNumber: SeverityNumber.ERROR,
+  eventName: 'exception',
   attributes: {
-    'event.name': 'exception',
     'exception.type': error.name,
     'exception.message': error.message,
     'exception.stacktrace': error.stack,
@@ -190,8 +196,8 @@ span.addEvent('queue.enqueue', { 'queue.name': queueName, 'queue.size': size });
 After:
 ```typescript
 logger.emit({
+  eventName: 'queue.enqueue',
   attributes: {
-    'event.name': 'queue.enqueue',
     'queue.name': queueName,
     'queue.size': size,
   },
@@ -200,11 +206,17 @@ logger.emit({
 
 ## .NET
 
+Note: OpenTelemetry .NET's `Activity.RecordException(...)` extension is
+`[Obsolete]` (it points callers to the runtime's `Activity.AddException(ex)`).
+Both `RecordException` and `AddException` record an exception *span event*, so
+either one is a migration source for this skill -- the target is still the
+Logs API as shown below.
+
 ### Exception Recording
 
 Before:
 ```csharp
-activity?.RecordException(ex);
+activity?.RecordException(ex); // or the newer activity?.AddException(ex);
 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 ```
 
@@ -233,7 +245,7 @@ logger.LogWarning("validation.failure for field {Field} rule {Rule}", fieldName,
 
 ## Key Rules Across All Languages
 
-1. The event name replaces the name from `AddEvent`. Use the dedicated API when available (e.g., `record.SetEventName(...)` in Go); otherwise set an `event.name` attribute.
+1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute where the SDK has no dedicated field (e.g., the Python stdlib logging bridge).
 2. All original attributes transfer to the log record attributes.
 3. The log record automatically inherits the active span context from `ctx` / the current context -- this is how trace correlation is maintained.
 4. `span.SetStatus` (or equivalent) is still set on the span for error cases -- the migration only moves event emission, not status.
