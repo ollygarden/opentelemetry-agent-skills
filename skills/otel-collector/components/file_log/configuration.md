@@ -96,7 +96,7 @@ Tracks only the top-N files after grouping and sorting — useful when many rota
 | `ordering_criteria.sort_by.regex_key` | string | — | Named group (from `ordering_criteria.regex`) to sort on. |
 | `ordering_criteria.sort_by.sort_type` | `numeric` \| `alphabetical` \| `timestamp` \| `mtime` | — | Sort strategy. `mtime` requires the `filelog.mtimeSortType` feature gate (Alpha, off by default). |
 | `ordering_criteria.sort_by.location` | string | — | Timestamp location (when `sort_type: timestamp`). |
-| `ordering_criteria.sort_by.layout` | strptime | — | Timestamp format, strptime (when `sort_type: timestamp`). |
+| `ordering_criteria.sort_by.layout` | strptime | — | Timestamp format, strptime (when `sort_type: timestamp`). ⚠️ The upstream README documents this key as `format`, but the actual field (matcher source + `config.schema.yaml`) is `layout` — `format:` is rejected as an invalid key (verified on v0.156.0). |
 | `ordering_criteria.sort_by.ascending` | bool | — | Sort direction. |
 
 ## Supported encodings
