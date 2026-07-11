@@ -22,7 +22,7 @@ The old `extract.labels[].regex` / `extract.annotations[].regex` fields (which p
 
 ## Semantic-convention label/annotation format is changing
 
-By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). Migrate by enabling the first gate, repointing dashboards/queries to the singular names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed in v0.154.0** in favor of these.)
+By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). The same gates also switch `container.image.tag` (string) → `container.image.tags` (slice). Migrate by enabling the first gate, repointing dashboards/queries to the singular/plural names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed** in v0.155.0.)
 
 ## Don't use it for sidecars, or outside Kubernetes
 
@@ -30,4 +30,4 @@ For a sidecar, inject pod metadata via the Kubernetes downward API as env vars �
 
 ## Stability caveats
 
-Traces, metrics, and logs are Beta; profiles are Development. The semconv migration gates above and the v0.151.0–v0.152.0 efficiency/metric changes (e.g. the disabled `otelcol.k8s.pod.association` internal metric, `PartialObjectMetadata` informers) mean behavior and attribute names still shift between releases — confirm against the upstream README for your exact collector version.
+Traces, metrics, and logs are Beta; profiles are Development. The semconv migration gates above and ongoing efficiency work (e.g. `PartialObjectMetadata` informers, and the `otelcol.k8s.pod.association` internal metric — disabled in v0.151.0, then re-enabled in v0.153.0 with a low-cardinality `pod_identifier` attribute) mean behavior and attribute names still shift between releases — confirm against the upstream README for your exact collector version.
