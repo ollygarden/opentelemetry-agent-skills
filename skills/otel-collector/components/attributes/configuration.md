@@ -21,7 +21,7 @@ Each entry in `actions` is one operation:
 | `value` | any | Conditional | Literal value to set (string/int/double/bool). Required for `insert`/`update`/`upsert` unless `from_attribute` or `from_context` is used. Mutually exclusive with `from_attribute`/`from_context`. |
 | `from_attribute` | string | Conditional | Copy the value from another attribute on the same record. Mutually exclusive with `value` and `from_context`. |
 | `from_context` | string | Conditional | Pull the value from request context. Mutually exclusive with `value` and `from_attribute`. See [Context values](#context-values). |
-| `default_value` | any | No | Fallback value when the `from_attribute`/`from_context` source is missing (v0.152.0). Prevents the action from being skipped. |
+| `default_value` | any | No | Fallback value when the `value`/`from_attribute`/`from_context` source is missing (`insert`/`update`/`upsert` only; v0.152.0). Prevents the action from being skipped; ignored by other actions. |
 | `pattern` | string | Conditional | Regex (Go syntax). For `delete`/`hash`, matches attribute **keys** to act on. For `extract`, the regex applied to the value (must use named capture groups). |
 | `converted_type` | string | Conditional | Target type for `convert`: `int`, `double`, or `string`. Required for `convert`. |
 
