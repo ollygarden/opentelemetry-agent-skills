@@ -220,7 +220,7 @@ Semconv reference: `otel-semantic-conventions` → HTTP client spans.
 
 ```csharp
 using var activity = ActivitySource.StartActivity("SELECT users", ActivityKind.Client);
-activity?.SetTag("db.system", "postgresql");
+activity?.SetTag("db.system.name", "postgresql");
 activity?.SetTag("db.namespace", databaseName);
 activity?.SetTag("db.operation.name", "SELECT");
 activity?.SetTag("db.collection.name", "users");
