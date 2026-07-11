@@ -30,4 +30,4 @@ When their sizers match, `sending_queue.batch.min_size` (default 8192) must not 
 
 ## Stability is per signal
 
-Traces, metrics, and logs are **Stable**; **profiles** are **Development**. Treat profile export as experimental and subject to breaking change, even though the same exporter serves it.
+Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile export as experimental and subject to breaking change, even though the same exporter serves it.

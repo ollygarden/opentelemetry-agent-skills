@@ -4,7 +4,7 @@
 |-|-|
 | Kind | exporter |
 | Type | `otlp_grpc` (deprecated alias `otlp`) |
-| Signals | traces (Stable), metrics (Stable), logs (Stable), profiles (Development) |
+| Signals | traces (Stable), metrics (Stable), logs (Stable), profiles (Alpha) |
 | Distributions | core, contrib, k8s, otlp |
 | Go module | `go.opentelemetry.io/collector/exporter/otlpexporter` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter> |
@@ -12,7 +12,7 @@
 
 ## Description
 
-Sends telemetry in **OTLP over gRPC** to a downstream OTLP endpoint — another Collector's `otlp` receiver, or any OTLP/gRPC backend. It is the standard egress for a pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Development**). The canonical type is now **`otlp_grpc`**, renamed from `otlp` in core v1.50.0 to disambiguate it from the separate `otlphttp` exporter (OTLP over HTTP). The old name **`otlp` still works** as a deprecated alias — and is what the vast majority of existing configs use — so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this component. Only `endpoint` is required; gRPC requests are **gzip-compressed by default**.
+Sends telemetry in **OTLP over gRPC** to a downstream OTLP endpoint — another Collector's `otlp` receiver, or any OTLP/gRPC backend. It is the standard egress for a pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Alpha**). The canonical type is now **`otlp_grpc`**, renamed from `otlp` in core v1.50.0 to disambiguate it from the separate `otlphttp` exporter (OTLP over HTTP). The old name **`otlp` still works** as a deprecated alias — and is what the vast majority of existing configs use — so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this component. Only `endpoint` is required; gRPC requests are **gzip-compressed by default**.
 
 The exporter **batches on its own.** Its `sending_queue` is enabled by default with a `batch` sub-block that flushes at **200ms** or **8192 items**, whichever comes first. Because of this, you do **not** add a separate `batch` processor to a pipeline that ends in this exporter — that legacy processor is deprecated in favor of `sending_queue.batch`. The same `sending_queue` provides the buffering and back-pressure, and `retry_on_failure` provides exponential-backoff retries; together they are the resiliency knobs you tune for throughput vs. latency. See [configuration.md](configuration.md) and [quirks.md](quirks.md).
 

@@ -134,7 +134,5 @@ receivers:
 
 ## Feature gates
 
-Both are alpha and off by default:
-
-- `receiver.prometheusreceiver.EnableCreatedTimestampZeroIngestion` (from v0.113.0) — injects created-timestamps as 0-valued samples. Off by default due to higher CPU cost at high metric volume.
-- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — ignore `otel_scope_info` for scope attribute extraction.
+- `receiver.prometheusreceiver.EnableCreatedTimestampZeroIngestion` (alpha, off by default, from v0.113.0) — injects created-timestamps as 0-valued samples. Off by default due to higher CPU cost at high metric volume.
+- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — ignore `otel_scope_info` for scope attribute extraction. Promoted to **beta (on by default) in v0.156.0**; disable with `--feature-gates=-receiver.prometheusreceiver.IgnoreScopeInfoMetric` to restore the old behavior.

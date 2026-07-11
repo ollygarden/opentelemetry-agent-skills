@@ -36,8 +36,8 @@ Per-request headers/metadata are dropped unless `include_metadata: true`. Header
 
 ## No profiles URL path
 
-The HTTP config exposes `traces_url_path`, `metrics_url_path`, and `logs_url_path` only. There is no profiles URL-path override — consistent with profiles being **Development** stability.
+The HTTP config exposes `traces_url_path`, `metrics_url_path`, and `logs_url_path` only. There is no profiles URL-path override — profiles are **Alpha** stability.
 
 ## Stability is per signal
 
-Traces, metrics, and logs are **Stable**; **profiles** are **Development**. Treat profile ingestion as experimental and subject to breaking change, even though the same receiver serves it.
+Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile ingestion as experimental and subject to breaking change, even though the same receiver serves it.
