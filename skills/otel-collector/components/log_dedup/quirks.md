@@ -5,6 +5,7 @@
 - One entry per unique hash for the duration of the interval.
 - High-cardinality fields (`request_id`, `trace_id`, timestamps) blow up memory — exclude them or use `conditions` to scope what's deduplicated.
 - Long intervals accumulate more unique entries; short intervals emit faster with smaller buffers.
+- `metadata_keys` multiplies memory: one full bucket of hashes per unique metadata combination. Leaving `metadata_cardinality_limit` at `0` (unbounded) is a memory-growth trap — cap it, and expect a startup warning if you don't.
 
 ## Telemetry
 
@@ -35,6 +36,8 @@ The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with t
 | `cannot define both exclude_fields and include_fields` | Choose one. |
 | `an excludefield must start with body or attributes` | Prefix every path with `body.` or `attributes.`. |
 | `cannot exclude the entire body` | Only nested fields are exclud-able (e.g., `body.timestamp`). |
+| `duplicate metadata_key "…"` | Remove the repeated key (comparison is case-insensitive). |
+| `too many batcher metadata-value combinations` (runtime, permanent error) | `metadata_cardinality_limit` reached — raise it, or narrow `metadata_keys`. |
 
 ## Anti-patterns
 
@@ -53,8 +56,8 @@ Scope with `conditions` so audit, security, and one-off error logs pass through 
 processors:
   log_dedup:
     conditions:
-      - 'attributes["log.type"] == "health_check"'
-      - 'attributes["log.type"] == "heartbeat"'
+      - 'log.attributes["log.type"] == "health_check"'
+      - 'log.attributes["log.type"] == "heartbeat"'
 ```
 
 **`include_fields` that includes unique IDs.**
