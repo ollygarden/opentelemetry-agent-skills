@@ -18,7 +18,7 @@ Every command needs at least a subcommand and typically `--otlp-insecure` for lo
 1. **Pick the signal** -- `traces`, `metrics`, or `logs`.
 2. **Set the endpoint** -- defaults to `localhost:4317` (gRPC) or `localhost:4318` (HTTP). Use `--otlp-endpoint` to override.
 3. **Choose count or duration** -- use `--traces`/`--metrics`/`--logs` for a fixed count per worker, or `--duration` for time-based generation. Duration overrides count when both are set.
-4. **Control throughput** -- total rate = `--workers` x `--rate`. Without `--rate`, generation runs at max speed (dangerous against real backends).
+4. **Control throughput** -- total rate = `--workers` x `--rate`. `--rate` defaults to `1` item/sec/worker; set `--rate 0` for unbounded max-speed generation (dangerous against real backends).
 5. **Add identity and attributes** -- `--service` sets the service name; `--otlp-attributes` adds resource-level attributes; `--telemetry-attributes` adds span/metric/log-level attributes.
 6. **Review the anti-patterns** below before running against shared or production infrastructure.
 
@@ -32,8 +32,9 @@ See `references/flags.md` for the full flag reference. Key flags:
 | `--otlp-http` | `false` | Switch to HTTP transport |
 | `--otlp-insecure` | `false` | Disable TLS |
 | `--workers` | `1` | Concurrent goroutines |
-| `--rate` | `0` (unlimited) | Items/sec/worker |
+| `--rate` | `1` | Items/sec/worker (`0` = unlimited) |
 | `--duration` | `0` | Time-based generation (`5s`, `1m`, `inf`) |
+| `--timeout` | `10s` | Max time to wait for signals to reach destination |
 | `--service` | `"telemetrygen"` | Service name |
 | `--otlp-attributes` | -- | Resource attributes (repeatable) |
 | `--telemetry-attributes` | -- | Telemetry-level attributes (repeatable) |
@@ -179,7 +180,7 @@ telemetrygen traces --mtls \
 ```bash
 # Docker with host networking
 docker run --rm --network host \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.147.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0 \
   traces --otlp-insecure --traces 100
 
 # Kubernetes Job
@@ -234,7 +235,7 @@ docker run -d --rm --name otelcol-verify \
   --user "$(id -u):$(id -g)" \
   -v "./config.yaml:/etc/otelcol-contrib/config.yaml:ro" \
   -v "./out:/output" \
-  otel/opentelemetry-collector-contrib:0.142.0 \
+  otel/opentelemetry-collector-contrib:0.156.0 \
   --config=/etc/otelcol-contrib/config.yaml
 
 # wait for the collector to be ready, then send the telemetry shape under test
@@ -257,19 +258,19 @@ On SELinux systems (Fedora, RHEL), append `:z` to the bind mounts so they get re
 
 These are the mistakes that cause real problems -- review before running against anything shared:
 
-- **No rate limit against real backends**: without `--rate`, telemetrygen generates at max speed and can overwhelm a backend or exhaust resources.
+- **Unbounded rate against real backends**: `--rate 0` disables throttling and generates at max speed, which can overwhelm a backend or exhaust resources. The default `--rate 1` is safe but too slow for load tests -- raise it deliberately rather than jumping to `0`.
 - **Wrong transport**: forgetting `--otlp-http` when targeting port 4318 causes connection failures. gRPC uses 4317, HTTP uses 4318.
 - **`--otlp-insecure-skip-verify` in production**: disables certificate validation entirely. Use `--ca-cert` instead.
 - **Confusing attribute levels**: `--otlp-attributes` sets resource attributes (service-level); `--telemetry-attributes` sets span/metric/log attributes. Putting attributes at the wrong level makes them invisible to processors or queries that look at the correct level.
-- **`--size` without `--rate`**: large payloads at unlimited speed exhaust memory.
+- **`--size` with `--rate 0`**: large payloads at unlimited speed exhaust memory. Keep the default rate or set a low explicit value when using `--size`.
 - **`--duration` with count flags**: duration silently overrides `--traces`/`--metrics`/`--logs`. Pick one or the other.
 
 ## Installation
 
 ```bash
 # go install (recommended, pin the version)
-go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.147.0
+go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.156.0
 
 # Container
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.147.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0
 ```
