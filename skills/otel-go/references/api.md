@@ -8,7 +8,7 @@ import (
     "go.opentelemetry.io/otel"                    // Global API
     "go.opentelemetry.io/otel/trace"              // Tracing API
     "go.opentelemetry.io/otel/metric"             // Metrics API
-    "go.opentelemetry.io/otel/log"                // Logs API (stable as of v1.34.0)
+    "go.opentelemetry.io/otel/log"                // Logs API (separate v0.x line — see note below)
     "go.opentelemetry.io/otel/log/global"         // Global LoggerProvider
     "go.opentelemetry.io/otel/attribute"          // Attributes
     "go.opentelemetry.io/otel/codes"              // Status codes
@@ -222,7 +222,11 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 
 ## Logs API
 
-The Logs API became stable in v1.34.0. It provides a bridge for existing logging libraries.
+The Logs API and SDK are versioned on a **separate v0.x line** (currently `otel/log` and
+`otel/sdk/log` v0.20.0, released alongside core v1.44.0) and are **not yet declared stable** —
+interfaces may still change without a major bump. They are production-usable and primarily
+provide a bridge for existing logging libraries. Track their version independently from the
+stable v1.x traces/metrics signals (see the module-versioning table in SKILL.md).
 
 ### Core Types
 ```go
@@ -238,9 +242,8 @@ log.Severity           // Log severity level
 // Get logger (use import path as name)
 logger := global.GetLoggerProvider().Logger("github.com/user/pkg")
 
-// Check if logging is enabled
-var params log.EnabledParameters
-params.SetSeverity(log.SeverityInfo)
+// Check if logging is enabled (EnabledParameters is a plain struct; set fields directly)
+params := log.EnabledParameters{Severity: log.SeverityInfo}
 if logger.Enabled(ctx, params) {
     var rec log.Record
     rec.SetTimestamp(time.Now())

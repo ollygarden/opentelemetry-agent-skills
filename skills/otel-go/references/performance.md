@@ -16,10 +16,10 @@ Performance tuning reference for OpenTelemetry Go SDK. Covers sampling, batch pr
 
 | Parameter | Default | Environment Variable |
 |-----------|---------|---------------------|
-| Batch span queue size | 2048 | -- |
-| Batch span export size | 512 | `OTEL_TRACES_EXPORTER_MAX_EXPORT_BATCH_SIZE` |
-| Batch schedule delay | 5s | `OTEL_TRACES_EXPORTER_BATCH_SCHEDULE_DELAY` |
-| Batch export timeout | 30s | `OTEL_TRACES_EXPORTER_TIMEOUT` |
+| Batch span queue size | 2048 | `OTEL_BSP_MAX_QUEUE_SIZE` |
+| Batch span export size | 512 | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` |
+| Batch schedule delay | 5s | `OTEL_BSP_SCHEDULE_DELAY` |
+| Batch export timeout | 30s | `OTEL_BSP_EXPORT_TIMEOUT` |
 | Span attribute limit | 128 | `OTEL_SPAN_ATTRIBUTE_COUNT_LIMIT` |
 | Span event limit | 128 | `OTEL_SPAN_EVENT_COUNT_LIMIT` |
 | Span link limit | 128 | `OTEL_SPAN_LINK_COUNT_LIMIT` |
@@ -206,6 +206,15 @@ mp := sdkmetric.NewMeterProvider(
 
 Metric attribute cardinality is the product of unique values across all recorded attributes. Attributes like user IDs or request IDs are unbounded and produce one time series per unique value. Attributes like HTTP method (~10 values) or status code (~50 values) are bounded.
 
+> **Default cardinality limit (v1.44.0+):** `sdk/metric` now enforces a default cardinality
+> limit of **2000** series per instrument (spec-compliant). Series beyond the limit are dropped
+> and aggregated into an overflow series marked `attribute.Bool("otel.metric.overflow", true)`.
+> This is a breaking change from the previous unlimited default. Override globally with the
+> MeterProvider option `sdkmetric.WithCardinalityLimit(n)` (zero or negative disables the
+> limit), or per instrument kind with the reader option
+> `sdkmetric.WithCardinalityLimitSelector` (v1.43.0+). Views remain the correct tool for
+> *shaping* cardinality; the limit is a backstop.
+
 ---
 
 ## Attribute Allocation Patterns
@@ -316,6 +325,13 @@ The OTLP exporters use exponential backoff with jitter:
 | Max elapsed time | 1min |
 
 Retries honor `Retry-After` headers from the backend.
+
+### Request Size Cap (v1.44.0+)
+
+All OTLP exporters (trace/metric/log, gRPC and HTTP) cap the request payload at **64 MiB** by
+default. The limit is applied *before* compression; oversized requests are treated as
+non-retryable errors and dropped. Tune with `WithMaxRequestSize(bytes)` on the exporter —
+zero or negative disables the limit entirely (not recommended).
 
 ### Timeout Tuning
 

@@ -277,12 +277,13 @@ func (c *CustomClient) CallExternalAPI(ctx context.Context, endpoint string) err
 
 ```go
 func (r *Repository) CreateUser(ctx context.Context, userData *UserData) (*User, error) {
+    // semconv helpers below track go.opentelemetry.io/otel/semconv/v1.41.0
     ctx, span := r.tracer.Start(ctx, "INSERT users",
         trace.WithAttributes(
-            semconv.DBSystem("postgresql"),
+            semconv.DBSystemNamePostgreSQL,        // db.system.name (was DBSystem/db.system)
             semconv.DBNamespace(r.dbName),
-            semconv.DBOperation("INSERT"),
-            semconv.DBSQLTable("users")))
+            semconv.DBOperationName("INSERT"),      // db.operation.name (was DBOperation)
+            semconv.DBCollectionName("users")))     // db.collection.name (was DBSQLTable/db.sql.table)
     defer span.End()
 
     query := `INSERT INTO users (email, name, tier) VALUES ($1, $2, $3) RETURNING id, created_at`
@@ -322,8 +323,8 @@ func (p *Publisher) PublishOrderEvent(ctx context.Context, order *Order) error {
     ctx, span := p.tracer.Start(ctx, "send queue.orders",
         trace.WithSpanKind(trace.SpanKindProducer),
         trace.WithAttributes(
-            semconv.MessagingSystem("nats"),
-            semconv.MessagingOperationTypePublish,
+            semconv.MessagingSystemKey.String("nats"), // messaging.system (no NATS enum const)
+            semconv.MessagingOperationTypeSend,        // was MessagingOperationTypePublish
             semconv.MessagingDestinationName("orders"),
             attribute.String("order.id", order.ID)))
     defer span.End()
@@ -346,7 +347,7 @@ func (c *Consumer) HandleOrderEvent(ctx context.Context, msg []byte) error {
     ctx, span := c.tracer.Start(ctx, "consume queue.orders",
         trace.WithSpanKind(trace.SpanKindConsumer),
         trace.WithAttributes(
-            semconv.MessagingSystem("nats"),
+            semconv.MessagingSystemKey.String("nats"), // messaging.system (no NATS enum const)
             semconv.MessagingOperationTypeReceive,
             semconv.MessagingDestinationName("orders")))
     defer span.End()
