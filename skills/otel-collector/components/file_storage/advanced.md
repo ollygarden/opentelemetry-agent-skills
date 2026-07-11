@@ -9,6 +9,10 @@ extensions:
   file_storage:
     directory: /var/lib/otelcol/storage
     create_directory: true
+receivers:
+  otlp:
+    protocols:
+      grpc:
 exporters:
   otlp:
     endpoint: backend:4317
