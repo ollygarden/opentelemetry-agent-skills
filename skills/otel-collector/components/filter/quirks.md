@@ -2,7 +2,7 @@
 
 ## Data is permanently dropped
 
-`filter` removes data from the pipeline; there is no recovery downstream. Test conditions with `error_mode: propagate` and `debug` logging before rolling out.
+`filter` removes data from the pipeline; there is no recovery downstream. Test conditions with `error_mode: propagate` (explicitly — the default is now `ignore`) and `debug` logging before rolling out.
 
 ## Dropping a metric's only datapoint removes the metric
 
@@ -16,9 +16,9 @@ Filtering at the `datapoint` level that empties a metric also removes the metric
 
 ## error_mode behavior
 
-- Default is `propagate`: a single failing condition (e.g. a type mismatch or a nil dereference) **drops the entire batch**, not just the offending item. This surprises people in production — set `error_mode: ignore` there.
+- Default is `ignore` since v0.153.0 (the `processor.filter.defaultErrorModeIgnore` gate went **beta / enabled by default**): a failing condition is logged and skipped, valid data survives.
+- Setting `error_mode: propagate` — or disabling the gate with `--feature-gates=-processor.filter.defaultErrorModeIgnore` — makes a single failing condition (e.g. a type mismatch or a nil dereference) **drop the entire batch**, not just the offending item. Older collectors (pre-v0.153.0) defaulted to `propagate`, so the same config behaves differently across versions unless `error_mode` is set explicitly.
 - `silent` hides evaluation errors entirely; if a filter "isn't working," confirm it isn't set to `silent`.
-- The `processor.filter.defaultErrorModeIgnore` feature gate can flip the default to `ignore`; don't assume the default without checking whether the gate is enabled.
 
 ## Stability caveats
 
@@ -27,15 +27,18 @@ All signals are **Alpha** (profiles are **Development**). Config keys can still 
 ## Troubleshooting
 
 **Nothing is dropped.**
-- Wrong context — span fields used in a `spanevent` block, or metric fields used directly in `datapoint` (use `metric.name`).
-- Attribute doesn't exist — add a nil check: `attributes["x"] != nil and attributes["x"] == "y"`.
+- Missing/wrong path prefix — in `*_conditions`, paths must be prefixed (`span.name`, `log.body`, `metric.name`, `datapoint.value_int`); the context is inferred from those prefixes.
+- Attribute doesn't exist — add a nil check: `log.attributes["x"] != nil and log.attributes["x"] == "y"`.
 - `error_mode: silent` is swallowing evaluation errors — switch to `propagate` while debugging.
 
 **Everything is dropped.**
-- Overly broad condition (`IsMatch(name, ".*")` matches all). Tighten it and re-test with debug logging.
+- Overly broad condition (`IsMatch(span.name, ".*")` matches all). Tighten it and re-test with debug logging.
 
-**Validation error: `cannot use ottl conditions and include/exclude ... at the same time`.**
-- You mixed OTTL conditions and legacy include/exclude for the same signal. Pick one.
+**Validation error: `configuring multiple configuration styles is not supported`.**
+- You mixed basic (flat string list) and advanced (`context`/`conditions` objects) forms in one signal — use one style.
+
+**Validation error: `cannot use context inferred ... conditions and the settings ... at the same time`.**
+- You mixed `*_conditions` with a deprecated per-signal block or include/exclude for the same signal. Pick one.
 
 **Verifying effectiveness.** The processor emits `processor_filter_spans.filtered`, `processor_filter_datapoints.filtered`, `processor_filter_logs.filtered` (and `processor_filter_profiles.filtered`, development) — watch these to confirm drops.
 
@@ -44,24 +47,21 @@ All signals are **Alpha** (profiles are **Development**). Config keys can still 
 **Datapoint-level filtering when a whole metric should go.**
 
 ```yaml
-# Less efficient — evaluates every datapoint
-metrics:
-  datapoint:
-    - 'resource.attributes["env"] == "test"'
+# Less efficient — inferred as datapoint context, evaluates every datapoint
+metric_conditions:
+  - 'datapoint.attributes["env"] == "test"'
 
-# Prefer — drops the whole metric in one check
-metrics:
-  metric:
-    - 'resource.attributes["env"] == "test"'
+# Prefer — resource condition drops the whole resource in one check
+metric_conditions:
+  - 'resource.attributes["env"] == "test"'
 ```
 
 **Dropping parent/correlated spans.**
 
 ```yaml
 # Risky — orphans children, breaks log correlation
-traces:
-  span:
-    - 'kind == SPAN_KIND_SERVER'
+trace_conditions:
+  - 'span.kind == SPAN_KIND_SERVER'
 ```
 
 Filter leaf/noise spans, or move whole-trace decisions to `tail_sampling`.
@@ -70,9 +70,8 @@ Filter leaf/noise spans, or move whole-trace decisions to `tail_sampling`.
 
 ```yaml
 # Hard to maintain, error-prone
-logs:
-  log_record:
-    - 'IsMatch(body, "^(?!.*(error|warn|fail)).*$")'
+log_conditions:
+  - 'IsMatch(log.body, "^(?!.*(error|warn|fail)).*$")'
 ```
 
-Prefer explicit positive conditions (`severity_number < SEVERITY_NUMBER_WARN`).
+Prefer explicit positive conditions (`log.severity_number < SEVERITY_NUMBER_WARN`).

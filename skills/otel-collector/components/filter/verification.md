@@ -15,9 +15,8 @@ receivers:
 processors:
   filter:
     error_mode: ignore
-    logs:
-      log_record:
-        - 'severity_number >= SEVERITY_NUMBER_ERROR'
+    log_conditions:
+      - 'log.severity_number >= SEVERITY_NUMBER_ERROR'
 exporters:
   debug:
     verbosity: detailed

@@ -6,9 +6,8 @@
 processors:
   filter:
     error_mode: ignore
-    traces:
-      span:
-        - 'name == "health_check"'
+    trace_conditions:
+      - span.name == "health_check"
 
 service:
   pipelines:
@@ -22,42 +21,87 @@ service:
 
 | Key | Type | Default | Notes |
 |-----|------|---------|-------|
-| `error_mode` | string | `propagate` | How OTTL condition-evaluation errors are handled: `propagate`, `ignore`, or `silent`. See [Error mode](#error-mode). |
-| `traces` | block | — | Trace conditions (`span`, `spanevent`). |
-| `metrics` | block | — | Metric conditions (`metric`, `datapoint`) or legacy `include`/`exclude`. |
-| `logs` | block | — | Log conditions (`log_record`) or legacy `include`/`exclude`. |
+| `error_mode` | string | `ignore` | How OTTL condition-evaluation errors are handled: `propagate`, `ignore`, or `silent`. See [Error mode](#error-mode). |
+| `trace_conditions` | list | — | Trace conditions (contexts: `resource`, `scope`, `span`, `spanevent`). |
+| `metric_conditions` | list | — | Metric conditions (contexts: `resource`, `scope`, `metric`, `datapoint`). |
+| `log_conditions` | list | — | Log conditions (contexts: `resource`, `scope`, `log`). |
+| `profile_conditions` | list | — | Profile conditions (contexts: `resource`, `scope`, `profile`). **Development** stability. |
+| `traces` / `metrics` / `logs` / `profiles` | block | — | **Deprecated** per-signal blocks and legacy `include`/`exclude` matchers. See [Legacy configuration](#legacy-configuration). |
 
-> A `processor.filter.defaultErrorModeIgnore` feature gate (alpha, disabled by default, v0.150.0+) flips the default `error_mode` from `propagate` to `ignore`. Until it is enabled, the default is `propagate`.
+> **Default `error_mode` is `ignore` since v0.153.0.** The `processor.filter.defaultErrorModeIgnore` feature gate (**beta, enabled by default**) sets the default to `ignore`. Disable it — `--feature-gates=-processor.filter.defaultErrorModeIgnore` — to restore the old `propagate` default.
 
-## Per-signal OTTL conditions
+## The `*_conditions` fields
 
-Each field below takes a list of OTTL boolean expressions. An item is **dropped** when any condition in its context evaluates to `true`. The expression language itself — operators, paths, converter functions — is covered in the `otel-ottl` skill; only the filter-specific surface is described here.
+`trace_conditions`, `metric_conditions`, `log_conditions`, and `profile_conditions` are the current, recommended surface (documented upstream from v0.146.0). Each takes a list of OTTL boolean conditions; an item is **dropped** when any condition evaluates to `true` (conditions are ORed). The expression language — operators, paths, converter functions — is covered in the `otel-ottl` skill; only the filter-specific surface is described here.
 
-| Field | OTTL context | Drops | Representative fields |
-|-------|--------------|-------|-----------------------|
-| `traces.span` | span | a span | `name`, `attributes[...]`, `status.code`, `kind`, `start_time`, `end_time`, `resource.attributes[...]`, `instrumentation_scope` |
-| `traces.spanevent` | spanevent | a span event | `name`, `attributes[...]`, `time_unix_nano`, plus the enclosing span's fields |
-| `metrics.metric` | metric | a whole metric | `name`, `description`, `unit`, `type`, `aggregation_temporality`, `resource.attributes[...]` |
-| `metrics.datapoint` | datapoint | a single datapoint | `attributes[...]`, `value_int`, `value_double`, `time_unix_nano`, `metric.name`, `metric.type` |
-| `logs.log_record` | log | a log record | `body`, `attributes[...]`, `severity_number`, `severity_text`, `resource.attributes[...]`, `instrumentation_scope` |
+### Contexts and path prefixes
 
-**OTTL-context note:** each field evaluates in its own context. You cannot reference span fields from a `spanevent` condition's top level except through the span context the spanevent inherits, and metric-level fields (`name`, `type`) are reachable from `datapoint` only via `metric.name` / `metric.type`. Two metric-only converters are added by this processor and must run in the `metrics.metric` context: `HasAttrKeyOnDatapoint(key)` (true if any datapoint carries that attribute key) and `HasAttrOnDatapoint(key, value)` (true if any datapoint has that string key/value).
+Within a `*_conditions` list, paths are **prefixed by context** and the processor **infers** the context from the prefixes used, so you rarely set it by hand.
 
-Hierarchy: if a span is dropped, its `spanevent` conditions are not evaluated; if all datapoints of a metric are dropped, the metric is removed too. See [Known quirks](quirks.md).
+| Field | Available contexts | Representative paths |
+|-------|--------------------|----------------------|
+| `trace_conditions` | `resource`, `scope`, `span`, `spanevent` | `span.name`, `span.attributes[...]`, `span.status.code`, `span.kind`, `span.start_time`, `span.end_time`, `spanevent.name`, `resource.attributes[...]`, `scope.name` |
+| `metric_conditions` | `resource`, `scope`, `metric`, `datapoint` | `metric.name`, `metric.type`, `metric.unit`, `datapoint.attributes[...]`, `datapoint.value_int`, `datapoint.value_double`, `resource.attributes[...]` |
+| `log_conditions` | `resource`, `scope`, `log` | `log.body`, `log.attributes[...]`, `log.severity_number`, `log.severity_text`, `resource.attributes[...]`, `scope.name` |
+| `profile_conditions` | `resource`, `scope`, `profile` | `profile.duration_unix_nano`, `resource.attributes[...]` |
 
-> Two surfaces are intentionally not detailed here: an **inferred-context** condition form (`trace_conditions` / `metric_conditions` / `log_conditions`, v0.146.0+) that lets a single list span multiple contexts, and a **`profiles.profile`** block (Development stability). Both are documented in the [upstream README](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) if you need them.
+The filter processor supports **only** the contexts above — notably **no `exemplar` context** (that path exists in the `transform` processor, which mutates rather than drops).
+
+**Hierarchy.** Conditions run higher-to-lower (`resource` → `scope` → signal-specific). If a higher-level item is dropped, lower-level conditions for it are skipped: a dropped span skips its `spanevent` conditions. If all datapoints of a metric are dropped, the metric is dropped too; if all span events of a span are dropped, the span is left intact. When one condition mixes paths from two contexts, it is evaluated in the **lower** context (e.g. `resource` + `spanevent` → evaluated per span event). See [Known quirks](quirks.md).
+
+**Metric-only converters.** This processor adds two functions that must run in the **`metric`** context: `HasAttrKeyOnDatapoint(key)` (true if any datapoint carries that attribute key) and `HasAttrOnDatapoint(key, value)` (true if any datapoint has that string key/value).
+
+### Basic vs advanced style
+
+**Basic** — a flat list of OTTL strings, ORed, context inferred per condition:
+
+```yaml
+filter:
+  error_mode: ignore
+  trace_conditions:
+    - span.attributes["container.name"] == "app_container_1"
+    - resource.attributes["host.name"] == "localhost"
+    - span.name == "app_3"
+```
+
+**Advanced** — objects that pin a `context` and/or override `error_mode` for a group of `conditions`:
+
+```yaml
+filter:
+  error_mode: ignore
+  trace_conditions:
+    - context: span            # set explicitly only when inference can't (e.g. IsRootSpan())
+      error_mode: propagate    # overrides the top-level error_mode for this group
+      conditions:
+        - IsRootSpan()
+    - conditions:
+        - spanevent.name == "grpc.timeout"
+```
+
+Set `context` explicitly only when a condition has no path prefix to infer from (e.g. a bare `IsRootSpan()`), or when a combination of paths/functions/enums is not allowed in a single inferred context. Basic and advanced (and the deprecated forms) **cannot be mixed within one signal** — validation rejects mixing configuration styles.
 
 ## Error mode
 
 | Mode | Behavior | When |
 |------|----------|------|
-| `propagate` | Returns the error up the pipeline, dropping the whole payload. | **Default.** Development/testing — surfaces config mistakes immediately. |
-| `ignore` | Logs the error and moves to the next condition. | **Recommended in production** — a bad condition won't drop unrelated data. |
+| `ignore` | Logs the error and moves to the next condition. | **Default and recommended** — a bad condition won't drop unrelated data. |
 | `silent` | Continues without logging. | When error logging is too noisy. |
+| `propagate` | Returns the error up the pipeline, dropping the whole payload. | Development/testing — surfaces config mistakes immediately. |
 
-## Legacy include/exclude (metrics and logs only)
+## Legacy configuration
 
-The pre-OTTL form still works but **cannot be combined with OTTL conditions for the same signal**. Prefer OTTL for new configs.
+Two older forms still work but are **deprecated** and slated for removal; both are documented upstream only for versions before v0.146.0. Prefer `*_conditions` for new configs.
+
+**Deprecated per-signal OTTL blocks** — same conditions, unprefixed paths inside a fixed context. Migrate by moving each into the matching `*_conditions` list with the context prefix:
+
+| Deprecated | Migrate to |
+|------------|------------|
+| `traces.resource` / `traces.span` / `traces.spanevent` | `trace_conditions` with `resource.` / `span.` / `spanevent.` prefix |
+| `metrics.resource` / `metrics.metric` / `metrics.datapoint` | `metric_conditions` with `resource.` / `metric.` / `datapoint.` prefix |
+| `logs.resource` / `logs.log_record` | `log_conditions` with `resource.` / `log.` prefix |
+| `profiles.resource` / `profiles.profile` | `profile_conditions` with `resource.` / `profile.` prefix |
+
+**Pre-OTTL include/exclude** (metrics and logs only) — name/attribute/severity matchers. Cannot be combined with any OTTL conditions for the same signal.
 
 Metrics — match by name and/or resource attribute:
 
