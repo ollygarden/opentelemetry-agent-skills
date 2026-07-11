@@ -21,11 +21,13 @@ Add resources as you extract more metadata:
 
 | Extracted metadata | Add resource | API group |
 |--------------------|--------------|-----------|
-| `k8s.deployment.name` (default path) | `replicasets` | `apps`, `extensions` |
-| `k8s.deployment.uid`, deployment labels/annotations | `deployments` | `apps` |
+| `k8s.deployment.name` (default heuristic) | *nothing extra* — derived from the pod's owner ReplicaSet name | — |
+| `k8s.deployment.uid`, or `k8s.deployment.name` with `deployment_name_from_replicaset: false` | `replicasets` | `apps`, `extensions` |
+| deployment labels/annotations (`from: deployment`) | `replicasets` + `deployments` | `apps`, `extensions` |
 | `k8s.statefulset.*` / `k8s.daemonset.*` | `statefulsets` / `daemonsets` | `apps` |
-| `k8s.job.*`, `k8s.cronjob.*` | `jobs` | `batch` |
-| `k8s.node.*` | `nodes` | `` (core) |
+| `k8s.job.*`, `k8s.cronjob.uid`, or job labels/annotations (`from: job`) | `jobs` | `batch` |
+| `k8s.cronjob.name` alone | *nothing extra* — derived from the Job name via heuristic | — |
+| `k8s.node.*` or node labels/annotations | `nodes` | `` (core) |
 
 Bind it cluster-wide with a `ClusterRoleBinding` when the collector receives telemetry from many namespaces. When the collector only handles one namespace, use a namespaced `Role` + `RoleBinding` with `filter.namespace` set — least privilege, but it **cannot** read nodes, `k8s.cluster.uid`, or namespace labels/annotations.
 
@@ -94,16 +96,17 @@ extract:
 
 Extracting `from:` a workload (deployment/statefulset/daemonset/job) makes the processor watch that resource — extra RBAC and roughly +30% memory. Only do it when you need it.
 
-## `deployment_name_from_replicaset`
+## `deployment_name_from_replicaset` (deprecated)
 
-Derive `k8s.deployment.name` by trimming the pod-template-hash off the ReplicaSet name, so you don't have to watch ReplicaSets at all:
+Since v0.153.0 this is the **default** behavior and the option is **deprecated** (slated for removal): `k8s.deployment.name` is derived by trimming the pod-template-hash off the pod's owner ReplicaSet name — no ReplicaSet watch, cheaper RBAC, less memory. You still must list `k8s.deployment.name` (or `service.name`) in `extract.metadata` for it to be produced.
+
+The heuristic sets a wrong name for pods owned by a **standalone** ReplicaSet (one with no Deployment); in rare cases deployment names of 247–253 chars come back slightly truncated. To force accurate ReplicaSet-informer lookup instead (at the cost of `replicasets` RBAC and extra memory), set it `false` or enable `k8s.deployment.uid`:
 
 ```yaml
 extract:
-  deployment_name_from_replicaset: true
+  metadata: [k8s.deployment.name]
+  deployment_name_from_replicaset: false   # force informer lookup; needs replicasets RBAC
 ```
-
-Cheaper RBAC (no `replicasets`) and less memory, but it sets a wrong name for pods owned by a **standalone** ReplicaSet (one with no Deployment), and very long deployment names (>63 chars) come back truncated. Use it only when all pods are Deployment-managed.
 
 ## `wait_for_metadata`
 
@@ -113,7 +116,7 @@ Block startup until the metadata cache has synced, so telemetry arriving immedia
 processors:
   k8s_attributes:
     wait_for_metadata: true
-    metadata_sync_timeout: 30s
+    wait_for_metadata_timeout: 30s
 ```
 
-Trade-off: guaranteed enrichment of early data, but a slower start — and if the sync doesn't finish within `metadata_sync_timeout` the collector **fails to start**. Leave it `false` (default) when fast, best-effort startup matters more than enriching the first few records.
+Trade-off: guaranteed enrichment of early data, but a slower start — and if the sync doesn't finish within `wait_for_metadata_timeout` the collector **fails to start**. Leave it `false` (default) when fast, best-effort startup matters more than enriching the first few records.

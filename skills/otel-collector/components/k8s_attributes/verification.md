@@ -27,7 +27,7 @@ rules:
     resources: ["pods", "namespaces", "nodes"]
     verbs: ["get", "watch", "list"]
   - apiGroups: ["apps"]
-    resources: ["replicasets", "deployments"]   # needed for k8s.deployment.name
+    resources: ["replicasets", "deployments"]   # optional: only for deployment_name_from_replicaset:false or k8s.deployment.uid; the default heuristic needs neither
     verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -75,7 +75,7 @@ spec:
       serviceAccountName: otel-collector
       containers:
         - name: otel-collector
-          image: otel/opentelemetry-collector-contrib:0.152.0
+          image: otel/opentelemetry-collector-contrib:0.156.0
           args: ["--config=/etc/otel/config.yaml"]
           ports: [{containerPort: 4317}]
           volumeMounts: [{name: config, mountPath: /etc/otel}]
@@ -121,7 +121,7 @@ Resource attributes:
      -> k8s.node.name: Str(k8sattr-verify-control-plane)
 ```
 
-`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod, walked its owner ReplicaSet up to the Deployment (which is why the ClusterRole grants `replicasets` and `deployments`), and matched the record to that pod purely from the `k8s.pod.ip` we set.
+`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic (which is why the `replicasets`/`deployments` grants above are optional — needed only if you set `deployment_name_from_replicaset: false` or extract `k8s.deployment.uid`).
 
 ## Teardown
 
