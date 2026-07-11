@@ -38,7 +38,7 @@ The factory default for `endpoint` is `http://some.url:9411/api/prom/push` — a
 
 ## `add_metric_suffixes` deprecation — version discrepancy
 
-`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false`. Note a documentation/source discrepancy: the `config.go` comment claims it will be removed in **v0.153.0**, but it is **still present in v0.154.0**. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
+`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false` (`add_metric_suffixes is deprecated. Please use translation_strategy: UnderscoreEscapingWithoutSuffixes instead.`). Note a documentation/source discrepancy: the `config.go` comment claims it will be removed in **v0.153.0**, but it is **still present in v0.156.0**. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
 
 ## RW2 is not production-ready
 

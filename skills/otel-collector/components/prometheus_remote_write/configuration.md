@@ -1,6 +1,6 @@
 # `prometheus_remote_write` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.154.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`).
+All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.156.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`). The config surface is unchanged since v0.154.0 (only a 5xx-classification bugfix and dependency bumps landed in between).
 
 ## Top-level keys
 
