@@ -11,7 +11,7 @@
 
 The component embeds the standard `confighttp.ClientConfig`, so other HTTP client knobs (proxy, TLS, headers) are available for the metadata-service detectors; `timeout` is the one you will usually touch.
 
-> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.154.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, client `Timeout: 5s`.
+> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.156.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, client `Timeout: 5s`.
 
 ## Per-detector configuration
 
