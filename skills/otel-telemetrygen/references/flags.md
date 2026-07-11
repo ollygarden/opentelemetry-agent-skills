@@ -1,6 +1,6 @@
 # Telemetrygen Flag Reference
 
-Complete flag reference for `telemetrygen` v0.147.0.
+Complete flag reference for `telemetrygen` v0.156.0.
 
 ## Table of Contents
 
@@ -37,9 +37,10 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--workers` | int | `1` | Concurrent worker goroutines |
-| `--rate` | float64 | `0` | Items/sec/worker. `0` = no throttling |
+| `--rate` | float64 | `1` | Items/sec/worker. `0` = no throttling |
 | `--duration` | duration | `0` | How long to generate. Go durations (`5s`, `1m`) or `inf`. Overrides count flags |
 | `--interval` | duration | `1s` | Progress reporting interval |
+| `--timeout` | duration | `10s` | Maximum time to wait for the signals to reach destination |
 
 ### Batching
 
@@ -143,7 +144,7 @@ spec:
     spec:
       containers:
       - name: telemetrygen
-        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.147.0
+        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0
         args:
         - traces
         - --otlp-insecure
