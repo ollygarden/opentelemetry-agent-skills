@@ -14,7 +14,7 @@ The default `action` is `move`: a matched item is removed from further route eva
 
 ## `statement` and `condition` are mutually exclusive
 
-Each route needs **exactly one** of `statement` or `condition`. Setting both, or neither, fails config validation. `statement` is the `route() where <expr>` form (and can also run editors like `delete_key` in the same pass); `condition` is a bare boolean expression. Pick one per route.
+Each route needs **exactly one** of `statement` or `condition`. Setting both, or neither, fails config validation. `statement` is the `route() where <expr>` form — or `<editor> where <expr>` (e.g. `delete_key(...) where …`) when you also want to mutate matched data in the same pass (you can't chain an editor onto `route()` with `and`); `condition` is a bare boolean expression. Pick one per route.
 
 ## `request` context is deprecated and has a limited grammar
 
@@ -32,7 +32,7 @@ The `request` context is **deprecated as of v0.156.0** (a warning is logged when
 | `no condition or statement provided` | route has neither | Add one of `statement`/`condition`. |
 | `both condition and statement provided` | route has both | Remove one. |
 | `no pipelines defined` | route missing `pipelines` | Add at least one pipeline ID. |
-| `invalid routing action: if provided should be one of move/copy` | `action` set to something other than `move`/`copy` | Use `move` or `copy` (or omit for the `move` default). |
+| `invalid Action string: <value>` (inside a `cannot unmarshal the configuration` error) | `action` set to something other than `move`/`copy` | Use `move` or `copy` (or omit for the `move` default). |
 | `"request" context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context (or migrate to `otelcol.*` paths). |
 | `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request` (and one valid for the signal). |
 
@@ -42,4 +42,4 @@ The `request` context is **deprecated as of v0.156.0** (a warning is logged when
 
 ## Stability caveats
 
-All three signal pairs (traces, metrics, logs) are **Alpha**. Config surface and behavior can shift between releases — confirm against the upstream README for your exact collector version. The connector replaces the deprecated `routingprocessor`; new configs should use the connector form.
+All three signal pairs (traces, metrics, logs) are **Alpha**. Config surface and behavior can shift between releases — confirm against the upstream README for your exact collector version. The connector replaces the `routingprocessor`, which has been removed from contrib (v0.156.0 rejects it as an unknown type); existing configs must migrate to the connector form.

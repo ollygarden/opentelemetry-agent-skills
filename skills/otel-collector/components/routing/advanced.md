@@ -95,7 +95,7 @@ Because `move` is already the default, you rarely set it explicitly; reach for `
 
 ## Migrating from `routingprocessor`
 
-The connector replaces the deprecated `routingprocessor`. The processor sat inside one pipeline and routed to **exporters** via a `from_attribute` + `value` table; the connector bridges pipelines and routes to **pipelines** via OTTL.
+The connector replaces the `routingprocessor`, which has since been removed from contrib entirely — the OLD config below no longer loads on current releases. The processor sat inside one pipeline and routed to **exporters** via a `from_attribute` + `value` table; the connector bridges pipelines and routes to **pipelines** via OTTL.
 
 ```yaml
 # OLD (routingprocessor)

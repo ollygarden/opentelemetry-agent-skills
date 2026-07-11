@@ -13,7 +13,7 @@
 
 Routes telemetry to different pipelines based on OTTL conditions, keeping the **same signal type** (traces→traces, metrics→metrics, logs→logs) — it forwards data unchanged, it does not transform it. As a connector it is wired as the **exporter** of an input pipeline and the **receiver** of one or more output pipelines; the input pipeline hands its data to `routing`, which then dispatches it to the matching output pipelines.
 
-The decision is driven by an ordered `table` of routes, each an OTTL `condition` (or a `route() where …` `statement`) evaluated in a `context`. Since v0.156.0 the context is **inferred** from context-qualified paths (`resource.attributes[...]`, `span.…`, `log.…`, `metric.…`, `datapoint.…`, `otelcol.…`), so the `context` field is usually omitted; the deprecated `request` context is the exception. Routes are evaluated **in order** and, under the default `action: move`, each piece of telemetry matches **at most one route** — to fan out to several pipelines, list them all under that route's `pipelines`, or use `action: copy` to keep matched data available to later routes. Telemetry that matches no route goes to `default_pipelines`, or is **dropped** if none is set. This replaces the deprecated `routingprocessor`. The OTTL expression language itself lives in the `otel-ottl` skill; this page documents the connector's config surface.
+The decision is driven by an ordered `table` of routes, each an OTTL `condition` (or a `route() where …` `statement`) evaluated in a `context`. Since v0.156.0 the context is **inferred** from context-qualified paths (`resource.attributes[...]`, `span.…`, `log.…`, `metric.…`, `datapoint.…`, `otelcol.…`), so the `context` field is usually omitted; the deprecated `request` context is the exception. Routes are evaluated **in order** and, under the default `action: move`, each piece of telemetry matches **at most one route** — to fan out to several pipelines, list them all under that route's `pipelines`, or use `action: copy` to keep matched data available to later routes. Telemetry that matches no route goes to `default_pipelines`, or is **dropped** if none is set. This replaces the `routingprocessor`, which has since been removed from contrib. The OTTL expression language itself lives in the `otel-ottl` skill; this page documents the connector's config surface.
 
 ## Main use-cases
 
@@ -33,7 +33,7 @@ Avoid when:
 - `filter` — drops telemetry via OTTL; use it when the goal is to remove data, not redirect it.
 - `transform` — mutates telemetry via OTTL; use it to rewrite data rather than route it.
 - `otel-ottl` skill — the `condition`/`statement` expression language, contexts, and functions used in the routing `table`.
-- `routingprocessor` — the deprecated processor this connector replaces (see [Known quirks](quirks.md) for migration).
+- `routingprocessor` — the removed processor this connector replaces (see [Known quirks](quirks.md) for migration).
 
 ## Details
 

@@ -43,7 +43,7 @@ service:
 | Key | Type | Default | Required | Meaning |
 |-----|------|---------|----------|---------|
 | `context` | string | inferred from path | no | OTTL context the expression runs in: `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request`. Usually omit it — the context is inferred from context-qualified paths (see below). If set, it takes precedence over inference and must be valid for the pipeline's signal (see table below). |
-| `statement` | string | — | one of `statement`/`condition` | OTTL statement in `route() where <expr>` form. **Mutually exclusive with `condition`.** Not allowed for the deprecated `request` context. |
+| `statement` | string | — | one of `statement`/`condition` | OTTL statement: `route() where <expr>` to route unchanged, or `<editor> where <expr>` (e.g. `delete_key(resource.attributes, "k") where …`) to mutate matched data in the same pass. **Mutually exclusive with `condition`.** Not allowed for the deprecated `request` context. |
 | `condition` | string | — | one of `statement`/`condition` | OTTL boolean expression (no `route() where`). **Mutually exclusive with `statement`.** Required for the deprecated `request` context. |
 | `action` | string | `move` | no | `move` (default) removes matched data from further route evaluation and `default_pipelines`; `copy` leaves it available to later routes and the default. |
 | `pipelines` | array of pipeline IDs | — | **yes** (≥1) | Output pipelines this route forwards matching telemetry to. Listing several fans the data out to all of them. |
@@ -87,9 +87,11 @@ Both express the same boolean test in OTTL; they differ only in syntax and which
 - condition: resource.attributes["env"] == "prod"
   pipelines: [logs/prod]
 
-# statement: route() where <expr> — lets you also run editors (e.g. delete_key)
-#            against the data in the same step, before it is routed
-- statement: route() where resource.attributes["env"] == "prod" and delete_key(resource.attributes, "internal.debug")
+# statement: <editor> where <expr> — the editor (e.g. delete_key) is the statement's
+#            function; it runs against matched data in the same pass, then the data is
+#            routed. Plain routing without mutation is `route() where <expr>`. You cannot
+#            chain an editor onto route() with `and` — that is invalid OTTL syntax.
+- statement: delete_key(resource.attributes, "internal.debug") where resource.attributes["env"] == "prod"
   pipelines: [logs/prod]
 ```
 
