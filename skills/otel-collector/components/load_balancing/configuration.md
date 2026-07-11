@@ -1,6 +1,6 @@
 # `load_balancing`: configuration
 
-All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.154.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files).
+All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.156.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files).
 
 ## Top-level keys
 
@@ -18,7 +18,7 @@ All keys live under the exporter instance (e.g. `exporters: { load_balancing: { 
 
 ### `routing_key` support per signal
 
-`routing_key` is validated **per signal exporter at startup**, and support differs by signal — this is stricter than the upstream README's prose. The table reflects **v0.154.0**:
+`routing_key` is validated **per signal exporter at startup**, and support differs by signal — this is stricter than the upstream README's prose. The table reflects **v0.156.0**:
 
 | `routing_key` | Traces | Logs | Metrics | Keyed on |
 |---------------|:------:|:----:|:-------:|----------|
