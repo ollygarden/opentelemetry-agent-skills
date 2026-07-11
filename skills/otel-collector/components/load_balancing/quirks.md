@@ -16,7 +16,7 @@ Always confirm support against the exact contrib version you run; this surface h
 
 ## Exactly one resolver
 
-`resolver` must contain **one** of `static` / `dns` / `k8s` / `aws_cloud_map`. Zero → `no resolvers specified for the exporter`; two or more → `only one resolver should be specified`. Both are startup errors, not config-validation errors, so they surface when the collector starts, not on `validate`.
+`resolver` must contain **one** of `static` / `dns` / `k8s` / `aws_cloud_map`. Zero → `no resolvers specified for the exporter`; two or more → `only one resolver should be specified`. Both are exporter-build errors rather than `Config.Validate()` errors, but `validate` builds the pipeline, so it does surface them (verified on v0.156.0).
 
 ## `routing_attributes` is coupled to `routing_key: attributes`
 
