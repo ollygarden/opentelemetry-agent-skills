@@ -47,7 +47,7 @@ The block squashes the Collector `confighttp` [client configuration][confighttp]
 |-----|------|---------|-------|
 | `endpoint` | string | — | **Required.** Target Allocator URL. Must be a valid request URI. |
 | `interval` | duration | — | How often to refresh the target list. Must be a **positive** duration. |
-| `collector_id` | string | — | **Required.** Identifies this collector instance to the allocator. Must **not** contain `${` (see [quirks.md](quirks.md)). |
+| `collector_id` | string | — | **Required.** Identifies this collector instance to the allocator. Must be non-empty. A **literal** `${` is rejected, but `${ENV}` references are env-expanded by the Collector before validation (see [quirks.md](quirks.md)). |
 | `http_sd_config` | Prometheus HTTP SD config | — | HTTP service-discovery config used to fetch targets. |
 | `http_scrape_config` | Prometheus HTTP client config | — | HTTP client config applied when scraping the discovered targets. |
 | `tls`, `proxy_url`, … | (from `confighttp.ClientConfig`) | — | Standard confighttp client options. |
