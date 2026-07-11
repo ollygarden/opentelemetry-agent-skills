@@ -10,7 +10,7 @@ The `prometheus` **receiver** (a scrape ingress) and this `prometheus` **exporte
 
 ## `endpoint` is required, and the path is fixed at `/metrics`
 
-`endpoint` has **no default**; without it the HTTP server has nothing to bind to. The exposition path is always `/metrics` — it is not configurable. `Validate()` does not catch a missing `endpoint` (it only validates `translation_strategy`), so the failure surfaces at server startup rather than config validation.
+`endpoint` has **no default**; without it the HTTP server has nothing to bind to. The exposition path is always `/metrics` — it is not configurable. `Config.Validate()` does not catch a missing `endpoint` (it only validates `translation_strategy`), so the failure surfaces when the exporter is **constructed during pipeline build**, not from `Config.Validate()`. Because the `validate` subcommand builds pipelines, it does report this — `failed to build pipelines: failed to create "prometheus" exporter for data type "metrics": expecting a non-blank address to run the Prometheus metrics handler` — rather than waiting for server startup.
 
 ## Stale series after `metric_expiration`; counters reset on restart
 
