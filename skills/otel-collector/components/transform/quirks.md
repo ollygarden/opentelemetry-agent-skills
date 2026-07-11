@@ -20,13 +20,13 @@ A `resource`-context statement runs once per resource and changes are seen by **
 
 ## `error_mode: propagate` drops the whole batch on error
 
-The default is `propagate`: the first statement that errors (a type mismatch, a nil dereference like `log.cache["x"]["y"]` when `x` is nil) **drops the entire payload**, not just the offending item, and the remaining statements never run. In production set `error_mode: ignore` (or `silent`), and nil-check before accessing nested fields:
+Under `propagate`, the first statement that errors (a type mismatch, a nil dereference like `log.cache["x"]["y"]` when `x` is nil) **drops the entire payload**, not just the offending item, and the remaining statements never run. The default is now `ignore` (since v0.153.0), but any config or group that still sets `propagate` behaves this way. Keep `error_mode: ignore` (or `silent`) in production, and nil-check before accessing nested fields:
 
 ```yaml
 - set(log.attributes["uid"], log.cache["user"]["id"]) where log.cache["user"] != nil
 ```
 
-`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The `processor.transform.defaultErrorModeIgnore` feature gate (alpha, v0.150.0+) can flip the default to `ignore`; don't assume the default without checking whether the gate is on.
+`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default was flipped from `propagate` to `ignore` by the `processor.transform.defaultErrorModeIgnore` feature gate, which reached beta / on-by-default in v0.153.0; on pre-v0.153.0 collectors the default is still `propagate`, and the gate can be disabled (`--feature-gates=-processor.transform.defaultErrorModeIgnore`) to restore it. Don't assume the default without knowing the running version.
 
 ## Context performance
 

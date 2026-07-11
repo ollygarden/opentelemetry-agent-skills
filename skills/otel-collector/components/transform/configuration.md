@@ -21,23 +21,23 @@ service:
 
 | Key | Type | Default | Notes |
 |-----|------|---------|-------|
-| `error_mode` | string | `propagate` | How OTTL statement-evaluation errors are handled: `propagate`, `ignore`, or `silent`. See [Error mode](#error-mode). |
+| `error_mode` | string | `ignore` | How OTTL statement-evaluation errors are handled: `ignore`, `silent`, or `propagate`. See [Error mode](#error-mode). |
 | `trace_statements` | list | `[]` | Statements run against trace data. |
 | `metric_statements` | list | `[]` | Statements run against metric data. |
 | `log_statements` | list | `[]` | Statements run against log data. |
 | `profile_statements` | list | `[]` | Statements run against profile data (Development stability). |
 
-> A `processor.transform.defaultErrorModeIgnore` feature gate (alpha, disabled by default, v0.150.0+) flips the default `error_mode` from `propagate` to `ignore`. Until it is enabled, the default is `propagate`.
-
+> The default `error_mode` is `ignore`, set by the `processor.transform.defaultErrorModeIgnore` feature gate, which reached **beta (enabled by default) in v0.153.0**. To restore the old `propagate` default, disable it: `--feature-gates=-processor.transform.defaultErrorModeIgnore`.
+>
 > A `flatten_data` boolean (default `false`, behind the `transform.flatten.logs` alpha feature gate) gives each log record a distinct copy of its resource and scope before transformation, then regroups afterwards — useful when log-level data drives resource/scope edits. It copies and hashes every record, so enable only when needed.
 
 ## Error mode
 
 | Mode | Behavior | When |
 |------|----------|------|
-| `propagate` | Returns the error up the pipeline, dropping the whole payload. | **Default.** Development/testing — surfaces config mistakes immediately. |
-| `ignore` | Logs the error and moves to the next statement. | **Recommended in production** — one bad statement won't drop unrelated data. |
+| `ignore` | Logs the error and moves to the next statement. | **Default** (since v0.153.0) and **recommended in production** — one bad statement won't drop unrelated data. |
 | `silent` | Continues without logging. | When error logging is too noisy. |
+| `propagate` | Returns the error up the pipeline, dropping the whole payload. | Development/testing — surfaces config mistakes immediately. Was the default before v0.153.0. |
 
 The top-level `error_mode` can be overridden per statement group (see below).
 
@@ -90,9 +90,11 @@ Context determines which paths the statements can reach. Contexts are hierarchic
 | Signal | Contexts (broad → specific) | Reaches |
 |--------|------------------------------|---------|
 | traces | `resource`, `scope`, `span`, `spanevent` | `spanevent` can read `resource`, `scope`, `span`, `spanevent` |
-| metrics | `resource`, `scope`, `metric`, `datapoint` | `datapoint` can read `resource`, `scope`, `metric`, `datapoint` |
+| metrics | `resource`, `scope`, `metric`, `datapoint`, `exemplar` | `exemplar` can read `resource`, `scope`, `metric`, `datapoint`, `exemplar` |
 | logs | `resource`, `scope`, `log` | `log` can read `resource`, `scope`, `log` |
 | profiles | `resource`, `scope`, `profile` | `profile` can read `resource`, `scope`, `profile` (Development) |
+
+The `exemplar` metric context (reaching a datapoint's exemplars) was added in v0.156.0; on older versions `metric_statements` stops at `datapoint`.
 
 Some path/function combinations can't share a context (e.g. a metric-context-only function alongside a `datapoint` path). When inference fails, split the conflicting statements into separate groups. See [Known quirks](quirks.md).
 
