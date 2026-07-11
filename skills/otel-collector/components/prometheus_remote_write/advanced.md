@@ -91,6 +91,10 @@ exporters:
     max_batch_request_parallelism: 1   # safe for backends that reject out-of-order samples
 ```
 
+## Retrying on HTTP 429
+
+By default the exporter does **not** retry on `429 Too Many Requests` — RW backends (Mimir, Cortex, …) return it under rate limiting, and it is treated as a non-retryable error. The feature gate `exporter.prometheusremotewritexporter.RetryOn429` (alpha, since v0.101.0) makes the exporter retry `429` responses using the standard `retry_on_failure` backoff. Enable it if your backend rate-limits with `429` and you want the exporter to back off and retry rather than drop.
+
 ## Choosing a `translation_strategy`
 
 `translation_strategy` supersedes the deprecated `add_metric_suffixes` when set (see [configuration.md](configuration.md#translation_strategy)).
