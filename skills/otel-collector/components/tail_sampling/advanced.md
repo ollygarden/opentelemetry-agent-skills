@@ -19,7 +19,7 @@ Sample only traces that are **both** an error **and** slow:
           threshold_ms: 1000
 ```
 
-`and` accepts all policy types except `composite`, `and`, and `drop`.
+`and` accepts all policy types except `composite`, `and`, and `drop`. A `not` sub-policy can be nested inside `and_sub_policy` (and inside `drop_sub_policy`), letting you AND a negated condition without a separate top-level policy.
 
 ## `composite` — tiered sampling with rate allocation
 
@@ -94,7 +94,7 @@ exporters:
     resolver:
       dns:
         hostname: tail-sampling-layer
-        port: 4317
+        port: "4317"
 service:
   pipelines:
     traces:
