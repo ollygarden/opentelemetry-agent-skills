@@ -1,8 +1,10 @@
 # Java SDK Setup with Declarative Configuration
 
 Configure the OpenTelemetry SDK in Java via declarative YAML configuration. Three setup
-paths exist (Javaagent, Spring Boot Starter, manual autoconfigure); all support
-`-Dotel.config.file`.
+paths exist. The Javaagent and manual autoconfigure both read an external file via
+`-Dotel.config.file`. The Spring Boot Starter is different: it embeds the declarative config
+inline under the `otel:` key in `application.yaml`/`application.properties`, opting in via the
+`otel.file_format` property — it does not read an external `otel.config.file` (see Key API Facts).
 
 For the YAML configuration schema, load the `otel-declarative-config` skill.
 
@@ -38,9 +40,11 @@ java -javaagent:opentelemetry-javaagent.jar \
      -jar myservice.jar
 ```
 
-Declarative config support landed in Javaagent 2.26.0. Newer agent versions track newer
-schema versions. Confirm the exact `file_format` literal from the Javaagent docs or test
-fixtures for the selected agent version, not from the generic language support matrix alone.
+Declarative config has been supported since Javaagent 2.9.0; the property is now the stable
+`otel.config.file` (the experimental `otel.experimental.config.file` alias was removed in the
+SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
+Confirm the exact `file_format` literal from the Javaagent docs or test fixtures for the
+selected agent version, not from the generic language support matrix alone.
 
 When `-Dotel.config.file` is set, all other `-Dotel.*` properties are ignored except
 agent-only properties (see Key API Facts).
@@ -92,6 +96,10 @@ AutoConfiguredOpenTelemetrySdk sdk = AutoConfiguredOpenTelemetrySdk.builder().bu
 
 ## Key API Facts
 
-- **Spring Boot Starter activation**: `otel.config.file=configs/otel.yaml` in `application.properties`.
+- **Spring Boot Starter activation**: unlike the Javaagent/autoconfigure, the starter does
+  not load an external file. Embed the declarative config inline under the `otel:` key in
+  `application.yaml` (or as `otel.*` properties in `application.properties`) and opt in by
+  setting `otel.file_format` (e.g. `file_format: "1.1"`). The presence of `otel.file_format`
+  is what switches the starter into declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
 - **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, `otel.javaagent.debug` cannot be set via declarative config — they must remain as system properties.
