@@ -1,6 +1,6 @@
 # `otlp` receiver: configuration
 
-All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.60.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
+All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.62.0 / v0.156.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
 
 ## Top-level
 
@@ -32,7 +32,7 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
 | `endpoint` | string | `localhost:4317` | Listen address. Set `0.0.0.0:4317` to accept non-loopback traffic. |
-| `transport` | string | `tcp` | Socket type: `tcp`, `tcp4`, `tcp6`, `udp`, `unix`, … |
+| `transport` | string | `tcp` | Socket type. gRPC servers accept only `tcp` or `unix`. |
 | `tls` | object | — (plaintext) | Server TLS (see [TLS](#tls-server)). |
 | `max_recv_msg_size_mib` | int | 4 (gRPC default) | Max received message size, in MiB. Raise for large batches. |
 | `max_concurrent_streams` | uint32 | 0 (unlimited) | Max concurrent HTTP/2 streams per connection. |
@@ -79,7 +79,7 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `keep_alives_enabled` | bool | `true` | Whether to allow HTTP keep-alives. |
 | `middlewares` | list | — | HTTP server middleware extensions. |
 
-There is **no profiles URL-path field** — the HTTP config exposes only traces/metrics/logs paths.
+There is **no profiles URL-path field** — the HTTP config exposes only traces/metrics/logs override keys. Profiles (Alpha) are still served over HTTP, but on a fixed, non-configurable path: `/v1development/profiles`.
 
 The HTTP endpoint accepts both **OTLP/protobuf** and **OTLP/JSON** on the same paths; the encoding is selected by `Content-Type`.
 
@@ -89,6 +89,7 @@ The HTTP endpoint accepts both **OTLP/protobuf** and **OTLP/JSON** on the same p
 |-----|------|---------|
 | `allowed_origins` | list of string | Origins permitted to make cross-origin OTLP requests (e.g. browser RUM). |
 | `allowed_headers` | list of string | Additional request headers allowed cross-origin. |
+| `exposed_headers` | list of string | Response headers browsers may expose to the caller (`Access-Control-Expose-Headers`). |
 | `max_age` | int | Seconds browsers may cache the CORS preflight. |
 
 ## TLS (server)
