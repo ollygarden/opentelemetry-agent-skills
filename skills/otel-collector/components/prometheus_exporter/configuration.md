@@ -1,6 +1,6 @@
 # `prometheus` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.154.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
+All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.156.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
 
 ## Top-level keys
 
@@ -50,7 +50,7 @@ Optional. The standard `exporterhelper` queue block. Because this is a **pull** 
 |-----------|--------------|------|
 | `translation_strategy` set to anything other than the four valid values | `invalid translation_strategy: <v>` | config validation |
 
-`Validate()` checks **only** `translation_strategy`. There is no other validation (notably, an empty `endpoint` is not caught by `Validate()`, but `endpoint` has no default and the HTTP server cannot start without it).
+`Config.Validate()` checks **only** `translation_strategy`. There is no other validation (notably, an empty `endpoint` is not caught by `Config.Validate()`); `endpoint` has no default, so the missing-address error surfaces one step later, at exporter construction during pipeline build — which the `validate` subcommand triggers, reporting `expecting a non-blank address to run the Prometheus metrics handler`.
 
 ## Feature gate
 
