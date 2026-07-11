@@ -20,20 +20,33 @@ This reference summarizes the [OTEP 4430](https://github.com/open-telemetry/open
 
 ## Phased Rollout
 
-### Specification
-1. Stabilize log-based exceptions and events
-2. Mark `Span.RecordException` as deprecated
-3. Mark `Span.AddEvent` as deprecated
+### In the proto
+Stabilize log-based Events. (The `event_name` LogRecord field is part of the stable proto.)
 
-### Per SDK
-1. Implement log-based event emission
-2. Implement the backward-compatibility SDK bridge (log processor that converts log events to span events)
-3. Mark the span methods as deprecated
+### Specification
+1. Stabilize emitting exceptions and events via the Logs API
+2. Mark `Span.RecordException` as deprecated
+3. Mark `Span.AddEvent` as deprecated (can happen in parallel with 2)
+
+### Per API and SDK
+1. Implement and stabilize log-based exception and event emission
+2. Implement the backward-compatibility SDK bridge (log processor that converts log-based events to span events)
+3. Mark `Span.RecordException` as deprecated
+4. Mark `Span.AddEvent` as deprecated (can happen in parallel with 3)
 
 ### Per Instrumentation
 - Current major version: continue using existing span event methods
-- Next major version: migrate to the Logs API
+- Next major version: migrate to the Logs API; for span-detail-without-a-timestamp cases, record span attributes instead ([semantic-conventions#2010](https://github.com/open-telemetry/semantic-conventions/issues/2010), [opentelemetry-specification#4446](https://github.com/open-telemetry/opentelemetry-specification/issues/4446))
 - Users opt into the SDK bridge if they need span events in the proto envelope
+
+## Current Status (2026-07)
+
+- **Proto**: log-based Events are stable; `event_name` is a stable LogRecord field.
+- **Spec**: the Logs API is Stable, including the `event_name` field and the optional `Exception` parameter to Emit, so log-based exception/event emission is specified. The "event to span event bridge" `LogRecordProcessor` is now specified in `specification/logs/sdk.md` (Status: Development), with a matching `event_to_span_event_bridge/development` declarative-config key.
+- **Not yet done in spec**: `Span.AddEvent` and `Span.RecordException` are **not** yet marked Deprecated in `specification/trace/api.md`. That step remains pending.
+- **SDKs**: some have started deprecating equivalents ahead of the spec (e.g., OpenTelemetry .NET's `Activity.RecordException` extension is `[Obsolete]`, pointing to `Activity.AddException`).
+
+Treat the deprecation as the accepted direction, not a completed spec change; verify the current status of each step against the linked sources before making hard claims.
 
 ## Key Principle
 

@@ -5,11 +5,13 @@ When downstream systems (backends, dashboards, alerting rules) depend on span ev
 ## What It Is
 
 An SDK-based log processor that:
-1. Intercepts log records that represent events (identified by `event.name` attribute)
-2. Converts them to span events
-3. Attaches them to the active span in the current context
+1. Intercepts log records that represent events (identified by a non-empty `event_name` LogRecord field)
+2. Converts them to span events on the current span, when the record's `TraceId`/`SpanId` match the current recording span
+3. Copies the record's timestamp and attributes onto the span event
 
-This means the log-based event appears as a traditional span event in the exported span data, while also being available as a log record if a log exporter is configured.
+This means the log-based event appears as a traditional span event in the exported span data, while also being available as a log record if a log exporter is configured. Bridging does not remove the record from the normal log pipeline.
+
+The bridge is now specified in the OpenTelemetry Specification as the "Event to span event bridge" [LogRecordProcessor](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/sdk.md#event-to-span-event-bridge) (Status: Development), which defines these exact bridging conditions.
 
 ## When to Use It
 
@@ -28,16 +30,17 @@ Do NOT use the bridge when:
 
 ### Via Declarative Configuration (preferred)
 
-When available for the language SDK, add the bridge processor to the log pipeline in the declarative config:
+When available for the language SDK, add the bridge processor to the log pipeline in the declarative config. The processor key is defined in the [opentelemetry-configuration](https://github.com/open-telemetry/opentelemetry-configuration/blob/main/schema/logger_provider.yaml) schema as `event_to_span_event_bridge/development` (the `/development` suffix marks it experimental):
 
 ```yaml
 # OpenTelemetry SDK declarative configuration
-log_record_processors:
-  - event_to_span_event_bridge: {}
-  - batch:
-      exporter:
-        otlp:
-          endpoint: "http://collector:4318"
+logger_provider:
+  processors:
+    - event_to_span_event_bridge/development: {}
+    - batch:
+        exporter:
+          otlp_http:
+            endpoint: "http://collector:4318"
 ```
 
 ### Via Code (when declarative config is not available)

@@ -63,9 +63,11 @@ main() {
   printf '# Span Event API Usage Scan\n'
   printf 'directory: %s\n' "$dir"
 
-  # RecordException variants
-  if scan_pattern "$dir" "RecordException (exception recording)" \
-    '(RecordException|record_exception|recordException|RecordError|RecordErr)'; then
+  # RecordException / AddException variants
+  # AddException is the current .NET exception span-event API (the OTel
+  # RecordException extension is obsolete); both record exception span events.
+  if scan_pattern "$dir" "RecordException / AddException (exception recording)" \
+    '(RecordException|record_exception|recordException|RecordError|RecordErr|AddException)'; then
     found=1
   fi
 
@@ -77,7 +79,7 @@ main() {
 
   # Activity-based (.NET)
   if scan_pattern "$dir" "Activity span events (.NET)" \
-    '(activity\??\.(AddEvent|RecordException)|ActivityEvent)'; then
+    '(activity\??\.(AddEvent|RecordException|AddException)|ActivityEvent)'; then
     found=1
   fi
 
