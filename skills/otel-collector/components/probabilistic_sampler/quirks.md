@@ -4,6 +4,8 @@
 
 With `fail_closed: true` (the default), any item whose randomness source is missing or zero — for example a span with no usable TraceID, or a log without the configured `from_attribute` — is **dropped**, because the sampler cannot make a valid decision. If you see fewer items than the configured percentage would predict, check for items lacking randomness before assuming the rate is wrong. Setting `fail_closed: false` lets these items through at the cost of a less precise effective rate.
 
+`hash_seed` mode treats an item that **already carries** W3C randomness or threshold (`ot=rv:`/`th:` in `tracestate`) as an error too, since it does not compose with prior consistent sampling. With `fail_closed: true` those items are also dropped — use `proportional`/`equalizing` at any tier that sits downstream of an already-sampling collector or SDK.
+
 ## `hash_seed` must match across collectors
 
 In `hash_seed` mode the decision is `FNV(source, hash_seed) vs threshold`. Two collectors with **different** seeds make different keep/drop choices for the same TraceID, so chaining them (or load-balancing across them) yields an unpredictable combined rate. Every collector in one sampling tier must share the same `hash_seed`. The 56-bit `proportional`/`equalizing` modes avoid this by using W3C randomness instead of a seed.

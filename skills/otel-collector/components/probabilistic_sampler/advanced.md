@@ -46,7 +46,7 @@ processors:
 
 ## `sampling_priority` overrides (logs)
 
-Set `sampling_priority` to the name of an attribute that overrides the per-record decision. When a record carries that attribute, its value forces keep/drop regardless of `sampling_percentage` — handy for always keeping flagged records:
+Set `sampling_priority` to the name of an attribute that overrides the per-record decision. When a record carries that attribute, its value is read as a sampling percentage (`0`–`100`) that replaces `sampling_percentage` for that record — `0` never samples, `>= 100` always samples — handy for always keeping flagged records (set the attribute to `100`):
 
 ```yaml
 processors:
@@ -55,7 +55,7 @@ processors:
     sampling_priority: log.priority
 ```
 
-For traces, the equivalent override is the fixed `sampling.priority` attribute (not configurable).
+For traces, the equivalent override is the fixed `sampling.priority` attribute (not configurable), and it is binary rather than a percentage: `0` drops the span, any non-zero value keeps it.
 
 ## Combining head + tail sampling
 
