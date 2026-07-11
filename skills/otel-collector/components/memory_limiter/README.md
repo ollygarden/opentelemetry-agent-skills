@@ -11,7 +11,7 @@
 
 ## Description
 
-A safety valve that keeps the Collector from being OOM-killed. A background goroutine reads Go heap allocation (`runtime.MemStats.Alloc`) every `check_interval` and compares it against two thresholds derived from the configured limit: a **soft limit** (`limit_mib - spike_limit_mib`) and a **hard limit** (`limit_mib`). Above the soft limit the processor sets a `mustRefuse` flag and every data path returns a **non-permanent** `ErrDataRefused` to the preceding component — backpressure that well-behaved receivers retry with backoff. Above the hard limit it additionally forces a `runtime.GC()`. When heap drops back below the soft limit it resumes normally; no manual intervention.
+A safety valve that keeps the Collector from being OOM-killed. A background goroutine reads Go heap allocation (`runtime.MemStats.Alloc`) every `check_interval` and compares it against two thresholds derived from the configured limit: a **soft limit** (`limit_mib - spike_limit_mib`) and a **hard limit** (`limit_mib`). Above the soft limit the processor sets a `mustRefuse` flag and every data path returns a **non-permanent** `ErrDataRefused` to the preceding component — backpressure that well-behaved receivers retry with backoff. Above the hard limit it additionally forces a `runtime.GC()` (with exponential backoff when a GC proves ineffective, capped by the `max_gc_interval_*` keys). It also reports its health via `componentstatus` — recoverable-error while refusing, OK once recovered. When heap drops back below the soft limit it resumes normally; no manual intervention.
 
 It measures **heap**, not process RSS — total process memory runs 50–100 MiB higher, so container limits should sit above `limit_mib`. The processor does not mutate data (`MutatesData: false`); it only accepts or refuses. It is a safety net, not a sizing or performance tool — a chronically undersized collector will simply refuse data constantly. Use it together with the `GOMEMLIMIT` environment variable so Go's GC paces toward the same target.
 
@@ -34,7 +34,7 @@ Avoid it when:
 
 ## Details
 
-- [Configuration](configuration.md) — full config table (`check_interval`, `limit_mib` vs `limit_percentage`, spike limits, GC intervals), validation rules, and the soft/hard-limit mechanism.
+- [Configuration](configuration.md) — full config table (`check_interval`, `limit_mib` vs `limit_percentage`, spike limits, min/max GC intervals), validation rules, and the soft/hard-limit mechanism with GC backoff.
 - [Verification](verification.md) — telemetrygen recipe that forces refusal with a deliberately tiny limit and shows `ErrDataRefused` in the logs.
 - [Advanced use-cases](advanced.md) — `GOMEMLIMIT` pairing, percentage mode for Kubernetes, spike sizing for bursty traffic, multi-pipeline singleton behavior.
 - [Known quirks](quirks.md) — heap-vs-RSS, required fields, `limit_percentage` cgroup detection, GC-interval ordering, the singleton checker, the experimental extension variant, stability caveats.
