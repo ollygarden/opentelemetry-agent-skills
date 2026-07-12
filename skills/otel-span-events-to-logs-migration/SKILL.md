@@ -1,17 +1,17 @@
 ---
 name: otel-span-events-to-logs-migration
-description: Migrate OpenTelemetry Span Events (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. Use when migrating instrumentation from span events to log-based events, reviewing code that still uses AddEvent or RecordException, or planning a migration across a codebase.
+description: Migrate OpenTelemetry Span Events (AddEvent, RecordException, and language equivalents) to the Logs API following the accepted OTEP 4430 migration plan. Use when migrating instrumentation from span events to log-based events, reviewing code that still uses AddEvent or RecordException, or planning a codebase migration while preserving trace correlation.
 ---
 
 # Span Events to Logs Migration
 
-Use this skill to migrate instrumentation from the deprecated Span Event API (`AddEvent`, `RecordException`) to the Logs API, following the [OTEP 4430 deprecation plan](https://github.com/open-telemetry/opentelemetry-specification/blob/main/oteps/4430-span-event-api-deprecation-plan.md).
+Use this skill to migrate instrumentation from the Span Event API (`AddEvent`, `RecordException`, and language equivalents) to the Logs API, following the accepted [OTEP 4430 deprecation plan](https://github.com/open-telemetry/opentelemetry-specification/blob/main/oteps/4430-span-event-api-deprecation-plan.md).
 
 ## Background
 
-The OpenTelemetry project is deprecating `Span.AddEvent` and `Span.RecordException` in favor of emitting events and exceptions through the Logs API. Span Events as a concept remain valid -- they can be emitted via logs that correlate to the active span, and optionally bridged back into the span proto.
+The OpenTelemetry project accepted a plan to deprecate `Span.AddEvent` and `Span.RecordException` in favor of emitting events and exceptions through the Logs API. Span Events as a concept remain valid -- they can be emitted via logs that correlate to the active span, and optionally bridged back into the span proto.
 
-Status as of 2026-07: OTEP 4430 (the deprecation plan) is accepted, log-based event/exception emission is stabilized in the Logs API, and the SDK "event to span event bridge" is specified. The trace API methods `AddEvent`/`RecordException` are not yet formally marked Deprecated in the specification -- that step is still pending. Some language SDKs have already begun deprecating their equivalents (e.g., OpenTelemetry .NET's `RecordException` extension is `[Obsolete]`).
+Status as of 2026-07-12: OTEP 4430 is accepted, log-based event/exception emission is specified in the Logs API, and the SDK "event to span event bridge" is specified with Development status. The trace API methods `AddEvent`/`RecordException` are not yet formally marked Deprecated in the specification -- that step is still pending. Treat existing span-event calls as migration candidates, not automatically invalid code; some SDK-specific equivalents have already changed status (for example OpenTelemetry .NET's `Activity.RecordException` extension is `[Obsolete]` in favor of `Activity.AddException`, which is still a span-event API).
 
 See `references/deprecation-plan.md` for the full context.
 
@@ -23,7 +23,7 @@ See `references/deprecation-plan.md` for the full context.
 - determine if downstream consumers (backends, dashboards, alerts) depend on span events appearing in the span proto envelope
 
 1. Scan the codebase for span event usage.
-- search for `AddEvent`, `add_event`, `addEvent`, `RecordException`, `record_exception`, `recordException`, and language-specific variants
+- search for `AddEvent`, `add_event`, `addEvent`, `RecordException`, `record_exception`, `recordException`, `RecordError`, `AddException`, and language-specific variants
 - categorize each call site: general event, exception recording, or informational annotation
 - note the span context, attributes, and timestamp usage at each site
 
@@ -73,7 +73,7 @@ Include file references as evidence for every completed item.
 - `[ ]` Call sites classified as "convert to span attributes" now use span attributes instead.
 - `[ ]` Call sites classified as "remove" have been removed with justification.
 - `[ ]` Backward compatibility bridge is configured if downstream systems require span events in the span envelope.
-- `[ ]` No remaining references to the deprecated `AddEvent` or `RecordException` APIs unless intentionally kept for the current major version.
+- `[ ]` No remaining span-event API call sites are left unintentionally; any retained `AddEvent` / `RecordException` / equivalent call is justified for current-version compatibility.
 - `[ ]` The changed files were re-read after implementation to verify the final state.
 - `[ ]` The final answer includes this checklist, file evidence, and any remaining risks or gaps.
 
