@@ -75,6 +75,10 @@ document.addEventListener('visibilitychange', () => {
     void tracerProvider.forceFlush();
   }
 });
+document.addEventListener('pagehide', () => {
+  void loggerProvider.forceFlush();
+  void tracerProvider.forceFlush();
+});
 ```
 
 ## Telemetry volume and cost

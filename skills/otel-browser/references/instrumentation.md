@@ -80,7 +80,7 @@ batches, captures resources loaded before it was enabled (buffered), and flushes
 | `maxProcessingTime` | `number` | `50` | Max ms spent per idle callback. |
 | `maxQueueSize` | `number` | `1000` | Queue size before forcing an immediate flush. |
 | `initiatorTypes` | `string[]` | (all) | Restrict to specific initiator types, e.g. `['xmlhttprequest', 'fetch']`. |
-| `ignoreUrls` | `(string \| RegExp)[]` | — | Drop resource entries whose URL matches. String matching is exact and case-sensitive; prefer RegExp for robust endpoint filters. |
+| `ignoreUrls` | `(string \| RegExp)[]` | — | Drop resource entries whose URL matches. String matching is exact and case-sensitive; prefer non-stateful RegExp filters (no `g`/`y` flags) for robust endpoint filters. |
 
 Captured data: URL, initiator type, total duration, timing phases, transfer/encoded/decoded sizes,
 HTTP protocol (h1/h2/h3), redirect timing, service-worker start, render-blocking status (Chromium).
