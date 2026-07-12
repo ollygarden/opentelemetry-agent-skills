@@ -270,14 +270,13 @@ async def fetch_data():
         ...
 ```
 
-### Pitfall: Crossing into Threads via `run_in_executor`
+### Pitfall: Crossing into Threads
 
-`asyncio.loop.run_in_executor` runs a callable in a `ThreadPoolExecutor`. The `contextvars` context is **copied** into the thread, so the active span is available — but mutations to `ContextVar` inside the thread do not propagate back to the asyncio event loop:
+`asyncio.to_thread()` copies the current `contextvars` context into the worker thread, so the active span is available there. Mutations to `ContextVar` inside the thread do not propagate back to the asyncio event loop:
 
 ```python
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
-from opentelemetry import trace, context
+from opentelemetry import trace
 
 tracer = trace.get_tracer(__name__)
 
@@ -291,17 +290,25 @@ def blocking_work():
 
 async def main():
     with tracer.start_as_current_span("main"):
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, blocking_work)
+        await asyncio.to_thread(blocking_work)
         # Active span here is still "main" — the thread's mutations are gone
 ```
 
-When spawning threads manually (not via `run_in_executor`), the context is **not** automatically copied. Pass it explicitly:
+`asyncio.loop.run_in_executor()` and manually spawned threads do **not** automatically copy the current context. Prefer `asyncio.to_thread()` when possible; otherwise pass the context explicitly:
 
 ```python
+import asyncio
 import threading
+from contextvars import copy_context
 from opentelemetry import context
 
+# run_in_executor: wrap the callable in the copied context
+async def main():
+    loop = asyncio.get_running_loop()
+    ctxvars = copy_context()
+    await loop.run_in_executor(None, ctxvars.run, blocking_work)
+
+# manual thread: attach the captured OTel context
 ctx = context.get_current()  # Capture context in the calling thread
 
 def worker():
