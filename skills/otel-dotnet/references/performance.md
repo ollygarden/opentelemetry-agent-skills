@@ -295,26 +295,27 @@ The OTLP exporter defaults to `ExportProcessorType.Batch`. Switch to `Simple` on
 `Activity.Current` is backed by `AsyncLocal<Activity>`, part of the .NET runtime's `ActivitySource` implementation. This means the current span flows automatically across `await` points within a single logical async chain:
 
 ```csharp
-// Activity.Current flows automatically into all awaited calls
+// Requires an ActivityListener, or an OTel provider registered with AddSource("MyApp").
+// Activity.Current flows automatically into all awaited calls when the activity is created.
 using var activity = activitySource.StartActivity("outer");
-await DoSomethingAsync(); // Activity.Current == "outer" inside here
-await DoSomethingElseAsync(); // Still "outer"
+await DoSomethingAsync(); // Activity.Current == activity inside here
+await DoSomethingElseAsync(); // Still activity
 ```
 
 No manual propagation is needed for standard `async`/`await` code.
 
 ### Non-Awaited Boundaries Require Manual Propagation
 
-`Activity.Current` does NOT flow into fire-and-forget tasks, `Task.Run` with a captured context that diverges, or thread-pool callbacks that run after the originating scope has exited:
+`Activity.Current` normally flows into `Task.Run` through `ExecutionContext`, but it may not flow when context propagation is suppressed, when work is scheduled independently, or when callbacks run after the originating scope has exited:
 
 ```csharp
 using var activity = activitySource.StartActivity("producer");
 var parentContext = activity?.Context ?? default; // Capture before forking
 
-// Fire-and-forget: Activity.Current is NOT automatically available here
+// Fire-and-forget: capture the parent explicitly so the work item is deterministic.
 _ = Task.Run(async () =>
 {
-    // Must manually restore or propagate the context
+    // Restore or propagate the captured parent context explicitly.
     using var childActivity = activitySource.StartActivity(
         "consumer",
         ActivityKind.Consumer,
@@ -373,8 +374,9 @@ using var sdk = OpenTelemetrySdk.Create(builder => builder
 // Dispose flushes and shuts down all configured providers.
 ```
 
-For separate provider lifetimes, dispose each provider explicitly, or call `ForceFlush`
-before exit:
+For separate provider lifetimes, dispose each provider explicitly. `ForceFlush` is an
+optional pre-exit checkpoint to drain buffered telemetry before disposal; it is not a
+shutdown substitute.
 
 ```csharp
 using var tracerProvider = Sdk.CreateTracerProviderBuilder()

@@ -90,6 +90,7 @@ signals:
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using var sdk = OpenTelemetrySdk.Create(b => b

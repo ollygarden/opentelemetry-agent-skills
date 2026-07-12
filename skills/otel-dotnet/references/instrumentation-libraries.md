@@ -189,7 +189,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
 | `OpenTelemetry.Instrumentation.AWS` | `.AddAWSInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AWS) |
-| `OpenTelemetry.Instrumentation.AWSLambda` | AWS Lambda wrapper APIs; see package README | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AWSLambda) |
+| `OpenTelemetry.Instrumentation.AWSLambda` | `.AddAWSLambdaConfigurations()` for provider setup; `AWSLambdaWrapper.Trace()` / `.TraceAsync()` for handlers | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AWSLambda) |
 | `OpenTelemetry.Resources.AWS` | `.AddAWSEBSDetector()` / `.AddAWSEC2Detector()` / `.AddAWSECSDetector()` / `.AddAWSEKSDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.AWS) |
 | `OpenTelemetry.Resources.Azure` | `.AddAzureAppServiceDetector()` / `.AddAzureVMDetector()` / `.AddAzureContainerAppsDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Azure) |
 | `OpenTelemetry.Resources.Container` | `.AddContainerDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Container) |
