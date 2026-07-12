@@ -154,8 +154,9 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 >
 > Treat this as the default for any service that touches user data. The same trap applies to other
 > SQL instrumentation that captures full statement text; verify the selected package's option to
-> disable or redact query text. Keep parameter values out of `db.query.text`, or redact them
-> downstream.
+> disable or redact query text. Keep parameter values out of `db.query.text` before export. If the
+> selected instrumentation cannot sanitize or parameterize query text, disable query-text capture;
+> downstream redaction is defense-in-depth.
 
 ### AWS
 

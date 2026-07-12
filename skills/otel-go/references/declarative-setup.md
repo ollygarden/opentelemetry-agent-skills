@@ -79,7 +79,7 @@ resource:
 ## Key API Facts
 
 - **`otelconf.ParseYAML([]byte) (*OpenTelemetryConfiguration, error)`** parses a YAML config file.
-- **`otelconf.NewSDK(opts ...) (SDK, error)`** builds the SDK from a parsed configuration. Options include `WithContext(ctx)` and `WithOpenTelemetryConfiguration(conf OpenTelemetryConfiguration)`; after `ParseYAML`, pass `*conf`.
+- **`otelconf.NewSDK(opts ...) (SDK, error)`** builds the SDK from a parsed configuration. Options include `WithContext(ctx)` and `WithOpenTelemetryConfiguration(conf OpenTelemetryConfiguration)`; after `ParseYAML`, pass `*conf` because `ParseYAML` returns `*OpenTelemetryConfiguration`.
 - **`sdk.TracerProvider()`, `sdk.MeterProvider()`, `sdk.LoggerProvider()`** return the configured providers.
 - **`sdk.Propagator()`** (root package, `otelconf v0.20.0+`, fixes [open-telemetry/opentelemetry-go-contrib#6712](https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712)) returns the propagator built from the YAML `propagator:` block. Install it via `otel.SetTextMapPropagator(sdk.Propagator())`. Not available on the schema-pinned `otelconf/v0.3.0` subpackage.
 - **`sdk.Shutdown(ctx) error`** flushes and closes all providers.

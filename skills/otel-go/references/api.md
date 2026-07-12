@@ -182,7 +182,7 @@ attribute.Int64("count", 42)
 attribute.Float64("ratio", 0.95)
 attribute.Bool("enabled", true)
 attribute.StringSlice("tags", []string{"a", "b"})
-attribute.ByteSlice("payload", []byte("data"))
+attribute.ByteSlice("payload", []byte("data")) // v1.44.0+
 attribute.Int64Slice("ids", []int64{1, 2, 3})
 attribute.Float64Slice("values", []float64{1.1, 2.2})
 attribute.BoolSlice("flags", []bool{true, false})
