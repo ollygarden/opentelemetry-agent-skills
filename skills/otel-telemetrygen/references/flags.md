@@ -68,10 +68,10 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 ### Attribute Value Format
 
 ```
-key="string-value"       # String (must be quoted)
-key=true                  # Boolean
-key=123                   # Integer
-key=[val1,val2,val3]      # Slice (all elements same type)
+'key="string-value"'       # String (quotes must reach telemetrygen)
+key=true                   # Boolean
+key=123                    # Integer
+'key=["val1","val2"]'      # Slice (all elements same type)
 ```
 
 ## Trace-Specific Flags
