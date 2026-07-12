@@ -26,7 +26,8 @@ If `target` is a scalar, it is converted to a slice first.
 ```ottl
 delete_key(span.attributes, "internal.debug")
 delete_matching_keys(span.attributes, "(?i).*password.*")
-delete_index(log.attributes["tags"], 0)        # v0.145+, slice index
+delete_index(log.attributes["tags"], 0)        # v0.145+, one slice index
+delete_index(log.attributes["tags"], 0, 3)     # delete indices 0, 1, 2
 ```
 
 ### `keep_keys` / `keep_matching_keys`
@@ -305,7 +306,7 @@ FNV(v)                                        # int64
 Murmur3Hash(v) / Murmur3Hash128(v)            # v0.129+
 XXH3(v) / XXH128(v)                           # v0.135+; very fast
 Decode(value, encoding)                       # v0.141+; "base64", "base64-raw", "base64-url", "base64-raw-url", IANA charsets
-Base64Encode(v)                               # v0.147+
+Base64Encode(v, variant?)                     # v0.147+; default base64
 Base64Decode(v)                               # DEPRECATED — use Decode(v, "base64")
 Hex(bytes)
 ```
