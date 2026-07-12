@@ -2,6 +2,16 @@
 
 Thank you for your interest in contributing!
 
+## Contributions from AI coding agents
+
+We accept — and encourage — pull requests that were authored and implemented by AI coding agents (Claude Code, Codex, Cursor, etc.). This repository is itself a set of Agent Skills, and most of it was built that way.
+
+Agent-authored PRs are held to the same bar as any other PR:
+
+- A human contributor must open the PR (or take ownership of it), review the agent's output before submitting, and be able to respond to review feedback. You are responsible for what you submit.
+- Disclose agent involvement in the PR description (e.g. a `Co-Authored-By` trailer or a short note). This is for transparency, not gatekeeping — it will not count against the PR.
+- The evaluation requirement below applies regardless of who or what wrote the change.
+
 ## Getting Started
 
 1. Fork and clone the repository
@@ -15,11 +25,30 @@ Prefer using the [`skill-creator`](https://github.com/anthropics/skills/tree/mai
 
 Skills live under `skills/<skill-name>/` and must follow the [Agent Skills specification](https://agentskills.io/specification). Each must include a `SKILL.md` with YAML frontmatter (`name` and `description`), where the directory name matches the `name` field. Optional subdirectories: `references/`, `scripts/`, `assets/`.
 
+Validate spec conformance locally with the [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) reference tool before opening a PR:
+
+```bash
+skills-ref validate skills/<skill-name>
+```
+
 These skills are **non-opinionated and vendor neutral by design** — they describe how OpenTelemetry works, not how you should use it. Keep them DRY and token efficient: prefer linking to official docs, examples, and source code that are already maintained over copying large amounts of knowledge into a skill, and prefer a targeted lookup or small generated artifact over dumping broad context. OllyGarden's opinionated guidance lives in the companion [`skills`](https://github.com/ollygarden/skills) repo.
 
-Validate your skill locally before opening a pull request to confirm it conforms to the spec and activates as intended.
-
 When you add or rename a skill, keep all three registration points in sync: the `skills/<skill-name>/SKILL.md` directory, the `plugins` entry in `.claude-plugin/marketplace.json`, and the "Available Skills" table and Repository Structure layout tree in `README.md`.
+
+## Proving the skill helps: harness results
+
+Every PR that adds a skill or substantively changes one must include evaluation results demonstrating that the skill actually improves agent output. A skill that doesn't measurably help is context-window cost with no benefit.
+
+The required evidence is an A/B comparison from an agent harness (Claude Code, or a comparable harness driving a frontier model):
+
+1. Pick one or more representative prompts a user would realistically ask — ideally prompts that exercise the part of the skill you added or changed.
+2. Run each prompt **without** the skill installed, on a frontier model (e.g. the current Claude Opus/Sonnet generation), in a fresh session.
+3. Run the **same prompt, same model, same harness** with the skill installed, in a fresh session.
+4. Include the results in the PR description: the prompts used, the model and harness versions, and a summary of how the outputs differed — where the baseline was wrong, outdated, or wasteful, and what the skill fixed. Attach or link the transcripts (a gist is fine) so reviewers can verify.
+
+What we look for: the baseline getting facts wrong (stale versions, renamed packages, invalid config keys) that the skill corrects; the skill reaching the right answer with fewer tokens or fewer wrong turns; and no regressions on prompts the skill shouldn't affect. If the comparison shows no meaningful difference, that's a signal the skill (or the change) isn't earning its place — rework it rather than submitting the results anyway.
+
+The [`skill-creator`](https://github.com/anthropics/skills/tree/main/skill-creator) skill can help you set up and run these evals.
 
 ## The `otel-agent-tools` Module
 
@@ -56,4 +85,9 @@ Common types:
 
 - Keep PRs focused on a single change
 - Include a summary and test plan in the PR description
-- Update `README.md` if adding or removing a skill
+- For skill additions or substantive skill changes, include the harness comparison results described above
+- Update `README.md` and `.claude-plugin/marketplace.json` if adding, renaming, or removing a skill
+
+## Contributor License Agreement
+
+Before we can merge your first pull request, you must sign the OllyGarden [Contributor License Agreement](CLA.md). Signing is handled automatically in the PR: the CLA bot will comment with instructions, and you sign by replying with the requested confirmation. You only need to sign once; the signature covers all your future contributions to this repository.
