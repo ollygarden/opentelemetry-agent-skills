@@ -30,7 +30,7 @@ Avoid it when:
 
 ## Related components
 
-- [`resource_detection`](../resource_detection/README.md) — detects cloud/host/k8s-node resource attributes; the non-Kubernetes-API counterpart. Run it **before** `k8s_attributes`.
+- [`resource_detection`](../resource_detection/README.md) — detects environment resource attributes such as cloud, host, and Kubernetes node/cluster metadata. Run it **before** `k8s_attributes`.
 - `resource` — sets/edits/removes resource attributes by static value or OTTL. Run it **after** `k8s_attributes` to rename or drop what was added.
 - `transform` — OTTL attribute manipulation; the supported replacement for the removed `regex` value-extraction on labels/annotations (see [Known quirks](quirks.md)).
 
