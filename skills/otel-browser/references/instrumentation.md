@@ -80,11 +80,13 @@ batches, captures resources loaded before it was enabled (buffered), and flushes
 | `maxProcessingTime` | `number` | `50` | Max ms spent per idle callback. |
 | `maxQueueSize` | `number` | `1000` | Queue size before forcing an immediate flush. |
 | `initiatorTypes` | `string[]` | (all) | Restrict to specific initiator types, e.g. `['xmlhttprequest', 'fetch']`. |
+| `ignoreUrls` | `(string \| RegExp)[]` | — | Drop resource entries whose URL matches. String matching is exact and case-sensitive; prefer RegExp for robust endpoint filters. |
 
 Captured data: URL, initiator type, total duration, timing phases, transfer/encoded/decoded sizes,
 HTTP protocol (h1/h2/h3), redirect timing, service-worker start, render-blocking status (Chromium).
 This is one of the **highest-volume** RUM signals — a content-heavy page can load hundreds of
-resources. Restrict `initiatorTypes` or sample aggressively (see
+resources. Restrict `initiatorTypes`, set `ignoreUrls` for known-noisy endpoints, or sample
+aggressively (see
 [performance.md](performance.md#telemetry-volume-and-cost)).
 
 ### Web Vitals (`browser.web_vital`)
@@ -106,8 +108,9 @@ INP and CLS finalize near the end of the page lifecycle — they depend on the S
 ### Console (`browser.console`)
 
 Captures console API calls (by default `log`, `warn`, `error`, `info`, `debug`); records carry
-`browser.console.method`. Capturing `log`/`info`/`debug` in production is typically noise and a PII
-risk — restrict it:
+`browser.console.method`. The `messageSerializer` option controls how console arguments become the
+record body (default: join arguments as strings). Capturing `log`/`info`/`debug` in production is
+typically noise and a PII risk — restrict it:
 
 ```typescript
 new ConsoleInstrumentation({ logMethods: ['error', 'warn'] });
