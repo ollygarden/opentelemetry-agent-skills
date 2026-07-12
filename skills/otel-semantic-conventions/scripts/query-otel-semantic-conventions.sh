@@ -2,6 +2,8 @@
 set -euo pipefail
 
 readonly RELEASE_API_URL="https://api.github.com/repos/open-telemetry/semantic-conventions/releases/latest"
+readonly SEMCONV_REPO="${OTEL_SEMCONV_REPO:-}"
+readonly SEMCONV_TAG="${OTEL_SEMCONV_TAG:-}"
 
 blob_url() {
   local tag="$1"
@@ -43,7 +45,7 @@ require_bin() {
 normalize_group() {
   printf '%s' "$1" |
     tr '[:upper:]' '[:lower:]' |
-    tr ' _' '--' |
+    tr ' ' '-' |
     tr -d '.'
 }
 
@@ -55,14 +57,32 @@ is_supported_kind() {
 }
 
 fetch_latest_tag() {
+  if [[ -n "$SEMCONV_TAG" ]]; then
+    printf '%s\n' "$SEMCONV_TAG"
+    return 0
+  fi
+
+  if [[ -n "$SEMCONV_REPO" ]]; then
+    git -C "$SEMCONV_REPO" tag --list 'v[0-9]*' --sort=-version:refname | sed -n '1p'
+    return 0
+  fi
+
   curl -fsSL "$RELEASE_API_URL" | jq -er '.tag_name'
 }
 
-fetch_model_tree() {
+fetch_model_paths() {
   local tag="$1"
-  local url="https://api.github.com/repos/open-telemetry/semantic-conventions/git/trees/${tag}?recursive=1"
 
-  if ! curl -fsSL "$url" 2>/dev/null; then
+  if [[ -n "$SEMCONV_REPO" ]]; then
+    if ! git -C "$SEMCONV_REPO" ls-tree -r --name-only "$tag" model 2>/dev/null; then
+      echo "failed to read semantic convention model tree from ${SEMCONV_REPO} at ${tag}" >&2
+      return 1
+    fi
+    return 0
+  fi
+
+  local url="https://api.github.com/repos/open-telemetry/semantic-conventions/git/trees/${tag}?recursive=1"
+  if ! curl -fsSL "$url" 2>/dev/null | jq -r '.tree[] | select(.type == "blob") | .path'; then
     echo "failed to fetch semantic convention model tree from ${url}" >&2
     return 1
   fi
@@ -71,8 +91,16 @@ fetch_model_tree() {
 fetch_group_file() {
   local tag="$1"
   local path="$2"
-  local url="https://raw.githubusercontent.com/open-telemetry/semantic-conventions/${tag}/${path}"
 
+  if [[ -n "$SEMCONV_REPO" ]]; then
+    if ! git -C "$SEMCONV_REPO" show "${tag}:${path}" 2>/dev/null; then
+      echo "failed to read semantic convention file ${path} from ${SEMCONV_REPO} at ${tag}" >&2
+      return 1
+    fi
+    return 0
+  fi
+
+  local url="https://raw.githubusercontent.com/open-telemetry/semantic-conventions/${tag}/${path}"
   if ! curl -fsSL "$url" 2>/dev/null; then
     echo "failed to fetch semantic convention file from ${url}" >&2
     return 1
@@ -80,34 +108,31 @@ fetch_group_file() {
 }
 
 model_records() {
-  local tree_json="$1"
+  local model_paths="$1"
 
-  jq -r '
-    def kind_for_file($file):
-      if ($file | contains("registry")) then "registry"
-      elif ($file | contains("spans")) then "spans"
-      elif ($file | contains("events")) then "events"
-      elif ($file | contains("metrics")) then "metrics"
-      elif ($file | contains("entities")) then "entities"
-      elif ($file | contains("common")) then "common"
-      elif ($file | contains("logs")) then "logs"
-      else ""
-      end;
+  awk '
+    function kind_for_file(file) {
+      if (index(file, "registry")) return "registry"
+      if (index(file, "spans")) return "spans"
+      if (index(file, "events")) return "events"
+      if (index(file, "metrics")) return "metrics"
+      if (index(file, "entities")) return "entities"
+      if (index(file, "common")) return "common"
+      if (index(file, "logs")) return "logs"
+      return ""
+    }
 
-    .tree[]
-    | select(.type == "blob")
-    | .path
-    | select(test("^model/[^/]+/.+\\.ya?ml$"))
-    | select(contains("/deprecated/") | not)
-    | . as $path
-    | ($path | split("/")) as $parts
-    | ($parts[-1] | ascii_downcase) as $file
-    | select($file | contains("deprecated") | not)
-    | (kind_for_file($file)) as $kind
-    | select($kind != "")
-    | [$parts[1], $kind, $path, $parts[-1]]
-    | @tsv
-  ' <<<"$tree_json"
+    $0 ~ "^model/[^/]+/.+\\.ya?ml$" {
+      path = $0
+      if (path ~ /\/deprecated\//) next
+      count = split(path, parts, "/")
+      file = tolower(parts[count])
+      if (index(file, "deprecated")) next
+      kind = kind_for_file(file)
+      if (kind == "") next
+      printf "%s\t%s\t%s\t%s\n", parts[2], kind, path, parts[count]
+    }
+  ' <<<"$model_paths"
 }
 
 list_available_groups() {
@@ -118,7 +143,14 @@ list_available_groups() {
 group_records() {
   local records="$1"
   local normalized_group="$2"
-  awk -F '\t' -v group="$normalized_group" '$1 == group' <<<"$records"
+  awk -F '\t' -v group="$normalized_group" '
+    function comparable(value) {
+      gsub(/_/, "-", value)
+      return value
+    }
+
+    $1 == group || comparable($1) == comparable(group)
+  ' <<<"$records"
 }
 
 list_group_kinds() {
@@ -323,9 +355,13 @@ print_kind_listing() {
 }
 
 main() {
-  require_bin curl
-  require_bin jq
   require_bin awk
+  if [[ -n "$SEMCONV_REPO" ]]; then
+    require_bin git
+  else
+    require_bin curl
+    require_bin jq
+  fi
 
   case "${1:-}" in
     ""|-h|--help)
@@ -335,12 +371,12 @@ main() {
       ;;
   esac
 
-  local tag version tree_json records groups
+  local tag version model_paths records groups
 
   tag="$(fetch_latest_tag)"
   version="${tag#v}"
-  tree_json="$(fetch_model_tree "$tag")"
-  records="$(model_records "$tree_json")"
+  model_paths="$(fetch_model_paths "$tag")"
+  records="$(model_records "$model_paths")"
 
   case "${1:-}" in
     --groups)
@@ -355,7 +391,7 @@ main() {
 
   local requested_group="$1"
   local second_arg="${2:-}"
-  local normalized_group group_records_output kinds registry_path registry_content registry_entries source_url
+  local normalized_group resolved_group group_records_output kinds registry_path registry_content registry_entries source_url
   local requested_kind kind_files file_path file_content kind_entries matched_entry
 
   normalized_group="$(normalize_group "$requested_group")"
@@ -365,9 +401,10 @@ main() {
     return 1
   }
 
+  resolved_group="$(awk -F '\t' 'NR == 1 { print $1 }' <<<"$group_records_output")"
   kinds="$(list_group_kinds "$group_records_output")"
   registry_path="$(find_registry_path "$group_records_output")"
-  source_url="$(group_url "$tag" "$normalized_group")"
+  source_url="$(group_url "$tag" "$resolved_group")"
 
   if [[ -z "$second_arg" ]]; then
     if [[ -n "$registry_path" ]]; then
@@ -376,7 +413,7 @@ main() {
     else
       registry_entries=""
     fi
-    print_group_summary "$requested_group" "$version" "$kinds" "$source_url" "$registry_entries"
+    print_group_summary "$resolved_group" "$version" "$kinds" "$source_url" "$registry_entries"
     return 0
   fi
 
@@ -395,7 +432,7 @@ main() {
       }
       registry_content="$(fetch_group_file "$tag" "$registry_path")"
       registry_entries="$(extract_entries "$registry_content" "      - id: " "        " 32)"
-      print_kind_listing "$requested_group" "$version" "$kinds" "$source_url" "$requested_kind" "$registry_entries"
+      print_kind_listing "$resolved_group" "$version" "$kinds" "$source_url" "$requested_kind" "$registry_entries"
       return 0
     fi
 
@@ -406,7 +443,7 @@ main() {
       kind_entries+="$(extract_entries "$file_content" "  - id: " "    " 36)"$'\n'
     done <<<"$kind_files"
 
-    print_kind_listing "$requested_group" "$version" "$kinds" "$source_url" "$requested_kind" "$kind_entries"
+    print_kind_listing "$resolved_group" "$version" "$kinds" "$source_url" "$requested_kind" "$kind_entries"
     return 0
   fi
 
