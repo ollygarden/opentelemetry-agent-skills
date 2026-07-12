@@ -78,9 +78,9 @@ policies:
       sampling_percentage: 1
 ```
 
-## Scaling horizontally with the `loadbalancing` exporter
+## Scaling horizontally with the `load_balancing` exporter
 
-A single tail-sampling instance only works while every span of a trace lands on it. To run **more than one** tail-sampling collector you need a front layer of collectors using the `loadbalancing` exporter with `routing_key: traceID`, so all spans of a given trace are routed to the **same** downstream tail-sampling instance:
+A single tail-sampling instance only works while every span of a trace lands on it. To run **more than one** tail-sampling collector you need a front layer of collectors using the `load_balancing` exporter with `routing_key: traceID`, so all spans of a given trace are routed to the **same** downstream tail-sampling instance:
 
 ```yaml
 # Layer 1 — routing collectors (any number of replicas)

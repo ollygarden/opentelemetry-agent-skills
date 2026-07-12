@@ -11,7 +11,7 @@
 
 ## Description
 
-Mutates telemetry — spans, span events, metrics, datapoints, log records (and, in development, profiles) — **in place** by running OTTL statements against it. You supply a per-signal list of statements (`trace_statements`, `metric_statements`, `log_statements`); each statement executes sequentially against incoming data, optionally guarded by a `where` clause. Unlike `filter`, which drops items, `transform` rewrites them: set, delete, rename, redact, convert types, parse structured fields, and more.
+Mutates telemetry — spans, span events, metrics, datapoints, log records (and, in development, profiles) — **in place** by running OTTL statements against it. You supply a per-signal list of statements (`trace_statements`, `metric_statements`, `log_statements`, `profile_statements`); each statement executes sequentially against incoming data, optionally guarded by a `where` clause. Unlike `filter`, which drops items, `transform` rewrites them: set, delete, rename, redact, convert types, parse structured fields, and more.
 
 The top-level `error_mode` controls what happens when a statement fails to evaluate — `ignore` (default) logs and continues to the next statement, `silent` continues without logging, `propagate` drops the whole payload. (The default became `ignore` in v0.153.0, when the `processor.transform.defaultErrorModeIgnore` gate reached beta / on-by-default; earlier versions defaulted to `propagate`.) Statement groups run in the order written, so later statements see the effects of earlier ones. The OTTL language itself (functions, paths, editors/converters, grammar) lives in the `otel-ottl` skill; this page documents only the processor's config surface.
 

@@ -42,7 +42,7 @@ service:
   extensions: [file_storage]
 ```
 
-> The `file_storage` extension does not yet have its own page in this skill — configure it from its upstream README. Persistence trades durability for disk I/O. **`wait_for_result` is not supported with a persistent `storage` queue** (see below).
+> The [`file_storage`](../file_storage/README.md) extension backs persistent queues. Persistence trades durability for disk I/O. **`wait_for_result` is not supported with a persistent `storage` queue** (see below).
 
 ## `wait_for_result` trade-off
 
