@@ -7,6 +7,8 @@ description: Construct telemetrygen commands for generating synthetic OpenTeleme
 
 Generate synthetic OpenTelemetry telemetry with `telemetrygen` from [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/cmd/telemetrygen).
 
+Upstream metadata currently marks the traces, metrics, and logs subcommands as alpha.
+
 ## Quick orientation
 
 `telemetrygen` has three subcommands -- `traces`, `metrics`, `logs` -- each exporting via OTLP to a collector or backend. The default transport is gRPC on port 4317; add `--otlp-http` to switch to HTTP on port 4318.
@@ -44,10 +46,10 @@ See `references/flags.md` for the full flag reference. Key flags:
 ### Attribute value format
 
 ```
---otlp-attributes key="string-value"       # String (must be quoted)
---otlp-attributes key=true                  # Boolean
---otlp-attributes key=123                   # Integer
---otlp-attributes key=[val1,val2,val3]      # Slice
+--otlp-attributes 'key="string-value"'       # String (quotes must reach telemetrygen)
+--otlp-attributes key=true                   # Boolean
+--otlp-attributes key=123                    # Integer
+--otlp-attributes 'key=["val1","val2"]'      # Slice (all elements same type)
 ```
 
 Resource attributes (`--otlp-attributes`) attach to the Resource; telemetry attributes (`--telemetry-attributes`) attach to the individual span, data point, or log record. Mixing them up is a common mistake.
@@ -72,8 +74,8 @@ telemetrygen traces --otlp-insecure --traces 20 --child-spans 5
 # Custom service with attributes
 telemetrygen traces --otlp-insecure --traces 10 \
   --service "checkout-service" \
-  --otlp-attributes deployment.environment="staging" \
-  --telemetry-attributes http.method="POST"
+  --otlp-attributes 'deployment.environment="staging"' \
+  --telemetry-attributes 'http.method="POST"'
 ```
 
 ## Metrics
@@ -158,7 +160,7 @@ telemetrygen logs --otlp-insecure --logs 5 \
 
 # Multi-tenant via headers
 telemetrygen traces --otlp-insecure --traces 100 \
-  --otlp-header X-Scope-OrgID="tenant-a"
+  --otlp-header 'X-Scope-OrgID="tenant-a"'
 ```
 
 ## TLS and mTLS
