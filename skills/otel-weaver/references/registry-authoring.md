@@ -25,7 +25,7 @@ description: "Telemetry conventions for the ecommerce monolith"
 stability: development
 ```
 
-`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. (The older `name` and `semconv_version`/`schema_base_url` fields are deprecated in favor of `schema_url`.)
+`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location. (The older `name` and `semconv_version`/`schema_base_url` fields are legacy/deprecated in favor of `schema_url`.)
 
 ## Attributes
 
