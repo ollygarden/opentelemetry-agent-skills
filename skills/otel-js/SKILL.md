@@ -24,8 +24,10 @@ For Node.js-specific facts:
 | Latest `@opentelemetry/configuration` | `npm view @opentelemetry/configuration version` |
 | Latest `@opentelemetry/sdk-node` | `npm view @opentelemetry/sdk-node version` |
 | Latest `@opentelemetry/auto-instrumentations-node` | `npm view @opentelemetry/auto-instrumentations-node version` |
-| Package status / breaking changes | `WebFetch https://www.npmjs.com/package/@opentelemetry/configuration` |
+| Package status / breaking changes | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/configuration/README.md` and `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/packages/opentelemetry-sdk-node/README.md` |
 | `sdk-node` CHANGELOG (experimental packages) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/experimental/CHANGELOG.md` |
+| ESM / CJS preload mechanics | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/main/doc/esm-support.md` |
+| Auto-instrumentations register entry point | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js-contrib/main/packages/auto-instrumentations-node/README.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
 ## Cross-References
