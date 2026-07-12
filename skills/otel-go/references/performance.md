@@ -473,7 +473,7 @@ As of v1.40.0, all synchronous metric instruments (`Int64Counter`, `Float64Count
 histogram, _ := meter.Float64Histogram("expensive.metric")
 
 attrs := metric.WithAttributes(attribute.String("region", region))
-if histogram.Enabled(ctx, attrs) {
+if histogram.Enabled(ctx) {
     value := computeExpensiveValue() // Only called when instrument is active
     histogram.Record(ctx, value, attrs)
 }

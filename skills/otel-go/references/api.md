@@ -165,7 +165,7 @@ _, _ = meter.Int64ObservableGauge("memory.usage",
 
 // Check if an instrument is enabled before expensive operations (v1.40.0+)
 // Available on all synchronous instruments: Counter, UpDownCounter, Histogram, Gauge
-if counter.Enabled(ctx, metric.WithAttributes(attribute.String("method", "GET"))) {
+if counter.Enabled(ctx) {
     // Only compute expensive value if the instrument will record
     value := computeExpensiveMetric()
     counter.Add(ctx, value, metric.WithAttributes(attribute.String("method", "GET")))
@@ -182,9 +182,11 @@ attribute.Int64("count", 42)
 attribute.Float64("ratio", 0.95)
 attribute.Bool("enabled", true)
 attribute.StringSlice("tags", []string{"a", "b"})
+attribute.ByteSlice("payload", []byte("data"))
 attribute.Int64Slice("ids", []int64{1, 2, 3})
 attribute.Float64Slice("values", []float64{1.1, 2.2})
 attribute.BoolSlice("flags", []bool{true, false})
+attribute.Slice("nested", attribute.StringValue("a"), attribute.Int64Value(1)) // v1.44.0+
 ```
 
 ### Attribute Sets
@@ -224,9 +226,9 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 
 The Logs API and SDK are versioned on a **separate v0.x line** (currently `otel/log` and
 `otel/sdk/log` v0.20.0, released alongside core v1.44.0) and are **not yet declared stable** —
-interfaces may still change without a major bump. They are production-usable and primarily
-provide a bridge for existing logging libraries. Track their version independently from the
-stable v1.x traces/metrics signals (see the module-versioning table in SKILL.md).
+interfaces may still change without a major bump. They primarily provide a bridge for existing
+logging libraries. Track their version independently from the stable v1.x traces/metrics
+signals (see the module-versioning table in SKILL.md).
 
 ### Core Types
 ```go
@@ -308,9 +310,6 @@ import (
 
     // For logrus logging
     "go.opentelemetry.io/contrib/bridges/otellogrus"
-
-    // For zerolog logging
-    "go.opentelemetry.io/contrib/bridges/otelzerolog"
 
     // For logr logging
     "go.opentelemetry.io/contrib/bridges/otellogr"

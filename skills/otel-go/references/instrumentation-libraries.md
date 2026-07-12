@@ -19,7 +19,6 @@ import (
     "go.opentelemetry.io/contrib/bridges/otelzap"
     "go.opentelemetry.io/contrib/bridges/otelslog"
     "go.opentelemetry.io/contrib/bridges/otellogrus"
-    "go.opentelemetry.io/contrib/bridges/otelzerolog"
 )
 ```
 
@@ -139,7 +138,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 
 | Library | Package |
 |---------|---------|
-| database/sql | `go.opentelemetry.io/contrib/instrumentation/database/sql/otelsql` |
+| database/sql | No package in current `go.opentelemetry.io/contrib`; check the OpenTelemetry registry for third-party instrumentation or instrument manually with `...Context` methods. |
 | MongoDB | `go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo` |
 | GORM | `gorm.io/plugin/opentelemetry/tracing` (registered via `db.Use(tracing.NewPlugin(...))`) |
 
@@ -154,9 +153,9 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 > ```
 >
 > Treat this as the default for any service that touches user data. The same trap applies to other
-> SQL instrumentation that captures full statement text — for `otelsql`, suppress it with
-> `otelsql.WithSpanOptions(otelsql.SpanOptions{DisableQuery: true})`. Keep parameter values out of
-> `db.query.text`, or redact them downstream.
+> SQL instrumentation that captures full statement text; verify the selected package's option to
+> disable or redact query text. Keep parameter values out of `db.query.text`, or redact them
+> downstream.
 
 ### AWS
 
@@ -172,7 +171,6 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 | zap | `go.opentelemetry.io/contrib/bridges/otelzap` |
 | slog | `go.opentelemetry.io/contrib/bridges/otelslog` |
 | logrus | `go.opentelemetry.io/contrib/bridges/otellogrus` |
-| zerolog | `go.opentelemetry.io/contrib/bridges/otelzerolog` |
 | logr | `go.opentelemetry.io/contrib/bridges/otellogr` |
 
 > **Logging bridge change (contrib v1.35.0):** otelzap and otelslog now emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) instead of just the function name. The `code.namespace` attribute is no longer emitted.
