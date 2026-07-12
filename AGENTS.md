@@ -14,7 +14,7 @@ Each skill is a self-contained directory under `skills/<skill-name>/`:
 
 - `SKILL.md` (required) — YAML frontmatter (`name`, `description`, optional `license`, `compatibility`, `metadata`) followed by the instruction body.
 - `references/` (optional) — task-focused docs the SKILL.md links to for detail it doesn't inline (e.g. `otel-go/references/` splits setup, API, instrumentation libraries, performance, breaking changes).
-- `components/` (skill-specific) — `otel-collector` uses one file per Collector component for progressive disclosure.
+- `components/` (skill-specific) — `otel-collector` uses one directory per Collector component (`README.md` plus `configuration.md`, `advanced.md`, `quirks.md`, `verification.md`) for progressive disclosure.
 - `scripts/` (optional) — helper or lookup scripts (e.g. `otel-semantic-conventions` ships a query script).
 
 Two hard rules that are easy to get wrong:
@@ -36,6 +36,15 @@ A new skill is only "registered" when it appears in **all** of these. Missing an
 1. The directory `skills/<name>/` with a `SKILL.md`.
 2. The `plugins` array in `.claude-plugin/marketplace.json` (`name` + `source: ./skills/<name>` + `description`).
 3. The "Available Skills" table **and** the Repository Structure layout tree in `README.md`.
+
+## Contribution requirements (external PRs)
+
+`CONTRIBUTING.md` is the source of truth; the parts an agent preparing a PR must know:
+
+- **Agent-authored PRs are accepted** and expected — but a human must own the PR, and agent involvement should be disclosed in the description.
+- **Harness evidence is required** for any PR that adds or substantively changes a skill: run the same representative prompt(s) on a frontier model without and with the skill (fresh sessions, same model and harness), and include the comparison plus transcript links in the PR description. The `.github/PULL_REQUEST_TEMPLATE.md` has a section for this.
+- **Spec conformance**: validate with `skills-ref validate skills/<skill-name>` ([agentskills.io spec](https://agentskills.io/specification)).
+- **CLA**: first-time contributors sign the OllyGarden CLA (`CLA.md`) via the CLA bot on the PR (`.github/workflows/cla.yml`).
 
 ## Conventions
 
