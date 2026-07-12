@@ -1,6 +1,6 @@
 # OllyGarden Individual Contributor License Agreement
 
-Thank you for your interest in contributing to open source projects published by OllyGarden, Inc. ("OllyGarden"). This Contributor License Agreement ("Agreement") documents the rights granted by contributors to OllyGarden. It is based on the Apache Software Foundation's Individual Contributor License Agreement.
+Thank you for your interest in contributing to open-source projects published by OllyGarden, Inc. ("OllyGarden"). This Contributor License Agreement ("Agreement") documents the rights granted by contributors to OllyGarden. It is based on the Apache Software Foundation's Individual Contributor License Agreement.
 
 You accept and agree to the following terms and conditions for Your present and future Contributions submitted to OllyGarden. Except for the license granted herein to OllyGarden and recipients of software distributed by OllyGarden, You reserve all right, title, and interest in and to Your Contributions.
 
