@@ -152,13 +152,19 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | `OpenTelemetry.Instrumentation.SqlClient` | `.AddSqlClientInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.SqlClient) |
 | `OpenTelemetry.Instrumentation.EntityFrameworkCore` | `.AddEntityFrameworkCoreInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.EntityFrameworkCore) |
 | `OpenTelemetry.Instrumentation.StackExchangeRedis` | `.AddRedisInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.StackExchangeRedis) |
+| `OpenTelemetry.Instrumentation.Cassandra` | `.AddCassandraInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Cassandra) |
+| `OpenTelemetry.Instrumentation.ElasticsearchClient` | `.AddElasticsearchClientInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ElasticsearchClient) |
+| `OpenTelemetry.Instrumentation.Kusto` | `.AddKustoInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Kusto) |
 
 ### RPC
 
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
 | `OpenTelemetry.Instrumentation.GrpcNetClient` | `.AddGrpcClientInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.GrpcNetClient) |
+| `OpenTelemetry.Instrumentation.GrpcCore` | `.AddGrpcCoreInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.GrpcCore) |
 | `OpenTelemetry.Instrumentation.Wcf` | `.AddWcfInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Wcf) |
+| `OpenTelemetry.Instrumentation.Remoting` | `.AddRemotingInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Remoting) |
+| `OpenTelemetry.Instrumentation.ServiceFabricRemoting` | `.AddServiceFabricRemotingInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ServiceFabricRemoting) |
 
 ### Messaging
 
@@ -167,6 +173,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (both available on `TracerProviderBuilder` and `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
 | `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` — **deprecated; MassTransit ≤ v7 only**. For MassTransit v8+ use built-in support: call `.AddSource("MassTransit")` on the `TracerProviderBuilder` instead. | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
 | `OpenTelemetry.Instrumentation.Hangfire` | `.AddHangfireInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Hangfire) |
+| `OpenTelemetry.Instrumentation.Quartz` | `.AddQuartzInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Quartz) |
 
 ### Runtime / System
 
@@ -175,16 +182,22 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | `OpenTelemetry.Instrumentation.Runtime` | `.AddRuntimeInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Runtime) — emits GC/thread metrics |
 | `OpenTelemetry.Instrumentation.Process` | `.AddProcessInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Process) — CPU/memory metrics |
 | `OpenTelemetry.Instrumentation.EventCounters` | `.AddEventCountersInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.EventCounters) |
+| `OpenTelemetry.Instrumentation.Owin` | `.AddOwinInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Owin) — OWIN / .NET Framework |
 
 ### Cloud / Infrastructure
 
-| Package | NuGet |
-|---------|-------|
-| `OpenTelemetry.Resources.AWS` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.AWS) |
-| `OpenTelemetry.Resources.Azure` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Azure) |
-| `OpenTelemetry.Resources.Container` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Container) |
-| `OpenTelemetry.Resources.Gcp` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Gcp) |
-| `OpenTelemetry.Resources.Host` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Host) |
+| Package | Builder extension | NuGet |
+|---------|-------------------|-------|
+| `OpenTelemetry.Instrumentation.AWS` | `.AddAWSInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AWS) |
+| `OpenTelemetry.Instrumentation.AWSLambda` | AWS Lambda wrapper APIs; see package README | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AWSLambda) |
+| `OpenTelemetry.Resources.AWS` | `.AddAWSEBSDetector()` / `.AddAWSEC2Detector()` / `.AddAWSECSDetector()` / `.AddAWSEKSDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.AWS) |
+| `OpenTelemetry.Resources.Azure` | `.AddAzureAppServiceDetector()` / `.AddAzureVMDetector()` / `.AddAzureContainerAppsDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Azure) |
+| `OpenTelemetry.Resources.Container` | `.AddContainerDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Container) |
+| `OpenTelemetry.Resources.Gcp` | `.AddGcpDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Gcp) |
+| `OpenTelemetry.Resources.Host` | `.AddHostDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Host) |
+| `OpenTelemetry.Resources.OperatingSystem` | `.AddOperatingSystemDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.OperatingSystem) |
+| `OpenTelemetry.Resources.Process` | `.AddProcessDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.Process) |
+| `OpenTelemetry.Resources.ProcessRuntime` | `.AddProcessRuntimeDetector()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Resources.ProcessRuntime) |
 
 ---
 

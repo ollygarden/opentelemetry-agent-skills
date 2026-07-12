@@ -28,9 +28,15 @@ Exact numeric defaults can shift between releases. For authoritative values, che
 | Batch span export size | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` |
 | Batch scheduled delay | `OTEL_BSP_SCHEDULE_DELAY` |
 | Batch exporter timeout | `OTEL_BSP_EXPORT_TIMEOUT` |
+| Batch log queue size | `OTEL_BLRP_MAX_QUEUE_SIZE` |
+| Batch log export size | `OTEL_BLRP_MAX_EXPORT_BATCH_SIZE` |
+| Batch log scheduled delay | `OTEL_BLRP_SCHEDULE_DELAY` |
+| Batch log exporter timeout | `OTEL_BLRP_EXPORT_TIMEOUT` |
 | Metric export interval | `OTEL_METRIC_EXPORT_INTERVAL` |
 | Metric export timeout | `OTEL_METRIC_EXPORT_TIMEOUT` |
 | OTLP export timeout | `OTEL_EXPORTER_OTLP_TIMEOUT` |
+| OTLP compression | `OTEL_EXPORTER_OTLP_COMPRESSION` |
+| OTLP metrics default histogram aggregation | `OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION` |
 
 ---
 
@@ -254,6 +260,13 @@ The OTLP exporter's `TimeoutMilliseconds` property controls how long an individu
 })
 ```
 
+### Compression
+
+The OTLP exporter supports `none` and `gzip` compression. Configure it with
+`OtlpExporterOptions.Compression` or `OTEL_EXPORTER_OTLP_COMPRESSION=gzip`; when using
+`UseOtlpExporter`, signal-specific compression env vars such as
+`OTEL_EXPORTER_OTLP_TRACES_COMPRESSION` are also supported.
+
 ### Retry
 
 The OTLP exporter supports opt-in retry behavior via the experimental feature flag `OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY`. Valid values:
@@ -283,7 +296,7 @@ The OTLP exporter defaults to `ExportProcessorType.Batch`. Switch to `Simple` on
 
 ```csharp
 // Activity.Current flows automatically into all awaited calls
-using var activity = tracer.StartActiveSpan("outer");
+using var activity = activitySource.StartActivity("outer");
 await DoSomethingAsync(); // Activity.Current == "outer" inside here
 await DoSomethingElseAsync(); // Still "outer"
 ```
@@ -295,17 +308,17 @@ No manual propagation is needed for standard `async`/`await` code.
 `Activity.Current` does NOT flow into fire-and-forget tasks, `Task.Run` with a captured context that diverges, or thread-pool callbacks that run after the originating scope has exited:
 
 ```csharp
-using var activity = tracer.StartActiveSpan("producer");
-var traceContext = activity?.Context; // Capture before forking
+using var activity = activitySource.StartActivity("producer");
+var parentContext = activity?.Context ?? default; // Capture before forking
 
 // Fire-and-forget: Activity.Current is NOT automatically available here
 _ = Task.Run(async () =>
 {
     // Must manually restore or propagate the context
-    using var childActivity = tracer.StartActiveSpan(
+    using var childActivity = activitySource.StartActivity(
         "consumer",
-        SpanKind.Consumer,
-        traceContext ?? default);
+        ActivityKind.Consumer,
+        parentContext);
     await ProcessAsync();
 });
 ```
@@ -323,7 +336,7 @@ var context = propagator.Extract(default, request.Headers, (headers, name) =>
     headers.TryGetValue(name, out var value) ? new[] { value.ToString() } : []);
 
 // At egress
-propagator.Inject(new PropagationContext(activity.Context, Baggage.Current),
+propagator.Inject(new PropagationContext(Activity.Current?.Context ?? default, Baggage.Current),
     request.Headers, (headers, name, value) => headers[name] = value);
 ```
 
@@ -349,7 +362,19 @@ await app.RunAsync();
 
 ### Without Generic Host
 
-Dispose providers explicitly, or call `ForceFlush` before exit:
+For SDK 1.10.0 and newer, prefer `OpenTelemetrySdk.Create(...)` when a non-hosted process
+needs one lifecycle boundary for multiple signals:
+
+```csharp
+using var sdk = OpenTelemetrySdk.Create(builder => builder
+    .WithTracing(b => b.AddSource("MyApp").AddOtlpExporter())
+    .WithMetrics(b => b.AddMeter("MyApp").AddOtlpExporter()));
+
+// Dispose flushes and shuts down all configured providers.
+```
+
+For separate provider lifetimes, dispose each provider explicitly, or call `ForceFlush`
+before exit:
 
 ```csharp
 using var tracerProvider = Sdk.CreateTracerProviderBuilder()

@@ -2,7 +2,8 @@
 
 The idiomatic .NET setup is the DI/builder path: call `AddOpenTelemetry()` on the service
 collection, then chain `.ConfigureResource(...)`, `.WithTracing(...)`, `.WithMetrics(...)`,
-and `.WithLogging(...)` via `OpenTelemetry.Extensions.Hosting`.
+and `.WithLogging(...)` via `OpenTelemetry.Extensions.Hosting`. For non-hosted
+multi-signal processes on SDK 1.10.0 or newer, use `OpenTelemetrySdk.Create(...)`.
 
 ## Sources of Truth
 
@@ -56,6 +57,12 @@ Replace `AddOtlpExporter()` with `AddConsoleExporter()` during local development
 (requires `OpenTelemetry.Exporter.Console`). The console exporter was used in the spike to
 confirm all three signals.
 
+**OTLP shortcut:** If the process exports all enabled signals through the same OTLP
+destination, `OpenTelemetry.Exporter.OpenTelemetryProtocol` also exposes
+`.UseOtlpExporter()` on the `AddOpenTelemetry()` builder. It automatically enables the
+OTLP exporter for logs, metrics, and traces, supports signal-specific `OTEL_EXPORTER_OTLP_*`
+overrides, and must not be mixed with signal-specific `.AddOtlpExporter()` calls.
+
 **Logging alternative — `ILoggingBuilder`:** Instead of `.WithLogging(...)` on the OTel
 builder, you can wire logging through the standard host logging builder:
 
@@ -75,10 +82,31 @@ shared across all three signals, which is why `service.name`, `service.version`,
 
 ## Non-Hosted Setup
 
-For console apps or worker processes that do not use the generic host, build and own the
-providers manually. These are core `OpenTelemetry`-package APIs confirmed against the SDK's
-public surface; unlike the hosted path above, this non-hosted setup was not exercised
-end-to-end in validation.
+For console apps or worker processes that do not use the generic host, SDK 1.10.0 and newer
+support `OpenTelemetrySdk.Create(...)` as the single lifecycle boundary for all enabled
+signals:
+
+```csharp
+using OpenTelemetry;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+
+using var sdk = OpenTelemetrySdk.Create(b => b
+    .ConfigureResource(r => r.AddService("my-console-app"))
+    .WithTracing(t => t
+        .AddSource("my-source")
+        .AddOtlpExporter())
+    .WithMetrics(m => m
+        .AddMeter("my-meter")
+        .AddOtlpExporter())
+    .WithLogging(l => l
+        .AddOtlpExporter()));
+```
+
+Disposing the returned `OpenTelemetrySdk` flushes and shuts down all configured signals.
+For older SDKs or when you need separate provider lifetimes, build and own the providers
+manually:
 
 ```csharp
 using OpenTelemetry;
