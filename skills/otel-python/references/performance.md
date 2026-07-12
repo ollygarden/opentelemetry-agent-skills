@@ -294,7 +294,7 @@ async def main():
         # Active span here is still "main" — the thread's mutations are gone
 ```
 
-`asyncio.loop.run_in_executor()` and manually spawned threads do **not** automatically copy the current context. Prefer `asyncio.to_thread()` when possible; otherwise pass the context explicitly:
+`loop.run_in_executor(...)` and manually spawned threads may not automatically copy the current context. Prefer `asyncio.to_thread()` when possible; otherwise pass the context explicitly for deterministic behavior:
 
 ```python
 import asyncio

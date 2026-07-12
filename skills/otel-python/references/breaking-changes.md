@@ -96,10 +96,11 @@ release may rename the entry-point, change the schema, or remove the module with
 period.
 
 Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
-latest released SDK (1.43.0), the declarative configuration README is:
+latest released SDK (1.43.0), the declarative configuration README and schema are:
 
-```
+```text
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/schema.json
 ```
 
 Upstream `main` has moved this code into an unreleased `opentelemetry-configuration`
