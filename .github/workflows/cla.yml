@@ -22,6 +22,5 @@ jobs:
       contents: write
       pull-requests: write
       statuses: write
-    # Temporarily pinned to the reviewed head of ollygarden/.github#5.
-    # Replace with that PR's immutable squash-merge SHA after merge.
-    uses: ollygarden/.github/.github/workflows/cla.yml@d8fd829d25fb6d57ebc598cf495ab54a35e48ac1
+    # Pinned to the immutable squash-merge SHA of ollygarden/.github#6.
+    uses: ollygarden/.github/.github/workflows/cla.yml@f9fba8552bebbf8b9c01d20d6cfd30041065b4aa
