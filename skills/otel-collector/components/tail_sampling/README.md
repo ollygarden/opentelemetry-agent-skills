@@ -32,7 +32,7 @@ Avoid it when:
 ## Related components
 
 - `probabilistic_sampler` — head sampling; stateless, trace-ID based, decided up front. Cheaper but content-blind.
-- `loadbalancing` exporter — routes spans by `traceID` so all spans of a trace reach the same tail-sampling instance; required when scaling tail sampling to more than one collector.
+- [`load_balancing`](../load_balancing/README.md) exporter — routes spans by `traceID` so all spans of a trace reach the same tail-sampling instance; required when scaling tail sampling to more than one collector.
 - `groupbytrace` — groups spans by trace ID and waits before forwarding. Not needed in front of `tail_sampling`, which already groups by trace ID internally.
 
 ## Details
@@ -40,5 +40,5 @@ Avoid it when:
 - [Configuration](configuration.md) — top-level config keys (`decision_wait`, `num_traces`, `decision_cache`, …), defaults, and the minimal pipeline. Open when wiring up the processor or checking a key/default.
 - [Policy types](policies.md) — the full catalog of all ~17 policy types and their sub-fields. Open when choosing or configuring a sampling policy.
 - [Verification](verification.md) — telemetrygen recipe to confirm sampling works. Open when you want to prove the config end-to-end.
-- [Advanced use-cases](advanced.md) — `and`/`composite`/`drop` combinations and scaling out with `loadbalancing`. Open when building multi-condition policies or running more than one instance.
+- [Advanced use-cases](advanced.md) — `and`/`composite`/`drop` combinations and scaling out with `load_balancing`. Open when building multi-condition policies or running more than one instance.
 - [Known quirks](quirks.md) — same-instance/loadbalancing requirement, memory model, `decision_wait` latency, late spans, statefulness. Open when sizing memory or debugging missing/partial traces.

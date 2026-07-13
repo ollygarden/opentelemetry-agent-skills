@@ -109,13 +109,13 @@ service:
       processors: [resource/strip-internal]
 ```
 
-## Combine with `resourcedetection`
+## Combine with `resource_detection`
 
-The canonical pattern: `resourcedetection` discovers infrastructure attributes from the environment, then `resource` normalizes, renames, and adds static values. Place `resourcedetection` **first**:
+The canonical pattern: `resource_detection` discovers infrastructure attributes from the environment, then `resource` normalizes, renames, and adds static values. Place `resource_detection` **first**:
 
 ```yaml
 processors:
-  resourcedetection:
+  resource_detection:
     detectors: [env, system, docker, ec2]
     override: false
   resource:
@@ -133,17 +133,17 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resourcedetection, resource]
+      processors: [resource_detection, resource]
       exporters: [otlp]
 ```
 
-## Combine with `k8sattributes`
+## Combine with `k8s_attributes`
 
-Let `k8sattributes` provide dynamic pod/namespace/node metadata from the k8s API, and use `resource` only for static cluster-level values that the API can't supply. Don't hard-code pod-level attributes in `resource` — they're per-pod and dynamic:
+Let `k8s_attributes` provide dynamic pod/namespace/node metadata from the k8s API, and use `resource` only for static cluster-level values that the API can't supply. Don't hard-code pod-level attributes in `resource` — they're per-pod and dynamic:
 
 ```yaml
 processors:
-  k8sattributes:
+  k8s_attributes:
     extract:
       metadata: [k8s.pod.name, k8s.namespace.name, k8s.node.name]
   resource:
@@ -155,7 +155,7 @@ processors:
 service:
   pipelines:
     traces:
-      processors: [k8sattributes, resource]
+      processors: [k8s_attributes, resource]
 ```
 
 ## Relationship to `attributes`

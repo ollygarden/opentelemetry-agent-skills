@@ -51,7 +51,7 @@ rejected with `unsupported features: …`:
 - `alert_config.relabel_configs`
 - `alert_config.alertmanagers`
 
-For Remote Write ingestion use the `prometheusremotewrite` receiver; for rules/alerting run an
+For Remote Write ingestion use the `prometheus_remote_write` receiver; for rules/alerting run an
 actual Prometheus or use OTel processors/connectors.
 
 ## `fallback_scrape_protocol` defaulting (Prometheus 3.0)

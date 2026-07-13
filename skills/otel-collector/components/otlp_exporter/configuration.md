@@ -66,7 +66,7 @@ The buffer between the pipeline and the gRPC sender. **Enabled by default**, and
 | `storage` | component ID | — | A `file_storage` extension ID; turns the queue **persistent** (survives restarts). |
 | `batch` | object | present by default | Built-in batching (see [batch](#sending_queuebatch)). |
 
-> `storage` references a `file_storage` extension, which this skill does not yet have its own page for. Persistence survives Collector restarts at the cost of disk I/O; see [advanced.md](advanced.md).
+> `storage` references a [`file_storage`](../file_storage/README.md) extension. Persistence survives Collector restarts at the cost of disk I/O; see [advanced.md](advanced.md).
 
 ### `sending_queue.batch`
 

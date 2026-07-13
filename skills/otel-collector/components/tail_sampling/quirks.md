@@ -2,7 +2,7 @@
 
 ## All spans of a trace must reach the SAME instance
 
-The decision is made per-trace inside one process. If spans of one trace are spread across multiple tail-sampling collectors, each sees only a fragment and makes its own (wrong/partial) decision. Whenever you run more than one tail-sampling collector you **must** put a `loadbalancing` exporter layer in front that routes by `traceID`. A single instance needs no load balancer.
+The decision is made per-trace inside one process. If spans of one trace are spread across multiple tail-sampling collectors, each sees only a fragment and makes its own (wrong/partial) decision. Whenever you run more than one tail-sampling collector you **must** put a `load_balancing` exporter layer in front that routes by `traceID`. A single instance needs no load balancer.
 
 ## Memory scales with `num_traces` and trace size
 
@@ -14,4 +14,4 @@ Sampled traces are only exported after `decision_wait` expires, so this delay is
 
 ## Stateful, single-process decision
 
-Tail sampling is inherently stateful: the keep/drop choice is computed once, in one process, from whatever spans were buffered at decision time. There is no cross-instance coordination and no re-evaluation of a trace once decided. Place context-enriching processors (e.g. `k8sattributes`) **before** `tail_sampling` in the pipeline, since the processor re-batches spans and downstream context can be lost.
+Tail sampling is inherently stateful: the keep/drop choice is computed once, in one process, from whatever spans were buffered at decision time. There is no cross-instance coordination and no re-evaluation of a trace once decided. Place context-enriching processors (e.g. `k8s_attributes`) **before** `tail_sampling` in the pipeline, since the processor re-batches spans and downstream context can be lost.

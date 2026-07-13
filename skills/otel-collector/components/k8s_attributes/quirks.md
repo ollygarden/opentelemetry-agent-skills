@@ -26,7 +26,7 @@ By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.l
 
 ## Don't use it for sidecars, or outside Kubernetes
 
-For a sidecar, inject pod metadata via the Kubernetes downward API as env vars — it's simpler and needs no RBAC. Outside Kubernetes there is no API to watch; use `resourcedetection` for cloud/host attributes instead. Host-network pods also can't be told apart by IP — associate them on `k8s.pod.name`/`k8s.pod.uid`.
+For a sidecar, inject pod metadata via the Kubernetes downward API as env vars — it's simpler and needs no RBAC. Outside Kubernetes there is no API to watch; use [`resource_detection`](../resource_detection/README.md) for cloud/host attributes instead. Host-network pods also can't be told apart by IP — associate them on `k8s.pod.name`/`k8s.pod.uid`.
 
 ## Stability caveats
 
