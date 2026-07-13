@@ -57,11 +57,12 @@ For language-specific package versions and SDK API surface, see the Sources of T
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
 `otel-dotnet` is listed in Cross-References below but does **not** support declarative YAML config yet — see the .NET note.
 
-**Python note:** declarative config is supported via the experimental
-`opentelemetry-configuration` package. Released Python SDKs honor `OTEL_CONFIG_FILE`
-through the SDK configurator; when set, the file is authoritative and the env-var
-initialization path is skipped. Programmatic loading is also available. See the
-`otel-python` skill and its `declarative-setup.md` reference.
+**Python note:** declarative config requires `opentelemetry-sdk` 1.43.0 or newer
+with the `file-configuration` extra (`opentelemetry-sdk[file-configuration]`).
+Released Python SDKs honor `OTEL_CONFIG_FILE` through the SDK configurator; when
+set, the file is authoritative and the env-var initialization path is skipped.
+Programmatic loading is also available. See the `otel-python` skill and its
+`declarative-setup.md` reference.
 
 **\.NET note:** declarative YAML config is **not yet implemented** in OpenTelemetry .NET
 (tracked by [`open-telemetry/opentelemetry-dotnet#6380`](https://github.com/open-telemetry/opentelemetry-dotnet/issues/6380)).
