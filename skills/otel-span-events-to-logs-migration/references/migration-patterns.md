@@ -135,7 +135,7 @@ span.setStatus(StatusCode.ERROR, exception.getMessage());
 
 After:
 ```java
-Logger logger = GlobalOpenTelemetry.getLogsBridge().loggerBuilder("my-class").build();
+Logger logger = GlobalOpenTelemetry.get().getLogsBridge().loggerBuilder("my-class").build();
 logger.logRecordBuilder()
     .setSeverity(Severity.ERROR)
     .setEventName("exception")
@@ -248,7 +248,7 @@ After:
 ```csharp
 logger.LogWarning(
     new EventId(0, "validation.failure"),
-    "validation.failure for field {Field} rule {Rule}",
+    "validation.failure for field {validation.field} rule {validation.rule}",
     fieldName,
     rule);
 ```
@@ -258,7 +258,8 @@ With the OpenTelemetry .NET OTLP exporter, `EventId.Name` is exported as the OTL
 ## Key Rules Across All Languages
 
 1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`), `event_name=` (Python `Logger.emit`), or `EventId.Name` (.NET `ILogger`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute when the target SDK/exporter has no dedicated event-name path.
-2. All original attributes transfer to the log record attributes.
+2. All original attributes transfer to the log record attributes, preserving the
+   original attribute keys unless an intentional mapping is documented and tested.
 3. The log record automatically inherits the active span context from `ctx` / the current context -- this is how trace correlation is maintained.
 4. `span.SetStatus` (or equivalent) is still set on the span for error cases -- the migration only moves event emission, not status.
 5. Timestamps are set automatically by the SDK if not specified explicitly.

@@ -10,8 +10,9 @@ Usage:
   ./scripts/scan-span-events.sh <directory>
   ./scripts/scan-span-events.sh .
 
-Scans for Span Event API calls (AddEvent, RecordException and
-their language-specific variants) and prints matches grouped by category.
+Scans for Span Event API calls (AddEvent, RecordException, RecordError,
+AddException, ActivityEvent, and language-specific variants) and prints matches
+grouped by category.
 EOF
 }
 

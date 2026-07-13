@@ -64,8 +64,8 @@ For every item, report one of these statuses in the final answer:
 
 Include file references as evidence for every completed item.
 
-- `[ ]` All `AddEvent` / `add_event` / `addEvent` call sites identified and classified.
-- `[ ]` All `RecordException` / `record_exception` / `recordException` call sites identified and classified.
+- `[ ]` All general span-event call sites identified and classified, including `AddEvent` / `add_event` / `addEvent` and language equivalents such as .NET `ActivityEvent`.
+- `[ ]` All exception span-event call sites identified and classified, including `RecordException` / `record_exception` / `recordException` and language equivalents such as Go `RecordError`, Rust `record_error`, and .NET `AddException`.
 - `[ ]` A LoggerProvider is configured in the SDK setup (or already existed).
 - `[ ]` Each migrated event uses the Logs API with the correct event name and attributes.
 - `[ ]` Each migrated exception preserves the applicable semconv attributes: `exception.type` and `exception.message` (at least one is required), plus `exception.stacktrace` when the language/error type makes it meaningful.
@@ -73,7 +73,7 @@ Include file references as evidence for every completed item.
 - `[ ]` Call sites classified as "convert to span attributes" now use span attributes instead.
 - `[ ]` Call sites classified as "remove" have been removed with justification.
 - `[ ]` Backward compatibility bridge is configured if downstream systems require span events in the span envelope.
-- `[ ]` No remaining span-event API call sites are left unintentionally; any retained `AddEvent` / `RecordException` / equivalent call is justified for current-version compatibility.
+- `[ ]` No remaining span-event API call sites are left unintentionally; any retained `AddEvent` / `RecordException` / `RecordError` / `AddException` / `ActivityEvent` / equivalent call is justified for current-version compatibility.
 - `[ ]` The changed files were re-read after implementation to verify the final state.
 - `[ ]` The final answer includes this checklist, file evidence, and any remaining risks or gaps.
 
