@@ -116,3 +116,9 @@ Contributions are welcome — including pull requests authored and implemented b
 - Skills must conform to the [Agent Skills specification](https://agentskills.io/specification).
 - PRs that add or substantively change a skill must include harness results: the same prompt run on a frontier model without and with the skill, showing the skill helps.
 - Contributors sign the [OllyGarden CLA](CLA.md) on their first pull request.
+
+All participants must follow OllyGarden's
+[Code of Conduct](https://github.com/ollygarden/.github/blob/main/CODE_OF_CONDUCT.md).
+See [SUPPORT.md](SUPPORT.md) for help and issue routing, and
+[GOVERNANCE.md](GOVERNANCE.md) for project roles and decision making. Report suspected
+vulnerabilities privately under [SECURITY.md](SECURITY.md).

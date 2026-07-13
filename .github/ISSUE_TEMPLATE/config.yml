@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/ollygarden/opentelemetry-agent-skills/security/policy
+    about: Follow the private reporting instructions in SECURITY.md.
+  - name: General OpenTelemetry support
+    url: https://opentelemetry.io/community/
+    about: Ask OpenTelemetry questions that are not about this skill catalog.

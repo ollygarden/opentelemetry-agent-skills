@@ -1,0 +1,69 @@
+name: New skill proposal
+description: Propose a new vendor-neutral OpenTelemetry skill for the catalog.
+title: "[skill proposal]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: New skills should have a focused trigger surface, maintained upstream sources, and measurable value to an agent.
+  - type: input
+    id: name
+    attributes:
+      label: Proposed skill name
+      placeholder: otel-example
+    validations:
+      required: true
+  - type: textarea
+    id: user_requests
+    attributes:
+      label: User requests that should trigger this skill
+      description: Give representative prompts or concrete user phrasings.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and intended contents
+      description: Explain what the skill covers and what remains out of scope.
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: Current gap
+      description: Explain what agents get wrong, miss, or retrieve inefficiently today.
+    validations:
+      required: true
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Maintained upstream sources
+      description: Link to the official documentation, repositories, schemas, or release data the skill would retrieve.
+    validations:
+      required: true
+  - type: textarea
+    id: overlap
+    attributes:
+      label: Overlap with existing skills
+      description: Explain why this belongs in a new skill rather than an existing one.
+    validations:
+      required: true
+  - type: textarea
+    id: evaluation
+    attributes:
+      label: Evaluation plan
+      description: Provide representative prompts for a same-model, same-harness comparison without and with the skill.
+    validations:
+      required: true
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles
+      options:
+        - label: The proposal is vendor-neutral and non-opinionated.
+          required: true
+        - label: The proposal points to maintained upstream sources instead of duplicating them.
+          required: true
+        - label: I searched existing skills and issues for overlap.
+          required: true
