@@ -36,4 +36,4 @@ jobs:
           path-to-signatures: signatures/cla.json
           path-to-document: https://github.com/ollygarden/opentelemetry-agent-skills/blob/main/CLA.md
           branch: cla-signatures
-          allowlist: jpkroehling,bot*,dependabot*,renovate*
+          allowlist: jpkroehling,dependabot[bot],renovate[bot],github-actions[bot],coderabbitai[bot]
