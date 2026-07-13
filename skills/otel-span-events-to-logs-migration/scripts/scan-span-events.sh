@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Scans a directory for deprecated Span Event API usage across common languages.
+# Scans a directory for Span Event API usage targeted by the OTEP 4430 migration plan.
 # Outputs each match with file, line number, matched pattern, and a classification hint.
 
 usage() {
@@ -10,8 +10,9 @@ Usage:
   ./scripts/scan-span-events.sh <directory>
   ./scripts/scan-span-events.sh .
 
-Scans for deprecated Span Event API calls (AddEvent, RecordException and
-their language-specific variants) and prints matches grouped by category.
+Scans for Span Event API calls (AddEvent, RecordException, RecordError,
+AddException, ActivityEvent, and language-specific variants) and prints matches
+grouped by category.
 EOF
 }
 
@@ -84,7 +85,7 @@ main() {
   fi
 
   if [[ "$found" -eq 0 ]]; then
-    printf '\nNo deprecated Span Event API usage found.\n'
+    printf '\nNo Span Event API usage found.\n'
   else
     printf '\n---\n'
     printf 'total categories with matches: see sections above\n'

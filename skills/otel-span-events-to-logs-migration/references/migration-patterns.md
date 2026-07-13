@@ -4,6 +4,8 @@ Language-specific patterns for migrating from `AddEvent` / `RecordException` to 
 
 When applying these patterns, always check the project's actual SDK imports and version. The examples below use idiomatic API calls; adapt to the project's style.
 
+Do not assume the span-event method is formally deprecated in the target SDK. The migration target comes from OTEP 4430 and per-language release status.
+
 ## Go
 
 ### Exception Recording
@@ -17,7 +19,7 @@ span.SetStatus(codes.Error, err.Error())
 After:
 ```go
 // Use the event logger to record the exception as a log-based event
-logger := otel.GetLoggerProvider().Logger("my-package")
+logger := global.Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName("exception")
@@ -30,8 +32,8 @@ record.SetSeverity(log.SeverityError)
 // github.com/cockroachdb/errors), extract the stack from the error and
 // add an exception.stacktrace attribute. Do not call runtime.Stack here.
 record.AddAttributes(
-    log.String("exception.type", fmt.Sprintf("%T", err)),
-    log.String("exception.message", err.Error()),
+    attribute.String("exception.type", fmt.Sprintf("%T", err)),
+    attribute.String("exception.message", err.Error()),
 )
 logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
@@ -50,12 +52,12 @@ span.AddEvent("cache.miss", trace.WithAttributes(
 
 After:
 ```go
-logger := otel.GetLoggerProvider().Logger("my-package")
+logger := global.Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName("cache.miss")
 record.AddAttributes(
-    log.String("cache.key", key),
+    attribute.String("cache.key", key),
 )
 logger.Emit(ctx, record)
 ```
@@ -88,13 +90,15 @@ span.set_status(Status(StatusCode.ERROR, str(exc)))
 
 After:
 ```python
-import logging
+from opentelemetry._logs import SeverityNumber, get_logger
 
-logger = logging.getLogger(__name__)
-# With the OTel logging bridge configured, this emits a log-based event
-logger.exception("exception", exc_info=exc, extra={
-    "event.name": "exception",
-})
+logger = get_logger(__name__)
+logger.emit(
+    event_name="exception",
+    severity_number=SeverityNumber.ERROR,
+    body="exception",
+    exception=exc,
+)
 span.set_status(Status(StatusCode.ERROR, str(exc)))
 ```
 
@@ -107,11 +111,17 @@ span.add_event("retry.attempt", attributes={"retry.count": count})
 
 After:
 ```python
-logger.info("retry.attempt", extra={
-    "event.name": "retry.attempt",
-    "retry.count": count,
-})
+from opentelemetry._logs import get_logger
+
+logger = get_logger(__name__)
+logger.emit(
+    event_name="retry.attempt",
+    body="retry.attempt",
+    attributes={"retry.count": count},
+)
 ```
+
+The Python SDK derives exception semantic-convention attributes when `exception=` is provided. If the project already uses stdlib `logging` with `LoggingHandler`, verify how that bridge maps event names before relying on it for `event_name`.
 
 ## Java
 
@@ -125,22 +135,19 @@ span.setStatus(StatusCode.ERROR, exception.getMessage());
 
 After:
 ```java
-// ExceptionAttributes lives in the io.opentelemetry.semconv artifact
-// (the old SemanticAttributes class was removed).
-Logger logger = GlobalOpenTelemetry.getLogsBridge().loggerBuilder("my-class").build();
+Logger logger = GlobalOpenTelemetry.get().getLogsBridge().loggerBuilder("my-class").build();
 logger.logRecordBuilder()
     .setSeverity(Severity.ERROR)
     .setEventName("exception")
-    .setAttribute(ExceptionAttributes.EXCEPTION_TYPE, exception.getClass().getName())
-    .setAttribute(ExceptionAttributes.EXCEPTION_MESSAGE, exception.getMessage())
-    .setAttribute(ExceptionAttributes.EXCEPTION_STACKTRACE, getStackTrace(exception))
+    .setException(exception)
     .emit();
 span.setStatus(StatusCode.ERROR, exception.getMessage());
 ```
 
 `setEventName(...)` is a first-class method on the stable `LogRecordBuilder`
-(stabilized in opentelemetry-java 1.x); prefer it over setting an
-`event.name` attribute.
+(since 1.50.0); `setException(Throwable)` is available since 1.60.0. Prefer
+these over setting an `event.name` attribute or manually maintaining
+`exception.*` attributes when the project is on a current Java SDK.
 
 ### General Event
 
@@ -177,14 +184,13 @@ const logger = logs.getLogger('my-module');
 logger.emit({
   severityNumber: SeverityNumber.ERROR,
   eventName: 'exception',
-  attributes: {
-    'exception.type': error.name,
-    'exception.message': error.message,
-    'exception.stacktrace': error.stack,
-  },
+  body: 'exception',
+  exception: error,
 });
 span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
 ```
+
+The JS log-record `exception` field is present in current `@opentelemetry/api-logs` / `@opentelemetry/sdk-logs` source and marked experimental. If the project avoids experimental fields, set `exception.type`, `exception.message`, and `exception.stacktrace` attributes manually.
 
 ### General Event
 
@@ -223,7 +229,7 @@ activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 After:
 ```csharp
 var logger = loggerFactory.CreateLogger("MyClass");
-logger.LogError(ex, "exception");
+logger.LogError(new EventId(0, "exception"), ex, "exception");
 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 ```
 
@@ -240,13 +246,20 @@ activity?.AddEvent(new ActivityEvent("validation.failure", default, new Activity
 
 After:
 ```csharp
-logger.LogWarning("validation.failure for field {Field} rule {Rule}", fieldName, rule);
+logger.LogWarning(
+    new EventId(0, "validation.failure"),
+    "validation.failure for field {validation.field} rule {validation.rule}",
+    fieldName,
+    rule);
 ```
+
+With the OpenTelemetry .NET OTLP exporter, `EventId.Name` is exported as the OTLP log `event_name` field. The lower-level `LogRecordData.EventName` / `Logger.EmitLog` bridge API exists in source but is experimental/pre-release-gated, so prefer stable `ILogger` patterns unless the project has opted into the bridge API.
 
 ## Key Rules Across All Languages
 
-1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute where the SDK has no dedicated field (e.g., the Python stdlib logging bridge).
-2. All original attributes transfer to the log record attributes.
+1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`), `event_name=` (Python `Logger.emit`), or `EventId.Name` (.NET `ILogger`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute when the target SDK/exporter has no dedicated event-name path.
+2. All original attributes transfer to the log record attributes, preserving the
+   original attribute keys unless an intentional mapping is documented and tested.
 3. The log record automatically inherits the active span context from `ctx` / the current context -- this is how trace correlation is maintained.
 4. `span.SetStatus` (or equivalent) is still set on the span for error cases -- the migration only moves event emission, not status.
 5. Timestamps are set automatically by the SDK if not specified explicitly.

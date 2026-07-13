@@ -28,7 +28,7 @@ Do NOT use the bridge when:
 
 ## How to Configure It
 
-### Via Declarative Configuration (preferred)
+### Via Declarative Configuration
 
 When available for the language SDK, add the bridge processor to the log pipeline in the declarative config. The processor key is defined in the [opentelemetry-configuration](https://github.com/open-telemetry/opentelemetry-configuration/blob/main/schema/logger_provider.yaml) schema as `event_to_span_event_bridge/development` (the `/development` suffix marks it experimental):
 
@@ -43,37 +43,28 @@ logger_provider:
             endpoint: "http://collector:4318"
 ```
 
-### Via Code (when declarative config is not available)
+### Via Code
 
-The bridge is a log record processor. Add it to the LoggerProvider alongside the batch processor:
+The bridge is a log record processor. Add a bridge implementation provided by
+the target language SDK to the LoggerProvider alongside any export processors.
+Do not infer support from the specification alone: the specification says SDKs
+SHOULD provide the processor, and implementation availability varies by language.
 
-```go
-// Go example
-bridgeProcessor := eventbridge.NewSpanEventBridge()
-loggerProvider := log.NewLoggerProvider(
-    log.WithProcessor(bridgeProcessor),
-    log.WithProcessor(
-        log.NewBatchProcessor(otlpExporter),
-    ),
-)
-```
+For example, OpenTelemetry Java 1.64.0 provides the bridge in the incubator SDK
+extension:
 
 ```java
-// Java example -- see opentelemetry-java-contrib
-// processors module for EventToSpanEventBridge
+// Java example -- opentelemetry-sdk-extension-incubator
 SdkLoggerProvider loggerProvider = SdkLoggerProvider.builder()
     .addLogRecordProcessor(EventToSpanEventBridge.create())
     .addLogRecordProcessor(BatchLogRecordProcessor.builder(otlpExporter).build())
     .build();
 ```
 
-## Processor Ordering
-
-The bridge processor should be registered BEFORE the batch/export processor in the chain. This ensures:
-1. The log record is first converted to a span event and attached to the span
-2. Then the log record is batched and exported as a log (if desired)
-
-If you only want span events and do NOT want separate log export, omit the batch log exporter and only register the bridge.
+The specification does not require a particular ordering between the bridge and
+other processors. Follow the target SDK's processor-composition semantics. If
+you only want span events and do not want separate log export, configure only
+the bridge where the SDK permits that pipeline.
 
 ## Migration Path
 
@@ -82,6 +73,8 @@ If you only want span events and do NOT want separate log export, omit the batch
 3. Once all consumers are migrated, remove the bridge
 4. The bridge is a transitional tool, not a permanent fixture
 
-## Reference Implementation
+## Reference Implementations
 
-- Java: [opentelemetry-java-contrib processors](https://github.com/open-telemetry/opentelemetry-java-contrib/blob/main/processors/README.md#event-to-spanevent-bridge)
+- Specification: [Event to span event bridge](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/sdk.md#event-to-span-event-bridge)
+- Java: `io.opentelemetry.sdk.extension.incubator.logs.EventToSpanEventBridge` in `opentelemetry-sdk-extension-incubator`
+- Historical Java contrib bridge: [opentelemetry-java-contrib processors](https://github.com/open-telemetry/opentelemetry-java-contrib/blob/main/processors/README.md#event-to-spanevent-bridge) is deprecated and points to the SDK incubator extension.
