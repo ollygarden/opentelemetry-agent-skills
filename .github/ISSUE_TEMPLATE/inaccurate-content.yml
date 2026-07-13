@@ -1,0 +1,54 @@
+name: Inaccurate or outdated skill content
+description: Report guidance that is incorrect, stale, or no longer matches upstream OpenTelemetry.
+title: "[content]: "
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping keep the skill catalog accurate and current.
+  - type: input
+    id: skill
+    attributes:
+      label: Affected skill
+      description: Name the skill and, if possible, the affected file or section.
+      placeholder: otel-go, skills/otel-go/references/api.md
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is inaccurate or outdated?
+      description: Quote or link to the relevant guidance and explain the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Maintained upstream source
+      description: Link to official documentation, source, a release, or another maintained source of truth.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Suggested correction
+      description: Describe the change you think should be made.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed credentials, customer data, and other sensitive information.
+          required: true
+        - label: I searched existing issues for a duplicate.
+          required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Relevant versions or date checked
+      placeholder: OpenTelemetry Go v1.42.0; checked 2026-07-13
+    validations:
+      required: false

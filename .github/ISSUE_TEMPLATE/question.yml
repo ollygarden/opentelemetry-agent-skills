@@ -1,0 +1,36 @@
+name: Question about a skill
+description: Ask how to use or interpret this repository's skill content.
+title: "[question]: "
+labels:
+  - question
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Relevant skill
+      description: Name the skill or repository component your question concerns.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Explain what you are trying to accomplish and where you are stuck.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include relevant agent, harness, model, OpenTelemetry, and package versions.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed credentials, customer data, and other sensitive information.
+          required: true
+        - label: I searched existing issues for an answer or duplicate.
+          required: true
