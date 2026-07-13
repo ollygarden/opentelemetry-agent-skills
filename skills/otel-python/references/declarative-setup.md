@@ -7,6 +7,11 @@ Configure the OpenTelemetry SDK in Python via a YAML file processed by
 > modules are private (leading underscore) and experimental. They may change
 > or be removed without a deprecation notice between SDK releases. Check the
 > SDK CHANGELOG (see Sources of Truth) before upgrading.
+>
+> **Main-branch note (post-1.43.0):** upstream `main` has moved the
+> declarative configuration implementation into an unreleased
+> `opentelemetry-configuration` package. Keep released guidance on
+> `opentelemetry.sdk._configuration.*` until that package is released.
 
 For the YAML configuration schema, load the `otel-declarative-config` skill.
 
@@ -20,7 +25,7 @@ For YAML schema details, fetch the upstream sources listed in the
 | Latest `opentelemetry-sdk` / `opentelemetry-api` | `WebFetch https://pypi.org/pypi/opentelemetry-sdk/json` (`.info.version`) |
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support + vendored schema version | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md` |
+| Declarative config support + vendored schema version (released 1.43.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md` |
 | SDK CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/CHANGELOG.md` |
 
 ## Install
@@ -99,8 +104,10 @@ imported (or before the CLI activates the config) uses no-op providers.
 
 ## YAML Config
 
-`file_format` must be the literal string `'1.0'`. Omitting it or using a
-different value causes the parser to reject the file.
+`file_format` is required and must be a string version. SDK 1.43.0 validates it
+per the configuration spec: unsupported major versions are rejected; newer minor
+versions with the same major version are accepted with a warning. Use `"1.0"`
+unless you have checked the currently vendored schema and SDK loader.
 
 Minimal verified skeleton (all three signals, console exporters):
 

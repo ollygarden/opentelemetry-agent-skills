@@ -51,6 +51,9 @@ Configuration is entirely via environment variables (`OTEL_SERVICE_NAME`, `OTEL_
 | `OTEL_METRICS_EXPORTER` | `otlp` |
 | `OTEL_LOGS_EXPORTER` | `otlp` |
 | `OTEL_PROPAGATORS` | `tracecontext,baggage` |
+| `OTEL_PYTHON_DISABLED_INSTRUMENTATIONS` | `requests,logging` |
+| `OTEL_SEMCONV_STABILITY_OPT_IN` | `http,database` |
+| `OTEL_PYTHON_LOG_AUTO_INSTRUMENTATION` | `false` |
 
 ## Per-App Instrumentation
 
