@@ -7,9 +7,12 @@ Thank you for your interest in contributing!
 Participation in this project is governed by OllyGarden's
 [Code of Conduct](https://github.com/ollygarden/.github/blob/main/CODE_OF_CONDUCT.md).
 For help choosing the right channel, see [SUPPORT.md](SUPPORT.md). Report suspected
-security vulnerabilities privately under [SECURITY.md](SECURITY.md), not in a public issue.
+security vulnerabilities privately under the inherited
+[security policy](https://github.com/ollygarden/opentelemetry-agent-skills/security/policy), not in a
+public issue.
 
-Project roles and decision making are documented in [GOVERNANCE.md](GOVERNANCE.md).
+Project roles and decision making are documented in OllyGarden's organization-wide
+[governance policy](https://github.com/ollygarden/.github/blob/main/GOVERNANCE.md).
 
 ## Contributions from AI coding agents
 
@@ -127,4 +130,8 @@ two weeks.
 
 ## Contributor License Agreement
 
-Before we can merge your first pull request, you must sign the OllyGarden [Contributor License Agreement](CLA.md). Signing is handled automatically in the PR: the CLA bot will comment with instructions, and you sign by replying with the requested confirmation. You only need to sign once; the signature covers all your future contributions to this repository.
+Before we can merge your first pull request, you must sign the organization-wide OllyGarden
+[Contributor License Agreement](https://github.com/ollygarden/.github/blob/main/CLA.md). Signing is
+handled automatically in the PR: the CLA bot will comment with instructions, and you sign by
+replying with the requested confirmation. You only need to sign once; the signature covers all
+your future contributions to this repository.

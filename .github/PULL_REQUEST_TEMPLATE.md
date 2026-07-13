@@ -26,4 +26,4 @@
 - [ ] Content is vendor-neutral, non-opinionated, DRY, and token-efficient
 - [ ] Harness comparison results included above — if skill content changed
 - [ ] Commit messages follow Conventional Commits
-- [ ] I have signed (or will sign via the CLA bot on this PR) the [OllyGarden CLA](../CLA.md)
+- [ ] I have signed (or will sign via the CLA bot on this PR) the [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md)

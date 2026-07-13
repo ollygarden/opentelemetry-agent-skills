@@ -44,7 +44,9 @@ A new skill is only "registered" when it appears in **all** of these. Missing an
 - **Agent-authored PRs are accepted** and expected — but a human must own the PR, and agent involvement should be disclosed in the description.
 - **Harness evidence is required** for any PR that adds or substantively changes a skill: run the same representative prompt(s) on a frontier model without and with the skill (fresh sessions, same model and harness), and include the comparison plus transcript links in the PR description. The `.github/PULL_REQUEST_TEMPLATE.md` has a section for this.
 - **Spec conformance**: validate with `skills-ref validate skills/<skill-name>` ([agentskills.io spec](https://agentskills.io/specification)).
-- **CLA**: first-time contributors sign the OllyGarden CLA (`CLA.md`) via the CLA bot on the PR (`.github/workflows/cla.yml`).
+- **CLA**: first-time contributors sign the organization-wide
+  [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md) via the CLA bot on the PR
+  (`.github/workflows/cla.yml`).
 
 ## Conventions
 

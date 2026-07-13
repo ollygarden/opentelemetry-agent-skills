@@ -12,8 +12,8 @@ This project does not provide private product support or an OpenTelemetry help d
 general OpenTelemetry usage questions that are unrelated to these skills, use the
 [OpenTelemetry community channels](https://opentelemetry.io/community/).
 
-Do not report suspected security vulnerabilities in a public issue. Follow
-[SECURITY.md](SECURITY.md) instead.
+Do not report suspected security vulnerabilities in a public issue. Follow the inherited
+[security policy](https://github.com/ollygarden/opentelemetry-agent-skills/security/policy) instead.
 
 This community repository is maintained on a best-effort basis and does not provide a support SLA.
 Contact OllyGarden about commercial support through the
