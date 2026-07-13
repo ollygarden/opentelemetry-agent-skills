@@ -10,7 +10,7 @@ copies may no longer reflect current security guidance.
 
 Do not report suspected vulnerabilities in a public issue, discussion, or pull request. Use
 [GitHub private vulnerability reporting](https://github.com/ollygarden/opentelemetry-agent-skills/security/advisories/new)
-or email [Juraci Paixão Kröhling](mailto:security@ollygarden.com), CEO of OllyGarden, with:
+or email the [OllyGarden security team](mailto:security@ollygarden.com) with:
 
 - the affected skill, script, workflow, generated reference, or other file;
 - the impact and conditions needed to reproduce the issue;
@@ -22,5 +22,5 @@ This includes vulnerabilities in executable scripts, GitHub Actions workflows, d
 generated data, and instructions that could cause an agent to perform an unsafe action. Ordinary
 factual or documentation errors can be reported with the public inaccurate-content form.
 
-Juraci will coordinate the response and disclosure, and will credit the reporter unless they prefer
-to remain anonymous.
+The security team will coordinate the response and disclosure, and will credit the reporter unless
+they prefer to remain anonymous.

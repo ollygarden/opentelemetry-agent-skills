@@ -10,8 +10,7 @@ OpenTelemetry Agent Skills is an open source project sponsored and maintained by
   the contribution requirements in [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Code owners** review changes and help maintain the repository. The current code
   owners are listed in [`.github/CODEOWNERS`](.github/CODEOWNERS).
-- **Project lead**: [Juraci Paixão Kröhling](https://github.com/jpkrohling), CEO of
-  OllyGarden, is the project's sole governance authority.
+- **Project lead**: OllyGarden's CEO is the project's sole governance authority.
 
 Code ownership is an operational review responsibility; it does not grant governance
 authority.
