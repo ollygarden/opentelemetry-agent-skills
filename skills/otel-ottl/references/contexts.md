@@ -11,6 +11,8 @@ Resource
       ├── Metric → DataPoint → Exemplar
       ├── Log
       └── Profile → Profile Sample
+
+OTelCol (Collector request/client metadata; read-only)
 ```
 
 ## Resource context
@@ -310,6 +312,19 @@ datapoint.metadata["X-Custom-Header"]
 ```
 
 Common uses: tenant routing, request-level enrichment, conditional drop based on caller identity.
+
+## OTelCol context (v0.147+, enabled by default feature gate)
+
+The `otelcol` context exposes Collector-side client and request data that is not part of the telemetry payload. It is read-only. In v0.156, the routing connector deprecated its old `request` context in favor of these paths.
+
+```ottl
+otelcol.client.addr
+otelcol.client.metadata["x-tenant-id"][0]   # first HTTP/client metadata value
+otelcol.client.auth.attributes["subject"]   # auth extension attributes
+otelcol.grpc.metadata["x-tenant-id"][0]     # incoming gRPC metadata value
+```
+
+Prefer `otelcol.*` paths for routing/filtering conditions. If copying values into telemetry, only copy allowlisted, non-sensitive keys; metadata often includes authorization headers, cookies, or API keys.
 
 ## Enums
 

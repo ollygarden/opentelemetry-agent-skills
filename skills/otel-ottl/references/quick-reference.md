@@ -181,25 +181,24 @@ processors:
 processors:
   filter:
     error_mode: ignore
-    traces:
-      span:
-        - 'IsMatch(span.name, "^/health.*")'
-        - 'span.kind == SPAN_KIND_INTERNAL'
-    logs:
-      log_record:
-        - 'log.severity_number < SEVERITY_NUMBER_WARN'
+    trace_conditions:
+      - 'IsMatch(span.name, "^/health.*")'
+      - 'span.kind == SPAN_KIND_INTERNAL'
+    log_conditions:
+      - 'log.severity_number < SEVERITY_NUMBER_WARN'
 ```
 
-### `routing`
+### `routing` connector
 
 ```yaml
-processors:
+connectors:
   routing:
+    error_mode: ignore
     default_pipelines: [traces/default]
     table:
-      - statement: 'route() where resource.attributes["env"] == "prod"'
+      - condition: 'resource.attributes["env"] == "prod"'
         pipelines: [traces/prod]
-      - statement: 'route() where span.status.code == STATUS_CODE_ERROR'
+      - condition: 'span.status.code == STATUS_CODE_ERROR'
         pipelines: [traces/errors]
 ```
 
@@ -345,7 +344,7 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 1. Syntax: parens balanced, strings closed, regex escapes doubled.
 2. Types: type-check before conversion (`IsString`, `IsInt`).
 3. Existence: nil-guard paths that may be absent.
-4. Logic: dry-run with the [telemetrygen verification recipe](../../telemetrygen/SKILL.md#verifying-a-collector-config) — generate a known input, capture the file-exporter output, confirm the transformation. The eye test misses too many gotchas.
+4. Logic: dry-run with the [telemetrygen verification recipe](../../otel-telemetrygen/SKILL.md#verifying-a-collector-config) — generate a known input, capture the file-exporter output, confirm the transformation. The eye test misses too many gotchas.
 5. Performance: most-selective `where` clause first.
 
 ### Safe transformation skeletons
