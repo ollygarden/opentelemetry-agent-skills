@@ -63,7 +63,18 @@ fetch_latest_tag() {
   fi
 
   if [[ -n "$SEMCONV_REPO" ]]; then
-    git -C "$SEMCONV_REPO" tag --list 'v[0-9]*' --sort=-version:refname | sed -n '1p'
+    local tag
+    tag="$(
+      git -C "$SEMCONV_REPO" tag --list 'v[0-9]*' --sort=-version:refname |
+        grep -E '^v[0-9]+(\.[0-9]+)*$' |
+        sed -n '1p' ||
+        true
+    )"
+    if [[ -z "$tag" ]]; then
+      echo "failed to find a stable semantic conventions release tag in ${SEMCONV_REPO}" >&2
+      return 1
+    fi
+    printf '%s\n' "$tag"
     return 0
   fi
 
