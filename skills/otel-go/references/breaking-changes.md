@@ -6,13 +6,12 @@ version selection, fetch from the Sources of Truth table in the `otel-go` skill 
 
 ## API Deprecations
 
-- `span.RecordError()` and `span.AddEvent()` are deprecated. Use the Logs API to emit events and record exceptions within the context of the active span.
 - `go.opentelemetry.io/contrib/config` is deprecated (contrib v1.35.0). Use `go.opentelemetry.io/contrib/otelconf` instead. The API is identical.
 - `WithMetricAttributesFn` deprecated in otelhttp (contrib v1.41.0). Use `Labeler` instead.
 - otelgrpc: prefer stats handlers (`NewServerHandler` / `NewClientHandler`) over deprecated interceptors for new code.
 - `attribute.INVALID` deprecated (core v1.43.0) — an empty value is now valid; use `attribute.EMPTY` instead.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
-- `OTEL_EXPERIMENTAL_CONFIG_FILE` deprecated in `otelconf` (contrib v1.43.0). Use `OTEL_CONFIG_FILE`.
+- `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
 
 ## Removed APIs (contrib v1.40.0+)
 
@@ -62,6 +61,7 @@ RPC attribute changes:
 ## Behavioural Notes
 
 - `trace.SpanFromContext()` never returns nil — no nil checks or `IsRecording()` guards needed.
+- `span.RecordError()` and `span.AddEvent()` are still present in the released tracing API; do not remove existing uses as deprecated APIs.
 - `log.Record.SetErr(err)` (v1.42.0) — the SDK automatically sets `exception.type` and `exception.message` attributes.
 
 ## Resolved Gotchas (historical reference)
