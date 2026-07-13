@@ -10,30 +10,17 @@ on:
       - closed
       - synchronize
 
-permissions:
-  actions: write
-  contents: write
-  pull-requests: write
-  statuses: write
-
-env:
-  # GitHub Actions is removing the Node 20 runtime in fall 2026.
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   cla:
-    runs-on: blacksmith
-
-    steps:
-      - name: CLA Assistant
-        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
-        # Supported continuation of the archived contributor-assistant/github-action.
-        # Pinned to the immutable SHA for the v2.6.2 release.
-        uses: ribtoks/cla-github-action@f22feedd1f3f46f23fab3bc100081d349f9108af # v2.6.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          path-to-signatures: signatures/cla.json
-          path-to-document: https://github.com/ollygarden/opentelemetry-agent-skills/blob/main/CLA.md
-          branch: cla-signatures
-          allowlist: jpkroehling,dependabot[bot],renovate[bot],github-actions[bot],coderabbitai[bot]
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event.issue.pull_request &&
+      (github.event.comment.body == 'recheck' ||
+      github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+      statuses: write
+    # Temporary validation SHA. Pin this to PR #3's squash-merge SHA before merging this PR.
+    uses: ollygarden/.github/.github/workflows/cla.yml@d9d4af5326a3c0ecd582f0641b5d789b8003515b
