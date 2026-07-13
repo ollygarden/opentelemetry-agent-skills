@@ -19,7 +19,8 @@ is no MeterProvider story in the browser yet.
 - **Export over OTLP/HTTP.** gRPC is not available in the browser. Use the OTLP/HTTP (protobuf or
   JSON) exporters.
 - **Flush before the page vanishes.** Pages can be closed, backgrounded, or frozen (bfcache) with no
-  graceful shutdown. Flush on `visibilitychange`/`pagehide` with `keepalive`, not `unload`. See
+  graceful shutdown. Flush on `visibilitychange`/`pagehide`; browser exporters use `keepalive` when
+  limits allow it. Do not rely on `unload`. See
   [performance.md](performance.md#page-lifecycle-flush-before-the-page-vanishes).
 
 ### A Collector (or vendor edge) in front of browsers
@@ -104,9 +105,9 @@ const loggerProvider = new LoggerProvider({
   // no `service.name` and cannot be correlated with the spans from the same app.
   resource,
   processors: [
-    new BatchLogRecordProcessor(
-      new OTLPLogExporter({ url: 'https://collector.example.com/v1/logs' }),
-    ),
+    new BatchLogRecordProcessor({
+      exporter: new OTLPLogExporter({ url: 'https://collector.example.com/v1/logs' }),
+    }),
   ],
 });
 logs.setGlobalLoggerProvider(loggerProvider);
@@ -175,9 +176,12 @@ const sdk = quickStartBrowserSdk({
 });
 ```
 
-`startBrowserSdk` exposes full control (`resourceAttributes`, `exportConfig`, per-signal `logs` /
-`traces` blocks with `spanLimits`/`logRecordLimits`, `contextManager`, `propagators`, `sampler`),
-and `await sdk.shutdown()` flushes and stops.
+`startBrowserSdk` exposes full control (`resourceAttributes`, `exportConfig`,
+`batchProcessorConfig`, per-signal `logs` / `traces` blocks with
+`spanLimits`/`logRecordLimits`, `contextManager`, and `propagators`), and `await sdk.shutdown()`
+flushes and stops. In the `0.1.0` release, the traces config type includes `sampler`, but
+`startTracesSdk` does not yet pass it to the provider — verify source before relying on SDK-level
+sampling there.
 
 ### Per-signal SDKs (tree-shaking)
 
@@ -194,12 +198,15 @@ Each takes the **full** URL (the signal path is not appended automatically).
 A **session** correlates the traces and events a single user produces over a time window, expressed
 as `session.*` attributes (e.g. `session.id`) attached to every span/log. The Browser SDK ships a
 session manager under `@opentelemetry/browser-sdk/session` (`createSessionManager`,
-`createLocalStorageSessionStore`, `createSessionSpanProcessor`, `createSessionLogRecordProcessor`),
-with configurable `maxDuration` and `inactivityTimeout`.
+`createDefaultSessionIdGenerator`, `createLocalStorageSessionStore`, `createSessionSpanProcessor`,
+`createSessionLogRecordProcessor`), with configurable `maxDuration` and `inactivityTimeout`
+(seconds).
 
 > **Processor ordering**: register the session processor **before** the export (batch) processor so
-> `session.id` is stamped before export. If you set `processors` explicitly you own the pipeline —
-> include both the session processor and an export processor.
+> `session.id` is stamped before export. If you call the per-signal `startLogsSdk` /
+> `startTracesSdk` with `processors`, include the export processor in that list. If you want the
+> SDK to build the default batch export processor from `exportConfig` / `batchProcessorConfig`, omit
+> `processors`.
 
 `session.*` follows the
 [session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/session.md).
@@ -232,7 +239,7 @@ new FetchInstrumentation({
 - [ ] `BatchSpanProcessor` / `BatchLogRecordProcessor` (not `Simple*`) for export efficiency
 - [ ] Session processor registered **before** the export processor
 - [ ] `propagateTraceHeaderCorsUrls` set and server `Access-Control-Allow-Headers` includes `traceparent`
-- [ ] Telemetry flushed on `visibilitychange`/`pagehide` (keepalive), not `unload`
+- [ ] Telemetry flushed on `visibilitychange`/`pagehide`; export uses `keepalive` when possible, not `unload`
 - [ ] **Verified** each enabled instrumentation actually emits to the Collector (diag logging + `debug` exporter), not just assumed
 
 ## Anti-patterns
@@ -243,7 +250,7 @@ new FetchInstrumentation({
 | Exporting straight to a backend store from the browser | Leaks credentials, no CORS control, no edge sampling/redaction, unbounded cost | Export to a Collector / vendor edge endpoint |
 | Expecting `traceparent` on cross-origin calls by default | The browser only propagates same-origin unless told otherwise | Set `propagateTraceHeaderCorsUrls` **and** server `Access-Control-Allow-Headers` |
 | `SimpleSpanProcessor` / `SimpleLogRecordProcessor` in production | One network request per record | Use the Batch processors |
-| Flushing on `unload` | Unreliable on mobile/bfcache; blocks navigation | Flush on `visibilitychange`/`pagehide` with `keepalive` |
+| Flushing on `unload` | Unreliable on mobile/bfcache; blocks navigation | Flush on `visibilitychange`/`pagehide`; use browser OTLP export with `keepalive` when possible |
 | Session processor after the batch processor | Records exported before `session.id` is attached | Put the session processor first |
 | Shipping `sdk-trace-web` without a context manager | Async user interactions lose parent context | Register `ZoneContextManager` |
 | `resource: resourceFromAttributes({...})` as the whole resource | Replaces the default resource; drops `telemetry.sdk.*` and env-detected attributes | Merge: `defaultResource().merge(resourceFromAttributes({...}))` |

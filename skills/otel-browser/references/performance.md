@@ -43,7 +43,8 @@ The main thread renders the page; telemetry must stay off it.
   `Simple*` variants (one network request per record). Bound the queue and batch:
 
 ```typescript
-new BatchLogRecordProcessor(exporter, {
+new BatchLogRecordProcessor({
+  exporter,
   maxQueueSize: 100,        // illustrative — drop records past this rather than grow unbounded
   maxExportBatchSize: 50,
   scheduledDelayMillis: 5000,
@@ -58,9 +59,12 @@ A browser page can be closed, backgrounded, or frozen (bfcache) at any time with
 shutdown. Telemetry buffered in a batch processor is lost if you don't flush in time.
 
 - **Flush on `visibilitychange`/`pagehide`, not `unload`/`beforeunload`** — the latter are unreliable
-  (especially on mobile) and break bfcache.
-- The OTLP/HTTP browser exporter uses **`fetch` with `keepalive`** (the modern replacement for
-  `navigator.sendBeacon`) so in-flight exports survive the page going away.
+  (especially on mobile) and break bfcache. The browser `BatchSpanProcessor` and
+  `BatchLogRecordProcessor` install these flush handlers by default unless
+  `disableAutoFlushOnDocumentHide` is set.
+- The OTLP/HTTP browser exporter uses **`fetch` with `keepalive` when browser limits allow it** (the
+  modern replacement for `navigator.sendBeacon`) so in-flight exports can survive the page going
+  away.
 - Late-finalizing signals (INP, CLS, Web Vitals generally) are only known near the end of the page
   lifecycle — they depend on this flush actually happening.
 
@@ -70,6 +74,10 @@ document.addEventListener('visibilitychange', () => {
     void loggerProvider.forceFlush();
     void tracerProvider.forceFlush();
   }
+});
+document.addEventListener('pagehide', () => {
+  void loggerProvider.forceFlush();
+  void tracerProvider.forceFlush();
 });
 ```
 
@@ -81,8 +89,8 @@ resource-timing records.
 
 - **Enable a minimal set first** (e.g. Web Vitals + Errors + Navigation); add resource timing,
   console, and user actions deliberately once you understand their volume.
-- **Restrict resource timing** with `initiatorTypes` (e.g. `['xmlhttprequest', 'fetch']`) instead of
-  capturing every script/image/font.
+- **Restrict resource timing** with `initiatorTypes` (e.g. `['xmlhttprequest', 'fetch']`) and
+  `ignoreUrls` instead of capturing every script/image/font and known-noisy endpoints.
 - **Restrict console capture** to `['error', 'warn']` in production.
 - **Sample.** Apply head sampling in the SDK and/or sampling at the Collector edge. Because clients
   are untrusted and chatty, edge sampling and rate limiting protect both cost and your backend.
@@ -119,8 +127,10 @@ Controlling it is partly developer discipline and partly pipeline enforcement.
 - [ ] Subpath imports for instrumentations (no barrel import)
 - [ ] `zone.js`/`ZoneContextManager` included **only** if async span stitching is required
 - [ ] Batch processors with bounded queue/batch sizes (no `Simple*` processors)
-- [ ] `forceFlush()` wired to `visibilitychange`/`pagehide`; export uses `keepalive`
-- [ ] Minimal instrumentation set enabled; resource timing restricted by `initiatorTypes`
+- [ ] Browser batch processor auto-flush on document hide left enabled, or equivalent
+      `forceFlush()` wired to `visibilitychange`/`pagehide`; export uses `keepalive` when possible
+- [ ] Minimal instrumentation set enabled; resource timing restricted by `initiatorTypes` /
+      `ignoreUrls`
 - [ ] Console capture limited to `error`/`warn` in production
 - [ ] Sampling configured (SDK and/or Collector edge)
 - [ ] URL sanitization on; PII redaction enforced in the Collector
