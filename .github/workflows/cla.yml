@@ -22,5 +22,5 @@ jobs:
       contents: write
       pull-requests: write
       statuses: write
-    # Temporary validation SHA. Pin this to PR #3's squash-merge SHA before merging this PR.
-    uses: ollygarden/.github/.github/workflows/cla.yml@ec2d056c85ad842d5913e3d7ce3e9c9867c3a844
+    # Pinned to the immutable squash-merge SHA of ollygarden/.github#3.
+    uses: ollygarden/.github/.github/workflows/cla.yml@96dfb4c290000375ba18235a7b8240c44f437505
