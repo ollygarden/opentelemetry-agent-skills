@@ -11,7 +11,7 @@
     {
       "name": "otel-collector",
       "source": "./skills/otel-collector",
-      "description": "OpenTelemetry Collector component configuration: config keys, defaults, validation rules, signal support, stability, and gotchas. Progressive disclosure via components/<type>.md; currently covers log_dedup and interval processors."
+      "description": "OpenTelemetry Collector component configuration: config keys, defaults, validation rules, signal support, stability, and gotchas. Progressive disclosure via components/<name>/README.md plus on-demand detail files."
     },
     {
       "name": "otel-declarative-config",

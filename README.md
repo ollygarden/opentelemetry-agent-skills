@@ -70,7 +70,7 @@ skills/
     references/        # setup-sdk, instrumentation, performance
   otel-collector/
     SKILL.md
-    components/        # one file per Collector component (log_dedup, interval, …)
+    components/        # one directory per Collector component (log_dedup, interval, …)
   otel-declarative-config/
   otel-ottl/
   otel-sdk-versions/
@@ -108,8 +108,20 @@ Language-specific skills:
 
 ## Contributing
 
-Contributions are welcome. When adding or updating skills, please follow these guidelines:
+Contributions are welcome — including pull requests authored and implemented by AI coding agents. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. The essentials:
 
 - Keep skills DRY. Prefer referencing official docs, examples, and source code that are already maintained instead of copying large amounts of additional knowledge into the skill. There will be exceptions, but the default should be to link or point to the maintained source of truth.
 - Design skills to be token efficient. Avoid dumping large files or broad context into a skill when a targeted lookup, focused reference, or small generated artifact will do.
 - Stay vendor neutral.
+- Skills must conform to the [Agent Skills specification](https://agentskills.io/specification).
+- PRs that add or substantively change a skill must include harness results: the same prompt run on a frontier model without and with the skill, showing the skill helps.
+- Contributors sign the organization-wide
+  [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md) on their first pull request.
+
+All participants must follow OllyGarden's
+[Code of Conduct](https://github.com/ollygarden/.github/blob/main/CODE_OF_CONDUCT.md).
+See [SUPPORT.md](SUPPORT.md) for help and issue routing, and
+OllyGarden's organization-wide
+[governance policy](https://github.com/ollygarden/.github/blob/main/GOVERNANCE.md) for project roles
+and decision making. Report suspected vulnerabilities privately under the inherited
+[security policy](https://github.com/ollygarden/opentelemetry-agent-skills/security/policy).

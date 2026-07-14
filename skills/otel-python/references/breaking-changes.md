@@ -61,8 +61,9 @@ from opentelemetry.instrumentation.logging.handler import LoggingHandler
 ```
 Code using the old SDK handler keeps working until removal, but the deprecation entry marks the
 migration window. Add the contrib package to `requirements.txt`. See `references/api.md` for wiring
-details. (Note: `LoggingInstrumentor` is a separate feature for injecting trace context into log
-text formatting; it is not the deprecation replacement.)
+details. (Note: `LoggingInstrumentor` can install the contrib handler during instrumentation and can
+also inject trace context into text logs; check the current `opentelemetry-instrumentation-logging`
+behavior before treating it as only a formatting helper.)
 
 For each finding, grep the codebase for the old symbol before concluding impact:
 
@@ -94,11 +95,17 @@ experimental**. The leading underscore is intentional: the public API is not gua
 release may rename the entry-point, change the schema, or remove the module without a deprecation
 period.
 
-Before upgrading, fetch the current README for this module:
+Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
+latest released SDK (1.43.0), the declarative configuration README and schema are:
 
+```text
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/schema.json
 ```
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md
-```
+
+Upstream `main` has moved this code into an unreleased `opentelemetry-configuration`
+package; do not apply that import-path change to released guidance until it appears in a
+release.
 
 Cross-reference the **`references/declarative-setup.md`** reference in this skill for the current
 YAML schema and activation API. If a release changes `_configuration`, that reference is the

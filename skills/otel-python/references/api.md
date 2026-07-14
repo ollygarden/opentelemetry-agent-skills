@@ -233,12 +233,15 @@ The handler automatically injects the active span's `trace_id` and `span_id` int
 
 > **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated as of SDK 1.40.0/0.61b0. Always import from `opentelemetry.instrumentation.logging.handler`.
 
-### `LoggingInstrumentor` is a different feature
+### `LoggingInstrumentor` behavior
 
-`LoggingInstrumentor().instrument()` (also reachable via the `opentelemetry-instrument` CLI) is **not** equivalent to the handler above. It only injects the active `otelTraceID` / `otelSpanID` into stdlib log *text* formatting (it calls `logging.basicConfig` with an enriched format) — it does **not** route log records through the `LoggerProvider` to the OTel logs pipeline. Use it for trace-context correlation in plain-text logs; use the `LoggingHandler` above to actually export logs as OTel log records.
+`LoggingInstrumentor().instrument()` (also reachable via the `opentelemetry-instrument` CLI when the logging instrumentation is installed) has two separate behaviors:
+
+- It installs the contrib `LoggingHandler` by default, routing stdlib log records through the global `LoggerProvider`. Disable that with `OTEL_PYTHON_LOG_AUTO_INSTRUMENTATION=false` or `enable_log_auto_instrumentation=False`.
+- It can inject `otelTraceID`, `otelSpanID`, `otelTraceSampled`, and `otelServiceName` into stdlib `LogRecord`s for text log correlation. Use `inject_trace_context=True` to add those fields without changing the logging format, or `set_logging_format=True` / `OTEL_PYTHON_LOG_CORRELATION=true` to also call `logging.basicConfig` with a format that prints them.
 
 ```python
-# Trace-context injection into log TEXT only — does NOT export logs to OTLP
+# Add correlation fields to LogRecord without changing logging.basicConfig
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
-LoggingInstrumentor().instrument(set_logging_format=True)
+LoggingInstrumentor().instrument(inject_trace_context=True)
 ```

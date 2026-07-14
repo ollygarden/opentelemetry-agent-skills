@@ -72,6 +72,19 @@ Common contrib package names (match the directory under `src/`):
 - `OpenTelemetry.Instrumentation.SqlClient`
 - `OpenTelemetry.Instrumentation.Runtime`
 - `OpenTelemetry.Instrumentation.Process`
+- `OpenTelemetry.Instrumentation.Cassandra`
+- `OpenTelemetry.Instrumentation.ElasticsearchClient`
+- `OpenTelemetry.Instrumentation.Kusto`
+- `OpenTelemetry.Instrumentation.Quartz`
+- `OpenTelemetry.Instrumentation.AWS`
+- `OpenTelemetry.Resources.AWS`
+- `OpenTelemetry.Resources.Azure`
+- `OpenTelemetry.Resources.Container`
+- `OpenTelemetry.Resources.Gcp`
+- `OpenTelemetry.Resources.Host`
+- `OpenTelemetry.Resources.OperatingSystem`
+- `OpenTelemetry.Resources.Process`
+- `OpenTelemetry.Resources.ProcessRuntime`
 
 Each CHANGELOG lists breaking changes, deprecations, and removals in reverse-chronological order.
 Look for `### Breaking changes`, `### Deprecated`, and `### Removed` sections.

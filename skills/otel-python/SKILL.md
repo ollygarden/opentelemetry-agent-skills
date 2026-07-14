@@ -29,8 +29,8 @@ For Python-specific facts:
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest `opentelemetry-instrumentation-<pkg>` (contrib) | `WebFetch https://pypi.org/pypi/opentelemetry-instrumentation-<pkg>/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support (overview) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md` |
-| Declarative config vendored schema (parser-accepted `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/schema.json` |
+| Declarative config support (released 1.43.0 overview) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md` |
+| Declarative config vendored schema (released 1.43.0 parser-accepted `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/schema.json` |
 | SDK CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/CHANGELOG.md` |
 | Contrib CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/main/CHANGELOG.md` |
 | Python getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/python/getting-started/` |

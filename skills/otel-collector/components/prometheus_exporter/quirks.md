@@ -2,7 +2,7 @@
 
 ## It's a server (pull), not a pusher
 
-This exporter **hosts** an HTTP server and exposes metrics at `/metrics` for a scraper to pull. It does **not** push metrics anywhere. The common mistake is reaching for it when you actually want to **send** metrics out via Prometheus Remote Write — that is the separate `prometheusremotewrite` exporter. They are not interchangeable: this one waits to be scraped; that one initiates pushes.
+This exporter **hosts** an HTTP server and exposes metrics at `/metrics` for a scraper to pull. It does **not** push metrics anywhere. The common mistake is reaching for it when you actually want to **send** metrics out via Prometheus Remote Write — that is the separate [`prometheus_remote_write`](../prometheus_remote_write/README.md) exporter. They are not interchangeable: this one waits to be scraped; that one initiates pushes.
 
 ## Same `prometheus` type string as the receiver
 

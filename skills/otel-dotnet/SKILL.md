@@ -1,6 +1,6 @@
 ---
 name: otel-dotnet
-description: OpenTelemetry in .NET — DI/builder SDK setup (OpenTelemetry.Extensions.Hosting, AddOpenTelemetry), native BCL instrumentation (ActivitySource, System.Diagnostics.Metrics Meter, ILogger), zero-code CLR-profiler agent, contrib instrumentation packages, performance tuning, and breaking-change audits. Use when adding, reviewing, or configuring OpenTelemetry in a .NET or ASP.NET Core service. Triggers on "setup otel in dotnet", "dotnet telemetry", ".net tracing", "ASP.NET Core opentelemetry", "AddOpenTelemetry", "ActivitySource", "System.Diagnostics.Metrics Meter", "ILogger opentelemetry", "OpenTelemetry.Extensions.Hosting", "opentelemetry-dotnet-instrumentation", or any C# OTel question.
+description: OpenTelemetry in .NET — DI/builder SDK setup (OpenTelemetry.Extensions.Hosting, AddOpenTelemetry, UseOtlpExporter, OpenTelemetrySdk.Create), native .NET instrumentation APIs (ActivitySource, System.Diagnostics.Metrics Meter) plus logging abstractions (ILogger), zero-code CLR-profiler agent, contrib instrumentation packages, performance tuning, and breaking-change audits. Use when adding, reviewing, or configuring OpenTelemetry in a .NET or ASP.NET Core service. Triggers on "setup otel in dotnet", "dotnet telemetry", ".net tracing", "ASP.NET Core opentelemetry", "AddOpenTelemetry", "UseOtlpExporter", "OpenTelemetrySdk.Create", "ActivitySource", "System.Diagnostics.Metrics Meter", "ILogger opentelemetry", "OpenTelemetry.Extensions.Hosting", "opentelemetry-dotnet-instrumentation", or any C# OTel question.
 ---
 
 # OpenTelemetry in .NET
@@ -12,7 +12,7 @@ task; each reference is self-contained.
 
 | File | Use when |
 |---|---|
-| [`references/setup.md`](references/setup.md) | Setting up the SDK via the DI/builder path (`AddOpenTelemetry().WithTracing/WithMetrics/WithLogging`, `OpenTelemetry.Extensions.Hosting`), exporter wiring, env-var / `IConfiguration` inputs, and why there is no declarative YAML config in .NET. |
+| [`references/setup.md`](references/setup.md) | Setting up the SDK via the DI/builder path (`AddOpenTelemetry().WithTracing/WithMetrics/WithLogging`, `UseOtlpExporter`, `OpenTelemetrySdk.Create`, `OpenTelemetry.Extensions.Hosting`), exporter wiring, env-var / `IConfiguration` inputs, and why there is no declarative YAML config in .NET. |
 | [`references/api.md`](references/api.md) | Instrumenting with native BCL APIs (`ActivitySource`/`Activity`, `System.Diagnostics.Metrics.Meter`, `ILogger`), how the SDK subscribes (`AddSource`/`AddMeter`), attributes, propagation, and the optional OTel API shim. |
 | [`references/instrumentation-libraries.md`](references/instrumentation-libraries.md) | Zero-code (the `opentelemetry-dotnet-instrumentation` CLR-profiler agent), the contrib instrumentation-package catalog, and manual instrumentation following semconv. |
 | [`references/performance.md`](references/performance.md) | Tuning sampling, batch export processor, periodic metric reader, views, exporter choice, async context, graceful shutdown. |

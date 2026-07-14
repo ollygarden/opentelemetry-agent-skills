@@ -22,7 +22,7 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
 |---|---|
 | Latest schema release tag | `gh release view --repo open-telemetry/opentelemetry-configuration --json tagName,publishedAt` |
 | SDK ↔ schema compatibility matrix (coverage advisory, not authoritative for literal `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
-| Field-by-field schema docs | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/schema-docs.md` |
+| Field-by-field schema docs | `WebFetch https://opentelemetry.io/docs/specs/otel-config/types/` |
 | Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/opentelemetry_configuration.json` |
 | Canonical full example | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/examples/otel-sdk-config.yaml` |
 | Migration template (every option, with comments) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/examples/otel-sdk-migration-config.yaml` |
@@ -57,10 +57,12 @@ For language-specific package versions and SDK API surface, see the Sources of T
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
 `otel-dotnet` is listed in Cross-References below but does **not** support declarative YAML config yet — see the .NET note.
 
-**Python note:** declarative config is supported via the experimental, private
-`opentelemetry.sdk._configuration.file` module (install `opentelemetry-sdk[file-configuration]`).
-Activation is programmatic — there is no `OTEL_CONFIG_FILE` CLI wiring like Go/JS; you must call
-the loader in code at startup. See the `otel-python` skill and its `declarative-setup.md` reference.
+**Python note:** declarative config requires `opentelemetry-sdk` 1.43.0 or newer
+with the `file-configuration` extra (`opentelemetry-sdk[file-configuration]`).
+Released Python SDKs honor `OTEL_CONFIG_FILE` through the SDK configurator; when
+set, the file is authoritative and the env-var initialization path is skipped.
+Programmatic loading is also available. See the `otel-python` skill and its
+`declarative-setup.md` reference.
 
 **\.NET note:** declarative YAML config is **not yet implemented** in OpenTelemetry .NET
 (tracked by [`open-telemetry/opentelemetry-dotnet#6380`](https://github.com/open-telemetry/opentelemetry-dotnet/issues/6380)).

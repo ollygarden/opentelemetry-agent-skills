@@ -60,8 +60,8 @@ Browser SDK; the span-based packages still live in `opentelemetry-js` / `opentel
 
 These constraints drive most design decisions (detailed in the references):
 
-- **The process disappears** — no graceful shutdown. Flush on `visibilitychange`/`pagehide` with
-  `keepalive`, not `unload`.
+- **The process disappears** — no graceful shutdown. Flush on `visibilitychange`/`pagehide`;
+  browser exporters use `keepalive` when limits allow it. Do not rely on `unload`.
 - **No gRPC** — export is **OTLP/HTTP** only (protobuf or JSON).
 - **Cross-origin propagation is opt-in** — `traceparent` is not sent to other origins unless you set
   `propagateTraceHeaderCorsUrls` **and** the server allows the header via `Access-Control-Allow-Headers`.

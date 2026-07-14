@@ -27,14 +27,14 @@ Use when:
 
 Avoid when:
 - The source already speaks OTLP — use the [`otlp`](../otlp/README.md) receiver.
-- The source pushes via Prometheus Remote Write — use the `prometheusremotewrite` receiver instead (push, not pull).
+- The source pushes via Prometheus Remote Write — use the `prometheus_remote_write` receiver instead (push, not pull).
 - You need Prometheus *server* features (`remote_write`, `remote_read`, `rule_files`, alerting) — this receiver rejects them; it only scrapes.
 
 ## Related components
 
 - [`otlp` receiver](../otlp/README.md) — the OTLP-native ingress; `prometheus` is for Prometheus-format scrape targets.
 - [`interval` processor](../interval/README.md) — downsample chatty scrapes by emitting only the latest value per series per interval.
-- `prometheusremotewrite` receiver and `prometheus` / `prometheusremotewrite` exporters — the Prometheus-family counterparts (push vs pull); pair a scrape ingress here with a Prometheus-format egress.
+- `prometheus_remote_write` receiver and `prometheus` / [`prometheus_remote_write`](../prometheus_remote_write/README.md) exporters — the Prometheus-family counterparts (push vs pull); pair a scrape ingress here with a Prometheus-format egress.
 - [`transform`](../transform/README.md) / [`filter`](../filter/README.md) — drop or mutate metrics after scrape, though Prometheus `metric_relabel_configs` does much of this at the source.
 
 ## Details

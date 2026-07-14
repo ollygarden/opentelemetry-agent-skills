@@ -1,11 +1,11 @@
 ---
 name: otel-ottl
-description: OpenTelemetry Transformation Language (OTTL) expert for writing and debugging telemetry transformations in the OpenTelemetry Collector. Use when authoring or reviewing `transform`, `filter`, `routing`, or `tail_sampling` processor configs, debugging OTTL syntax or semantics, transforming traces, metrics, logs, or profiles, or converting data-processing requirements into OTTL statements.
+description: OpenTelemetry Transformation Language (OTTL) expert for writing and debugging telemetry transformations in the OpenTelemetry Collector. Use when authoring or reviewing `transform`, `filter`, `tail_sampling` processor configs or `routing` connector configs, debugging OTTL syntax or semantics, transforming traces, metrics, logs, or profiles, or converting data-processing requirements into OTTL statements.
 ---
 
 # OpenTelemetry Transformation Language (OTTL)
 
-OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, `routing`, and `tail_sampling` processors (and a few others) in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
+OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, and `tail_sampling` processors, the `routing` connector, and a few other components in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
 
 This skill targets `pkg/ottl` as of collector-contrib **v0.156.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
 
@@ -23,11 +23,11 @@ set(span.attributes["env"], "prod") where resource.attributes["env"] == nil
 
 ## Workflow
 
-1. **Pick the processor.** `transform` rewrites; `filter` drops; `routing` fans out by pipeline; `tail_sampling` keeps/drops traces. The processor decides which contexts and function set are usable.
-2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `exemplar`, `log`, `profile`, `profilesample`. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
+1. **Pick the component.** `transform` rewrites; `filter` drops; the `routing` connector fans out by pipeline; `tail_sampling` keeps/drops traces. The component decides which contexts and function set are usable.
+2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `exemplar`, `log`, `profile`, `profilesample`, or `otelcol` for Collector request/client metadata. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
 3. **Write statements.** Reach for `references/quick-reference.md` for common recipes; `references/contexts.md` for paths/enums; `references/functions.md` for the editor and converter catalog.
-4. **Set `error_mode`.** `ignore` (default) keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure (use only when you want a bad config to fail loud in tests).
-5. **Verify.** OTTL gotchas are the kind that pass the eye test (see [Common gotchas](#common-gotchas)). Use the [telemetrygen verification recipe](../telemetrygen/SKILL.md#verifying-a-collector-config) — `otelcol-contrib` + file exporter + telemetrygen — to confirm the snippet does what the prose claims before shipping.
+4. **Set `error_mode`.** `ignore` keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure. In v0.156, `transform` and `filter` default to `ignore` through enabled beta feature gates; `routing` defaults to `propagate` unless `connector.routing.defaultErrorModeIgnore` is enabled; lower-level OTTL sequences default to `propagate`.
+5. **Verify.** OTTL gotchas are the kind that pass the eye test (see [Common gotchas](#common-gotchas)). Use the [telemetrygen verification recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config) — `otelcol-contrib` + file exporter + telemetrygen — to confirm the snippet does what the prose claims before shipping.
 
 ## Contexts at a glance
 
@@ -44,6 +44,7 @@ OTTL paths are scoped by signal. Higher levels are reachable from lower ones (e.
 | Exemplar | `exemplar.double_value`, `exemplar.int_value`, `exemplar.filtered_attributes["…"]` (transform `metric_statements` only, v0.156+) |
 | Log | `log.body`, `log.body.string`, `log.severity_number`, `log.attributes["…"]` |
 | Profile | `profile.profile_id`, `profile.attributes["…"]` (Development) |
+| OTelCol | `otelcol.client.metadata["x-tenant"][0]`, `otelcol.grpc.metadata["x-tenant"][0]` (read-only, enabled by default feature gate) |
 
 Full path inventory plus enums in `references/contexts.md`.
 
@@ -54,7 +55,7 @@ Full path inventory plus enums in `references/contexts.md`.
 set(target, value)
 delete_key(target, key)               # delete by exact key
 delete_matching_keys(target, regex)   # delete by regex
-delete_index(target, index)           # remove from a slice (v0.145+)
+delete_index(target, start, end?)     # remove one slice item or range (v0.145+)
 keep_keys(target, [k1, k2])           # keep only these keys
 merge_maps(target, source, "upsert")  # "insert" | "update" | "upsert"
 truncate_all(target, max_len)         # UTF-8 safe by default in v0.148+
@@ -136,19 +137,19 @@ processors:
 
   filter:
     error_mode: ignore
-    traces:
-      span:
-        - 'IsMatch(span.name, "^/health.*")'
-    logs:
-      log_record:
-        - 'log.severity_number < SEVERITY_NUMBER_WARN'
+    trace_conditions:
+      - 'IsMatch(span.name, "^/health.*")'
+    log_conditions:
+      - 'log.severity_number < SEVERITY_NUMBER_WARN'
 
+connectors:
   routing:
+    error_mode: ignore
     default_pipelines: [traces/default]
     table:
-      - statement: 'route() where resource.attributes["env"] == "prod"'
+      - condition: 'resource.attributes["env"] == "prod"'
         pipelines: [traces/prod]
-      - statement: 'route() where span.status.code == STATUS_CODE_ERROR'
+      - condition: 'span.status.code == STATUS_CODE_ERROR'
         pipelines: [traces/errors]
 
   tail_sampling:
@@ -203,13 +204,17 @@ In older configs you may see `span_event.*` — current syntax is `spanevent.*`.
 
 Use `Decode(value, "base64")` instead. The same `Decode` converter handles `base64-raw`, `base64-url`, `base64-raw-url`, and IANA character set encodings. Keep `Base64Decode` only if pinned to a pre-v0.141 collector.
 
+### `routing` request context is deprecated
+
+In routing connector configs, use `otelcol.client.metadata["key"][0]` for HTTP/client metadata or `otelcol.grpc.metadata["key"][0]` for gRPC metadata. The old `context: request` plus `request["key"] == "value"` form is deprecated in v0.156.
+
 ### `Bool` converter coercion is loose
 
 `Bool("true")`, `Bool("1")`, `Bool(1)` all return `true`; `Bool("false")`, `Bool("0")`, `Bool(0)`, `Bool(0.0)` return `false`. Anything else errors. Don't assume Python-like truthiness for arbitrary strings.
 
 ### Verify before publishing
 
-YAML/OTTL gotchas like the above pass the eye test. Use the [telemetrygen verification recipe](../telemetrygen/SKILL.md#verifying-a-collector-config) (otelcol-contrib + file exporter + telemetrygen) to confirm the snippet does what the surrounding prose claims, especially before shipping to a customer or production.
+YAML/OTTL gotchas like the above pass the eye test. Use the [telemetrygen verification recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config) (otelcol-contrib + file exporter + telemetrygen) to confirm the snippet does what the surrounding prose claims, especially before shipping to a customer or production.
 
 ## Best practices
 
@@ -227,6 +232,11 @@ Recently added (still useful to know which release introduced them when supporti
 | Feature | Since |
 |---------|-------|
 | Exemplar context (transform `metric_statements` only) | v0.156 |
+| Routing connector context inference (`condition` with context-qualified paths) | v0.156 |
+| Routing connector `request` context deprecated; use `otelcol.*` metadata paths | v0.156 |
+| `connector.routing.defaultErrorModeIgnore` feature gate | v0.155 |
+| `otelcol.*` context via enabled-by-default `ottl.contexts.enableOTelColContext` feature gate | v0.147 |
+| Filter processor top-level `trace_conditions`, `metric_conditions`, `log_conditions` | v0.146 |
 | Profile / ProfileSample contexts | v0.124 / v0.132 (Development) |
 | Cache paths require context prefix; `spanevent` rename | v0.120 (breaking) |
 | `delete_index` editor | v0.145 |

@@ -1,0 +1,45 @@
+name: Repository tooling bug
+description: Report a reproducible problem with validation, generation, installation, or CI tooling.
+title: "[bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Problem
+      description: Describe what happened and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the exact command, inputs, and the smallest reproducible sequence.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Remove secrets and other sensitive data before pasting logs.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system and relevant tool, Go, agent, or harness versions.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed credentials, customer data, and other sensitive information.
+          required: true
+        - label: I searched existing issues for a duplicate.
+          required: true

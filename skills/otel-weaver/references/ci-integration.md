@@ -64,7 +64,7 @@ jobs:
             registry diff \
               --baseline-registry /baseline/telemetry/registry/ \
               --registry /work/telemetry/registry/ \
-              --diff-format markdown
+              --format markdown
 ```
 
 ## Notes

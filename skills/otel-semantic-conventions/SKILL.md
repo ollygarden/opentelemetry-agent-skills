@@ -13,10 +13,12 @@ Use this skill when you need released semantic convention guidance for naming, a
 1. Start with released semantic conventions, not model memory.
 - do not load the full semantic convention spec into context
 - use the bundled lookup script to query only the needed released group or attribute
+- for local verification against a checked-out upstream repo, set `OTEL_SEMCONV_REPO=/path/to/semantic-conventions`
 
 2. Choose the closest released group before inventing custom keys.
 - identify the boundary type such as `http`, `db`, `messaging`, `rpc`, or `network`
 - pick one primary group first, then add related groups only when they add needed context
+- for `gen_ai.*`, OpenAI, or MCP conventions, use the dedicated OpenTelemetry GenAI semantic conventions repository; the core repository keeps only deprecated GenAI-era stubs after v1.42.0
 - see `references/semconv-selection.md`
 
 3. Query only the released guidance you need.

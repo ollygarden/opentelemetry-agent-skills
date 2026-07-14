@@ -27,7 +27,7 @@ Field names as they appear in the template `ctx` after the `semconv_grouped_*` f
 | span `type`            | `id` of the form `span.<type>`, plus flat `name` (= input `name.note`) |
 | span `kind`            | `span_kind`                                           |
 
-The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events|entities> }]`. Other fields are mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
+The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events> }]`. Other fields are mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
 
 ## Layout
 
@@ -81,7 +81,7 @@ templates:
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. Each signal has a grouped helper: `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, `semconv_grouped_entities` (all barewords).
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events` (all barewords).
 - **Single-quote only raw jq expressions.** The `semconv_grouped_*` helpers are barewords and need no quoting. If you write a custom multi-clause jq expression, single-quote it — colons in jq syntax otherwise collide with YAML mapping rules (`mapping values are not allowed in this context`).
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
