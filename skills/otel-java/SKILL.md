@@ -1,6 +1,6 @@
 ---
 name: otel-java
-description: OpenTelemetry in Java — Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, BOM dependency management. Use when adding, reviewing, or configuring OpenTelemetry in a Java service. Triggers on "setup otel in java", "java telemetry", "javaagent", "Spring Boot otel", "GlobalOpenTelemetry", "AutoConfiguredOpenTelemetrySdk", "TracerProvider java", or any Java-related OTel question.
+description: OpenTelemetry in Java — Javaagent zero-code instrumentation, Spring Boot Starter, manual autoconfigure SDK, declarative YAML configuration, BOM dependency management, sensitive-data capture and redaction (url.query, headers, request parameters, SQL sanitization). Use when adding, reviewing, or configuring OpenTelemetry in a Java service. Triggers on "setup otel in java", "java telemetry", "javaagent", "Spring Boot otel", "GlobalOpenTelemetry", "AutoConfiguredOpenTelemetrySdk", "TracerProvider java", "url.query redaction", "capture request headers", or any Java-related OTel question.
 ---
 
 # OpenTelemetry in Java
@@ -13,6 +13,7 @@ the task; each reference is self-contained.
 | File | Use when |
 |---|---|
 | [`references/declarative-setup.md`](references/declarative-setup.md) | Configuring the SDK via declarative YAML: Javaagent activation, Spring Boot Starter, autoconfigure SDK, BOM, agent-only properties, manual instrumentation entry points. |
+| [`references/sensitive-data-capture.md`](references/sensitive-data-capture.md) | What HTTP instrumentation captures by default (query strings ON, headers/params OFF), query-parameter redaction (`sensitive-query-parameters`), header/servlet-parameter capture knobs, SQL sanitization. |
 
 ## Sources of Truth
 
