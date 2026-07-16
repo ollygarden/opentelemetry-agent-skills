@@ -36,7 +36,7 @@ Avoid when:
 - [`k8s_attributes`](../k8s_attributes/README.md) — enrich tailed pod logs with Kubernetes metadata (namespace, pod, labels).
 - [`transform`](../transform/README.md) — OTTL-based post-processing once records are in the pipeline; the stanza `operators` do parsing at ingest, `transform` does mutation downstream.
 - [`memory_limiter`](../memory_limiter/README.md) — belongs **first** in the logs pipeline fed by this receiver.
-- `file_storage` extension — set `storage:` to it so read offsets survive collector restarts (not yet a page in this skill).
+- [`file_storage`](../file_storage/README.md) extension — set `storage:` to it so read offsets survive collector restarts.
 
 ## Details
 

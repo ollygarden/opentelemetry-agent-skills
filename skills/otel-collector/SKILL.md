@@ -11,7 +11,7 @@ It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK config
 
 ## Workflow
 
-1. **Identify the component.** Find the `type` in the user's config or question (`log_dedup`, `interval`, `otlp`, …). Note that several components were renamed to snake_case in v0.150.0–v0.151.0 with deprecated aliases preserved — see [Recent renames](#recent-renames).
+1. **Identify the component.** Find the `type` in the user's config or question (`log_dedup`, `interval`, `otlp`, …). Note that several components were renamed to snake_case across v0.146.0–v0.154.0 with deprecated aliases preserved — see [Recent renames](#recent-renames).
 2. **Load the component page.** If the component is in the [Component index](#component-index), read `components/<type>/README.md` first — it carries the metadata, description, main use-cases, and a **Details** index. Open the linked detail files (`configuration.md`, `verification.md`, `advanced.md`, `quirks.md`, …) only as the question requires; don't load files you don't need.
 3. **If the component is not indexed**, say so explicitly and fall back to the upstream README under `processor/<name>/`, `receiver/<name>/`, `exporter/<name>/`, `connector/<name>/`, or `extension/<name>/` in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib). Don't invent config keys from memory — Collector components evolve quickly.
 4. **Apply Collector-wide conventions.** Named instances (`type/name`), stability levels, and pipeline placement rules in [Collector-wide conventions](#collector-wide-conventions) apply to every component.
@@ -40,7 +40,7 @@ Coverage is intentionally selective. If a component is not indexed here, fall ba
 | `memory_limiter` | `components/memory_limiter/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Alpha (profiles) | Safety valve against OOM: refuses data with backpressure when Go heap exceeds a soft/hard limit, forcing GC above the hard limit. Belongs first in every pipeline; pairs with `GOMEMLIMIT`. |
 | `load_balancing` | `components/load_balancing/README.md` | exporter | traces, logs, metrics | Beta (traces/logs), Development (metrics) | Distributes telemetry across downstream Collectors via a consistent-hash ring keyed on trace ID / `service.name` (etc.), pinning related records to one backend. The standard way to scale `tail_sampling`/`span_metrics`. Renamed from `loadbalancing` in v0.153.0; alias preserved. |
 | `otlp` (receiver) | `components/otlp/README.md` | receiver | traces, metrics, logs, profiles | Stable (traces/metrics/logs), Alpha (profiles) | The canonical OTLP ingress over gRPC (`4317`) and/or HTTP (`4318`, protobuf + JSON). `protocols:` block, at least one required. Default endpoint is `localhost`, not `0.0.0.0` — must be set explicitly to receive containerized traffic. |
-| `otlp_grpc` (exporter) | `components/otlp_exporter/README.md` | exporter | traces, metrics, logs, profiles | Stable (traces/metrics/logs), Alpha (profiles) | Sends OTLP over gRPC to a downstream endpoint; gzip by default. Built-in `sending_queue.batch` (flush 200ms / 8192 items) replaces the `batch` processor, plus `retry_on_failure`. Renamed from `otlp` in core v1.50.0; alias preserved. |
+| `otlp_grpc` (exporter) | `components/otlp_exporter/README.md` | exporter | traces, metrics, logs, profiles | Stable (traces/metrics/logs), Alpha (profiles) | Sends OTLP over gRPC to a downstream endpoint; gzip by default. Built-in `sending_queue.batch` (flush 200ms / 8192 items) plus `retry_on_failure`; a separate `batch` processor remains supported but may be redundant. Renamed from `otlp` in core v1.50.0; alias preserved. |
 | `file_log` (receiver) | `components/file_log/README.md` | receiver | logs | Beta | Tails log files (glob `include`), turns each line/entry into a log record, and parses it via a stanza `operators` pipeline (json/regex/severity/timestamp/recombine). Fingerprint + offset tracking across rotation; `storage` for durable offsets. `start_at` defaults to `end` (existing files look empty). Renamed from `filelog` in v0.149.0; alias preserved. |
 | `resource_detection` | `components/resource_detection/README.md` | processor | traces, metrics, logs, profiles | Beta (traces/metrics/logs), Development (profiles) | Auto-detects resource attributes from the Collector's environment (host, cloud metadata services, k8s, `OTEL_RESOURCE_ATTRIBUTES`) via an ordered `detectors` list; `override` governs detected-vs-incoming. A failed detector stops startup. Renamed from `resourcedetection` in v0.153.0; alias preserved. |
 | `file_storage` | `components/file_storage/README.md` | extension | — (not pipeline-scoped) | Beta | Persists component state to local disk (bbolt) so it survives a Collector restart: receiver read offsets (`storage:`), exporter persistent send queues (`sending_queue.storage:`), and stateful-processor decision caches. One bbolt file per consumer; `directory` must exist unless `create_directory: true`. Not placed in a pipeline — listed under `service.extensions:` and referenced by other components. |
@@ -86,7 +86,7 @@ Stability now varies per component — and per signal for multi-signal component
 
 ### Recent renames
 
-Many components were renamed to snake_case in v0.150.0–v0.151.0. The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
+Many components were renamed to snake_case across v0.146.0–v0.154.0. The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
 
 Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
 
@@ -95,7 +95,7 @@ Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmet
 Two rules of thumb that apply across components:
 
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
-- Batching is now done by the exporter's `sending_queue.batch`, not by a separate `batch` processor. Don't add `batch` to new pipelines.
+- The `otlp_grpc` exporter's `sending_queue.batch` is enabled by default. The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed, place it after data-dropping processors, and avoid unintentional double batching when an exporter already batches.
 
 ### Verification harness
 

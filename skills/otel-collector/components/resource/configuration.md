@@ -73,7 +73,7 @@ processors:
 
 ## No include / exclude matching
 
-Unlike the [`attributes`](../attributes/README.md) processor, `resource` has **no `include`/`exclude` block**. There is no way to scope its actions to a subset of resources by service, attribute, or any other matcher — every resource that passes through the pipeline is processed. To apply resource-attribute edits only to matching telemetry, use the `attributes` processor (its match block supports `resources:` matchers) or `transform` (OTTL conditions).
+Unlike the [`attributes`](../attributes/README.md) processor, `resource` has **no `include`/`exclude` block**. There is no way to scope its actions to a subset of resources by service, attribute, or any other matcher — every resource that passes through the pipeline is processed. To apply resource-attribute edits only to matching telemetry, use `transform` with an OTTL condition. The `attributes` processor can match on resource attributes, but its actions still edit only span/log/datapoint attributes, not the resource.
 
 ## Context values
 
