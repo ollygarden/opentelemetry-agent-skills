@@ -38,8 +38,7 @@ SERVER span living in `c.Request.Context()` (gin) or `r.Context()` (net/http) pa
 DB/client span **only if that exact context is passed into it**.
 
 > **Symptom:** DB or client spans show up as CLIENT-kind *roots* in their own traces, disconnected
-> from the request. OllyGarden flags this as "Root Client Span"; it means trace context was dropped
-> at an internal boundary.
+> from the request. This means trace context was dropped at an internal boundary.
 
 The usual cause is structural, not a missing option:
 
@@ -94,7 +93,7 @@ func setupHTTPServer() *http.Server {
 }
 
 // HTTP client with automatic instrumentation
-// Note: otelhttp.DefaultClient, Get, Head, Post, PostForm were removed in contrib v1.40.0
+// Note: otelhttp.DefaultClient, Get, Head, Post, PostForm were removed in v0.65.0
 // Always create a custom client with otelhttp.NewTransport instead
 func setupHTTPClient() *http.Client {
     return &http.Client{
@@ -124,7 +123,7 @@ func setupGRPCClient(target string) (*grpc.ClientConn, error) {
     )
 }
 
-// Override default span kind in gRPC (contrib v1.41.0+)
+// Override default span kind in gRPC (otelgrpc v0.66.0+)
 func setupGRPCServerWithSpanKind() *grpc.Server {
     return grpc.NewServer(
         grpc.StatsHandler(otelgrpc.NewServerHandler(
@@ -152,8 +151,8 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 > // db.query.text becomes: INSERT INTO "users" (...) VALUES (?, ?, ?)
 > ```
 >
-> Treat this as the default for any service that touches user data. The same trap applies to other
-> SQL instrumentation that captures full statement text; verify the selected package's option to
+> For services that handle user data, the same trap applies to other SQL instrumentation that
+> captures full statement text; verify the selected package's option to
 > disable or redact query text. Keep parameter values out of `db.query.text` before export. If the
 > selected instrumentation cannot sanitize or parameterize query text, disable query-text capture;
 > downstream redaction is defense-in-depth.
@@ -174,7 +173,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 | logrus | `go.opentelemetry.io/contrib/bridges/otellogrus` |
 | logr | `go.opentelemetry.io/contrib/bridges/otellogr` |
 
-> **Logging bridge change (contrib v1.35.0):** otelzap and otelslog now emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) instead of just the function name. The `code.namespace` attribute is no longer emitted.
+> **Logging bridge change (bridge v0.10.0):** otelzap and otelslog now emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) instead of just the function name. The `code.namespace` attribute is no longer emitted.
 
 ```go
 // zap bridge setup
@@ -233,7 +232,7 @@ func setupLogger() {
 
 | Cloud | Package |
 |-------|---------|
-| AWS EC2 | `go.opentelemetry.io/contrib/detectors/aws/ec2` |
+| AWS EC2 | `go.opentelemetry.io/contrib/detectors/aws/ec2/v2` |
 | AWS ECS | `go.opentelemetry.io/contrib/detectors/aws/ecs` |
 | AWS EKS | `go.opentelemetry.io/contrib/detectors/aws/eks` |
 | AWS Lambda | `go.opentelemetry.io/contrib/detectors/aws/lambda` |
@@ -244,7 +243,7 @@ func setupLogger() {
 
 | Propagator | Package |
 |------------|---------|
-| Environment carrier | `go.opentelemetry.io/contrib/propagators/envcar` (new in v1.42.0) |
+| Environment carrier | `go.opentelemetry.io/contrib/propagators/envcar` (new in v0.67.0) |
 
 ## Manual Instrumentation Patterns
 
@@ -261,7 +260,12 @@ func (c *CustomClient) CallExternalAPI(ctx context.Context, endpoint string) err
             semconv.URLFull(endpoint)))
     defer span.End()
 
-    resp, err := c.httpClient.Get(endpoint)
+    req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+    if err != nil {
+        return fmt.Errorf("creating request: %w", err)
+    }
+
+    resp, err := c.httpClient.Do(req)
     if err != nil {
         return fmt.Errorf("making request: %w", err)
     }
