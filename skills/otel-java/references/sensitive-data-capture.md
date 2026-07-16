@@ -39,9 +39,9 @@ otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters=\
   [#18229](https://github.com/open-telemetry/opentelemetry-java-instrumentation/pull/18229)).
 
 **There is no property that drops the query string entirely.** To export URLs without query
-strings, post-process: overwrite `url.query`/`url.full` in a `SpanProcessor` (registered via
-the autoconfigure SPI, or an agent extension jar for the Javaagent), or delete/rewrite the
-attributes in a Collector processor (`transform`/`redaction`).
+strings, delete/rewrite the attributes in a Collector processor (`transform`/`redaction`), or
+customize the HTTP instrumentation's attribute extraction. A `SpanProcessor` cannot reliably
+remove them: its end callback receives a read-only span after HTTP attributes have been recorded.
 
 ## Opt-in capture knobs (off by default)
 
@@ -61,7 +61,10 @@ is no per-header/per-parameter redaction.
 ## SQL sanitization
 
 Statement sanitization (bound values → `?`) is on by default; the current toggle is
-`db.query_sanitization.enabled` in declarative config. Older property spellings
+`java.common.db.query_sanitization.enabled` under `instrumentation/development` in declarative
+config, or
+`otel.instrumentation.common.db.query-sanitization.enabled` as a system property/environment
+variable. Per-instrumentation toggles can take precedence. Older property spellings
 (`otel.instrumentation.common.db-statement-sanitizer.enabled` and per-instrumentation
 `*-statement-sanitizer.enabled` variants) are deprecated. Do not turn it off on request
 paths.
@@ -71,6 +74,6 @@ paths.
 | Fact | Fetch |
 |---|---|
 | HTTP capture properties (headers, servlet params, known-methods) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/instrumentation/http/` |
-| Current property names/defaults incl. `sensitive-query-parameters` | any instrumentation `metadata.yaml`, e.g. `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/main/instrumentation/jodd-http-4.2/metadata.yaml` |
-| Renames/removals of capture & sanitization properties | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/main/CHANGELOG.md` |
+| Current property names/defaults incl. `sensitive-query-parameters` | any instrumentation `metadata.yaml` at the selected Javaagent tag, e.g. `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/instrumentation/jodd-http-4.2/metadata.yaml` |
+| Renames/removals of capture & sanitization properties | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/CHANGELOG.md` |
 | Semconv redaction rules for `url.query`/`url.full` | `WebFetch https://opentelemetry.io/docs/specs/semconv/http/http-spans/` |
