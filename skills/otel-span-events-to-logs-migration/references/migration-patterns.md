@@ -37,8 +37,8 @@ record.SetSeverity(log.SeverityError)
 // github.com/cockroachdb/errors), extract the stack from the error and
 // add an exception.stacktrace attribute. Do not call runtime.Stack here.
 record.AddAttributes(
-    attribute.String("exception.type", fmt.Sprintf("%T", err)),
-    attribute.String("exception.message", err.Error()),
+    log.String("exception.type", fmt.Sprintf("%T", err)),
+    log.String("exception.message", err.Error()),
 )
 logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
@@ -62,7 +62,7 @@ record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName("cache.miss")
 record.AddAttributes(
-    attribute.String("cache.key", key),
+    log.String("cache.key", key),
 )
 logger.Emit(ctx, record)
 ```
