@@ -85,7 +85,7 @@ A single tail-sampling instance only works while every span of a trace lands on 
 ```yaml
 # Layer 1 — routing collectors (any number of replicas)
 exporters:
-  loadbalancing:
+  load_balancing:
     routing_key: traceID
     protocol:
       otlp:
@@ -100,7 +100,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [loadbalancing]
+      exporters: [load_balancing]
 
 # Layer 2 — tail-sampling collectors (behind the DNS name above)
 processors:
