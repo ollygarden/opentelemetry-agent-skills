@@ -386,7 +386,7 @@ The OTLP exporters retry on transient errors (connection refused, 5xx responses)
 Configure timeout via environment variable or constructor:
 
 ```bash
-OTEL_EXPORTER_OTLP_TIMEOUT=5000   # milliseconds
+OTEL_EXPORTER_OTLP_TIMEOUT=5   # seconds
 ```
 
 ```python
@@ -484,7 +484,8 @@ async def shutdown_providers():
 
 The SDK is designed so that telemetry failures do not crash or slow the application:
 
-- **Span creation never raises** — it returns a noop span if the provider is shut down or fails
+- **Span creation never raises** — after provider shutdown it may still return a recording span,
+  but the shut-down processors/exporters no longer process or export that span
 - **Metric recording never raises** — measurements are silently dropped on failure
 - **Export failures are retried** — then dropped after the timeout or max retries
 - **Queue overflow drops spans** — the application is not blocked
