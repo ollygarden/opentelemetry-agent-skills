@@ -132,10 +132,11 @@ set(attributes["db.statement"], Substring(attributes["db.statement"], 0, 1024))
 
 ### `Concat`, `Split`, `Substring`
 ```ottl
-Concat(["user", user_id, "action"], "-")     # "user-123-action"
-Split(path, "/")                              # ["", "api", "v1", "users"]
-Split(path, "/")[1]                           # "api"
+Concat(["user", span.attributes["user.id"], "action"], "-")
+Split(span.name, "/")                         # ["", "api", "v1", "users"]
+Split(span.name, "/")[1]                      # "api"
 Substring(span.span_id.string, 0, 8)          # first 8 chars
+Substring(target, start, length, utf8_safe?)  # utf8_safe defaults to false; added v0.156
 ```
 
 ### Case
@@ -159,15 +160,9 @@ HasSuffix(s, suffix)         # bool
 where HasPrefix(span.name, "internal.")
 ```
 
-### `Replace` (literal, non-regex)
-```ottl
-Replace(target, old, new, count?)
-Replace(log.body.string, "ERROR", "ERR", 1)
-```
-
 ### `Format`
 ```ottl
-Format("user=%s req=%d", [user, count])      # printf-style
+Format("user=%s req=%d", [span.attributes["user.id"], span.attributes["request.count"]])
 ```
 
 ---
@@ -183,7 +178,7 @@ ParseInt(s, base)        # ParseInt("ff", 16) -> 255
 Hex(bytes)               # bytes -> hex string
 ```
 
-**`Bool` coercion is loose, not Pythonic.** `Bool("true")`, `Bool("1")`, `Bool(1)` → `true`; `Bool("false")`, `Bool("0")`, `Bool(0)`, `Bool(0.0)` → `false`. Other values error. Don't assume `Bool("yes")` or `Bool("anything-non-empty")` returns true.
+**`Bool` coercion is loose, not Pythonic.** Booleans pass through; any non-zero integer or double is `true`; zero is `false`; strings use Go boolean parsing (`1`, `t`, `T`, `TRUE`, `true`, `True`, and false equivalents). Invalid strings and unsupported types error, while `nil` returns `nil`.
 
 ---
 
@@ -233,10 +228,10 @@ Built-in pattern library covers HTTP, syslog, paths, IPs, dates, etc. Cheaper th
 ```ottl
 ParseJSON(s)                                  # JSON string -> map | list
 ParseCSV(s, headers, delimiter?, headerDelim?, mode?)
-ParseKeyValue(s, pair_delim?, kv_delim?)      # ParseKeyValue("a=1&b=2", "&", "=")
+ParseKeyValue(s, kv_delim?, pair_delim?)      # ParseKeyValue("a=1&b=2", "=", "&")
 ParseXML(s) / ParseSimplifiedXML(s)
 ParseSeverity(value, mapping)                 # map values -> SEVERITY_NUMBER_*
-URL(s)                                        # v0.127+; { scheme, domain, port, path, query, fragment, … }
+URL(s)                                        # v0.127+; { url.scheme, url.domain, url.port, url.path, … }
 UserAgent(s)                                  # v0.134+; { user_agent.name, .version, os.name, os.version, … }
 ```
 
@@ -246,7 +241,12 @@ set(log.attributes, ParseJSON(log.body.string))
     where IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")
 
 # URL parsing
-set(span.attributes["http.host"], URL(span.attributes["http.url"])["domain"])
+set(span.attributes["http.host"], URL(span.attributes["http.url"])["url.domain"])
+```
+
+### Fallback values
+```ottl
+Coalesce([span.attributes["user.id"], resource.attributes["user.id"], "fallback"])
 ```
 
 ---
@@ -300,14 +300,14 @@ Hours(d) / Minutes(d) / Seconds(d) / Milliseconds(d) / Microseconds(d) / Nanosec
 ## Hashing & encoding
 
 ```ottl
-SHA256(v) / SHA512(v)
-SHA1(v) / MD5(v)                              # cryptographically weak; avoid for security
-FNV(v)                                        # int64
-Murmur3Hash(v) / Murmur3Hash128(v)            # v0.129+
-XXH3(v) / XXH128(v)                           # v0.135+; very fast
+SHA256(s) / SHA512(s)
+SHA1(s) / MD5(s)                              # cryptographically weak; avoid for security
+FNV(s)                                        # int64
+Murmur3Hash(s) / Murmur3Hash128(s)            # v0.129+; hexadecimal string
+XXH3(s) / XXH128(s)                           # v0.135+; hexadecimal string
 Decode(value, encoding)                       # v0.141+; "base64", "base64-raw", "base64-url", "base64-raw-url", IANA charsets
-Base64Encode(v, variant?)                     # v0.147+; default base64
-Base64Decode(v)                               # DEPRECATED — use Decode(v, "base64")
+Base64Encode(s, variant?)                     # v0.147+; default base64
+Base64Decode(s)                               # DEPRECATED — use Decode(s, "base64")
 Hex(bytes)
 ```
 
@@ -382,6 +382,5 @@ Then read from `log.cache["parsed"]` in subsequent statements without paying the
 ### Hash-based sampling
 ```ottl
 set(span.attributes["sampled"], true)
-    where FNV(span.trace_id.string) % 100 < 10        # 10%
-# Murmur3Hash or XXH3 work too and are faster on long inputs.
+    where IsMatch(XXH3(span.trace_id.string), "^(0[0-9a-f]|1[0-9])")  # ~10.2%
 ```

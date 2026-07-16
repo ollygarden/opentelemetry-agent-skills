@@ -35,7 +35,7 @@ OTTL paths are scoped by signal. Higher levels are reachable from lower ones (e.
 
 | Context | Common paths |
 |---------|--------------|
-| Resource | `resource.attributes["service.name"]`, `resource.metadata["X-Tenant-ID"]` |
+| Resource | `resource.attributes["service.name"]`, `resource.schema_url` |
 | Scope | `scope.name`, `scope.version`, `scope.attributes["…"]` |
 | Span | `span.name`, `span.kind`, `span.status.code`, `span.attributes["…"]`, `span.flags` |
 | Span Event | `spanevent.name`, `spanevent.attributes["…"]`, `spanevent.event_index` |
@@ -68,12 +68,12 @@ Split(s, ",")
 ToLowerCase(s) / ToUpperCase(s)
 IsMatch(s, "pattern")                 # bool
 String(v) / Int(v) / Double(v) / Bool(v)
-ParseJSON(s) / ParseKeyValue(s, "&", "=")
+ParseJSON(s) / ParseKeyValue(s, "=", "&")
 URL(s)                                # parse URL components (v0.127+)
 ExtractPatterns(s, "(?P<name>…)")     # named captures → map
 ExtractGrokPatterns(s, "%{IP:client}") # Grok (v0.130+)
 IsInCIDR(ip, ["10.0.0.0/8"])          # CIDR membership (v0.146+)
-SHA256(v) / Murmur3Hash(v) / XXH3(v)  # hashing
+SHA256(s) / Murmur3Hash(s) / XXH3(s)  # hexadecimal string hashes
 UUID() / UUIDv7()
 ```
 
@@ -210,7 +210,7 @@ In routing connector configs, use `otelcol.client.metadata["key"][0]` for HTTP/c
 
 ### `Bool` converter coercion is loose
 
-`Bool("true")`, `Bool("1")`, `Bool(1)` all return `true`; `Bool("false")`, `Bool("0")`, `Bool(0)`, `Bool(0.0)` return `false`. Anything else errors. Don't assume Python-like truthiness for arbitrary strings.
+`Bool` preserves booleans, treats any non-zero integer or double as `true`, and uses Go boolean parsing for strings (`1`, `t`, `T`, `TRUE`, `true`, `True`, and their false equivalents). Invalid strings and unsupported types error; `nil` returns `nil`. Don't assume Python-like truthiness for arbitrary strings.
 
 ### Verify before publishing
 
@@ -241,8 +241,8 @@ Recently added (still useful to know which release introduced them when supporti
 | Cache paths require context prefix; `spanevent` rename | v0.120 (breaking) |
 | `delete_index` editor | v0.145 |
 | `span.flags` path | v0.145 |
-| `<context>.metadata` for client request metadata | v0.147 |
 | `truncate_all` UTF-8 safe default (`utf8_safe` parameter) | v0.148 (behavior change) |
+| `Substring` optional `utf8_safe` parameter (default `false`) | v0.156 |
 | `SpanID` / `TraceID` accept hex strings | v0.142 |
 | `flatten` `resolveConflicts` parameter | v0.139 |
 | `Base64Encode` | v0.147 |
