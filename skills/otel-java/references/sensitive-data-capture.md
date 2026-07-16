@@ -32,8 +32,18 @@ otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters=\
 
 - Type: list of case-sensitive parameter names. Setting it **replaces** the default list
   (full override, not additive) — re-list the credential defaults when extending it.
-- Declarative config: `general.sanitization.url.sensitive_query_parameters` under
-  `instrumentation/development`.
+- Declarative config limitation in Javaagent and Spring Boot Starter **v2.29.0**: custom
+  query-parameter redaction is not usable from the YAML file. The apparent
+  `sensitive_query_parameters/development` spelling is rejected during startup as an
+  unrecognized field. The unsuffixed `sensitive_query_parameters` spelling parses but is
+  silently ignored, leaving only the default credential list active. Marker requests confirm
+  that a custom parameter remains raw while `AWSAccessKeyId` is still redacted.
+
+  If custom query redaction is required on v2.29.0, use the flat
+  `otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters` property
+  without activating declarative file-config mode, or redact `url.query` / `url.full` in a
+  `SpanProcessor` or Collector processor. Do not infer that redaction works merely because a
+  YAML file parses and the application starts.
 - History: replaces `otel.instrumentation.http.client.experimental.redact-query-parameters`
   (client-only; deprecated, then removed in 2026 releases —
   [#18229](https://github.com/open-telemetry/opentelemetry-java-instrumentation/pull/18229)).
