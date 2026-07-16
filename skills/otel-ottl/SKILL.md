@@ -142,6 +142,14 @@ processors:
     log_conditions:
       - 'log.severity_number < SEVERITY_NUMBER_WARN'
 
+  tail_sampling:
+    policies:
+      - name: errors
+        type: ottl_condition
+        ottl_condition:
+          span:
+            - 'span.status.code == STATUS_CODE_ERROR'
+
 connectors:
   routing:
     error_mode: ignore
@@ -151,14 +159,6 @@ connectors:
         pipelines: [traces/prod]
       - condition: 'span.status.code == STATUS_CODE_ERROR'
         pipelines: [traces/errors]
-
-  tail_sampling:
-    policies:
-      - name: errors
-        type: ottl_condition
-        ottl_condition:
-          span:
-            - 'span.status.code == STATUS_CODE_ERROR'
 ```
 
 ## Common gotchas
