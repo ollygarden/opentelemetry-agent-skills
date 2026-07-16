@@ -55,10 +55,12 @@ cd dist && go build -o otelcol-custom .
 Run OCB in a container (no local Go needed):
 
 ```bash
-docker run -v "$(pwd):/work" \
-  otel/opentelemetry-collector-builder:latest \
+docker run --rm -v "$(pwd):/work" -w /work \
+  otel/opentelemetry-collector-builder:0.156.0 \
   --config=/work/builder.yaml
 ```
+
+The working directory matters when the manifest uses relative `path:` or `output_path` values. Without `-w /work`, the released image runs from `/home/ocb`, so `./dist` is written inside the disposable container instead of the mounted project directory.
 
 Typical multi-stage Dockerfile for shipping the result:
 
