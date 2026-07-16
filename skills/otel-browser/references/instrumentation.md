@@ -17,6 +17,20 @@ with a real begin/end and parent/child relationship.
 > against the upstream READMEs and `package.json` `exports` (see
 > [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth)).
 
+### Network context correlation proposal (0.6.0)
+
+Release 0.6.0 added `ContextRegistry` and `NetworkContextRegistry` as a proposal for sharing
+OpenTelemetry context between instrumentations that observe the same network operation from
+different angles. The network registry indexes a completed span by URL and its `performance.now()`
+window, then lets a consumer match that context to a `PerformanceResourceTiming` entry whose
+`fetchStart` and `responseEnd` fall inside the window. This is intended to let resource-timing
+telemetry retain the network span's trace context.
+
+This is **not yet a user-facing activation mechanism** in 0.6.0: the package does not expose the
+registry through its npm `exports`, and no released instrumentation registers or consumes it.
+Track it as released experimental groundwork; do not import internal source paths or claim
+resource-timing events are correlated automatically.
+
 ## Event-based instrumentations (`@opentelemetry/browser-instrumentation`)
 
 Entry points are subpath exports under `./experimental/*`; they emit through the global
