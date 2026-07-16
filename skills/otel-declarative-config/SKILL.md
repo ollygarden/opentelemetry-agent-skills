@@ -56,8 +56,9 @@ but not interchangeable. A matrix entry uses a full semver-shaped coverage value
 schema), while stable schema examples use a `MAJOR.MINOR` string such as `1.0` or `1.1`.
 Older implementations may accept or require a pre-release literal, and released parsers do
 not all enforce versions identically. Generated YAML must use the literal verified in the
-target runtime. The current stable schema is v1.1.0 (`file_format: "1.1"`); confirm the exact
-release with the `gh release` fetch above.
+target runtime. Schema release v1.1.0 examples use `file_format: "1.1"`; treat that as
+release-specific, not a permanent default, and confirm the latest release with the `gh release`
+fetch above.
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
