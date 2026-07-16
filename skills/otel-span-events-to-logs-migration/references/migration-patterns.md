@@ -6,6 +6,11 @@ When applying these patterns, always check the project's actual SDK imports and 
 
 Do not assume the span-event method is formally deprecated in the target SDK. The migration target comes from OTEP 4430 and per-language release status.
 
+In exception examples, `exceptionEventName` / `exception_event_name` is the
+event name defined by the applicable semantic convention, normally an
+operation-specific name with a `.exception` suffix. Use the generic
+`exception` name only for handlers not tied to an operation or domain.
+
 ## Go
 
 ### Exception Recording
@@ -22,7 +27,7 @@ After:
 logger := global.Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
-record.SetEventName("exception")
+record.SetEventName(exceptionEventName)
 record.SetSeverity(log.SeverityError)
 // exception.stacktrace is intentionally omitted: the Go error value does
 // not carry its origin stack, and capturing runtime.Stack here would
@@ -94,7 +99,7 @@ from opentelemetry._logs import SeverityNumber, get_logger
 
 logger = get_logger(__name__)
 logger.emit(
-    event_name="exception",
+    event_name=exception_event_name,
     severity_number=SeverityNumber.ERROR,
     body="exception",
     exception=exc,
@@ -138,7 +143,7 @@ After:
 Logger logger = GlobalOpenTelemetry.get().getLogsBridge().loggerBuilder("my-class").build();
 logger.logRecordBuilder()
     .setSeverity(Severity.ERROR)
-    .setEventName("exception")
+    .setEventName(exceptionEventName)
     .setException(exception)
     .emit();
 span.setStatus(StatusCode.ERROR, exception.getMessage());
@@ -183,7 +188,7 @@ After:
 const logger = logs.getLogger('my-module');
 logger.emit({
   severityNumber: SeverityNumber.ERROR,
-  eventName: 'exception',
+  eventName: exceptionEventName,
   body: 'exception',
   exception: error,
 });
@@ -229,7 +234,7 @@ activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 After:
 ```csharp
 var logger = loggerFactory.CreateLogger("MyClass");
-logger.LogError(new EventId(0, "exception"), ex, "exception");
+logger.LogError(new EventId(0, exceptionEventName), ex, "{ExceptionEventName}", exceptionEventName);
 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 ```
 
