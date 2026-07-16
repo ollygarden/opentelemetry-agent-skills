@@ -242,7 +242,13 @@ docker run -d --rm --name otelcol-verify \
   --config=/etc/otelcol-contrib/config.yaml
 
 # wait for the collector to be ready, then send the telemetry shape under test
-until ss -ltn | grep -q ':4317 '; do sleep 0.25; done
+until docker logs otelcol-verify 2>&1 | grep -q 'Everything is ready'; do
+  if [ "$(docker inspect -f '{{.State.Running}}' otelcol-verify 2>/dev/null)" != true ]; then
+    echo 'collector exited before becoming ready' >&2
+    exit 1
+  fi
+  sleep 0.25
+done
 telemetrygen logs --otlp-insecure --logs 1 --severity-text Info
 
 # stop the collector to flush, then inspect
