@@ -70,7 +70,7 @@ The buffer between the pipeline and the gRPC sender. **Enabled by default**, and
 
 ### `sending_queue.batch`
 
-Present by default — flushes at `flush_timeout` or when `min_size` is reached, whichever comes first. **This is why you don't add a separate `batch` processor.**
+Present by default — flushes at `flush_timeout` or when `min_size` is reached, whichever comes first. This often makes a separate `batch` processor unnecessary, but that processor remains supported for pipeline-level batching.
 
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
