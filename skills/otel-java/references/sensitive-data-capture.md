@@ -32,8 +32,26 @@ otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters=\
 
 - Type: list of case-sensitive parameter names. Setting it **replaces** the default list
   (full override, not additive) — re-list the credential defaults when extending it.
-- Declarative config: `general.sanitization.url.sensitive_query_parameters` under
-  `instrumentation/development`.
+- Declarative config: the leaf key carries the experimental `/development` suffix —
+
+  ```yaml
+  instrumentation/development:
+    general:
+      sanitization:
+        url:
+          sensitive_query_parameters/development:
+            - AWSAccessKeyId   # re-list the credential defaults
+            - Signature
+            - sig
+            - X-Goog-Signature
+            - <your-parameter>
+  ```
+
+  Writing the key without the `/development` suffix does nothing: nodes under
+  `instrumentation/development` are not schema-validated, so a misspelled or unrecognized
+  key is **silently ignored** and the default credential-only list stays active
+  (verified against `CommonConfig` in v2.29.0). A config file that parses and boots is no
+  evidence the redaction applies — only a marker request is.
 - History: replaces `otel.instrumentation.http.client.experimental.redact-query-parameters`
   (client-only; deprecated, then removed in 2026 releases —
   [#18229](https://github.com/open-telemetry/opentelemetry-java-instrumentation/pull/18229)).
