@@ -39,6 +39,18 @@ attributes:
     brief: "Identifier of the customer performing the operation."
     examples: ['user-9f3a', 'user-1c2d']
 
+  - key: ecommerce.customer.tier
+    type: string
+    stability: stable
+    brief: "Customer tier used when the order was placed."
+    examples: ['standard', 'premium']
+
+  - key: ecommerce.order.id
+    type: string
+    stability: stable
+    brief: "Identifier of the order being processed."
+    examples: ['order-8f2a', 'order-4d1c']
+
   - key: ecommerce.payment.method
     type:
       members:
