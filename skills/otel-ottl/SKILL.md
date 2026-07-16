@@ -86,6 +86,11 @@ set(log.attributes["selected"], ParseJSON(log.body.string)[log.attributes["field
 
 Full catalog with signatures in `references/functions.md`.
 
+The `transform` processor also provides 17 signal-specific functions that are not
+part of the common `pkg/ottl/ottlfuncs` catalog. See the
+[transform-only function table](references/functions.md#transform-processor-only-functions)
+for their contexts, signatures, and released-source links.
+
 ## Common patterns
 
 ```ottl
