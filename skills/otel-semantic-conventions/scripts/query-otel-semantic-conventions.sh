@@ -308,6 +308,10 @@ extract_exact_entry() {
   local path="$5"
 
   awk -v id_prefix="$id_prefix" -v entry_id="$entry_id" -v tag="$tag" -v path="$path" '
+    BEGIN {
+      entry_indent = match(id_prefix, /[^ ]/) - 1
+    }
+
     index($0, id_prefix) == 1 {
       if (found) {
         exit
@@ -320,6 +324,12 @@ extract_exact_entry() {
     }
 
     found {
+      if (NR > start_line && $0 !~ /^[[:space:]]*$/) {
+        current_indent = match($0, /[^ ]/) - 1
+        if (current_indent <= entry_indent) {
+          exit
+        }
+      }
       print
     }
 
