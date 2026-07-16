@@ -20,7 +20,7 @@ Every command needs at least a subcommand and typically `--otlp-insecure` for lo
 1. **Pick the signal** -- `traces`, `metrics`, or `logs`.
 2. **Set the endpoint** -- defaults to `localhost:4317` (gRPC) or `localhost:4318` (HTTP). Use `--otlp-endpoint` to override.
 3. **Choose count or duration** -- use `--traces`/`--metrics`/`--logs` for a fixed count per worker, or `--duration` for time-based generation. Duration overrides count when both are set.
-4. **Control throughput** -- total rate = `--workers` x `--rate`. `--rate` defaults to `1` item/sec/worker; set `--rate 0` for unbounded max-speed generation (dangerous against real backends).
+4. **Control throughput** -- for metrics and logs, total record rate = `--workers` x `--rate`. For traces, `--rate` applies to every span, so approximate trace rate = `workers x rate / (1 + max(1, child-spans))`. `--rate` defaults to `1` metric/span/log per second per worker; set `--rate 0` for unbounded max-speed generation (dangerous against real backends).
 5. **Add identity and attributes** -- `--service` sets the service name; `--otlp-attributes` adds resource-level attributes; `--telemetry-attributes` adds span/metric/log-level attributes.
 6. **Review the anti-patterns** below before running against shared or production infrastructure.
 
@@ -34,7 +34,7 @@ See `references/flags.md` for the full flag reference. Key flags:
 | `--otlp-http` | `false` | Switch to HTTP transport |
 | `--otlp-insecure` | `false` | Disable TLS |
 | `--workers` | `1` | Concurrent goroutines |
-| `--rate` | `1` | Items/sec/worker (`0` = unlimited) |
+| `--rate` | `1` | Metrics/spans/logs per sec/worker (`0` = unlimited) |
 | `--duration` | `0` | Time-based generation (`5s`, `1m`, `inf`) |
 | `--timeout` | `10s` | Max time to wait for signals to reach destination |
 | `--service` | `"telemetrygen"` | Service name |
@@ -60,7 +60,7 @@ Resource attributes (`--otlp-attributes`) attach to the Resource; telemetry attr
 telemetrygen traces --otlp-insecure --traces 100
 ```
 
-Key trace flags: `--child-spans` (default 1), `--span-duration` (default 123us), `--status-code` (Unset/Error/Ok), `--span-links`.
+Key trace flags: `--child-spans` (default and minimum effective value 1), `--span-duration` (default 123us), `--status-code` (Unset/Error/Ok), `--span-links`.
 
 ### Trace recipes
 
@@ -132,23 +132,24 @@ telemetrygen logs --otlp-insecure --duration inf --rate 10 \
 
 ## Load testing patterns
 
-Total throughput = `workers` x `rate`.
+For metrics and logs, total record rate = `workers` x `rate`. For traces, the limiter counts both the parent and every child span. With the default one child span, approximate trace rate = `workers x rate / 2`.
 
 ```bash
-# 100 traces/sec sustained
-telemetrygen traces --otlp-insecure --duration inf --workers 10 --rate 10
+# Approximately 100 traces/sec sustained (200 spans/sec, one child per trace)
+telemetrygen traces --otlp-insecure --duration inf --workers 10 --rate 20
 
-# 1000 traces/sec burst for 60s
-telemetrygen traces --otlp-insecure --duration 60s --workers 10 --rate 100
+# Approximately 1000 traces/sec for 60s (2000 spans/sec, one child per trace)
+telemetrygen traces --otlp-insecure --duration 60s --workers 10 --rate 200
 
-# Large payloads (~1MB per span) -- always pair --size with --rate
+# Large payloads (~1MB on each generated trace's parent span) -- always pair --size with --rate
 telemetrygen traces --otlp-insecure --duration 30s --size 1 --rate 1
 ```
 
 ## Multi-signal and multi-tenant
 
 ```bash
-# Correlated signals sharing a trace ID
+# Generate all three signals. Metrics exemplars and logs share the explicit IDs;
+# telemetrygen traces generates its own trace and span IDs.
 TRACE_ID="0af7651916cd43dd8448eb211c80319c"
 SPAN_ID="b7ad6b7169203331"
 
@@ -182,7 +183,7 @@ telemetrygen traces --mtls \
 ```bash
 # Docker with host networking
 docker run --rm --network host \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0 \
   traces --otlp-insecure --traces 100
 
 # Kubernetes Job
@@ -252,7 +253,7 @@ cat ./out/result.json | python3 -c 'import sys,json; print(json.load(sys.stdin))
 Two recipes worth knowing for this pattern:
 
 - **Verify a filter drops matching records**: send a matching record, expect output to be empty (file size 0). Then send a non-matching record, expect output to contain it. Both halves are needed: empty output alone could also mean the collector crashed.
-- **Verify a transform that needs specific attributes**: telemetrygen alone can set resource and telemetry attributes but cannot rename spans or change kind. To exercise rules that depend on those, prepend a `transform/setup` processor in the same pipeline that sets the input shape, then chain the processor under test after it.
+- **Verify a transform that needs a shape telemetrygen cannot generate directly**: telemetrygen can set resource and telemetry attributes but cannot rename spans, change span kind, or choose IDs for generated traces. To exercise rules that depend on those, prepend a `transform/setup` processor in the same pipeline that sets the input shape, then chain the processor under test after it.
 
 On SELinux systems (Fedora, RHEL), append `:z` to the bind mounts so they get relabeled. On rootless Podman, the `--user` flag may not be needed because the container already runs as the invoking user.
 
@@ -274,5 +275,5 @@ These are the mistakes that cause real problems -- review before running against
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.156.0
 
 # Container
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0
 ```
