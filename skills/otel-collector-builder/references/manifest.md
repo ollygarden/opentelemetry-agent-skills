@@ -77,7 +77,9 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.62.0   # yaml: (inline YAML)
 ```
 
-Providers version on the stable `v1.y.0` stream (see the version-alignment section in SKILL.md for the pairing rule). Minimum sensible set: `fileprovider` + `envprovider`.
+Providers version on the stable `v1.y.0` stream (see the version-alignment section in SKILL.md for the pairing rule).
+
+**Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. Minimum sensible explicit set: `fileprovider` + `envprovider`.
 
 `converters:` accepts the same module spec and hooks confmap converters into config resolution. Core and contrib currently ship no standalone converter modules (`expandconverter` was removed after env-expansion moved into confmap core); the key is only useful for custom converters.
 

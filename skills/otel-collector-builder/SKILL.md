@@ -56,7 +56,7 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.62.0
 ```
 
-**Always include `providers:`.** Without at least `fileprovider` the built binary cannot load a config file at all; without `envprovider`, `${env:VAR}` substitution fails. A manifest that omits `providers:` entirely is broken by design.
+**`providers:` semantics.** Omitting the key entirely keeps OCB's built-in default set (env, file, http, https, yaml at the paired stable version). But setting `providers:` at all **replaces** that set — listing only `fileprovider` silently removes `${env:VAR}` substitution. Either omit the key, or list every scheme the collector's config will use.
 
 Contrib components use the same list syntax:
 

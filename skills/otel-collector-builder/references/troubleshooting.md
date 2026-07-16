@@ -30,7 +30,7 @@ Strict checking is off by default; run with `--skip-strict-versioning=false` to 
 cannot load configuration: no provider found for scheme "file"
 ```
 
-The binary was built without the provider for that config URI scheme. Add it to `providers:` and rebuild. `${env:VAR}` substitution failing (or literal `${VAR}` strings appearing in config values) means `envprovider` is missing. Note: setting `providers:` at all replaces the defaults — listing only `fileprovider` removes env expansion.
+The binary was built without the provider for that config URI scheme. This only happens when the manifest sets `providers:` explicitly — the key **replaces** OCB's default set (env, file, http, https, yaml), so listing only `fileprovider` removes `${env:VAR}` expansion. Add the missing provider to `providers:` (or drop the key to restore all defaults) and rebuild.
 
 ## Module resolution failures
 
