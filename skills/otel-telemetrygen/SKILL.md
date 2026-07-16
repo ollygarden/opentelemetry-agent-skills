@@ -182,7 +182,7 @@ telemetrygen traces --mtls \
 ```bash
 # Docker with host networking
 docker run --rm --network host \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0 \
   traces --otlp-insecure --traces 100
 
 # Kubernetes Job
@@ -274,5 +274,5 @@ These are the mistakes that cause real problems -- review before running against
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.156.0
 
 # Container
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0
 ```

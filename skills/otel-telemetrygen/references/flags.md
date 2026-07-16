@@ -144,7 +144,7 @@ spec:
     spec:
       containers:
       - name: telemetrygen
-        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.156.0
+        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0
         args:
         - traces
         - --otlp-insecure
