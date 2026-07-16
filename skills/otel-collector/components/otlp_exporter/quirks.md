@@ -4,9 +4,9 @@
 
 The canonical type was renamed from `otlp` to **`otlp_grpc`** in core **v1.50.0** (≈ contrib v0.144.0). The old name **`otlp` still works** as a deprecated alias (it emits a deprecation warning) and is what most existing configs use, so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this same gRPC exporter. The rename disambiguates it from the **`otlphttp`** exporter, which is a *different* component speaking OTLP over **HTTP**. If your backend has no gRPC endpoint, you want `otlphttp`, not this one — they are not interchangeable.
 
-## Don't add a `batch` processor — batching is built in
+## Exporter batching vs. the `batch` processor
 
-This exporter's `sending_queue` is enabled by default with a `batch` sub-block that flushes at **200ms** or **8192 items**. So a pipeline ending in this exporter **already batches**. Adding the legacy `batch` processor (now deprecated) double-batches and just adds latency. Tune `sending_queue.batch` instead. This matches the skill-wide pipeline-placement rule.
+This exporter's `sending_queue` is enabled by default with a `batch` sub-block that flushes at **200ms** or **8192 items**, so a pipeline ending in this exporter already batches at the exporter boundary. The separate `batch` processor is still Beta and supported; use it when batching must happen at pipeline level (for example, once before fan-out to several exporters), and place it after processors that may drop data. If both layers are enabled, tune them deliberately because unintentional double batching can add latency.
 
 ## gzip compression is on by default
 

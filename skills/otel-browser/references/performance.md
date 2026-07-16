@@ -22,9 +22,9 @@ more so than for backend SDKs.
   [setup-sdk.md](setup-sdk.md#per-signal-sdks-tree-shaking).
 - **Prefer event-based over span-based** instrumentations where both exist — they pull in less SDK
   surface.
-- **Use subpath imports** for instrumentations
-  (`@opentelemetry/browser-instrumentation/experimental/web-vitals`) rather than a barrel import, so
-  unused instrumentations tree-shake away.
+- **Use the instrumentation subpath exports**
+  (`@opentelemetry/browser-instrumentation/experimental/web-vitals`). The package declares itself
+  side-effect-free so bundlers can remove unused instrumentation code.
 - **`zone.js` is ~1 MB.** `ZoneContextManager` is the only reliable way to propagate trace context
   across async boundaries, but it is heavy. A common trade-off is to relax in-browser async tracing
   and rely on **session correlation** instead, adding `zone.js` only when stitched async spans are

@@ -16,7 +16,7 @@ For span/log/datapoint attributes use the [`attributes`](../attributes/README.md
 
 ## No include / exclude matching
 
-`resource` has **no `include`/`exclude` block**. Every resource flowing through the pipeline is processed — there's no way to scope its actions to a subset of resources. If you need conditional application (e.g. only rename a key for one service), use the `attributes` processor (its match block supports `resources:` matchers) or `transform` with an OTTL condition. Attempting to add an `include:` key to a `resource` config is a configuration error.
+`resource` has **no `include`/`exclude` block**. Every resource flowing through the pipeline is processed — there's no way to scope its actions to a subset of resources. If you need conditional application (e.g. only rename a key for one service), use `transform` with an OTTL condition. The `attributes` processor can match on resource attributes, but it cannot edit them; its actions still target span/log/datapoint attributes. Attempting to add an `include:` key to a `resource` config is a configuration error.
 
 ## Changes are wholesale across the batch
 

@@ -71,8 +71,8 @@ Startup fails (config error) when:
 
 ```yaml
 # Good — refuse before anything buffers
-processors: [memory_limiter, batch, tail_sampling]
+processors: [memory_limiter, tail_sampling, batch]
 
-# Bad — data is already batched and processed before refusal
-processors: [batch, tail_sampling, memory_limiter]
+# Bad — memory limiting and sampling happen after batching
+processors: [batch, memory_limiter, tail_sampling]
 ```
