@@ -132,7 +132,7 @@ set(attributes["db.statement"], Substring(attributes["db.statement"], 0, 1024))
 
 ### `Concat`, `Split`, `Substring`
 ```ottl
-Concat(["user", span.attributes["user.id"], "action"], "-")
+Concat(["user", span.attributes["user.id"], "action"], "-")  # "user-123-action" when user.id == "123"
 Split(span.name, "/")                         # ["", "api", "v1", "users"]
 Split(span.name, "/")[1]                      # "api"
 Substring(span.span_id.string, 0, 8)          # first 8 chars
