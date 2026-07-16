@@ -23,7 +23,7 @@ The SDK reads defaults from environment variables; check the [OpenTelemetry Pyth
 | BSP max queue size | `OTEL_BSP_MAX_QUEUE_SIZE` | Check SDK default |
 | BSP max export batch size | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Check SDK default |
 | BSP schedule delay (ms) | `OTEL_BSP_SCHEDULE_DELAY` | Check SDK default |
-| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Check SDK default |
+| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Accepted but not applied by `BatchSpanProcessor` in SDK 1.43.0 |
 | Span attribute count limit | `OTEL_SPAN_ATTRIBUTE_COUNT_LIMIT` | Check SDK default |
 | Span event count limit | `OTEL_SPAN_EVENT_COUNT_LIMIT` | Check SDK default |
 | Span link count limit | `OTEL_SPAN_LINK_COUNT_LIMIT` | Check SDK default |
@@ -114,7 +114,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Per-export timeout |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` in SDK 1.43.0 |
 
 ### Tuning for Throughput
 
@@ -145,7 +145,10 @@ bsp = BatchSpanProcessor(
 
 ### Queue-Full Behavior
 
-When the queue is full, new spans are dropped silently. The SDK prioritizes application throughput over telemetry completeness. Monitor `OTEL_BSP_MAX_QUEUE_SIZE` versus observed drop rates by watching SDK internal logs.
+When the queue is full, adding a new span evicts the oldest queued span and logs
+`Queue full, dropping Span.` The SDK prioritizes application throughput over
+telemetry completeness. Monitor queue-full warnings and the queue capacity set
+by `OTEL_BSP_MAX_QUEUE_SIZE`.
 
 ### SimpleSpanProcessor
 
@@ -238,7 +241,10 @@ mp = MeterProvider(
 )
 ```
 
-Views are evaluated in order; the first matching View wins. A metric with no matching View uses the default aggregation.
+Every matching View creates a metric stream; ordering does not make the first
+match win. Overlapping Views can therefore produce multiple streams and warnings
+when their metric identities conflict. A metric with no matching View uses the
+default aggregation.
 
 Attributes like HTTP method (~10 values) or response status code (~50 values) are bounded. Attributes like `user.id`, `request.id`, or `session.id` are unbounded and should be filtered out with Views unless you specifically intend per-user metrics.
 
@@ -498,6 +504,6 @@ Key signals to watch:
 
 | Indicator | Meaning |
 |-----------|---------|
-| `Span dropped` log warnings | Queue overflow — increase `max_queue_size` or reduce export interval |
-| Export timeout errors | Backend too slow or batch too large — tune `export_timeout_millis` or `max_export_batch_size` |
+| `Queue full, dropping Span.` warnings | Queue overflow — increase `max_queue_size` or reduce `schedule_delay_millis` |
+| Export timeout errors | Backend/exporter too slow or batch too large — tune the exporter timeout or `max_export_batch_size`; BSP `export_timeout_millis` is not applied in SDK 1.43.0 |
 | High memory growth | Metric cardinality explosion — add Views to filter attributes |
