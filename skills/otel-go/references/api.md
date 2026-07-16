@@ -258,7 +258,7 @@ if logger.Enabled(ctx, params) {
     logger.Emit(ctx, rec)
 }
 
-// Attach an error to a log record (v1.42.0+)
+// Attach an error to a log record (otel/log v0.18.0+; released with core v1.42.0)
 // The SDK automatically sets exception attributes (exception.type, exception.message)
 var rec log.Record
 rec.SetSeverity(log.SeverityError)
@@ -298,7 +298,7 @@ log.MapValue(log.String("key", "value"))
 
 Logging bridges connect existing logging libraries to OpenTelemetry.
 
-> **Note (contrib v1.35.0):** otelzap and otelslog emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`). The `code.namespace` attribute is no longer emitted.
+> **Note (bridge v0.10.0):** otelzap and otelslog emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`). The `code.namespace` attribute is no longer emitted.
 
 ```go
 import (

@@ -128,6 +128,7 @@ model_records() {
       if (index(file, "events")) return "events"
       if (index(file, "metrics")) return "metrics"
       if (index(file, "entities")) return "entities"
+      if (index(file, "apphub")) return "entities"
       if (index(file, "common")) return "common"
       if (index(file, "logs")) return "logs"
       return ""
@@ -241,6 +242,11 @@ extract_entries() {
       return value
     }
 
+    function indentation(value) {
+      match(value, /[^ ]/)
+      return RSTART == 0 ? length(value) : RSTART - 1
+    }
+
     function emit_record() {
       local_brief = squish(brief)
       local_stability = stability == "" ? "-" : stability
@@ -261,6 +267,11 @@ extract_entries() {
     }
 
     id == "" {
+      next
+    }
+
+    collecting_brief && $0 !~ /^[[:space:]]*$/ && indentation($0) < length(field_prefix) {
+      collecting_brief = 0
       next
     }
 
@@ -308,6 +319,10 @@ extract_exact_entry() {
   local path="$5"
 
   awk -v id_prefix="$id_prefix" -v entry_id="$entry_id" -v tag="$tag" -v path="$path" '
+    BEGIN {
+      entry_indent = match(id_prefix, /[^ ]/) - 1
+    }
+
     index($0, id_prefix) == 1 {
       if (found) {
         exit
@@ -320,6 +335,12 @@ extract_exact_entry() {
     }
 
     found {
+      if (NR > start_line && $0 !~ /^[[:space:]]*$/) {
+        current_indent = match($0, /[^ ]/) - 1
+        if (current_indent <= entry_indent) {
+          exit
+        }
+      }
       print
     }
 
