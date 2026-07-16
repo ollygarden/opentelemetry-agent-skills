@@ -32,7 +32,9 @@ Performance tuning reference for OpenTelemetry Go SDK. Covers sampling, batch pr
 
 ## Sampling
 
-Sampling is the single most impactful performance lever for traces. Unsampled spans create noop instances with virtually zero overhead -- no allocations for attributes, events, or links.
+Sampling is the single most impactful performance lever for traces. Dropped spans do not record
+attributes, events, or links, though the application still pays to construct values and options it
+passes to `Start`.
 
 ### Head Sampling Configuration
 
@@ -57,10 +59,14 @@ tp := sdktrace.NewTracerProvider(
 
 ### AlwaysRecord Sampler (v1.40.0+)
 
-The `AlwaysRecord` sampler wraps another sampler and ensures spans are always recorded (attributes, events, status are captured) even when the inner sampler decides not to sample (export). This is useful with tail sampling in a Collector: spans carry full data for the Collector to make sampling decisions, but unsampled spans are not exported by the SDK.
+The `AlwaysRecord` sampler wraps another sampler and ensures spans are always recorded (attributes,
+events, and status are captured) and passed to in-process span processors even when the inner
+sampler decides `Drop`. Standard `SimpleSpanProcessor` and `BatchSpanProcessor` exporters still
+skip `RecordOnly` spans, so this is useful for in-process processing such as span-to-metrics, not
+for sending unsampled spans to a Collector.
 
 ```go
-// Record all spans but only export 10% -- useful with Collector tail sampling
+// Record all spans in-process; standard processors export only the sampled 10%
 sampler := sdktrace.AlwaysRecord(sdktrace.TraceIDRatioBased(0.1))
 ```
 
@@ -68,14 +74,17 @@ sampler := sdktrace.AlwaysRecord(sdktrace.TraceIDRatioBased(0.1))
 
 ```
 AlwaysSample       -> Full span lifecycle: allocation + recording + export
-AlwaysRecord(0.1)  -> All spans recorded, 10% exported
+AlwaysRecord(0.1)  -> All spans recorded in-process, 10% exported by standard processors
 TraceIDRatioBased(0.1) -> 90% of spans become noop (near-zero cost)
 NeverSample        -> All spans noop (useful for load testing)
 ```
 
 `AlwaysSample` records and exports every span. `TraceIDRatioBased(0.1)` makes 90% of spans noop with near-zero cost. `ParentBased` wrapping respects upstream sampling decisions. `NeverSample` makes all spans noop, which is useful for benchmarking application-only performance.
 
-> **Tail sampling**: For decision-making based on complete traces (error status, latency thresholds), use the Collector's tail sampling processor instead of SDK-level sampling. SDK head sampling combined with Collector tail sampling is a common production pattern.
+> **Tail sampling**: For a Collector to decide from complete traces (error status, latency
+> thresholds), configure the SDK to sample and export all candidate spans, then use the Collector's
+> tail sampling processor. `AlwaysRecord` does not send its `RecordOnly` spans through the standard
+> SDK span processors.
 
 ---
 
@@ -125,7 +134,8 @@ When the queue fills, new spans are dropped silently by default. Telemetry loss 
 
 `WithBlockOnQueueFull()` changes this behavior to backpressure the application goroutine, blocking on `span.End()` until queue space is available.
 
-The SDK exposes internal metrics for monitoring queue depth.
+With experimental SDK self-observability enabled via `OTEL_GO_X_OBSERVABILITY=true`, the SDK
+exposes queue size/capacity and processed-span metrics. This feature may change incompatibly.
 
 ### SimpleSpanProcessor
 
@@ -219,28 +229,29 @@ Metric attribute cardinality is the product of unique values across all recorded
 
 ## Attribute Allocation Patterns
 
-Attributes are one of the primary sources of allocations in instrumented code.
+Attribute options can be a significant source of allocations in instrumented code.
 
 ### Pre-allocating Attribute Sets
 
-For attributes used across many measurements, construct them once:
+For attributes used across many measurements, construct an attribute set and measurement option
+once:
 
 ```go
 var (
-    methodGET  = attribute.String("http.request.method", "GET")
-    methodPOST = attribute.String("http.request.method", "POST")
-    status2xx  = attribute.Int("http.response.status_code", 200)
-    status4xx  = attribute.Int("http.response.status_code", 400)
-    status5xx  = attribute.Int("http.response.status_code", 500)
+    successfulGET = attribute.NewSet(
+        attribute.String("http.request.method", "GET"),
+        attribute.Int("http.response.status_code", 200),
+    )
+    successfulGETOption = metric.WithAttributeSet(successfulGET)
 )
 
 func handleRequest(ctx context.Context, method string, status int) {
-    // Reuse pre-allocated attributes -- no allocation per call
-    counter.Add(ctx, 1, metric.WithAttributes(methodGET, status2xx))
+    counter.Add(ctx, 1, successfulGETOption)
 }
 ```
 
-Constructing `attribute.String(...)` or `attribute.Int(...)` inline on every call allocates on every call.
+Reusing `metric.WithAttributeSet(...)` avoids rebuilding and deduplicating the same attribute set
+for every measurement. Benchmark dynamic cases before adding caches or pools.
 
 ### Slice Capacity
 
@@ -259,7 +270,8 @@ A `nil` slice (`var attrs []attribute.KeyValue`) reallocates on the first and su
 
 ### Span Attribute Limits
 
-The SDK enforces configurable limits on span attributes, events, and links. When limits are exceeded, the oldest items are evicted (FIFO):
+The SDK enforces configurable limits on span attributes, events, and links. New span attributes
+beyond the count limit are dropped; new events and links replace the oldest item (FIFO):
 
 ```go
 tp := sdktrace.NewTracerProvider(
@@ -274,7 +286,8 @@ tp := sdktrace.NewTracerProvider(
 )
 ```
 
-`AttributeValueLengthLimit` truncates string values (stack traces, SQL queries, request bodies) that would otherwise consume unbounded memory.
+`AttributeValueLengthLimit` truncates strings, string-slice elements, byte slices, and those values
+nested in slice attributes that would otherwise consume unbounded memory.
 
 ---
 
@@ -441,12 +454,14 @@ The OpenTelemetry SDK is designed so that telemetry failures do not crash or blo
 
 ## Monitoring the Pipeline
 
-The SDK exposes internal metrics about its own health:
+The released SDK and OTLP exporters expose experimental self-observability metrics when
+`OTEL_GO_X_OBSERVABILITY=true`. They use the global `MeterProvider` and may change incompatibly:
 
 | Metric | Meaning |
 |--------|---------|
-| `otel.sdk.trace.spans_exported` | Spans successfully exported |
-| `otel.sdk.trace.spans_dropped` | Spans dropped (queue full, export failure) |
+| `otel.sdk.processor.span.queue.size` | Current BatchSpanProcessor queue depth |
+| `otel.sdk.processor.span.processed` | Spans processed; `error.type=queue_full` identifies queue drops |
+| `otel.sdk.exporter.span.exported` | Spans whose export finished; `error.type` distinguishes failures |
 | Exporter errors in logs | Export failures with error details |
 
 ### ForceFlush

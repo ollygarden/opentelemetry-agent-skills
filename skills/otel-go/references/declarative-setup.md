@@ -36,7 +36,7 @@ latest module tag supports.
 
 ## Migration notes
 
-- `go.opentelemetry.io/contrib/config` is deprecated. Use `go.opentelemetry.io/contrib/otelconf`.
+- `go.opentelemetry.io/contrib/config` was removed in contrib v1.35.0. Use `go.opentelemetry.io/contrib/otelconf`.
 - In the root package, use `OTEL_CONFIG_FILE`; `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected by
   current released `otelconf`.
 - If migrating from the schema-pinned `otelconf/v0.3.0` import, the YAML must also migrate to
@@ -72,8 +72,8 @@ resource:
       value: "${DEPLOY_ENV:-development}"
 
 # Tracer/meter/logger provider blocks: structure per the canonical example.
-# Go-specific quirk: os.ExpandEnv resolves ${VAR} substitutions before the YAML is
-# parsed, so any ${VAR} in this file works when the loader uses os.ExpandEnv.
+# The root otelconf parser resolves ${VAR}, ${env:VAR}, and ${VAR:-default}
+# before parsing YAML. Use $${VAR} when the literal text must be preserved.
 ```
 
 ## Key API Facts

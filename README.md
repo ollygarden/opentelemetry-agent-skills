@@ -71,6 +71,9 @@ skills/
   otel-collector/
     SKILL.md
     components/        # one directory per Collector component (log_dedup, interval, …)
+  otel-collector-builder/
+    SKILL.md
+    references/        # manifest, workflows, troubleshooting
   otel-declarative-config/
   otel-ottl/
   otel-sdk-versions/
@@ -87,6 +90,7 @@ Language-agnostic skills:
 | Skill | Path | Use When |
 | --- | --- | --- |
 | `otel-collector` | `skills/otel-collector/` | Configuring OpenTelemetry Collector components — config keys, defaults, validation, signal support, stability, and gotchas. Progressive disclosure via `components/<type>/README.md` plus on-demand detail files. |
+| `otel-collector-builder` | `skills/otel-collector-builder/` | Building custom OpenTelemetry Collector distributions with OCB — authoring the builder manifest, aligning core/contrib/provider versions, local component development, CI/Docker/multi-arch builds, and build troubleshooting. |
 | `otel-declarative-config` | `skills/otel-declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
 | `otel-ottl` | `skills/otel-ottl/` | Authoring or reviewing OTTL statements for `transform`, `filter`, `routing`, and `tail_sampling` processors; debugging OTTL syntax and semantics; transforming traces, metrics, logs, and profiles in the Collector. |
 | `otel-sdk-versions` | `skills/otel-sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |

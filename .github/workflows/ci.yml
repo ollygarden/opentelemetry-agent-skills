@@ -70,11 +70,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Link Checker
-        id: lychee
-        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
-        with:
-          args: "--verbose --no-progress skills/otel-sdk-versions/references/generated/otel-version-index.md --config .github/lychee.toml"
-          failIfEmpty: false
+      - name: Install Lychee
+        env:
+          LYCHEE_VERSION: "0.24.2"
+        run: |
+          case "$RUNNER_ARCH" in
+            X64) lychee_arch="x86_64" ;;
+            ARM64) lychee_arch="aarch64" ;;
+            *) echo "Unsupported runner architecture: $RUNNER_ARCH" >&2; exit 1 ;;
+          esac
+
+          archive="lychee-${lychee_arch}-unknown-linux-musl.tar.gz"
+          release_url="https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}"
+          install_dir="$RUNNER_TEMP/lychee"
+          mkdir -p "$install_dir"
+
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/$archive" "$release_url/$archive"
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/$archive.sha256" "$release_url/$archive.sha256"
+          cd "$RUNNER_TEMP"
+          sha256sum --check "$archive.sha256"
+          tar --extract --gzip --file "$archive" --directory "$install_dir" \
+            --strip-components=1
+          echo "LYCHEE_BIN=$install_dir/lychee" >> "$GITHUB_ENV"
+
+      - name: Check Links
         env:
           GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          "$LYCHEE_BIN" --verbose --no-progress
+          skills/otel-sdk-versions/references/generated/otel-version-index.md
+          --config .github/lychee.toml
