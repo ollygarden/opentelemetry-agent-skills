@@ -128,6 +128,7 @@ model_records() {
       if (index(file, "events")) return "events"
       if (index(file, "metrics")) return "metrics"
       if (index(file, "entities")) return "entities"
+      if (index(file, "apphub")) return "entities"
       if (index(file, "common")) return "common"
       if (index(file, "logs")) return "logs"
       return ""
@@ -241,6 +242,11 @@ extract_entries() {
       return value
     }
 
+    function indentation(value) {
+      match(value, /[^ ]/)
+      return RSTART == 0 ? length(value) : RSTART - 1
+    }
+
     function emit_record() {
       local_brief = squish(brief)
       local_stability = stability == "" ? "-" : stability
@@ -261,6 +267,11 @@ extract_entries() {
     }
 
     id == "" {
+      next
+    }
+
+    collecting_brief && $0 !~ /^[[:space:]]*$/ && indentation($0) < length(field_prefix) {
+      collecting_brief = 0
       next
     }
 
