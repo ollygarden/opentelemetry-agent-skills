@@ -91,6 +91,10 @@ Language-specific activation varies — see the language `sdk-setup` skills for 
 
 ## Environment Variable Substitution
 
+The table and rules below describe the stable file-format specification. Runtime
+implementations can lag the specification, so test substitution behavior with the exact SDK
+release that will load the file.
+
 | Syntax | Behavior |
 |--------|----------|
 | `${VAR}` | Substitute with value of `VAR` |
@@ -104,6 +108,12 @@ Rules:
 - Type coercion happens after substitution (`${BOOL}` where `BOOL=true` becomes boolean)
 - No recursive substitution
 - Invalid references produce a parse error
+
+**Released Java qualification:** OpenTelemetry Java 1.64.0 still leaves scalar sequence items
+unsubstituted and treats invalid references such as `${VAR&}` as literal text. Java users must
+not rely on the two corresponding specification rules until their selected release implements
+them. The schema repository's structural validation also does not prove every substitution
+behavior; use the target SDK parser for that verification.
 
 ## Configuration Interaction
 
