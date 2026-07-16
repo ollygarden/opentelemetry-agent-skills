@@ -80,7 +80,7 @@ jobs:
             *) echo "Unsupported runner architecture: $RUNNER_ARCH" >&2; exit 1 ;;
           esac
 
-          archive="lychee-${lychee_arch}-unknown-linux-gnu.tar.gz"
+          archive="lychee-${lychee_arch}-unknown-linux-musl.tar.gz"
           release_url="https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}"
           install_dir="$RUNNER_TEMP/lychee"
           mkdir -p "$install_dir"
