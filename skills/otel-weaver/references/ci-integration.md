@@ -32,6 +32,7 @@ jobs:
             -v "$WORKSPACE:/work" \
             otel/weaver:v0.24.2 \
             registry check \
+              --v2 \
               --registry /work/telemetry/registry/
 
       - name: Generate and verify checked-in code is current
@@ -42,6 +43,7 @@ jobs:
             -v "$WORKSPACE:/work" \
             otel/weaver:v0.24.2 \
             registry generate \
+              --v2 \
               --registry /work/telemetry/registry/ \
               --templates /work/telemetry/templates/ \
               go \
@@ -62,6 +64,7 @@ jobs:
             -v /tmp/base:/baseline \
             otel/weaver:v0.24.2 \
             registry diff \
+              --v2 \
               --baseline-registry /baseline/telemetry/registry/ \
               --registry /work/telemetry/registry/ \
               --format markdown
@@ -79,10 +82,11 @@ jobs:
 
 ```bash
 docker run --rm -v "$PWD:/work" otel/weaver:v0.24.2 \
-  registry check --registry /work/telemetry/registry/
+  registry check --v2 --registry /work/telemetry/registry/
 
 docker run --rm -v "$PWD:/work" otel/weaver:v0.24.2 \
   registry generate \
+    --v2 \
     --registry /work/telemetry/registry/ \
     --templates /work/telemetry/templates/ \
     go \

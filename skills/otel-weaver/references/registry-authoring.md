@@ -122,7 +122,7 @@ spans:
 Notes:
 - Required fields: `type`, `kind`, `stability`, `brief`, and a structured `name: { note: "..." }`.
 - `kind`: one of `client`, `server`, `producer`, `consumer`, `internal`.
-- For internal business spans with static names, put the dotted type identifier in `name.note` and use the resolved `span.name` string at runtime.
+- For internal business spans with static names, put the dotted type identifier in `name.note` and render the resolved `span.name.note` string at runtime.
 - Upstream OTel HTTP/db/messaging spans use `{action} {target}` patterns derived from attributes — those should not appear in an org-local registry.
 - `sampling_relevant: true` flags attributes that the SDK should make available at sampling time.
 
@@ -138,7 +138,7 @@ Reference the language SDK's semconv package for these (e.g. `go.opentelemetry.i
 Fast feedback loop:
 
 ```
-weaver registry check -r ./telemetry/registry/
+weaver registry check --v2 -r ./telemetry/registry/
 ```
 
 Expected stderr noise: `File format definition/2 is not yet stable` (a warning). This is normal as of 0.24.2.
