@@ -40,7 +40,9 @@ Run the processor twice across two tiers. A per-node **agent** in `passthrough: 
 processors:
   k8s_attributes:
     passthrough: true
+```
 
+```yaml
 # Gateway (Deployment) — enrich off the IP the agent stamped
 processors:
   k8s_attributes:
