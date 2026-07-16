@@ -136,8 +136,10 @@ Concat(["user", span.attributes["user.id"], "action"], "-")
 Split(span.name, "/")                         # ["", "api", "v1", "users"]
 Split(span.name, "/")[1]                      # "api"
 Substring(span.span_id.string, 0, 8)          # first 8 chars
-Substring(target, start, length, utf8_safe?)  # utf8_safe defaults to false; added v0.156
+Substring(target, start, length, utf8_safe?)  # byte offsets; utf8_safe defaults false; added v0.156
 ```
+
+With `utf8_safe=true`, a start inside a multi-byte character advances to the next UTF-8 boundary and an end inside one backs up to the previous boundary. The result stays valid UTF-8 but can be shorter than `length` bytes.
 
 ### Case
 ```ottl
