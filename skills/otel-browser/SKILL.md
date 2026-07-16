@@ -51,10 +51,10 @@ are the authoritative, current map. Summary:
 | `@opentelemetry/auto-instrumentations-web` | opentelemetry-js-contrib | bundle | experimental |
 | `instrumentation-document-load` / `-long-task` / `-user-interaction` | opentelemetry-js-contrib | spans | experimental |
 | `instrumentation-browser-navigation` / `-web-exception` | opentelemetry-js-contrib | events | experimental |
-| `plugin-react-load` | opentelemetry-js-contrib | spans | experimental |
+| `plugin-react-load` | opentelemetry-js-contrib | spans | **unmaintained** |
 
-`opentelemetry-browser` is the home of the event-based instrumentations and the future home of the
-Browser SDK; the span-based packages still live in `opentelemetry-js` / `opentelemetry-js-contrib`.
+`opentelemetry-browser` is the home of the event-based instrumentations and the experimental Browser
+SDK; the span-based packages still live in `opentelemetry-js` / `opentelemetry-js-contrib`.
 
 ## Why browser RUM is different
 

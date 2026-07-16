@@ -99,7 +99,7 @@ conventions are **merged** (see the
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `includeRawAttribution` | `boolean` | `false` | Set the record body to the `web-vitals` attribution object (which element/event caused the metric). |
+| `includeRawAttribution` | `boolean` | `false` | Set the record body to the JSON-stringified `web-vitals` attribution object (which element/event caused the metric). |
 | `applyCustomLogRecordData` | `(logRecord) => void` | — | Mutate the record before emit. |
 
 INP and CLS finalize near the end of the page lifecycle — they depend on the SDK flushing on
@@ -121,12 +121,17 @@ new ConsoleInstrumentation({ logMethods: ['error', 'warn'] });
 An `exception` event for every uncaught error (`window` `error`) and unhandled promise rejection
 (`unhandledrejection`), reusing the existing `exception` event. Records carry `exception.type`,
 `exception.message`, `exception.stacktrace` (type/stacktrace omitted for non-`Error` throws).
-`applyCustomAttributes` can add fields (e.g. an app-level severity).
+When an `ErrorEvent` has no error object but has a non-empty message (as can happen for cross-origin
+scripts), the message is still emitted; rejections with a null/undefined reason are dropped.
+`applyCustomAttributes` can add fields (e.g. an app-level severity). Failures while extracting or
+emitting an exception are contained and reported through SDK diagnostics rather than escaping the
+global error handler.
 
 ### User Action (`browser.user_action`)
 
 Captures user input events (by default `click`). Any `data-otel-*` attribute on the clicked element
-is copied onto the record — a deliberate channel for **non-PII** business context.
+is copied into the `browser.element.attributes` map with the prefix removed — a deliberate channel
+for **non-PII** business context.
 
 ```typescript
 new UserActionInstrumentation({ autoCapturedActions: ['click'] }); // default
@@ -162,7 +167,7 @@ registerInstrumentations({
 | `instrumentation-long-task` | js-contrib | Spans for [Long Tasks](https://developer.mozilla.org/docs/Web/API/Long_Tasks_API) (>50 ms main-thread blocks). |
 | `instrumentation-browser-navigation` | js-contrib | Event-based SPA navigation (alternative to the one above). |
 | `instrumentation-web-exception` | js-contrib | Event-based unhandled exception capture. |
-| `plugin-react-load` | js-contrib | React component mount/load performance. |
+| `plugin-react-load` | js-contrib | React component mount/load performance; **unmaintained** upstream. |
 
 ### fetch / XHR cross-origin propagation
 
