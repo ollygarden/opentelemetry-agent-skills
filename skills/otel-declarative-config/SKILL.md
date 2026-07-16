@@ -22,11 +22,11 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
 |---|---|
 | Latest schema release tag | `gh release view --repo open-telemetry/opentelemetry-configuration --json tagName,publishedAt` |
 | SDK ↔ schema compatibility matrix (coverage advisory, not authoritative for literal `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
-| Field-by-field schema docs | `WebFetch https://opentelemetry.io/docs/specs/otel-config/types/` |
-| Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/opentelemetry_configuration.json` |
-| Canonical full example | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/examples/otel-sdk-config.yaml` |
-| Migration template (every option, with comments) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/examples/otel-sdk-migration-config.yaml` |
-| Schema CHANGELOG (breaking-change history with migration steps) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/CHANGELOG.md` |
+| Field-by-field docs for the latest release | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/schema-docs.md` |
+| Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/opentelemetry_configuration.json` |
+| Canonical full example | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-config.yaml` |
+| Migration template (every option, with comments) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-migration-config.yaml` |
+| Schema CHANGELOG (breaking-change history with migration steps) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/CHANGELOG.md` |
 
 **Workflow when generating YAML:**
 
@@ -41,6 +41,11 @@ embedded copies. Cache results for the conversation; refetch only on schema-rela
    then still verify against the selected runtime/package because SDK implementations may
    lag or differ from the schema repository.
 
+Replace `<schema-release-tag>` with the tag returned by the first fetch. Keep the compatibility
+matrix on `main`: it tracks language implementation coverage independently of schema releases
+and may include work not yet released by an implementation. Do not use schema files or examples
+from `main` to generate released-version guidance.
+
 The "Latest supported file format" values in `language-support-status.md` are schema/version
 coverage metadata. Do not mechanically copy them into YAML unless the target SDK parser,
 agent docs, or package fixtures prove that exact literal is accepted.
@@ -48,10 +53,12 @@ agent docs, or package fixtures prove that exact literal is accepted.
 Terminology trap: schema coverage identifiers and YAML `file_format` literals are related,
 but not interchangeable. A matrix entry uses a full semver-shaped coverage value (e.g.
 `1.0.0`, or a pre-release such as `1.0.0-rc.3` for implementations still tracking an older
-schema), while the YAML `file_format` literal is a `MAJOR.MINOR` string such as `1.0` or
-`1.1`. Parsers validate on `MAJOR.MINOR` and strip any pre-release/meta tag before comparing.
-Generated YAML must use the `MAJOR.MINOR` literal. The current stable schema is v1.1.0
-(`file_format: "1.1"`); confirm the exact release with the `gh release` fetch above.
+schema), while stable schema examples use a `MAJOR.MINOR` string such as `1.0` or `1.1`.
+Older implementations may accept or require a pre-release literal, and released parsers do
+not all enforce versions identically. Generated YAML must use the literal verified in the
+target runtime. Schema release v1.1.0 examples use `file_format: "1.1"`; treat that as
+release-specific, not a permanent default, and confirm the latest release with the `gh release`
+fetch above.
 
 For language-specific package versions and SDK API surface, see the Sources of Truth section
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
@@ -85,6 +92,10 @@ Language-specific activation varies — see the language `sdk-setup` skills for 
 
 ## Environment Variable Substitution
 
+The table and rules below describe the stable file-format specification. Runtime
+implementations can lag the specification, so test substitution behavior with the exact SDK
+release that will load the file.
+
 | Syntax | Behavior |
 |--------|----------|
 | `${VAR}` | Substitute with value of `VAR` |
@@ -98,6 +109,12 @@ Rules:
 - Type coercion happens after substitution (`${BOOL}` where `BOOL=true` becomes boolean)
 - No recursive substitution
 - Invalid references produce a parse error
+
+**Released Java qualification:** OpenTelemetry Java 1.64.0 still leaves scalar sequence items
+unsubstituted and treats invalid references such as `${VAR&}` as literal text. Java users must
+not rely on the two corresponding specification rules until their selected release implements
+them. The schema repository's structural validation also does not prove every substitution
+behavior; use the target SDK parser for that verification.
 
 ## Configuration Interaction
 
