@@ -30,7 +30,7 @@ The SDK reads defaults from environment variables; check the [OpenTelemetry Pyth
 | Attribute value length limit | `OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT` | Unlimited if unset |
 | Metric export interval (ms) | `OTEL_METRIC_EXPORT_INTERVAL` | Check SDK default |
 | Metric export timeout (ms) | `OTEL_METRIC_EXPORT_TIMEOUT` | Check SDK default |
-| OTLP export timeout (ms) | `OTEL_EXPORTER_OTLP_TIMEOUT` | Check SDK default |
+| OTLP export timeout (s) | `OTEL_EXPORTER_OTLP_TIMEOUT` | Python reads this as **seconds** (default `10`), deviating from the spec, which defines it in milliseconds |
 | Traces sampler | `OTEL_TRACES_SAMPLER` | `parentbased_always_on` if unset |
 | Traces sampler arg | `OTEL_TRACES_SAMPLER_ARG` | Ratio for ratio-based samplers |
 
@@ -241,10 +241,14 @@ mp = MeterProvider(
 )
 ```
 
-Every matching View creates a metric stream; ordering does not make the first
-match win. Overlapping Views can therefore produce multiple streams and warnings
-when their metric identities conflict. A metric with no matching View uses the
-default aggregation.
+Every matching View creates a metric stream, with two exceptions: a View using
+`DropAggregation` matches but produces no stream (it discards the instrument's
+measurements), and a View that is incompatible with the instrument (for example,
+an explicit-bucket histogram on an asynchronous instrument) is skipped with a
+warning. Ordering does not make the first match win. Overlapping Views can
+therefore produce multiple streams; when their metric identities conflict the SDK
+logs a warning but still emits the conflicting streams. A metric with no matching
+View uses the default aggregation.
 
 Attributes like HTTP method (~10 values) or response status code (~50 values) are bounded. Attributes like `user.id`, `request.id`, or `session.id` are unbounded and should be filtered out with Views unless you specifically intend per-user metrics.
 
@@ -392,6 +396,8 @@ OTEL_EXPORTER_OTLP_TIMEOUT=5   # seconds
 ```python
 exporter = OTLPSpanExporter(timeout=5)  # seconds in constructor
 ```
+
+Note: Python interprets `OTEL_EXPORTER_OTLP_TIMEOUT` and the `timeout=` constructor argument in **seconds** (default `10`). This deviates from the OpenTelemetry specification, which defines the variable in milliseconds (default `10000`). A value of `5` is a 5-second timeout in Python, not 5 milliseconds.
 
 Lower timeout: fail fast and free the batch processor for the next export cycle.
 Higher timeout: accommodate large batches or slow backends.
