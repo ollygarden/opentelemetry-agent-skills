@@ -36,10 +36,10 @@ excludes: []      # go.mod exclude directives
 | Key | Default | Purpose |
 |-----|---------|---------|
 | `module` | `go.opentelemetry.io/collector/cmd/builder` | Go module path of the generated distribution. Set it to your own path (`github.com/myorg/otelcol-custom`). |
-| `name` | `otelcol-custom` | Binary name. |
-| `description` | `Custom OpenTelemetry Collector distribution` | Shown in `--version`/components output. |
-| `output_path` | current directory | Where sources and the binary are written. |
-| `version` | `1.0.0` | Your distribution's version, shown in `--version`. Independent of the Collector version. |
+| `name` | empty | Binary name. Set it explicitly for a usable custom manifest. |
+| `description` | empty | Shown in the `components` build information. |
+| `output_path` | temporary `otelcol-distribution*` directory | Where sources and the binary are written. Set an explicit project-relative or absolute path for persistent output. |
+| `version` | empty | Your distribution's version, shown in `--version`. Independent of the Collector version. |
 | `go` | `go` from PATH | Path to the Go binary used for the build. |
 | `debug_compilation` | `false` | `true` keeps symbols and disables optimizations (`gcflags all=-N -l`) for Delve. Default builds strip symbols (`-s -w`). |
 | `cgo_enabled` | `false` | Sets `CGO_ENABLED=1` for components needing native libraries. |

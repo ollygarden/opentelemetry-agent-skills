@@ -40,7 +40,7 @@ The binary was built without the provider for that config URI scheme. This only 
 
 ## Local path issues
 
-- `reading <path>/go.mod: no such file or directory`: `path:` doesn't point at a module root, or a relative path resolves differently than expected — relative `path:` values resolve from the manifest's location, and since v0.151.0 the emitted `replace` directive is rewritten relative to `output_path`.
+- `reading <path>/go.mod: no such file or directory`: `path:` doesn't point at a module root, or a relative path resolves differently than expected. OCB resolves the input `path:` from its process working directory, not from the manifest's directory. Since v0.151.0, the emitted `replace` directive is then rewritten relative to `output_path`.
 - Generated tree breaks after being moved/committed: built with pre-v0.151.0 absolute replace paths — upgrade OCB, or set `dist.use_absolute_replace_paths: true` if something depends on the old layout.
 - Module path in the local `go.mod` must exactly match the `gomod` path in the manifest.
 
