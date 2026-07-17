@@ -56,7 +56,7 @@
     {
       "name": "otel-go",
       "source": "./skills/otel-go",
-      "description": "OpenTelemetry in Go: declarative SDK setup with otelconf, API surface, contrib instrumentation libraries (otelhttp, otelgrpc), performance tuning, breaking-change audits."
+      "description": "OpenTelemetry in Go: declarative SDK setup with otelconf, API surface, contrib instrumentation libraries (otelhttp, otelgrpc), compile-time zero-code instrumentation (otelc), performance tuning, breaking-change audits."
     },
     {
       "name": "otel-java",

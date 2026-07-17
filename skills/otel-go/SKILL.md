@@ -1,6 +1,6 @@
 ---
 name: otel-go
-description: OpenTelemetry in Go — SDK setup, API surface, breaking changes, contrib instrumentation libraries (otelhttp, otelgrpc, otelmongo), and performance tuning. Use when adding, reviewing, or configuring OpenTelemetry in a Go service. Triggers on "setup otel in go", "go telemetry", "go tracing", "otelconf go", "otelhttp", "otelgrpc", "TracerProvider go", "MeterProvider go", or any Go-related OTel question.
+description: OpenTelemetry in Go — SDK setup, API surface, breaking changes, contrib instrumentation libraries (otelhttp, otelgrpc, otelmongo), compile-time zero-code instrumentation (otelc), and performance tuning. Use when adding, reviewing, or configuring OpenTelemetry in a Go service. Triggers on "setup otel in go", "go telemetry", "go tracing", "otelconf go", "otelhttp", "otelgrpc", "TracerProvider go", "MeterProvider go", "otelc", "compile-time instrumentation go", "zero-code go instrumentation", "go build instrumentation", or any Go-related OTel question.
 ---
 
 # OpenTelemetry in Go
@@ -17,6 +17,7 @@ task; each reference is self-contained.
 | [`references/instrumentation-libraries.md`](references/instrumentation-libraries.md) | Picking or wiring contrib libraries (otelhttp, otelgrpc, database, AWS, message queues, propagators, resource detectors), and writing manual instrumentation that follows semconv. |
 | [`references/performance.md`](references/performance.md) | Tuning sampling, batch processor, metric reader, exporter compression/retry, attribute allocation, log `Enabled()` short-circuiting, graceful shutdown. |
 | [`references/breaking-changes.md`](references/breaking-changes.md) | Auditing existing code for deprecated calls, renamed semantic conventions, and removed APIs across recent SDK / contrib releases. |
+| [`references/compile-time-instrumentation.md`](references/compile-time-instrumentation.md) | Zero-code, compile-time instrumentation with `otelc`: usage modes (`otelc go build`, tool dependency, toolexec drop-in), subcommands, supported libraries, rule sources/precedence, and pinning via `otel.instrumentation.go`. |
 
 ## Module versioning — read before adding dependencies
 
