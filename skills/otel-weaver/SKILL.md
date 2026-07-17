@@ -34,14 +34,14 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 - Every entry needs `stability`. Weaver refuses to generate without it.
 - Use a domain prefix (e.g. `ecommerce.`, `acme.`) for org-local attributes, metrics, and spans.
 - Run the language formatter (`gofmt -w`, `prettier`, `ruff format`, ...) on generated output. Jinja whitespace produces multiple blank lines; without formatting, the diff check in CI will fail spuriously.
-- Confirm the resolved schema shape before writing a template. Input `key`/`name`/`type` fields are renamed by the jq helpers that feed the template `ctx` (see `references/template-authoring.md` for how to dump the exact shape).
+- Confirm the resolved schema shape before writing a template. For a `definition/2` registry, call the grouped jq helpers with `{"v2": true}`; the v2 template `ctx` preserves fields such as attribute `key`, metric `name`, span `type`/`kind`, and structured `span.name.note`. See `references/template-authoring.md` for how to dump the exact shape.
 
 ## Workflow
 
 1. **Install or locate Weaver.** Follow the upstream install instructions at <https://github.com/open-telemetry/weaver#install> — pick a pinned release binary, the `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action. Use Docker for CI and reproducible local runs.
 2. **Author the registry.** Required: `manifest.yaml` plus at least one of `attributes.yaml` / `metrics.yaml` / `spans.yaml` / `events.yaml`. See `references/registry-authoring.md`.
 3. **Author templates.** One target dir per language under `templates/registry/<lang>/` with `weaver.yaml` plus `*.j2`. See `references/template-authoring.md`.
-4. **Validate and generate.** `weaver registry check -r ./telemetry/registry/` for fast feedback. `weaver registry generate --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
+4. **Validate and generate.** `weaver registry check --v2 -r ./telemetry/registry/` for fast feedback. `weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
 5. **Wire into CI.** Three gates: `check` (schema), `generate` + `git diff --exit-code` (checked-in code is current), `diff` against the base branch (surfaces breaking changes). See `references/ci-integration.md`.
 
 ## Gotchas
@@ -50,13 +50,13 @@ These cost time and are not obvious from the upstream docs:
 
 1. `brew install weaver` installs the wrong tool. Use GitHub releases or Docker.
 2. Generated output is not formatter-clean. Always run the language formatter after `weaver registry generate`.
-3. Resolved field names differ from input. Attribute input `key` → resolved `name`. Metric input `name` → resolved `metric_name`. Span input `type` → resolved `id` of the form `span.<type>`, with a flat `name` string equal to the input `name.note`. Always resolve and inspect before writing a template.
+3. Jq helper defaults target the legacy schema. For `definition/2`, pass `{"v2": true}` and use the preserved v2 fields: attribute `key`, metric `name`, span `type`/`kind`, and `span.name.note`. Always generate and inspect the filtered `ctx` before writing a template.
 4. The `comment` Jinja filter takes a keyword argument: `attr.brief | comment(format="go")`. It already emits the `// ` prefix; do not add another.
-5. Spans and events have prebuilt grouped jq filters — `semconv_grouped_spans` and `semconv_grouped_events` — alongside `semconv_grouped_attributes` and `semconv_grouped_metrics`. Use `semconv_grouped_spans` (a bareword, like the others). Only a raw multi-clause jq expression needs single-quoting in `weaver.yaml`, because the colons collide with YAML mapping rules.
+5. Spans and events have prebuilt grouped jq filters — `semconv_grouped_spans` and `semconv_grouped_events` — alongside `semconv_grouped_attributes` and `semconv_grouped_metrics`. For `definition/2`, use (for example) `semconv_grouped_spans({"v2": true})` as a folded YAML scalar; the bare helper defaults select the legacy schema.
 6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) on every run as of 0.24.2. This is normal; do not treat it as a failure.
 7. `--future` is opt-in but breaks today on `definition/2`. Note this in CI guidance and re-enable once the format goes stable.
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
-9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and using the resolved `span.name` string at runtime is clean.
+9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
 11. Drop the `.total` suffix from counter names — OTel naming has moved away from it.
 12. Use seconds (`s`) for duration histograms, not milliseconds. Migrating from `ms` is a natural step when authoring the schema; flag it.
@@ -83,8 +83,8 @@ These are natural follow-ups but not part of this skill:
 
 If you authored or modified a Weaver registry, templates, or CI integration:
 - re-open the changed files before finishing
-- run `weaver registry check` against the registry and capture the result
-- run `weaver registry generate` and the language formatter, then verify `git diff --exit-code` is clean
+- run `weaver registry check --v2` against the `definition/2` registry and capture the result
+- run `weaver registry generate --v2` and the language formatter, then verify `git diff --exit-code` is clean
 - confirm each applicable item with codebase evidence
 
 Report the final check with:
@@ -99,7 +99,7 @@ Use these items:
 - no boundary-domain (http/db/messaging/rpc/network/gen-ai) entries duplicated locally
 - counter names have no `.total` suffix
 - duration histograms use `s` (seconds)
-- templates use jq filters that match the resolved schema (prefer the prebuilt `semconv_grouped_*` helpers; single-quote only raw jq expressions)
+- templates use jq filters that match the resolved schema (for `definition/2`, call the prebuilt `semconv_grouped_*` helpers with `{"v2": true}`)
 - generated output is formatter-clean
 - CI runs `check`, `generate` + `git diff --exit-code`, and `diff` against the base branch
 - changed files were re-read

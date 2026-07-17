@@ -2,9 +2,10 @@
 
 Configure the OpenTelemetry SDK in Java via declarative YAML configuration. Three setup
 paths exist. The Javaagent and manual autoconfigure both read an external file via
-`-Dotel.config.file`. The Spring Boot Starter is different: it embeds the declarative config
-inline under the `otel:` key in `application.yaml`/`application.properties`, opting in via the
-`otel.file_format` property — it does not read an external `otel.config.file` (see Key API Facts).
+the `otel.config.file` system property or `OTEL_CONFIG_FILE` environment variable. The Spring Boot
+Starter is different: it embeds the declarative config inline under the `otel:` key in
+`application.yaml`/`application.properties`, opting in via the `otel.file_format` property — it
+does not read an external `otel.config.file` (see Key API Facts).
 
 For the YAML configuration schema, load the `otel-declarative-config` skill.
 
@@ -20,7 +21,7 @@ skill. For Java-specific facts:
 | SDK declarative-config expected `file_format` for a selected BOM tag | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java/<selected-sdk-tag>/sdk-extensions/declarative-config/src/main/java/io/opentelemetry/sdk/autoconfigure/declarativeconfig/OpenTelemetryConfigurationFactory.java` |
 | Javaagent declarative-config docs (current activation flag, supported `file_format`) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/declarative-configuration/` |
 | Javaagent declarative-config smoke fixture (parser truth for selected agent tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/smoke-tests/src/test/resources/declarative-config.yaml` |
-| Javaagent CHANGELOG (when each schema rc landed) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/main/CHANGELOG.md` |
+| Javaagent CHANGELOG (when each schema rc landed) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/CHANGELOG.md` |
 | Spring Boot Starter declarative-config fixture (selected starter tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/smoke-tests-otel-starter/spring-boot-2/src/testDeclarativeConfig/resources/application.yaml` |
 | Spring Boot starter docs | `WebFetch https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/` |
 
@@ -47,15 +48,15 @@ Declarative config has been supported since Javaagent 2.9.0; the property is now
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
 Confirm the exact `file_format` literal from the tag-matched Javaagent or Spring Boot Starter
 fixture for the selected release, not from `main` or the generic language support matrix alone.
-For example, as of 2026-07-12, the latest released SDK BOM is 1.64.0 and expects
+For example, as of 2026-07-16, the latest released SDK BOM is 1.64.0 and expects
 `file_format: "1.1"`, but the latest released Javaagent/Spring Boot Starter is 2.29.0, targets
 SDK 1.63.0, and its released fixtures use `file_format: "1.0"`.
 
-When `-Dotel.config.file` is set, all other `-Dotel.*` properties are ignored except
-agent-only properties (see Key API Facts).
+When `otel.config.file` / `OTEL_CONFIG_FILE` is set, all other SDK autoconfigure properties are
+ignored except agent-only properties (see Key API Facts).
 
-For the autoconfigure SDK extension (no Javaagent), the same flag works, plus the
-`OTEL_CONFIG_FILE` environment variable as a fallback.
+The same property and environment-variable forms work for the autoconfigure SDK extension without
+the Javaagent.
 
 ## YAML Config
 
@@ -96,7 +97,8 @@ For autoconfigure setups (no Javaagent):
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 
 // Reads -Dotel.config.file or OTEL_CONFIG_FILE, falls back to env vars
-AutoConfiguredOpenTelemetrySdk sdk = AutoConfiguredOpenTelemetrySdk.builder().build();
+AutoConfiguredOpenTelemetrySdk sdk =
+    AutoConfiguredOpenTelemetrySdk.builder().setResultAsGlobal().build();
 ```
 
 ## Key API Facts
@@ -108,4 +110,6 @@ AutoConfiguredOpenTelemetrySdk sdk = AutoConfiguredOpenTelemetrySdk.builder().bu
   selected release fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
-- **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, `otel.javaagent.debug` cannot be set via declarative config — they must remain as system properties.
+- **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, and
+  `otel.javaagent.debug` cannot be set via declarative config. Set them as system properties or
+  their corresponding environment variables instead.
