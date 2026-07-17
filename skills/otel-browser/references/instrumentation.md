@@ -111,6 +111,13 @@ aggressively (see
 conventions are **merged** (see the
 [WebVital event](https://opentelemetry.io/docs/specs/semconv/browser/browser-events/#webvital-event)).
 
+The released `browser.web_vital` event (development stability; verify via the
+`otel-semantic-conventions` skill, group `browser`, entry `event.browser.web_vital`) carries `name`,
+`value`, `delta`, and `id` — not a custom `web_vital.*` attribute namespace.
+`WebVitalsInstrumentation` already emits these correctly; if you must hand-write reporting (e.g. no
+`LoggerProvider`/instrumentation available), emit a `LogRecord` named `browser.web_vital` with those
+attributes rather than opening a span with invented keys.
+
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `includeRawAttribution` | `boolean` | `false` | Set the record body to the JSON-stringified `web-vitals` attribution object (which element/event caused the metric). |
@@ -219,5 +226,6 @@ The server must list `traceparent` (and `tracestate`/`baggage` if used) in
 | Putting PII in `data-otel-*` or URLs | Exported verbatim to your backend | Use `sanitizeUrl`; keep `data-otel-*` to non-PII business keys |
 | Tracing your own OTLP export calls | Infinite telemetry-about-telemetry loop | `ignoreUrls` the `/v1/traces` and `/v1/logs` endpoints |
 | Forcing spans around point-in-time facts | Wrong model; bloats traces | Use the event-based instrumentations for vitals/navigation/errors |
+| Hand-rolling event/span attributes without checking semconv | Invents non-standard keys (e.g. `web_vital.name`/`web_vital.value`) instead of the released event/attribute names | Check the `browser` group first via the `otel-semantic-conventions` skill or WebFetch the spec page — see [SKILL.md](../SKILL.md#verify-attributes-against-released-semantic-conventions-before-hand-rolling) |
 | Relying on navigation *timing* for page-view counts | Lost when `load` never fires / user leaves early | Use the navigation *event* for counts, timing for performance |
 | Assuming an instrumentation works because registration threw no error | These packages are experimental; a misconfigured or no-op instrumentation emits neither errors nor telemetry | Verify each one reaches the Collector (diag logging + `debug` exporter) — see [setup-sdk.md](setup-sdk.md#verify-it-actually-emits) |

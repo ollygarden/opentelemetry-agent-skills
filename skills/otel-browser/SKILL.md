@@ -33,6 +33,25 @@ first decision:
 | **Events** | Logs API → `LogRecord` | point-in-time facts (no duration/children) | web vitals, navigation, console, errors, user action |
 | **Spans** | Trace API | operations with a duration and parent/child | `fetch`, XHR, document load, long task |
 
+## Verify attributes against released semantic conventions before hand-rolling
+
+Not every browser signal has a released convention yet — e.g. `browser.web_vital` is a released
+**development**-stability event, but `browser.navigation` and `browser.resource_timing` have no
+released convention under the `browser` group, and `exception` is a released **stable** group of
+its own (not under `browser`). Check coverage per signal rather than assuming it; before emitting a
+hand-written span or `LogRecord` with custom attributes:
+
+1. Prefer a catalog instrumentation from [`references/instrumentation.md`](references/instrumentation.md) — it already emits
+   compliant event/attribute names where a convention exists.
+2. Check whether a released convention covers the signal: use the `otel-semantic-conventions`
+   skill to query the relevant group (e.g. `browser` for `event.browser.web_vital`, `exceptions`
+   for `exception.type`), or WebFetch the matching page under
+   `https://opentelemetry.io/docs/specs/semconv/browser/`.
+3. If one exists, use its event/attribute names verbatim (e.g. the `browser.web_vital` event's
+   `name`, `value`, `delta`, `id` — not a custom `web_vital.*` namespace), even at development
+   stability. If none exists, define bounded, low-cardinality custom attributes under a stable
+   namespace instead of guessing at a released-looking name.
+
 ## The browser package ecosystem — three repositories
 
 Browser packages are spread across three upstream repos. The
@@ -89,6 +108,6 @@ relying on these notes.
 
 - Shared JS API and Node.js SDK (the browser builds on the same API): `otel-js` skill.
 - Schema-level facts for declarative YAML config: `otel-declarative-config` skill.
-- Semantic conventions lookup (`browser.*`, `session.*`, `exception`): `otel-semantic-conventions` skill.
+- Semantic conventions lookup (`browser.*`, `session.*`, `exception`): `otel-semantic-conventions` skill — use it before hand-rolling any event/span attributes (see above).
 - Edge sampling / redaction / rate limiting in front of browsers: `otel-collector` skill.
 - SDK version selection across languages: `otel-sdk-versions` skill.

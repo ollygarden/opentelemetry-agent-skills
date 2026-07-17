@@ -35,7 +35,7 @@ opentelemetry-bootstrap -a install   # detects installed libs; installs matching
 
 ```bash
 opentelemetry-instrument \
-  --service-name my-service \
+  --service_name my-service \
   python -m uvicorn app:app
 ```
 

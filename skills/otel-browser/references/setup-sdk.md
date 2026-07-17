@@ -203,10 +203,11 @@ session manager under `@opentelemetry/browser-sdk/session` (`createSessionManage
 (seconds).
 
 > **Processor ordering**: register the session processor **before** the export (batch) processor so
-> `session.id` is stamped before export. If you call the per-signal `startLogsSdk` /
-> `startTracesSdk` with `processors`, include the export processor in that list. If you want the
-> SDK to build the default batch export processor from `exportConfig` / `batchProcessorConfig`, omit
-> `processors`.
+> `session.id` is stamped before export. With the per-signal `startLogsSdk` / `startTracesSdk`, put
+> the session processor in `processors` and keep `exportConfig` configured. The SDK appends its
+> default batch export processor after the supplied processors, including when `processors` is
+> non-empty. Only construct and include an export processor yourself when you intentionally omit
+> `exportConfig`.
 
 `session.*` follows the
 [session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/session.md).

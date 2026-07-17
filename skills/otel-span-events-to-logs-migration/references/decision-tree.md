@@ -6,7 +6,7 @@ For each `AddEvent` or `RecordException` call site, follow this tree to determin
 
 If the call uses `RecordException` (or `AddEvent` with `exception.*` attributes):
 - **Action: Migrate to log-based exception**
-- Use the Logs API to emit an event with name `exception`
+- Use the Logs API to emit the applicable semantic-convention event name, normally an operation-specific name with a `.exception` suffix; use `exception` for generic handlers not tied to an operation or domain
 - Preserve the applicable exception semantic-convention attributes. Use SDK exception support when available; otherwise set `exception.type` and `exception.message` when known, plus `exception.stacktrace` when the language/error object carries a meaningful stack.
 - The log record must carry the active span context
 
