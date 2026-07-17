@@ -50,7 +50,9 @@ All signals are **Alpha** (profiles are **Development**). Config keys can still 
 # Less efficient — inferred as datapoint context, evaluates every datapoint
 metric_conditions:
   - 'datapoint.attributes["env"] == "test"'
+```
 
+```yaml
 # Prefer — resource condition drops the whole resource in one check
 metric_conditions:
   - 'resource.attributes["env"] == "test"'
