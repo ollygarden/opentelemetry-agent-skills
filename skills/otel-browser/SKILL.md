@@ -33,6 +33,22 @@ first decision:
 | **Events** | Logs API → `LogRecord` | point-in-time facts (no duration/children) | web vitals, navigation, console, errors, user action |
 | **Spans** | Trace API | operations with a duration and parent/child | `fetch`, XHR, document load, long task |
 
+## Verify attributes against released semantic conventions before hand-rolling
+
+Every browser signal (`browser.navigation`, `browser.web_vital`, `browser.resource_timing`,
+`exception`, …) has a released semantic-convention group, even while `browser.*` is still
+**development** stability. Before emitting a hand-written span or `LogRecord` with custom
+attributes:
+
+1. Prefer a catalog instrumentation from [`references/instrumentation.md`](references/instrumentation.md) — it already emits
+   compliant event/attribute names.
+2. If no instrumentation covers the signal, check the released names first instead of inventing a
+   namespace: use the `otel-semantic-conventions` skill to query the `browser` group (e.g. its
+   `events` kind, or one entry like `event.browser.web_vital`), or WebFetch the matching page under
+   `https://opentelemetry.io/docs/specs/semconv/browser/`.
+3. Use the released event/attribute names verbatim (e.g. the `browser.web_vital` event's `name`,
+   `value`, `delta`, `id` — not a custom `web_vital.*` namespace), even at development stability.
+
 ## The browser package ecosystem — three repositories
 
 Browser packages are spread across three upstream repos. The
@@ -89,6 +105,6 @@ relying on these notes.
 
 - Shared JS API and Node.js SDK (the browser builds on the same API): `otel-js` skill.
 - Schema-level facts for declarative YAML config: `otel-declarative-config` skill.
-- Semantic conventions lookup (`browser.*`, `session.*`, `exception`): `otel-semantic-conventions` skill.
+- Semantic conventions lookup (`browser.*`, `session.*`, `exception`): `otel-semantic-conventions` skill — use it before hand-rolling any event/span attributes (see above).
 - Edge sampling / redaction / rate limiting in front of browsers: `otel-collector` skill.
 - SDK version selection across languages: `otel-sdk-versions` skill.
