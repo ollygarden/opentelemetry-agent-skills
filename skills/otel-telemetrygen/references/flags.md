@@ -37,9 +37,9 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--workers` | int | `1` | Concurrent worker goroutines |
-| `--rate` | float64 | `1` | Items/sec/worker. `0` = no throttling |
+| `--rate` | float64 | `1` | Metrics/spans/logs per sec/worker. `0` = no throttling |
 | `--duration` | duration | `0` | How long to generate. Go durations (`5s`, `1m`) or `inf`. Overrides count flags |
-| `--interval` | duration | `1s` | Progress reporting interval |
+| `--interval` | duration | `1s` | Registered reporting interval; not consumed by generation code in v0.156.0 |
 | `--timeout` | duration | `10s` | Maximum time to wait for the signals to reach destination |
 
 ### Batching
@@ -62,7 +62,7 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--size` | int | `0` | Minimum payload size in MB per record |
+| `--size` | int | `0` | Minimum string-data payload size in MB per generated record; for traces, it is added to the parent span |
 | `--allow-export-failures` | bool | `false` | Continue when exports fail |
 
 ### Attribute Value Format
@@ -79,10 +79,10 @@ key=123                    # Integer
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--traces` | int | `0` | Traces per worker. Ignored if `--duration` set |
-| `--child-spans` | int | `1` | Child spans per trace |
-| `--span-duration` | duration | `123us` | Duration of each span |
+| `--child-spans` | int | `1` | Child spans per trace; values below 1 still generate one child |
+| `--span-duration` | duration | `123us` | Duration of each child span; the parent covers the child-span sequence |
 | `--status-code` | string | `"0"` | `Unset`/`0`, `Error`/`1`, `Ok`/`2` |
-| `--span-links` | int | `0` | Span links per span |
+| `--span-links` | int | `0` | Links requested from previously generated span contexts; the first parent has none |
 | `--marshal` | bool | `false` | Marshal trace context via HTTP headers |
 | `--otlp-http-url-path` | string | `"/v1/traces"` | HTTP URL path |
 
@@ -96,7 +96,7 @@ key=123                    # Integer
 | `--aggregation-temporality` | string | `"cumulative"` | `cumulative` or `delta` |
 | `--trace-id` | string | `""` | Trace ID for exemplar linking |
 | `--span-id` | string | `""` | Span ID for exemplar linking |
-| `--unique-timeseries` | bool | `false` | Enforce unique timeseries (experimental) |
+| `--unique-timeseries` | bool | `false` | Enforce unique timeseries within the configured duration window |
 | `--unique-timeseries-duration` | duration | `1s` | Window for unique timeseries generation |
 | `--otlp-http-url-path` | string | `"/v1/metrics"` | HTTP URL path |
 

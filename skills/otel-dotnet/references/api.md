@@ -348,9 +348,10 @@ defaults to W3C TraceContext + Baggage.
 
 ## Optional: OpenTelemetry API Shim
 
-> **Note:** An `OpenTelemetry.Api` shim exists for developers who prefer the
-> cross-language OTel API surface (`Tracer`, `Span`, `Meter` from the OTel namespace)
-> over the native BCL types. It wraps `ActivitySource`/`Activity` under the hood.
+> **Note:** An `OpenTelemetry.Api` tracing shim exists for developers who prefer
+> OTel trace terminology (`Tracer`/`TelemetrySpan`) over `ActivitySource`/`Activity`.
+> It wraps the native BCL tracing types under the hood; metrics still use
+> `System.Diagnostics.Metrics.Meter` and its instruments directly.
 >
 > The BCL path (`System.Diagnostics.ActivitySource`, `System.Diagnostics.Metrics.Meter`)
 > is the recommended and idiomatic choice for .NET. Prefer it unless you are porting

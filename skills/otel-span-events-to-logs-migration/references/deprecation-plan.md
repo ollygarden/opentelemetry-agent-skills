@@ -7,7 +7,7 @@ This reference summarizes the [OTEP 4430](https://github.com/open-telemetry/open
 - `Span.AddEvent` -- the API method for attaching events to spans
 - `Span.RecordException` -- the API method for recording exceptions on spans
 
-As of 2026-07-12, these methods are planned deprecation targets from the accepted OTEP. They are not yet marked Deprecated in `specification/trace/api.md`.
+As of 2026-07-16, these methods are planned deprecation targets from the accepted OTEP. They are not yet marked Deprecated in `specification/trace/api.md`.
 
 ## What Is NOT Being Deprecated
 
@@ -41,18 +41,19 @@ Stabilize log-based Events. (The `event_name` LogRecord field is part of the sta
 - Next major version: migrate to the Logs API; for span-detail-without-a-timestamp cases, record span attributes instead ([semantic-conventions#2010](https://github.com/open-telemetry/semantic-conventions/issues/2010), [opentelemetry-specification#4446](https://github.com/open-telemetry/opentelemetry-specification/issues/4446))
 - Users opt into the SDK bridge if they need span events in the proto envelope
 
-## Current Status (2026-07-12)
+## Current Status (2026-07-16)
 
 - **Proto**: log-based Events are stable; `event_name` is a stable LogRecord field.
 - **Spec**: the Logs API is Stable, including the `event_name` field and the optional `Exception` parameter to Emit, so log-based exception/event emission is specified. The "event to span event bridge" `LogRecordProcessor` is specified in `specification/logs/sdk.md` (Status: Development), with a matching `event_to_span_event_bridge/development` declarative-config key.
 - **Not yet done in spec**: `Span.AddEvent` and `Span.RecordException` are **not** yet marked Deprecated in `specification/trace/api.md`. That step remains pending.
+- **Semantic conventions 1.43.0**: exception events normally use an operation-specific name with a `.exception` suffix; the generic `exception` name is for handlers not tied to an operation or domain. Existing instrumentations introducing log-based exceptions should use `OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN` with `logs` or `logs/dup` for a phased rollout while keeping span events as the default in the current major version.
 - **SDKs**: implementation status varies. Do not claim all `AddEvent`/`RecordException` equivalents are deprecated unless that language SDK marks them so.
 
 ## Language Status Snapshot
 
 Use current released source for the target language before editing user code.
 The snapshot below was verified against locally available releases on
-2026-07-12 (the local checkouts could not be refreshed from the network):
+2026-07-16 against synced upstream checkouts and exact released tags:
 
 | Language | Current migration-relevant status |
 |---|---|
