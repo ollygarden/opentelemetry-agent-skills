@@ -397,7 +397,7 @@ OTEL_EXPORTER_OTLP_TIMEOUT=5   # seconds
 exporter = OTLPSpanExporter(timeout=5)  # seconds in constructor
 ```
 
-Note: Python interprets `OTEL_EXPORTER_OTLP_TIMEOUT` and the `timeout=` constructor argument in **seconds** (default `10`). This deviates from the OpenTelemetry specification, which defines the variable in milliseconds (default `10000`). A value of `5` is a 5-second timeout in Python, not 5 milliseconds.
+Note: Python interprets `OTEL_EXPORTER_OTLP_TIMEOUT` and the `timeout=` constructor argument in **seconds** (default `10`). This deviates from the OpenTelemetry specification, which defines the variable in milliseconds (default `10000`). A value of `5` is a 5-second timeout in Python, not 5 milliseconds. This is a known, tracked deviation ([opentelemetry-python#4044](https://github.com/open-telemetry/opentelemetry-python/issues/4044)); revisit this guidance if that issue is resolved.
 
 Lower timeout: fail fast and free the batch processor for the next export cycle.
 Higher timeout: accommodate large batches or slow backends.
