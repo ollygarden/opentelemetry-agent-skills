@@ -21,9 +21,9 @@ OTelCol (Collector request/client metadata; read-only)
 resource.attributes                    # map
 resource.attributes["service.name"]
 resource.dropped_attributes_count
+resource.schema_url
 resource.cache                         # transformation-scope scratchpad
 resource.cache["key"]
-resource.metadata["key"]               # client request metadata (v0.147+)
 ```
 
 ```ottl
@@ -42,6 +42,7 @@ scope.version
 scope.attributes
 scope.attributes["key"]
 scope.dropped_attributes_count
+scope.schema_url
 scope.cache
 scope.cache["key"]
 ```
@@ -97,7 +98,6 @@ span.links                       # collection
 span.dropped_attributes_count
 span.dropped_events_count
 span.dropped_links_count
-span.metadata["key"]             # client request metadata (v0.147+)
 span.cache["key"]                # transformation cache
 ```
 
@@ -158,12 +158,12 @@ metric.type                          # int64 (use METRIC_DATA_TYPE_* enums)
 metric.aggregation_temporality       # int64
 metric.is_monotonic                  # bool
 metric.data_points                   # collection
-metric.metadata
+metric.metadata                       # metadata carried by the metric
 ```
 
 ```ottl
 # Normalize metric names to safe characters
-set(metric.name, replace_pattern(metric.name, "[^a-zA-Z0-9_]", "_"))
+replace_pattern(metric.name, "[^a-zA-Z0-9_]", "_")
 
 # Normalize legacy units
 set(metric.unit, "s") where metric.unit == "seconds"
@@ -236,7 +236,6 @@ log.body[0]                          # if body is a list
 log.attributes
 log.attributes["key"]
 log.dropped_attributes_count
-log.metadata["key"]                  # client request metadata (v0.147+)
 log.flags
 log.trace_id / log.trace_id.string
 log.span_id  / log.span_id.string
@@ -299,19 +298,6 @@ profilesample.timestamps              # []time.Time
 profilesample.attribute_indices
 cache["key"]
 ```
-
-## Client request metadata (v0.147+)
-
-All contexts expose a `metadata` map for reading metadata attached to the inbound request (gRPC metadata, HTTP headers). It is *not* part of the telemetry payload — values come from the receiver. Keys are case-sensitive and the available set depends on the receiver and transport.
-
-```ottl
-span.metadata["X-Tenant-ID"]
-log.metadata["X-Scope-OrgID"]
-resource.metadata["Authorization"]
-datapoint.metadata["X-Custom-Header"]
-```
-
-Common uses: tenant routing, request-level enrichment, conditional drop based on caller identity.
 
 ## OTelCol context (v0.147+, enabled by default feature gate)
 
