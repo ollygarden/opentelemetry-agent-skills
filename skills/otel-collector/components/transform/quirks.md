@@ -37,7 +37,9 @@ Statements evaluate per item at their inferred context. A `datapoint`- or `spane
 metric_statements:
   - convert_sum_to_gauge() where metric.name == "process.count"
   - limit(datapoint.attributes, 100, ["host.name"])
+```
 
+```yaml
 # WORKS — one group per context
 metric_statements:
   - statements:
