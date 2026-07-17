@@ -37,7 +37,7 @@ While moving entries, normalize:
 Validate as you go:
 
 ```
-weaver registry check -r ./telemetry/registry/
+weaver registry check --v2 -r ./telemetry/registry/
 ```
 
 ## Author templates
@@ -50,6 +50,7 @@ Copy the Go templates from `references/template-authoring.md` into `telemetry/te
 
 ```
 weaver registry generate \
+  --v2 \
   --registry ./telemetry/registry/ \
   --templates ./telemetry/templates/ \
   go \
@@ -83,8 +84,8 @@ See `references/ci-integration.md`. Ship the workflow in the same PR as the migr
 
 ## Verify before declaring victory
 
-- `weaver registry check` returns success (modulo the expected `definition/2` warning)
-- `weaver registry generate` followed by the language formatter leaves `git diff --exit-code` clean
+- `weaver registry check --v2` returns success (modulo the expected `definition/2` warning)
+- `weaver registry generate --v2` followed by the language formatter leaves `git diff --exit-code` clean
 - the application builds and tests pass
 - a sample trace shows org-local span names and attributes from the generated symbols
 - a sample metric shows the renamed/rescaled units and no leftover `.total` suffix

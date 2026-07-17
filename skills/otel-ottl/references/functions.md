@@ -2,6 +2,42 @@
 
 Editor and converter reference for collector-contrib **v0.156.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
+## Transform-processor-only functions
+
+The `transform` processor adds the following functions to the common OTTL
+catalog. They are not generally available in other OTTL-consuming components.
+The contexts and signatures below are pinned to the released
+[v0.156.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#supported-functions).
+
+| Context | Signature | Behavior and limits |
+|---------|-----------|---------------------|
+| `metric` | `convert_sum_to_gauge()` | Sum to Gauge; other metric types are unchanged. The conversion can violate Gauge semantics. |
+| `metric` | `convert_gauge_to_sum(aggregation_temporality, is_monotonic)` | Gauge to Sum; temporality is `"delta"` or `"cumulative"`; other metric types are unchanged. The caller owns the resulting Sum semantics. |
+| `metric` | `extract_count_metric(is_monotonic, suffix?)` | Creates a Sum from Histogram, ExponentialHistogram, or Summary counts; default suffix `_count`; only creates output when datapoints exist. |
+| `metric` | `extract_percentile_metric(percentile, suffix?)` | Creates a Gauge from Histogram or ExponentialHistogram buckets; `0 < percentile < 100`; default suffix `_p{percentile}`; the result is an interpolated estimate. |
+| `metric` | `extract_sum_metric(is_monotonic, suffix?)` | Creates a Sum from Histogram, ExponentialHistogram, or Summary sums; default suffix `_sum`; skips datapoints whose sum is absent. |
+| `datapoint` | `convert_summary_count_val_to_sum(aggregation_temporality, is_monotonic, suffix?)` | Creates a Sum from a Summary count; temporality is `"delta"` or `"cumulative"`; default suffix `_count`. |
+| `metric` | `convert_summary_quantile_val_to_gauge(attribute_key?, suffix?)` | Creates one Gauge datapoint per Summary quantile; defaults are attribute `quantile` and suffix `.quantiles`. |
+| `datapoint` | `convert_summary_sum_val_to_sum(aggregation_temporality, is_monotonic, suffix?)` | Creates a Sum from a Summary sum; temporality is `"delta"` or `"cumulative"`; default suffix `_sum`. |
+| `metric` | `copy_metric(name?, description?, unit?)` | Appends a full copy, optionally overriding metadata. The copy runs through later metric statements, so guard it with a condition that excludes the copy. |
+| `metric` | `scale_metric(factor, unit?)` | Scales Gauge, Sum, Histogram, and Summary values; optionally changes the unit. |
+| `metric` | `aggregate_on_attributes(function, attributes?)` | Aggregates Sum, Gauge, Histogram, or ExponentialHistogram datapoints. Functions are `sum`, `max`, `min`, `mean`, `median`, or `count`; histogram types support only `sum`. Omitted attributes retain all keys, while `[]` drops all keys. |
+| `metric` | `convert_exponential_histogram_to_histogram(distribution, explicit_bounds)` | Converts ExponentialHistogram to explicit Histogram using `upper`, `midpoint`, `uniform`, or `random`; bounds must be non-empty. This lossy conversion is not specified by OpenTelemetry. |
+| `metric` | `aggregate_on_attribute_value(function, attribute, values, new_value)` | Aggregates selected attribute values for Sum, Gauge, Histogram, or ExponentialHistogram datapoints; histogram types support only `sum`. |
+| `datapoint` | `merge_histogram_buckets(target_value, method?)` | Explicit Histograms only. Default `remove_explicit_bound` removes a matching bound; `limit_buckets` requires a positive integer target and reduces resolution. Other metric types are unchanged. |
+| `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
+| `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.156 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
+
+For full behavior, examples, and edge cases, follow the tag-pinned
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#metrics-only-functions),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#logs-only-functions), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#traces-only-functions)
+sections. The registrations that constrain the contexts are also tag-pinned:
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/traces/functions.go).
+
 ## Editors (data manipulation)
 
 Editors are lowercase. Every OTTL statement contains exactly one.
@@ -132,11 +168,14 @@ set(attributes["db.statement"], Substring(attributes["db.statement"], 0, 1024))
 
 ### `Concat`, `Split`, `Substring`
 ```ottl
-Concat(["user", user_id, "action"], "-")     # "user-123-action"
-Split(path, "/")                              # ["", "api", "v1", "users"]
-Split(path, "/")[1]                           # "api"
+Concat(["user", span.attributes["user.id"], "action"], "-")  # "user-123-action" when user.id == "123"
+Split(span.name, "/")                         # ["", "api", "v1", "users"]
+Split(span.name, "/")[1]                      # "api"
 Substring(span.span_id.string, 0, 8)          # first 8 chars
+Substring(target, start, length, utf8_safe?)  # byte offsets; utf8_safe defaults false; added v0.156
 ```
+
+With `utf8_safe=true`, a start inside a multi-byte character advances to the next UTF-8 boundary and an end inside one backs up to the previous boundary. The result stays valid UTF-8 but can be shorter than `length` bytes.
 
 ### Case
 ```ottl
@@ -159,15 +198,9 @@ HasSuffix(s, suffix)         # bool
 where HasPrefix(span.name, "internal.")
 ```
 
-### `Replace` (literal, non-regex)
-```ottl
-Replace(target, old, new, count?)
-Replace(log.body.string, "ERROR", "ERR", 1)
-```
-
 ### `Format`
 ```ottl
-Format("user=%s req=%d", [user, count])      # printf-style
+Format("user=%s req=%d", [span.attributes["user.id"], span.attributes["request.count"]])
 ```
 
 ---
@@ -183,7 +216,7 @@ ParseInt(s, base)        # ParseInt("ff", 16) -> 255
 Hex(bytes)               # bytes -> hex string
 ```
 
-**`Bool` coercion is loose, not Pythonic.** `Bool("true")`, `Bool("1")`, `Bool(1)` → `true`; `Bool("false")`, `Bool("0")`, `Bool(0)`, `Bool(0.0)` → `false`. Other values error. Don't assume `Bool("yes")` or `Bool("anything-non-empty")` returns true.
+**`Bool` coercion is loose, not Pythonic.** Booleans pass through; any non-zero integer or double is `true`; zero is `false`; strings use Go boolean parsing (`1`, `t`, `T`, `TRUE`, `true`, `True`, and false equivalents). Invalid strings and unsupported types error, while `nil` returns `nil`.
 
 ---
 
@@ -233,10 +266,10 @@ Built-in pattern library covers HTTP, syslog, paths, IPs, dates, etc. Cheaper th
 ```ottl
 ParseJSON(s)                                  # JSON string -> map | list
 ParseCSV(s, headers, delimiter?, headerDelim?, mode?)
-ParseKeyValue(s, pair_delim?, kv_delim?)      # ParseKeyValue("a=1&b=2", "&", "=")
+ParseKeyValue(s, kv_delim?, pair_delim?)      # ParseKeyValue("a=1&b=2", "=", "&")
 ParseXML(s) / ParseSimplifiedXML(s)
 ParseSeverity(value, mapping)                 # map values -> SEVERITY_NUMBER_*
-URL(s)                                        # v0.127+; { scheme, domain, port, path, query, fragment, … }
+URL(s)                                        # v0.127+; { url.scheme, url.domain, url.port, url.path, … }
 UserAgent(s)                                  # v0.134+; { user_agent.name, .version, os.name, os.version, … }
 ```
 
@@ -246,7 +279,12 @@ set(log.attributes, ParseJSON(log.body.string))
     where IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")
 
 # URL parsing
-set(span.attributes["http.host"], URL(span.attributes["http.url"])["domain"])
+set(span.attributes["http.host"], URL(span.attributes["http.url"])["url.domain"])
+```
+
+### Fallback values
+```ottl
+Coalesce([span.attributes["user.id"], resource.attributes["user.id"], "fallback"])
 ```
 
 ---
@@ -300,14 +338,14 @@ Hours(d) / Minutes(d) / Seconds(d) / Milliseconds(d) / Microseconds(d) / Nanosec
 ## Hashing & encoding
 
 ```ottl
-SHA256(v) / SHA512(v)
-SHA1(v) / MD5(v)                              # cryptographically weak; avoid for security
-FNV(v)                                        # int64
-Murmur3Hash(v) / Murmur3Hash128(v)            # v0.129+
-XXH3(v) / XXH128(v)                           # v0.135+; very fast
+SHA256(s) / SHA512(s)
+SHA1(s) / MD5(s)                              # cryptographically weak; avoid for security
+FNV(s)                                        # int64
+Murmur3Hash(s) / Murmur3Hash128(s)            # v0.129+; hexadecimal string
+XXH3(s) / XXH128(s)                           # v0.135+; hexadecimal string
 Decode(value, encoding)                       # v0.141+; "base64", "base64-raw", "base64-url", "base64-raw-url", IANA charsets
-Base64Encode(v, variant?)                     # v0.147+; default base64
-Base64Decode(v)                               # DEPRECATED — use Decode(v, "base64")
+Base64Encode(s, variant?)                     # v0.147+; default base64
+Base64Decode(s)                               # DEPRECATED — use Decode(s, "base64")
 Hex(bytes)
 ```
 
@@ -382,6 +420,5 @@ Then read from `log.cache["parsed"]` in subsequent statements without paying the
 ### Hash-based sampling
 ```ottl
 set(span.attributes["sampled"], true)
-    where FNV(span.trace_id.string) % 100 < 10        # 10%
-# Murmur3Hash or XXH3 work too and are faster on long inputs.
+    where IsMatch(XXH3(span.trace_id.string), "^(0[0-9a-f]|1[0-9])")  # ~10.2%
 ```

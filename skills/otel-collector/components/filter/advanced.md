@@ -42,12 +42,16 @@ Basic (flat strings) and advanced (objects) styles cannot be mixed within one si
 processors:
   filter:
     error_mode: ignore
+```
 
+```yaml
 # Development: catch broken conditions immediately (must set explicitly; ignore is the default)
 processors:
   filter:
     error_mode: propagate   # a failing condition drops the whole batch
+```
 
+```yaml
 # Noisy environments: continue without logging the error at all
 processors:
   filter:

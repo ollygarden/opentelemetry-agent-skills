@@ -23,14 +23,14 @@ The SDK reads defaults from environment variables; check the [OpenTelemetry Pyth
 | BSP max queue size | `OTEL_BSP_MAX_QUEUE_SIZE` | Check SDK default |
 | BSP max export batch size | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Check SDK default |
 | BSP schedule delay (ms) | `OTEL_BSP_SCHEDULE_DELAY` | Check SDK default |
-| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Check SDK default |
+| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Accepted but not applied by `BatchSpanProcessor` in SDK 1.43.0 |
 | Span attribute count limit | `OTEL_SPAN_ATTRIBUTE_COUNT_LIMIT` | Check SDK default |
 | Span event count limit | `OTEL_SPAN_EVENT_COUNT_LIMIT` | Check SDK default |
 | Span link count limit | `OTEL_SPAN_LINK_COUNT_LIMIT` | Check SDK default |
 | Attribute value length limit | `OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT` | Unlimited if unset |
 | Metric export interval (ms) | `OTEL_METRIC_EXPORT_INTERVAL` | Check SDK default |
 | Metric export timeout (ms) | `OTEL_METRIC_EXPORT_TIMEOUT` | Check SDK default |
-| OTLP export timeout (ms) | `OTEL_EXPORTER_OTLP_TIMEOUT` | Check SDK default |
+| OTLP export timeout (s) | `OTEL_EXPORTER_OTLP_TIMEOUT` | Python reads this as **seconds** (default `10`), deviating from the spec, which defines it in milliseconds |
 | Traces sampler | `OTEL_TRACES_SAMPLER` | `parentbased_always_on` if unset |
 | Traces sampler arg | `OTEL_TRACES_SAMPLER_ARG` | Ratio for ratio-based samplers |
 
@@ -114,7 +114,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Per-export timeout |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` in SDK 1.43.0 |
 
 ### Tuning for Throughput
 
@@ -145,7 +145,10 @@ bsp = BatchSpanProcessor(
 
 ### Queue-Full Behavior
 
-When the queue is full, new spans are dropped silently. The SDK prioritizes application throughput over telemetry completeness. Monitor `OTEL_BSP_MAX_QUEUE_SIZE` versus observed drop rates by watching SDK internal logs.
+When the queue is full, adding a new span evicts the oldest queued span and logs
+`Queue full, dropping Span.` The SDK prioritizes application throughput over
+telemetry completeness. Monitor queue-full warnings and the queue capacity set
+by `OTEL_BSP_MAX_QUEUE_SIZE`.
 
 ### SimpleSpanProcessor
 
@@ -238,7 +241,14 @@ mp = MeterProvider(
 )
 ```
 
-Views are evaluated in order; the first matching View wins. A metric with no matching View uses the default aggregation.
+Every matching View creates a metric stream, with two exceptions: a View using
+`DropAggregation` matches but produces no stream (it discards the instrument's
+measurements), and a View that is incompatible with the instrument (for example,
+an explicit-bucket histogram on an asynchronous instrument) is skipped with a
+warning. Ordering does not make the first match win. Overlapping Views can
+therefore produce multiple streams; when their metric identities conflict the SDK
+logs a warning but still emits the conflicting streams. A metric with no matching
+View uses the default aggregation.
 
 Attributes like HTTP method (~10 values) or response status code (~50 values) are bounded. Attributes like `user.id`, `request.id`, or `session.id` are unbounded and should be filtered out with Views unless you specifically intend per-user metrics.
 
@@ -380,12 +390,14 @@ The OTLP exporters retry on transient errors (connection refused, 5xx responses)
 Configure timeout via environment variable or constructor:
 
 ```bash
-OTEL_EXPORTER_OTLP_TIMEOUT=5000   # milliseconds
+OTEL_EXPORTER_OTLP_TIMEOUT=5   # seconds
 ```
 
 ```python
 exporter = OTLPSpanExporter(timeout=5)  # seconds in constructor
 ```
+
+Note: Python interprets `OTEL_EXPORTER_OTLP_TIMEOUT` and the `timeout=` constructor argument in **seconds** (default `10`). This deviates from the OpenTelemetry specification, which defines the variable in milliseconds (default `10000`). A value of `5` is a 5-second timeout in Python, not 5 milliseconds. This is a known, tracked deviation ([opentelemetry-python#4044](https://github.com/open-telemetry/opentelemetry-python/issues/4044)); revisit this guidance if that issue is resolved.
 
 Lower timeout: fail fast and free the batch processor for the next export cycle.
 Higher timeout: accommodate large batches or slow backends.
@@ -478,7 +490,8 @@ async def shutdown_providers():
 
 The SDK is designed so that telemetry failures do not crash or slow the application:
 
-- **Span creation never raises** — it returns a noop span if the provider is shut down or fails
+- **Span creation never raises** — after provider shutdown it may still return a recording span,
+  but the shut-down processors/exporters no longer process or export that span
 - **Metric recording never raises** — measurements are silently dropped on failure
 - **Export failures are retried** — then dropped after the timeout or max retries
 - **Queue overflow drops spans** — the application is not blocked
@@ -498,6 +511,6 @@ Key signals to watch:
 
 | Indicator | Meaning |
 |-----------|---------|
-| `Span dropped` log warnings | Queue overflow — increase `max_queue_size` or reduce export interval |
-| Export timeout errors | Backend too slow or batch too large — tune `export_timeout_millis` or `max_export_batch_size` |
+| `Queue full, dropping Span.` warnings | Queue overflow — increase `max_queue_size` or reduce `schedule_delay_millis` |
+| Export timeout errors | Backend/exporter too slow or batch too large — tune the exporter timeout or `max_export_batch_size`; BSP `export_timeout_millis` is not applied in SDK 1.43.0 |
 | High memory growth | Metric cardinality explosion — add Views to filter attributes |
