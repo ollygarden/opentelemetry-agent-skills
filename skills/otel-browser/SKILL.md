@@ -35,19 +35,22 @@ first decision:
 
 ## Verify attributes against released semantic conventions before hand-rolling
 
-Every browser signal (`browser.navigation`, `browser.web_vital`, `browser.resource_timing`,
-`exception`, …) has a released semantic-convention group, even while `browser.*` is still
-**development** stability. Before emitting a hand-written span or `LogRecord` with custom
-attributes:
+Not every browser signal has a released convention yet — e.g. `browser.web_vital` is a released
+**development**-stability event, but `browser.navigation` and `browser.resource_timing` have no
+released convention under the `browser` group, and `exception` is a released **stable** group of
+its own (not under `browser`). Check coverage per signal rather than assuming it; before emitting a
+hand-written span or `LogRecord` with custom attributes:
 
 1. Prefer a catalog instrumentation from [`references/instrumentation.md`](references/instrumentation.md) — it already emits
-   compliant event/attribute names.
-2. If no instrumentation covers the signal, check the released names first instead of inventing a
-   namespace: use the `otel-semantic-conventions` skill to query the `browser` group (e.g. its
-   `events` kind, or one entry like `event.browser.web_vital`), or WebFetch the matching page under
+   compliant event/attribute names where a convention exists.
+2. Check whether a released convention covers the signal: use the `otel-semantic-conventions`
+   skill to query the relevant group (e.g. `browser` for `event.browser.web_vital`, `exceptions`
+   for `exception.type`), or WebFetch the matching page under
    `https://opentelemetry.io/docs/specs/semconv/browser/`.
-3. Use the released event/attribute names verbatim (e.g. the `browser.web_vital` event's `name`,
-   `value`, `delta`, `id` — not a custom `web_vital.*` namespace), even at development stability.
+3. If one exists, use its event/attribute names verbatim (e.g. the `browser.web_vital` event's
+   `name`, `value`, `delta`, `id` — not a custom `web_vital.*` namespace), even at development
+   stability. If none exists, define bounded, low-cardinality custom attributes under a stable
+   namespace instead of guessing at a released-looking name.
 
 ## The browser package ecosystem — three repositories
 
