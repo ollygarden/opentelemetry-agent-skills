@@ -67,7 +67,9 @@ processors:
   probabilistic_sampler:
     mode: proportional
     sampling_percentage: 30
+```
 
+```yaml
 # Gateway collector — content-aware tail sampling on the survivors
 processors:
   tail_sampling:
