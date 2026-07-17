@@ -65,7 +65,9 @@ Run `transform` first if `filter`'s conditions depend on attributes `transform` 
 processors:
   transform:
     error_mode: ignore
+```
 
+```yaml
 # Mixed: most groups tolerant, one group must fail loudly
 processors:
   transform:

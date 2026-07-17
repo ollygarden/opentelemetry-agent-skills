@@ -47,10 +47,10 @@ set(log.attributes, ParseJSON(log.body.string))
 
 # Query string -> map
 set(span.attributes["params"],
-    ParseKeyValue(span.attributes["http.query"], "&", "="))
+    ParseKeyValue(span.attributes["http.query"], "=", "&"))
 
 # URL parts (v0.127+)
-set(span.attributes["http.host"], URL(span.attributes["http.url"])["domain"])
+set(span.attributes["http.host"], URL(span.attributes["http.url"])["url.domain"])
 
 # User agent (v0.134+)
 set(span.attributes["client.os"],
@@ -100,9 +100,9 @@ where IsInCIDR(span.attributes["client.address"],
 ### Sampling
 
 ```ottl
-# Hash-based 10% — XXH3 is faster than FNV on long inputs
+# Hash-based ~10.2%; 26 of 256 possible first-byte values match
 set(span.attributes["sampled"], true)
-    where XXH3(span.trace_id.string) % 100 < 10
+    where IsMatch(XXH3(span.trace_id.string), "^(0[0-9a-f]|1[0-9])")
 
 # Always-sample errors
 set(span.attributes["sampled"], true)
@@ -276,9 +276,9 @@ service:
 set(span.attributes["ottl.processed"], true)
 set(span.attributes["ottl.timestamp"], Now())
 
-# 0.1% sampled debug snapshot
+# ~0.1% sampled debug snapshot (4 of 4096 three-hex-digit prefixes)
 set(span.attributes["debug.original_name"], span.name)
-    where XXH3(span.trace_id.string) % 1000 == 0
+    where IsMatch(XXH3(span.trace_id.string), "^00[0-3]")
 ```
 
 ### Validate before transforming
@@ -336,7 +336,7 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 | Backreferences appear literal | YAML ate the `$` | Use `$${1}` in YAML for OTTL `${1}` |
 | `attributes` processor doesn't touch resource | Wrong processor | Use `resource` processor or `transform` with `context: resource` |
 | `cache["x"]` errors in span context | Cache requires a context prefix since v0.120 | Write `span.cache["x"]` |
-| `Bool("yes")` errors | `Bool` only accepts true/false/1/0 inputs | Use `IsMatch` with an explicit pattern, or check with `where` |
+| `Bool("yes")` errors | String inputs use Go boolean parsing; arbitrary non-empty strings are not truthy | Use `IsMatch` with an explicit pattern, or check with `where` |
 | `Base64Decode` deprecation warning | v0.141+ moved to generic decoder | Use `Decode(value, "base64")` |
 
 ### Checklist before shipping

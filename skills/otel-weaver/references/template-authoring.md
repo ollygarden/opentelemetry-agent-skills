@@ -6,28 +6,30 @@ Templates render the output of the `weaver.yaml` jq `filter`, not the input YAML
 # templates/registry/dbg/weaver.yaml
 #   templates:
 #     - template: dump.j2
-#       filter: semconv_grouped_spans   # or semconv_grouped_attributes, etc.
+#       filter: >
+#         semconv_grouped_spans({"v2": true})
 #       application_mode: single
 #       file_name: dump.json
 # templates/registry/dbg/dump.j2 contains only: {{ ctx | tojson }}
-weaver registry generate --registry ./telemetry/registry/ --templates ./telemetry/templates/ dbg /tmp/out
+weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./telemetry/templates/ dbg /tmp/out
 jq '.' /tmp/out/dump.json | less
 ```
 
 (`weaver registry resolve` still works for a raw dump but is deprecated — and it errors under `--future` — and its raw shape differs from the filtered `ctx` above.)
 
-## Resolved-shape cheat sheet
+## Resolved-shape cheat sheet (`definition/2`)
 
 Field names as they appear in the template `ctx` after the `semconv_grouped_*` filters:
 
-| Input field            | In `ctx`                                              |
-|------------------------|-------------------------------------------------------|
-| attribute `key`        | `name`                                                |
-| metric `name`          | `metric_name`                                         |
-| span `type`            | `id` of the form `span.<type>`, plus flat `name` (= input `name.note`) |
-| span `kind`            | `span_kind`                                           |
+| Input field     | In v2 `ctx`       |
+|-----------------|-------------------|
+| attribute `key` | `key`             |
+| metric `name`   | `name`            |
+| span `type`     | `type`            |
+| span `kind`     | `kind`            |
+| span `name.note` | `name.note`      |
 
-The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events> }]`. Other fields are mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
+The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events> }]`. For v2 input, pass `{"v2": true}` or the helper takes its legacy-schema path. Fields are otherwise mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
 
 ## Layout
 
@@ -64,25 +66,28 @@ params:
 
 templates:
   - template: attributes.go.j2
-    filter: semconv_grouped_attributes
+    filter: >
+      semconv_grouped_attributes({"v2": true})
     application_mode: single
     file_name: "attributes_gen.go"
 
   - template: metrics.go.j2
-    filter: semconv_grouped_metrics
+    filter: >
+      semconv_grouped_metrics({"v2": true})
     application_mode: single
     file_name: "metrics_gen.go"
 
   - template: spans.go.j2
-    filter: semconv_grouped_spans
+    filter: >
+      semconv_grouped_spans({"v2": true})
     application_mode: single
     file_name: "spans_gen.go"
 ```
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events` (all barewords).
-- **Single-quote only raw jq expressions.** The `semconv_grouped_*` helpers are barewords and need no quoting. If you write a custom multi-clause jq expression, single-quote it — colons in jq syntax otherwise collide with YAML mapping rules (`mapping values are not allowed in this context`).
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events`.
+- The no-argument helpers default to the legacy schema. For a `definition/2` registry, call them with `{"v2": true}`. Use a folded YAML scalar as above so the object colon is unambiguous to YAML.
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
 
@@ -101,7 +106,7 @@ const (
 {% for group in ctx %}
 {% for attr in group.attributes %}
     {{ attr.brief | comment(format="go") }}
-    Attr{{ attr.name | pascal_case_const }} = "{{ attr.name }}"
+    Attr{{ attr.key | pascal_case_const }} = "{{ attr.key }}"
 {% endfor %}
 {% endfor %}
 )
@@ -121,8 +126,8 @@ package {{ params.package_name }}
 
 {{ metric.brief | comment(format="go") }}
 const (
-    {{ metric.metric_name | pascal_case_const }}Name = "{{ metric.metric_name }}"
-    {{ metric.metric_name | pascal_case_const }}Unit = "{{ metric.unit }}"
+    {{ metric.name | pascal_case_const }}Name = "{{ metric.name }}"
+    {{ metric.name | pascal_case_const }}Unit = "{{ metric.unit }}"
 )
 {% endfor %}
 {% endfor %}
@@ -141,7 +146,7 @@ const (
 {% for group in ctx %}
 {% for span in group.spans %}
     {{ span.brief | comment(format="go") }}
-    Span{{ span.id | replace("span.", "") | pascal_case_const }}Name = "{{ span.name }}"
+    Span{{ span.type | pascal_case_const }}Name = "{{ span.name.note }}"
 {% endfor %}
 {% endfor %}
 )
@@ -151,12 +156,12 @@ const (
 
 - `comment(format="go")`: emits a comment with the configured prefix. Already includes `// `; do not double-prefix.
 - `pascal_case_const`: converts `ecommerce.order.id` → `EcommerceOrderId`. Honors the `acronyms` list.
-- `replace("a", "b")`: literal replace; useful for stripping the `span.` prefix from resolved span ids.
 
 ## Generation
 
 ```
 weaver registry generate \
+  --v2 \
   --registry ./telemetry/registry/ \
   --templates ./telemetry/templates/ \
   go \

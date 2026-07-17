@@ -61,8 +61,8 @@ OTEL_CONFIG_FILE=otel.yaml opentelemetry-instrument python -m uvicorn app:app
 
 When `OTEL_CONFIG_FILE` is set, the file is the **sole** source of SDK
 construction: spec-defined `OTEL_*` variables that have schema equivalents are
-ignored. Env vars are still read via `${env:VAR}` substitution inside the file
-and by components the file enables (e.g. resource detectors).
+ignored. Env vars are still read via `${VAR}` / `${VAR:-default}` substitution
+inside the file and by components the file enables (e.g. resource detectors).
 
 ### Programmatic: `configure_sdk`
 
@@ -78,7 +78,7 @@ from opentelemetry.sdk._configuration.file import load_config_file, configure_sd
 configure_sdk(load_config_file("otel.yaml"))
 ```
 
-`load_config_file` parses YAML/JSON, performs `${env:VAR}` substitution,
+`load_config_file` parses YAML/JSON, performs `${VAR}` and `${VAR:-default}` substitution,
 validates against the vendored schema, and returns a **fully-typed**
 `OpenTelemetryConfiguration` — nested fields (`resource`, `tracer_provider`,
 `meter_provider`, `logger_provider`) are typed dataclasses, not raw dicts. (Prior
