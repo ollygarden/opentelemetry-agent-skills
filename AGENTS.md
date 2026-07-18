@@ -56,3 +56,25 @@ A new skill is only "registered" when it appears in **all** of these. Missing an
 - **Stay vendor neutral and non-opinionated.** Opinions belong in the companion `skills` repo.
 - A skill `description` is the trigger surface: it should enumerate concrete user phrasings so agents activate it reliably. Mirror the existing skills' description style.
 - `local/` is gitignored — used for scratch/research notes, never published.
+
+## Documentation and compatibility checks
+
+For repository-guidance changes, run these checks from the repository root.
+Set `BASE_SHA` to the pull request base commit when checking an already
+committed branch diff.
+
+```bash
+test -f AGENTS.md
+test ! -L AGENTS.md
+test -L CLAUDE.md
+test -e CLAUDE.md
+test "$(readlink CLAUDE.md)" = AGENTS.md
+cmp -s AGENTS.md CLAUDE.md
+test ! -e .agents/skills
+test ! -L .agents/skills
+test ! -e .claude/skills
+test ! -L .claude/skills
+git diff --check
+test -z "${BASE_SHA:-}" || git diff --check "${BASE_SHA}...HEAD"
+perl -MFile::Basename=dirname -MFile::Spec -ne 'while (/\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)/g) { $target = $1; next if $target =~ m{^(?:https?://|mailto:)}; $path = File::Spec->catfile(dirname($ARGV), $target); die "$ARGV: missing $target\n" unless -e $path }' AGENTS.md README.md CONTRIBUTING.md
+```
