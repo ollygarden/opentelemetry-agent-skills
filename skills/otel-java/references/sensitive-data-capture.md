@@ -12,7 +12,7 @@ instrumentation config properties (env-var form: upper-case, dots/dashes → und
 | URL query string | `url.query` (server) / inside `url.full` (client) | **captured**, with only the sensitive-parameter list below redacted |
 | Request/response headers | `http.request.header.<name>` / `http.response.header.<name>` | not captured (opt-in) |
 | Servlet request parameters (form/query) | `servlet.request.parameter.<name>` | not captured (opt-in, experimental) |
-| SQL bound values | `db.query.text` | not captured (statements sanitized to `?` by default) |
+| SQL query text / parameter values | `db.statement` by default; `db.query.text` with stable database semconv; `db.query.parameter.<key>` only when opted in | query text captured but sanitized; parameter values off |
 
 The asymmetry matters: headers, request parameters, and SQL values are **off** by default,
 but the raw query string is **on** — any user data in a query string
@@ -61,6 +61,8 @@ otel.instrumentation.http.server.capture-response-headers=<list>
 otel.instrumentation.http.client.capture-request-headers=<list>
 otel.instrumentation.http.client.capture-response-headers=<list>
 otel.instrumentation.servlet.experimental.capture-request-parameters=<list>
+# High risk: captures JDBC parameter values and disables query sanitization
+otel.instrumentation.jdbc.experimental.capture-query-parameters=true
 ```
 
 Captured headers land as `http.request.header.<lowercase-name>` /
@@ -68,16 +70,41 @@ Captured headers land as `http.request.header.<lowercase-name>` /
 `servlet.request.parameter.<name>`. Enabling any of these captures the raw values — there
 is no per-header/per-parameter redaction.
 
+Those flat properties apply to normal property-based configuration. When declarative config is
+active, flat instrumentation properties are not an overlay; use the corresponding YAML paths:
+
+```yaml
+instrumentation/development:
+  general:
+    http:
+      client:
+        request_captured_headers: [x-request-id]
+        response_captured_headers: [x-request-id]
+      server:
+        request_captured_headers: [x-request-id]
+        response_captured_headers: [x-request-id]
+  java:
+    servlet:
+      capture_request_parameters/development: [customer]
+    jdbc:
+      # High risk: captures values and disables query sanitization
+      capture_query_parameters/development: true
+```
+
 ## SQL sanitization
 
-Statement sanitization (bound values → `?`) is on by default; the current toggle is
+SQL literal/parameter sanitization (values → `?`) is on by default; the current toggle is
 `java.common.db.query_sanitization.enabled` under `instrumentation/development` in declarative
 config, or
 `otel.instrumentation.common.db.query-sanitization.enabled` as a system property/environment
 variable. Per-instrumentation toggles can take precedence. Older property spellings
 (`otel.instrumentation.common.db-statement-sanitizer.enabled` and per-instrumentation
-`*-statement-sanitizer.enabled` variants) are deprecated. Do not turn it off on request
-paths.
+`*-statement-sanitizer.enabled` variants) are deprecated and, when
+`instrumentation/development.java.common.v3_preview: true` in Javaagent/Starter 2.29.0, ignored.
+Use the `db.query_sanitization.enabled` forms above. Do not turn sanitization off on request paths.
+
+JDBC's parameter-capture switch shown above is a separate opt-in. It emits raw values as
+`db.query.parameter.<key>` and disables sanitization even if the sanitization toggle is `true`.
 
 ## Sources of truth
 
