@@ -63,10 +63,10 @@ import { WebTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
-// Merge with the default resource so `telemetry.sdk.*` and the default `service.name`
-// are preserved. `resourceFromAttributes()` ALONE replaces the default resource and drops
-// them — telemetry then arrives with only the attributes you listed. Reuse this one
-// `resource` for BOTH the tracer and logger providers so spans and events correlate.
+// Merge with the default resource so `telemetry.sdk.*` and other non-conflicting defaults
+// are preserved. The incoming explicit `service.name` overrides the default value.
+// `resourceFromAttributes()` ALONE drops every default attribute not listed here. Reuse this
+// one `resource` for BOTH the tracer and logger providers so spans and events correlate.
 const resource = defaultResource().merge(
   resourceFromAttributes({
     [ATTR_SERVICE_NAME]: 'my-web-app',
@@ -238,7 +238,7 @@ new FetchInstrumentation({
 
 - [ ] SDK initialized **before** app/framework code and before libraries patch globals
 - [ ] `service.name` (and ideally `service.version`) set as resource attributes
-- [ ] Resource built by merging the **default** resource (so `telemetry.sdk.*` and the default `service.name` survive), and the **same** resource passed to both the tracer and logger providers
+- [ ] Resource built by merging the **default** resource (so `telemetry.sdk.*` survives while the explicit `service.name` overrides the default), and the **same** resource passed to both the tracer and logger providers
 - [ ] Exporting OTLP/**HTTP** to a Collector you control (not gRPC, not directly to a backend store)
 - [ ] Providers passed explicitly to `registerInstrumentations`, or registered globally first; the global logger is set before constructing event instrumentations that may emit immediately
 - [ ] `ZoneContextManager` registered if you need trace context across async boundaries
@@ -259,6 +259,6 @@ new FetchInstrumentation({
 | Flushing on `unload` | Unreliable on mobile/bfcache; blocks navigation | Flush on `visibilitychange`/`pagehide`; use browser OTLP export with `keepalive` when possible |
 | Session processor after the batch processor | Records exported before `session.id` is attached | Put the session processor first |
 | Shipping `sdk-trace-web` without a context manager | Async user interactions lose parent context | Register `ZoneContextManager` |
-| `resource: resourceFromAttributes({...})` as the whole resource | Replaces the default resource; drops `telemetry.sdk.*` and the default `service.name` | Merge: `defaultResource().merge(resourceFromAttributes({...}))` |
+| `resource: resourceFromAttributes({...})` as the whole resource | Replaces the default resource; only explicitly listed attributes remain, so `telemetry.sdk.*` and other defaults are dropped | Merge so explicit attributes override collisions while other defaults remain: `defaultResource().merge(resourceFromAttributes({...}))` |
 | Building a `LoggerProvider` with no `resource` | Events carry no `service.name`; can't be attributed or correlated with spans | Pass the same merged resource to the logger provider |
 | `registerInstrumentations` running before provider registration (and no explicit providers) | Instrumentations are rebound to no-op providers and emit nothing | Register globals first or pass `tracerProvider` / `loggerProvider`; set the global logger before constructing immediately-emitting event instrumentations |
