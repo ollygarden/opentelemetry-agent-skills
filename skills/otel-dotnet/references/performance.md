@@ -8,7 +8,7 @@ Performance tuning reference for OpenTelemetry .NET SDK. Covers sampling, batch 
 
 | Signal | Unsampled Overhead | Sampled Overhead | Primary Cost |
 |--------|--------------------|------------------|--------------|
-| Traces | Near-zero (noop Activity) | Moderate | Allocations, export I/O |
+| Traces | Low (null or propagation-only Activity) | Moderate | Allocations, export I/O |
 | Metrics | N/A (always collected) | N/A | Aggregation, cardinality |
 | Logs | Low (check enabled before building record) | Low-moderate | Serialization, export I/O |
 
@@ -42,7 +42,11 @@ Exact numeric defaults can shift between releases. For authoritative values, che
 
 ## Sampling
 
-Sampling is the single most impactful performance lever for traces. Unsampled `Activity` objects are never recorded; they are represented as noop instances with near-zero overhead.
+Sampling is the single most impactful performance lever for traces. Unsampled
+activities are not recorded or exported, but the SDK may still create a
+propagation-only `Activity` for a root or remote-parent span so that trace context
+continues downstream. A dropped local child may instead make `StartActivity` return
+`null`.
 
 ### Head Sampling
 
@@ -72,10 +76,13 @@ See the [OpenTelemetry spec sampler names](https://opentelemetry.io/docs/specs/o
 
 ```text
 AlwaysOnSampler             -> Full Activity lifecycle: allocation + recording + export
-ParentBasedSampler(new TraceIdRatioBasedSampler(0.1)) -> 90% noop (near-zero cost), 10% fully recorded
+ParentBasedSampler(new TraceIdRatioBasedSampler(0.1)) -> about 90% non-recording, 10% fully recorded
 TraceIdRatioBasedSampler(0.1) -> Consistent 10% sampling ignoring parent
-AlwaysOffSampler            -> All Activities noop; useful for load testing
+AlwaysOffSampler            -> No recording/export; context may still use propagation-only Activities
 ```
+
+Core 1.17.0 also emits a verbose `OpenTelemetry-Sdk` self-diagnostics event when
+`ParentBasedSampler` drops an activity because its local parent is not recorded.
 
 > **Tail sampling**: For decisions based on complete traces (error rate, latency thresholds), use the OpenTelemetry Collector's tail sampling processor. Combine SDK head sampling with Collector tail sampling for a common production pattern.
 
@@ -127,7 +134,9 @@ For services where trace delivery speed matters (live debugging, alerting), decr
 
 ### Queue Full Behavior
 
-When the queue fills, new spans are dropped silently. Telemetry loss is preferred over application slowdown. The SDK emits internal diagnostic events when drops occur.
+When the queue fills, new spans are dropped instead of blocking the application.
+The processor tracks the drop count and emits an `OpenTelemetry-Sdk` `EventSource`
+summary when it shuts down.
 
 ### SimpleActivityExportProcessor
 
@@ -190,6 +199,23 @@ using var meterProvider = Sdk.CreateMeterProviderBuilder()
     .AddOtlpExporter()
     .Build();
 ```
+
+### Exclude Specific Attributes
+
+Core 1.17.0 added `ExcludedTagKeys` for the inverse case: preserve all attributes
+except a small denylist.
+
+```csharp
+.AddView(
+    instrumentName: "http.server.request.duration",
+    metricStreamConfiguration: new MetricStreamConfiguration
+    {
+        ExcludedTagKeys = new[] { "user.id", "request.id" },
+    })
+```
+
+`TagKeys` and `ExcludedTagKeys` are mutually exclusive. Setting both causes the
+view to be ignored.
 
 ### Drop a Metric Entirely
 
@@ -417,7 +443,8 @@ bool flushed = meterProvider.ForceFlush(timeoutMilliseconds: 5000);
 
 The OpenTelemetry .NET SDK is designed so that telemetry failures do not crash or block the application:
 
-- **`Activity` creation never throws** — noop activities are returned on failure
+- **Dropped activities avoid recording/export work** — `StartActivity` may return
+  `null` or a propagation-only `Activity`, depending on the parent context
 - **Metric recording never throws** — measurements are silently dropped on failure
 - **Export failures are logged internally** — via `EventSource`; check ETW/dotnet-trace for diagnostics
 - **Queue overflow drops spans** — the application is not blocked

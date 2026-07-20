@@ -341,8 +341,10 @@ using var span = activitySource.StartActivity(
     parentContext.ActivityContext);
 ```
 
-The `Propagators.DefaultTextMapPropagator` honours the `OTEL_PROPAGATORS` env var; it
-defaults to W3C TraceContext + Baggage.
+Once the OpenTelemetry SDK is initialized, `Propagators.DefaultTextMapPropagator`
+defaults to W3C TraceContext + Baggage. The .NET SDK does not read
+`OTEL_PROPAGATORS`; replace the default programmatically with
+`Sdk.SetDefaultTextMapPropagator(...)` when a different propagator is required.
 
 ---
 
