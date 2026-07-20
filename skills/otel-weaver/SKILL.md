@@ -22,8 +22,8 @@ If a companion skill is unavailable:
 Three moving parts:
 
 1. **Registry** — directory of YAML files. `manifest.yaml` is required; its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also use `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`name`, `semconv_version`, and `schema_base_url` are legacy/deprecated in favor of `schema_url`.)
-2. **Templates** — directory of Jinja2 files plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
-3. **Policies** — Rego rules. Built-in OTel policies are the floor; custom policies layer on org rules.
+2. **Templates** — directory of MiniJinja files (Jinja2-compatible, not full Jinja2 — auto-escaping is off by default since v0.24.x and loop `break`/`continue` are supported) plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
+3. **Policies** — Rego rules evaluated by the Regorus (OPA-compatible) engine, in four packages: `before_resolution` (raw parsed groups), `after_resolution` (resolved registry), `comparison_after_resolution` (only when `--baseline-registry` is passed), and `live_check_advice` (per-sample during `live-check`). Built-in OTel policies are the floor; custom policies layer on org rules.
 
 These three replace a hand-rolled `const.go` (or equivalent): const blocks become the registry, the act of writing them becomes codegen, and tribal knowledge becomes policies.
 
@@ -43,6 +43,8 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 3. **Author templates.** One target dir per language under `templates/registry/<lang>/` with `weaver.yaml` plus `*.j2`. See `references/template-authoring.md`.
 4. **Validate and generate.** `weaver registry check --v2 -r ./telemetry/registry/` for fast feedback. `weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
 5. **Wire into CI.** Three gates: `check` (schema), `generate` + `git diff --exit-code` (checked-in code is current), `diff` against the base branch (surfaces breaking changes). See `references/ci-integration.md`.
+
+The Weaver CLI has more subcommands than this workflow touches: `stats` and `json-schema` for quick registry sanity checks, `update-markdown` for keeping semconv snippets in docs current, `emit`/`live-check`/`infer` for working against live OTLP telemetry, `mcp` for exposing a registry to LLM tooling, and `serve` for an HTTP+UI mode. All are out of scope here (see below) but worth knowing exist before assuming `check`/`generate`/`diff` is the whole surface.
 
 ## Gotchas
 
@@ -75,7 +77,8 @@ These cost time and are not obvious from the upstream docs:
 These are natural follow-ups but not part of this skill:
 - publishing the registry as a versioned artifact for downstream consumers
 - declaring upstream semantic-conventions as a manifest dependency
-- `weaver registry live-check` against a local collector
+- `weaver registry live-check`/`emit`/`infer` against live OTLP telemetry
+- `weaver registry mcp` / `weaver serve`
 - custom Rego policies beyond the built-ins
 - helper-function codegen (`MyMetricName(meter)` wrappers)
 
