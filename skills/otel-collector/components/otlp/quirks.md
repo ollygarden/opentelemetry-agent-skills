@@ -32,7 +32,7 @@ The HTTP endpoint accepts both OTLP/protobuf and **OTLP/JSON** on the same paths
 
 ## `include_metadata` is off by default
 
-Per-request headers/metadata are dropped unless `include_metadata: true`. Header-based auth extensions, metadata [`routing`](../routing/README.md), and [`load_balancing`](../load_balancing/README.md) keyed on client-metadata attributes all silently see no metadata without it. There is no error — the feature just behaves as if the headers weren't sent.
+Per-request headers/metadata are not propagated into downstream consumers unless `include_metadata: true`. Metadata [`routing`](../routing/README.md) and `attributes` / `resource` actions using `from_context: metadata.*` silently see no metadata without it. Server authenticator extensions still read transport headers directly, and [`load_balancing`](../load_balancing/README.md) with `routing_key: attributes` hashes telemetry attributes rather than transport metadata.
 
 ## No configurable profiles URL path
 

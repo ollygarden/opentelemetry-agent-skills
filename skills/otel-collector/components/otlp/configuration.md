@@ -40,7 +40,7 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `write_buffer_size` | int | 0 (gRPC default) | gRPC write buffer. |
 | `keepalive` | object | — | Server keepalive (see [keepalive](#grpc-keepalive)). |
 | `auth` | object | — | `authenticator:` referencing an auth extension. |
-| `include_metadata` | bool | `false` | Propagate per-request gRPC metadata (headers) into the pipeline. Required for header-based auth, metadata routing, and metadata-keyed load balancing. |
+| `include_metadata` | bool | `false` | Propagate per-request gRPC metadata (headers) into the downstream pipeline. Required for metadata routing and `from_context: metadata.*`; server authenticator extensions read transport headers directly. |
 | `middlewares` | list | — | gRPC server middleware extensions. |
 
 ### grpc keepalive
