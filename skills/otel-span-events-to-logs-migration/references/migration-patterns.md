@@ -29,20 +29,23 @@ record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName(exceptionEventName)
 record.SetSeverity(log.SeverityError)
+record.SetErr(err) // the SDK derives exception.type and exception.message
 // exception.stacktrace is intentionally omitted: the Go error value does
 // not carry its origin stack, and capturing runtime.Stack here would
 // point at the emit site, not where the error arose. Per semconv, the
 // attribute is Recommended, not Required. If the project uses an error
 // library that preserves the origin stack (e.g., github.com/pkg/errors,
-// github.com/cockroachdb/errors), extract the stack from the error and
-// add an exception.stacktrace attribute. Do not call runtime.Stack here.
-record.AddAttributes(
-    log.String("exception.type", fmt.Sprintf("%T", err)),
-    log.String("exception.message", err.Error()),
-)
+// github.com/cockroachdb/errors), see the note below. Do not call
+// runtime.Stack here.
 logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
 ```
+
+Go log SDK 0.20.0 derives `exception.type` and `exception.message` from
+`SetErr`. If `exception.type`, `exception.message`, or `exception.stacktrace`
+is supplied explicitly, this SDK release suppresses all automatic exception
+derivation. When an error library preserves the origin stack, set all three
+attributes together instead of adding only the stacktrace.
 
 Prefer `record.SetEventName(name)` over adding an `event.name` attribute in Go: it is a first-class field on `log.Record` and produces cleaner output in backends that special-case event records.
 
