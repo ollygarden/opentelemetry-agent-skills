@@ -30,10 +30,10 @@ The contexts and signatures below are pinned to the released
 | `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.156 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#metrics-only-functions),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#logs-only-functions), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#traces-only-functions)
-sections. The registrations that constrain the contexts are also tag-pinned:
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#parseclf), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#set_semconv_span_name)
+function sections. The registrations that constrain the contexts are also tag-pinned:
 [metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/metrics/functions.go),
 [log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/logs/functions.go), and
 [span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/traces/functions.go).

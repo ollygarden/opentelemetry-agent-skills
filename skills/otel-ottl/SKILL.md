@@ -193,6 +193,10 @@ truncate_all(span.attributes, 1024)
 
 The OTel `attributes` processor only operates on span/log/metric attributes. To touch a *resource* attribute use the `resource` processor or a `transform` processor with `context: resource`. A config like `attributes/strip_resource: actions: [...delete os.description...]` runs without error but doesn't change resource attributes — silent no-op.
 
+### Per-log resource/scope rewrites may need `flatten_data`
+
+Log records can share resource and scope data. When a log-context statement derives either from record-specific `log.*` data, set `flatten_data: true` and enable the alpha `transform.flatten.logs` feature gate; otherwise records in the same batch can affect one another unexpectedly. In v0.156 the gate is disabled and `flatten_data` is `false` by default. The option is logs-only and incurs copying, hashing, and regrouping overhead.
+
 ### `logdedup` paths use dot-notation only
 
 The processor accepts `include_fields` / `exclude_fields` (not `fields`). Paths must start with `attributes.` or `body.` and use dot-notation. Bracket notation (`attributes["service.name"]`) is rejected, and `resource[...]` paths are not addressable. Default behavior dedups on the full record, which is usually what's wanted.
@@ -239,6 +243,7 @@ Recently added (still useful to know which release introduced them when supporti
 | Exemplar context (transform `metric_statements` only) | v0.156 |
 | Routing connector context inference (`condition` with context-qualified paths) | v0.156 |
 | Routing connector `request` context deprecated; use `otelcol.*` metadata paths | v0.156 |
+| Log-only `flatten_data` via alpha `transform.flatten.logs` feature gate | v0.103 |
 | `connector.routing.defaultErrorModeIgnore` feature gate | v0.155 |
 | `otelcol.*` context via enabled-by-default `ottl.contexts.enableOTelColContext` feature gate | v0.147 |
 | Filter processor top-level `trace_conditions`, `metric_conditions`, `log_conditions` | v0.146 |
