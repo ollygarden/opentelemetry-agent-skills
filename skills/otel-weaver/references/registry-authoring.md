@@ -126,6 +126,22 @@ Notes:
 - Upstream OTel HTTP/db/messaging spans use `{action} {target}` patterns derived from attributes — those should not appear in an org-local registry.
 - `sampling_relevant: true` flags attributes that the SDK should make available at sampling time.
 
+## Entities
+
+```yaml
+file_format: definition/2
+
+entities:
+  - id: ecommerce.warehouse
+    stability: development
+    brief: "A physical or virtual warehouse fulfilling orders."
+    attributes:
+      - ref: ecommerce.warehouse.id
+        requirement_level: required
+```
+
+Entities describe resource-like things your telemetry is *about* (was called `resource` before v0.15.0 — use `entity` now). Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
+
 ## What does NOT belong in your local registry
 
 Boundary domains owned by upstream OTel semconv:

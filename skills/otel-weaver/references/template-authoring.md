@@ -81,7 +81,7 @@ templates:
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events` (all barewords).
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, and `semconv_grouped_entities` (all barewords).
 - **Single-quote only raw jq expressions.** The `semconv_grouped_*` helpers are barewords and need no quoting. If you write a custom multi-clause jq expression, single-quote it — colons in jq syntax otherwise collide with YAML mapping rules (`mapping values are not allowed in this context`).
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
@@ -152,6 +152,14 @@ const (
 - `comment(format="go")`: emits a comment with the configured prefix. Already includes `// `; do not double-prefix.
 - `pascal_case_const`: converts `ecommerce.order.id` → `EcommerceOrderId`. Honors the `acronyms` list.
 - `replace("a", "b")`: literal replace; useful for stripping the `span.` prefix from resolved span ids.
+
+Weaver ships more MiniJinja filters/tests/functions than any one template needs — reach for these instead of hand-rolling string manipulation in a template:
+
+- **Case filters**: `snake_case`, `camel_case`, `pascal_case`, `screaming_snake_case`, `kebab_case`, `acronym`, `pascal_case_const` (all honor the `acronyms` list from `weaver.yaml`).
+- **Other filters**: `map_text` (looks up a value in a `text_maps` table from `weaver.yaml`, e.g. `attr.type | map_text("go_types")`), `attribute_sort`, `required`, `not_required`, `instantiated_type`, `enum_type`, `body_fields`, `prometheus_metric_name`, `prometheus_unit_name`, plus ANSI color filters (rarely needed outside CLI output templates).
+- **Tests**: `stable`, `experimental`, `deprecated`, `enum`, `simple_type`, `template_type`, `enum_type`, `array` — e.g. `{% if attr is deprecated %}`.
+- **Functions**: `concat_if(...)`, `now()`.
+- **Loop controls**: `break`/`continue` are supported inside `{% for %}` loops (a MiniJinja extension beyond stock Jinja2).
 
 ## Generation
 
