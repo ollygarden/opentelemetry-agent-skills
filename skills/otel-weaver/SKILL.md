@@ -21,7 +21,7 @@ If a companion skill is unavailable:
 
 Three moving parts:
 
-1. **Registry** — directory of YAML files. `manifest.yaml` is required; its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also use `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`name`, `semconv_version`, and `schema_base_url` are legacy/deprecated in favor of `schema_url`.)
+1. **Registry** — directory of YAML files. `manifest.yaml` is required; its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also use `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`semconv_version` and `schema_base_url` are deprecated in favor of `schema_url`; top-level `name` is not a v0.24.2 manifest field.)
 2. **Templates** — directory of MiniJinja files (Jinja2-compatible, not full Jinja2 — auto-escaping is off by default since v0.24.x and loop `break`/`continue` are supported) plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
 3. **Policies** — Rego rules evaluated by the Regorus (OPA-compatible) engine, in four packages: `before_resolution` (raw parsed groups), `after_resolution` (resolved registry), `comparison_after_resolution` (only when `--baseline-registry` is passed), and `live_check_advice` (per-sample during `live-check`). Built-in OTel policies are the floor; custom policies layer on org rules.
 
@@ -31,7 +31,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 
 - Install Weaver via one of the methods documented at <https://github.com/open-telemetry/weaver#install> (release binary, `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action). Never `brew install weaver` — that resolves to an unrelated Scribd tool.
 - Reference upstream semconv attributes by `ref` rather than redeclaring them. Boundary domains (`http`, `db`, `messaging`, `rpc`, `network`, `gen-ai`, ...) belong in upstream OTel semconv, not in a local registry. Use the language SDK's semconv package for those at runtime.
-- Every entry needs `stability`. Weaver refuses to generate without it.
+- Every attribute and signal definition needs `stability`; include it on enum members too, as required by the v2 syntax guide. Weaver v0.24.2 rejects missing definition stability but does not enforce enum-member stability.
 - Use a domain prefix (e.g. `ecommerce.`, `acme.`) for org-local attributes, metrics, and spans.
 - Run the language formatter (`gofmt -w`, `prettier`, `ruff format`, ...) on generated output. Jinja whitespace produces multiple blank lines; without formatting, the diff check in CI will fail spuriously.
 - Confirm the resolved schema shape before writing a template. For a `definition/2` registry, call the grouped jq helpers with `{"v2": true}`; the v2 template `ctx` preserves fields such as attribute `key`, metric `name`, span `type`/`kind`, and structured `span.name.note`. See `references/template-authoring.md` for how to dump the exact shape.
@@ -39,7 +39,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 ## Workflow
 
 1. **Install or locate Weaver.** Follow the upstream install instructions at <https://github.com/open-telemetry/weaver#install> — pick a pinned release binary, the `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action. Use Docker for CI and reproducible local runs.
-2. **Author the registry.** Required: `manifest.yaml` plus at least one of `attributes.yaml` / `metrics.yaml` / `spans.yaml` / `events.yaml`. See `references/registry-authoring.md`.
+2. **Author the registry.** Required: `manifest.yaml` plus one or more `definition/2` YAML files declaring attributes, attribute groups, metrics, spans, events, or entities. See `references/registry-authoring.md`.
 3. **Author templates.** One target dir per language under `templates/registry/<lang>/` with `weaver.yaml` plus `*.j2`. See `references/template-authoring.md`.
 4. **Validate and generate.** `weaver registry check --v2 -r ./telemetry/registry/` for fast feedback. `weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
 5. **Wire into CI.** Three gates: `check` (schema), `generate` + `git diff --exit-code` (checked-in code is current), `diff` against the base branch (surfaces breaking changes). See `references/ci-integration.md`.
@@ -60,8 +60,8 @@ These cost time and are not obvious from the upstream docs:
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
-11. Drop the `.total` suffix from counter names — OTel naming has moved away from it.
-12. Use seconds (`s`) for duration histograms, not milliseconds. Migrating from `ms` is a natural step when authoring the schema; flag it.
+11. Counter and UpDownCounter names should not append `_total`; this is the current semconv v1.43.0 naming rule.
+12. Duration instruments should use seconds (`s`) under the current semconv v1.43.0 unit guidance.
 
 ## References To Load On Demand
 
@@ -97,10 +97,10 @@ Report the final check with:
 
 Use these items:
 - registry has `manifest.yaml` with a `schema_url` whose final path segment is the version
-- every entry has `stability`
+- every definition and enum member has `stability`
 - org-local attributes/metrics/spans use a domain prefix
 - no boundary-domain (http/db/messaging/rpc/network/gen-ai) entries duplicated locally
-- counter names have no `.total` suffix
+- Counter and UpDownCounter names have no `_total` suffix
 - duration histograms use `s` (seconds)
 - templates use jq filters that match the resolved schema (for `definition/2`, call the prebuilt `semconv_grouped_*` helpers with `{"v2": true}`)
 - generated output is formatter-clean

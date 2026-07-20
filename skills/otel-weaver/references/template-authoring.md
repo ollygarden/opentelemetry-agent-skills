@@ -86,7 +86,7 @@ templates:
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, and `semconv_grouped_entities`.
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events`. Entities are valid `definition/2` registry content, but v0.24.2 does not ship a `semconv_grouped_entities` helper; use a custom jq filter when generating entity code.
 - The no-argument helpers default to the legacy schema. For a `definition/2` registry, call them with `{"v2": true}` (as shown above). Use a folded YAML scalar (`filter: >`) so the object's colon doesn't collide with YAML mapping syntax. A custom multi-clause jq expression that takes no arguments should be single-quoted instead — for the same reason.
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
@@ -193,4 +193,4 @@ Equivalents: `prettier -w`, `ruff format`, `rustfmt`, etc.
 
 ## Inspecting the resolved schema
 
-`scripts/inspect-resolved.sh` wraps `weaver registry resolve` and pretty-prints with `jq`. Useful for a quick raw dump, but note `resolve` is deprecated and its raw shape is pre-filter — to see the exact fields a template gets, dump `{{ ctx | tojson }}` through the real `semconv_grouped_*` filter as shown at the top of this file.
+`scripts/inspect-resolved.sh` wraps `weaver registry resolve --v2` and pretty-prints with `jq`. Useful for a quick raw v2 dump, but note `resolve` is deprecated and its raw shape is pre-filter — to see the exact fields a template gets, dump `{{ ctx | tojson }}` through the real `semconv_grouped_*` filter as shown at the top of this file.

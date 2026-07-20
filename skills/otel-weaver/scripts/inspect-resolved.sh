@@ -2,7 +2,7 @@
 # Resolve a Weaver registry to JSON and pretty-print a slice with jq.
 #
 # Use this for a quick raw dump of the resolved schema. Note: `weaver registry
-# resolve` is deprecated (still works; errors under --future), and its raw shape
+# resolve --v2` is deprecated (still works; errors under --future), and its raw shape
 # is PRE-filter — it differs from the `ctx` a template receives via the
 # semconv_grouped_* jq helpers. To see the exact template fields, render
 # {{ ctx | tojson }} through the real filter (see references/template-authoring.md).
@@ -12,7 +12,7 @@
 #
 # Examples:
 #   inspect-resolved.sh ./telemetry/registry/
-#   inspect-resolved.sh ./telemetry/registry/ '.groups[] | select(.type=="span")'
+#   inspect-resolved.sh ./telemetry/registry/ '.registry.spans[]'
 #   inspect-resolved.sh ./telemetry/registry/ 'semconv_grouped_attributes'   # not supported here; jq only
 
 set -euo pipefail
@@ -39,6 +39,6 @@ fi
 tmp="$(mktemp -t weaver-resolved.XXXXXX.json)"
 trap 'rm -f "$tmp"' EXIT
 
-"$WEAVER" registry resolve -r "$REGISTRY" -f json -o "$tmp" >/dev/null
+"$WEAVER" registry resolve --v2 -r "$REGISTRY" -f json -o "$tmp" >/dev/null
 
 jq "$FILTER" "$tmp"

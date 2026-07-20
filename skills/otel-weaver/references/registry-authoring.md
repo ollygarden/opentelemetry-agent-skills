@@ -10,7 +10,8 @@ telemetry/registry/
 ├── attributes.yaml        # optional
 ├── metrics.yaml           # optional
 ├── spans.yaml             # optional
-└── events.yaml            # optional
+├── events.yaml            # optional
+└── entities.yaml          # optional
 ```
 
 Files other than `manifest.yaml` are discovered by their `file_format: definition/2` header and the top-level array key (`attributes`, `metrics`, `spans`, ...).
@@ -25,7 +26,7 @@ description: "Telemetry conventions for the ecommerce monolith"
 stability: development
 ```
 
-`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location. (The older `name` and `semconv_version`/`schema_base_url` fields are legacy/deprecated in favor of `schema_url`.)
+`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.24.2 manifest field. Dependencies may still accept legacy `name`, but use `schema_url`.
 
 ## Attributes
 
@@ -69,7 +70,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). The member `value` type (`string`/`int`/`boolean`) determines the attribute type.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). The member `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`, although Weaver v0.24.2 does not enforce it.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -82,6 +83,7 @@ metrics:
     instrument: histogram
     unit: s
     stability: stable
+    requirement_level: recommended
     brief: "End-to-end duration of processing a single order."
     attributes:
       - ref: ecommerce.payment.method
@@ -93,19 +95,22 @@ metrics:
     instrument: updowncounter
     unit: "{order}"
     stability: stable
+    requirement_level: recommended
     brief: "Number of orders currently being processed."
 
   - name: ecommerce.products.inventory.value
     instrument: gauge
     unit: "USD"
     stability: stable
+    requirement_level: recommended
     brief: "Current value of products currently in stock, in USD."
 ```
 
 Notes:
 - `instrument` is one of `counter`, `updowncounter`, `histogram`, `gauge`.
-- Counter names: drop the `.total` suffix.
-- Duration histograms: use `s`. Bucket boundaries scale accordingly (e.g. `0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5`).
+- Counter and UpDownCounter names should not append `_total`.
+- Duration instruments should use `s`. Bucket boundaries scale accordingly (e.g. `0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5`).
+- Signal-level `requirement_level` is `recommended` or `opt_in`; it defaults to `recommended`, but spelling it out avoids the v0.24.2 future-validation warning. This field is separate from each attribute reference's requirement level.
 - `attributes:` here are by `ref` only. Declare attributes once in `attributes.yaml` and reference them across metrics, spans, and events.
 
 ## Spans
@@ -117,6 +122,7 @@ spans:
   - type: ecommerce.order.process
     kind: internal
     stability: stable
+    requirement_level: recommended
     name:
       note: "ecommerce.order.process"
     brief: "Process a single customer order end-to-end."
@@ -137,6 +143,7 @@ Notes:
 - For internal business spans with static names, put the dotted type identifier in `name.note` and render the resolved `span.name.note` string at runtime.
 - Upstream OTel HTTP/db/messaging spans use `{action} {target}` patterns derived from attributes — those should not appear in an org-local registry.
 - `sampling_relevant: true` flags attributes that the SDK should make available at sampling time.
+- Signal-level `requirement_level` is also available on events and entities.
 
 ## Entities
 
