@@ -6,11 +6,12 @@ rots with each release.
 
 ## Step 1: Fetch the CHANGELOGs
 
-Fetch both upstream sources before reviewing any code:
+Fetch both released upstream sources before reviewing any code. As of
+2026-07-20, the released ceiling is core **1.44.0** and contrib **0.65b0**:
 
 ```
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/main/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.65b0/CHANGELOG.md
 ```
 
 Scan for entries marked **Deprecated**, **Removed**, or **Breaking** in the version range you are
@@ -24,11 +25,11 @@ Python OpenTelemetry uses two independent version tracks:
 
 | Track | Packages | Example |
 |---|---|---|
-| Stable (SemVer 1.x) | `opentelemetry-api`, `opentelemetry-sdk` | `1.43.0` |
-| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, contrib packages, some SDK extras (OTLP exporters track stable 1.x) | `0.64b0` |
+| Stable (SemVer 1.x) | `opentelemetry-api`, `opentelemetry-sdk` | `1.44.0` |
+| Beta (`0.Yb`-suffix) | `opentelemetry-instrumentation-*`, contrib packages, and experimental packages such as `opentelemetry-configuration` (OTLP exporters track stable 1.x) | `0.65b0` |
 
-The two tracks move in lock-step: SDK `1.43.x` pairs with contrib `0.64bx`. When the CHANGELOG
-entry says "version 0.64b0", look up the paired SDK version before concluding which SDK release
+The two tracks move in lock-step: SDK `1.44.x` pairs with contrib `0.65bx`. When the CHANGELOG
+entry says "version 0.65b0", look up the paired SDK version before concluding which SDK release
 introduced the change.
 
 The definitive indicator of which track a given package follows is its version string, not its
@@ -71,6 +72,33 @@ For each finding, grep the codebase for the old symbol before concluding impact:
 grep -r "LoggingHandler" .  # adjust pattern per finding
 ```
 
+### Released 1.44.0 / 0.65b0 audit points
+
+When crossing this release boundary, explicitly check for:
+
+- Imports from `opentelemetry.sdk._configuration.file`; declarative setup moved
+  to the public, experimental `opentelemetry.configuration` namespace. The old
+  SDK extra remains only as an install alias.
+- The removed Events API/SDK; emit a `LogRecord` with `event_name` instead.
+- Custom environment-carrier code: `EnvironmentGetter.get` now requires the
+  source mapping as its first argument rather than using a cached environment
+  snapshot.
+- Custom log exporters that read `ReadableLogRecord.context`; records buffered
+  by `BatchLogRecordProcessor` now carry an empty `Context()` to reduce retained
+  memory.
+- `ProcessResourceDetector` consumers expecting `process.command_args` or
+  `process.command_line`; these privacy-sensitive attributes are now omitted by
+  default and require `include_command_args=True`.
+- In-place mutation of `opentelemetry.context.Context`; inherited `dict`
+  mutation methods no longer modify it. Use the context API to create updated
+  contexts.
+- Histogram configurations with non-finite or non-increasing explicit bucket
+  boundaries; creating the metric stream's aggregation now raises `ValueError`.
+  NaN and Inf measurements are dropped at the instrument boundary.
+- `opentelemetry-instrumentation-elasticsearch`; contrib removed the package in
+  0.65b0 because supported Elasticsearch clients provide native OTel
+  instrumentation.
+
 ## Step 4: Audit Semantic Convention Renames
 
 Instrumentation libraries adopt updated semconv attribute names on their own schedule; the SDK
@@ -84,31 +112,35 @@ For the canonical attribute-level mapping, cross-reference the **`otel-semantic-
 skill, which fetches the upstream semconv CHANGELOG and spec. Do not rely on memory for attribute
 names — fetch the spec.
 
+Core 1.44.0 updates `opentelemetry-semantic-conventions` to the 1.43.0
+semantic-conventions release. Re-run this audit even when your application API
+imports did not change.
+
 If your code or dashboards query raw attribute names (e.g. Prometheus label names, Datadog facets,
 log filters), a semconv rename is a silent breaking change: telemetry keeps flowing but queries
 return no data. Treat semconv entries in the CHANGELOG with the same urgency as API removals.
 
-## Step 5: Check the `_configuration` Module
+## Step 5: Check Declarative Configuration
 
-The `opentelemetry.sdk._configuration` module (declarative YAML config) is **private and
-experimental**. The leading underscore is intentional: the public API is not guaranteed. Any
-release may rename the entry-point, change the schema, or remove the module without a deprecation
-period.
+In 1.44.0 / 0.65b0, declarative configuration moved from the private
+`opentelemetry.sdk._configuration.file` module to the separate
+`opentelemetry-configuration` package and public `opentelemetry.configuration`
+namespace. The new package remains experimental, so audit it on each upgrade.
 
 Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
-latest released SDK (1.43.0), the declarative configuration README and schema are:
+latest released SDK (1.44.0), the declarative configuration README and schema are:
 
 ```text
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/schema.json
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/README.rst
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json
 ```
 
-Upstream `main` has moved this code into an unreleased `opentelemetry-configuration`
-package; do not apply that import-path change to released guidance until it appears in a
-release.
+Install `opentelemetry-configuration` directly. The old
+`opentelemetry-sdk[file-configuration]` extra is a deprecated alias that still
+installs it for compatibility.
 
 Cross-reference the **`references/declarative-setup.md`** reference in this skill for the current
-YAML schema and activation API. If a release changes `_configuration`, that reference is the
+YAML schema and activation API. If a release changes the package, that reference is the
 authoritative source of the updated usage pattern.
 
 ## Step 6: Verify Installed Versions Match
@@ -116,7 +148,8 @@ authoritative source of the updated usage pattern.
 After identifying changes, confirm the running environment matches the target version:
 
 ```bash
-pip show opentelemetry-sdk opentelemetry-api opentelemetry-distro opentelemetry-instrumentation
+pip show opentelemetry-sdk opentelemetry-api opentelemetry-configuration \
+  opentelemetry-distro opentelemetry-instrumentation
 ```
 
 A mismatch between `opentelemetry-api` and `opentelemetry-sdk` versions is a common source of

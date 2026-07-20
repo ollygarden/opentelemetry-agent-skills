@@ -39,7 +39,11 @@ opentelemetry-instrument \
   python -m uvicorn app:app
 ```
 
-Configuration is entirely via environment variables (`OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_SAMPLER`, etc.) or distro defaults. This is distinct from the declarative YAML path — see `declarative-setup.md` for that approach.
+Without `OTEL_CONFIG_FILE`, configuration comes from environment variables
+(`OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_SAMPLER`,
+etc.) or distro defaults. With `opentelemetry-configuration` installed, the
+same CLI can activate declarative YAML through `OTEL_CONFIG_FILE`; see
+`declarative-setup.md`.
 
 ### Common env vars
 
@@ -54,6 +58,12 @@ Configuration is entirely via environment variables (`OTEL_SERVICE_NAME`, `OTEL_
 | `OTEL_PYTHON_DISABLED_INSTRUMENTATIONS` | `requests,logging` |
 | `OTEL_SEMCONV_STABILITY_OPT_IN` | `http,database` |
 | `OTEL_PYTHON_LOG_AUTO_INSTRUMENTATION` | `false` |
+
+In contrib 0.65b0, the aiopg, asyncpg, Cassandra, pymemcache, pymongo, and
+Tortoise ORM instrumentors added database semantic-convention migration
+support. Their behavior now follows `OTEL_SEMCONV_STABILITY_OPT_IN`; audit
+attributes and downstream queries before enabling `database` or
+`database/dup`.
 
 ## Per-App Instrumentation
 
@@ -71,7 +81,11 @@ FastAPIInstrumentor.instrument_app(app)   # attaches ASGI middleware to this app
 
 `instrument_app` is the per-app variant: it attaches the ASGI middleware to a specific app instance and produces `SpanKind.SERVER` spans for incoming requests.
 
-> The API shape differs across instrumentors. FastAPI uses the class method `FastAPIInstrumentor.instrument_app(app)`; Flask uses an instance method `FlaskInstrumentor().instrument_app(app)`; Django uses `DjangoInstrumentor().instrument()` with no app argument. Check the contrib package for the exact form.
+> The API shape differs across instrumentors. FastAPI and Flask define static
+> `instrument_app(app)` methods (the upstream Flask usage commonly calls it
+> through `FlaskInstrumentor()`); Django uses the inherited instance method
+> `DjangoInstrumentor().instrument()` with no app argument. Check the contrib
+> package for the exact form.
 
 ### Flask
 
@@ -148,9 +162,13 @@ Source of truth: `instrumentation/` directory in the [opentelemetry-python-contr
 | Redis | `opentelemetry-instrumentation-redis` |
 | pymemcache | `opentelemetry-instrumentation-pymemcache` |
 | Cassandra | `opentelemetry-instrumentation-cassandra` |
-| Elasticsearch | `opentelemetry-instrumentation-elasticsearch` |
 | Tortoise ORM | `opentelemetry-instrumentation-tortoiseorm` |
 | DB-API 2.0 (generic) | `opentelemetry-instrumentation-dbapi` |
+
+`opentelemetry-instrumentation-elasticsearch` was removed from contrib in
+0.65b0 because the supported Elasticsearch client versions provide native OTel
+instrumentation. Remove that package when upgrading and follow the client's
+instrumentation guidance.
 
 ### Messaging
 
