@@ -9,10 +9,11 @@ Entry point for OpenTelemetry mechanics in web apps. Load a reference below base
 each reference is self-contained.
 
 > **Stability**: Browser/RUM is one of the **newest and most experimental** areas of OpenTelemetry.
-> Only the web *tracing* primitives (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
-> and the JS API are **stable** today. The Browser SDK (`@opentelemetry/browser-sdk`) and the
-> event-based instrumentations are experimental and may break between minor versions — pin exact
-> versions. Verify current status via the Sources of Truth below.
+> Within the RUM packages covered here, the web *tracing* primitives
+> (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) and the JS API are **stable** today.
+> The Browser SDK (`@opentelemetry/browser-sdk`) and the event-based instrumentations are
+> experimental and may break between minor versions — pin exact versions. Verify current status
+> via the Sources of Truth below.
 
 ## References
 
@@ -20,13 +21,14 @@ each reference is self-contained.
 |---|---|
 | [`references/setup-sdk.md`](references/setup-sdk.md) | Wiring up the SDK: the direct providers (`WebTracerProvider` + `ZoneContextManager` for spans; `LoggerProvider` for events) vs the experimental `browser-sdk`, sessions, frontend→backend `traceparent`/CORS propagation, and why a Collector sits in front. |
 | [`references/instrumentation.md`](references/instrumentation.md) | Choosing and configuring instrumentations: the event-based catalog (navigation, web vitals, console, errors, …), the span-based catalog (fetch, XHR, document-load, long-task, …), per-instrumentation options, and what each captures. |
-| [`references/performance.md`](references/performance.md) | Keeping it cheap, fast, and private: bundle size, off-main-thread processing, page-lifecycle flushing, telemetry volume/cost, and PII vectors. |
+| [`references/performance.md`](references/performance.md) | Keeping it cheap, fast, and private: bundle size, bounded main-thread work, page-lifecycle flushing, telemetry volume/cost, and PII vectors. |
 
 ## Two telemetry models — read first
 
-Browser telemetry is modeled as **spans** and **events**; there is **no browser metrics story
-yet** (metrics are out of scope for the Browser SDK). Picking the right model per signal is the
-first decision:
+The experimental Browser SDK currently models browser telemetry as **spans** and **events**; it
+does not include metrics. The general JS `MeterProvider` and OTLP/HTTP metrics exporter do support
+browser builds, but metrics are outside this RUM catalog. Picking the right model for the signals
+covered here is the first decision:
 
 | Model | Signal | For | Examples |
 |---|---|---|---|
@@ -41,16 +43,17 @@ released convention under the `browser` group, and `exception` is a released **s
 its own (not under `browser`). Check coverage per signal rather than assuming it; before emitting a
 hand-written span or `LogRecord` with custom attributes:
 
-1. Prefer a catalog instrumentation from [`references/instrumentation.md`](references/instrumentation.md) — it already emits
-   compliant event/attribute names where a convention exists.
+1. Prefer a catalog instrumentation from [`references/instrumentation.md`](references/instrumentation.md), then verify its
+   released output shape against the convention; experimental implementations can lag a merged
+   convention (the released Web Vitals package currently does).
 2. Check whether a released convention covers the signal: use the `otel-semantic-conventions`
    skill to query the relevant group (e.g. `browser` for `event.browser.web_vital`, `exceptions`
    for `exception.type`), or WebFetch the matching page under
    `https://opentelemetry.io/docs/specs/semconv/browser/`.
-3. If one exists, use its event/attribute names verbatim (e.g. the `browser.web_vital` event's
-   `name`, `value`, `delta`, `id` — not a custom `web_vital.*` namespace), even at development
-   stability. If none exists, define bounded, low-cardinality custom attributes under a stable
-   namespace instead of guessing at a released-looking name.
+3. If one exists, use its event, body-field, and attribute names verbatim (e.g. the
+   `browser.web_vital` event's required map body has `name`, `value`, `delta`, and `id`), even at
+   development stability. If none exists, define bounded, low-cardinality custom attributes under
+   a stable namespace instead of guessing at a released-looking name.
 
 ## The browser package ecosystem — three repositories
 
@@ -64,7 +67,7 @@ are the authoritative, current map. Summary:
 | `@opentelemetry/context-zone` | opentelemetry-js | context | **stable** |
 | `@opentelemetry/instrumentation-fetch` | opentelemetry-js | spans | experimental |
 | `@opentelemetry/instrumentation-xml-http-request` | opentelemetry-js | spans | experimental |
-| `@opentelemetry/browser-detector` | opentelemetry-js | resource | experimental |
+| `@opentelemetry/opentelemetry-browser-detector` | opentelemetry-js | resource | experimental |
 | `@opentelemetry/browser-instrumentation` | opentelemetry-browser | events | experimental |
 | `@opentelemetry/browser-sdk` | opentelemetry-browser | SDK | experimental (0.x) |
 | `@opentelemetry/auto-instrumentations-web` | opentelemetry-js-contrib | bundle | experimental |
