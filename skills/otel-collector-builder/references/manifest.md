@@ -79,7 +79,7 @@ providers:
 
 Providers version on the stable `v1.y.0` stream (see the version-alignment section in SKILL.md for the pairing rule).
 
-**Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. Minimum sensible explicit set: `fileprovider` + `envprovider`.
+**Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. With the default `conf_resolver`, `envprovider` is required even when the config has no environment references; omitting it fails with `DefaultScheme not found in providers list`. A common explicit base is `fileprovider` + `envprovider`.
 
 `converters:` accepts the same module spec and hooks confmap converters into config resolution. Core and contrib currently ship no standalone converter modules (`expandconverter` was removed after env-expansion moved into confmap core); the key is only useful for custom converters.
 
@@ -90,7 +90,7 @@ conf_resolver:
   default_uri_scheme: env   # scheme applied to bare ${VAR} references
 ```
 
-When unset, the generated collector falls back to `env` at runtime, so `${VAR}` behaves as `${env:VAR}`. Setting any scheme here requires the matching provider to be in `providers:` — the binary errors at startup otherwise.
+When unset, the generated collector falls back to `env` at runtime, so `${VAR}` behaves as `${env:VAR}` and `envprovider` must be present. Setting any other scheme here requires the matching provider to be in `providers:` — the binary errors at startup otherwise.
 
 ## telemetry
 
