@@ -80,6 +80,12 @@ Both approaches work; `WithLogging(...)` keeps all OTel config co-located.
 shared across all three signals, which is why `service.name`, `service.version`, and
 `telemetry.sdk.*` appear on every export.
 
+Core 1.17.0 added resource schema URLs. Use
+`ResourceBuilder.AddAttributes(attributes, schemaUrl)` when the supplied attributes
+follow a specific schema; the OTLP exporter carries `Resource.SchemaUrl` on traces,
+metrics, and logs. Merging resources with different non-empty schema URLs clears the
+resulting schema URL and emits a self-diagnostics warning.
+
 ## Non-Hosted Setup
 
 For console apps or worker processes that do not use the generic host, SDK 1.10.0 and newer

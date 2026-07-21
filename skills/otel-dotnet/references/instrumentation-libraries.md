@@ -120,8 +120,8 @@ See `references/setup.md` for the full `AddOpenTelemetry()` setup pattern.
 
 ## Contrib Catalog
 
-All packages below are confirmed to exist under
-[`open-telemetry/opentelemetry-dotnet-contrib/src/`](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src).
+All packages below have a released package tag in
+[`open-telemetry/opentelemetry-dotnet-contrib`](https://github.com/open-telemetry/opentelemetry-dotnet-contrib).
 
 **Version rule:** instrumentation packages follow their own release cadence and are not
 in lockstep with the core SDK. Do not pin versions in prose — fetch the current version
@@ -171,7 +171,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
 | `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (both available on `TracerProviderBuilder` and `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
-| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` — **deprecated; MassTransit ≤ v7 only**. For MassTransit v8+ use built-in support: call `.AddSource("MassTransit")` on the `TracerProviderBuilder` instead. | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
+| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
 | `OpenTelemetry.Instrumentation.Hangfire` | `.AddHangfireInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Hangfire) |
 | `OpenTelemetry.Instrumentation.Quartz` | `.AddQuartzInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Quartz) |
 
