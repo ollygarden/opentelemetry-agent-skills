@@ -2,7 +2,7 @@
 
 ## Action order matters
 
-`actions` run strictly in the order listed, and each sees the result of the previous ones. A `delete` before a `from_attribute` copy removes the source first; an `insert` of a default before an `upsert` copy changes what gets copied. Order cheap actions (`delete`, `insert`) before expensive ones (`extract`, `convert`) when possible. Do **not** split related actions across two processor instances and rely on order between them — a temporary key created in `attributes/first` may not exist yet when `attributes/second` runs.
+`actions` run strictly in the order listed, and each sees the result of the previous ones. A `delete` before a `from_attribute` copy removes the source first; an `insert` of a default before an `upsert` copy changes what gets copied. Order cheap actions (`delete`, `insert`) before expensive ones (`extract`, `convert`) when possible. If related actions are split across named processor instances, their order in `service.pipelines.<signal>.processors` is likewise load-bearing: the later instance sees changes from the earlier one only when it is listed after it.
 
 ## It does NOT touch resource attributes
 

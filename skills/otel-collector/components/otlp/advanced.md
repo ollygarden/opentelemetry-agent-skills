@@ -14,9 +14,9 @@ receivers:
 
 HTTP-only is the mirror image — list only `http:`. Listing neither fails startup (`must specify at least one protocol when using the OTLP receiver`).
 
-## `include_metadata` for auth, routing, and load balancing
+## `include_metadata` for downstream metadata consumers
 
-Per-request gRPC/HTTP headers (and other client metadata) are **dropped** by default. Downstream features that read them need the receiver to carry them into the pipeline:
+Per-request gRPC/HTTP headers (and other client metadata) are **not propagated into the downstream pipeline** by default. Downstream features that read them need the receiver to carry them into the pipeline. Server authenticator extensions are different: they read the transport headers directly and do not require `include_metadata`.
 
 ```yaml
 receivers:
@@ -25,16 +25,13 @@ receivers:
       grpc:
         endpoint: 0.0.0.0:4317
         include_metadata: true     # headers survive into the pipeline
-        auth:
-          authenticator: bearertokenauth
 ```
 
 `include_metadata: true` is the prerequisite for:
-- **Header-based auth** extensions (the `auth.authenticator` reads the incoming token from request metadata).
 - [`routing`](../routing/README.md) by request metadata.
-- [`load_balancing`](../load_balancing/README.md) with `routing_key: attributes` over client-metadata keys.
+- `attributes` / `resource` actions that use `from_context: metadata.*`.
 
-Without it, those features see no metadata and behave as if the headers were absent.
+Without it, those downstream consumers see no metadata and behave as if the headers were absent. The [`load_balancing`](../load_balancing/README.md) exporter's `routing_key: attributes` reads telemetry resource/scope/record attributes, not transport metadata; copy a header into a telemetry attribute first if it must become a load-balancing key.
 
 ## CORS for browser OTLP
 
