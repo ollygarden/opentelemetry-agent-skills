@@ -64,12 +64,14 @@ For language-specific package versions and SDK API surface, see the Sources of T
 in each language's `otel-<lang>` skill (`otel-go`, `otel-java`, `otel-js`, `otel-python`).
 `otel-dotnet` is listed in Cross-References below but does **not** support declarative YAML config yet — see the .NET note.
 
-**Python note:** declarative config requires `opentelemetry-sdk` 1.43.0 or newer
-with the `file-configuration` extra (`opentelemetry-sdk[file-configuration]`).
-Released Python SDKs honor `OTEL_CONFIG_FILE` through the SDK configurator; when
+**Python note:** declarative config was introduced in `opentelemetry-sdk` 1.43.0.
+As of Python 1.44.0 / 0.65b0, it lives in the experimental
+`opentelemetry-configuration` package; install that package directly for new setups.
+The `opentelemetry-sdk[file-configuration]` extra remains as a deprecated compatibility
+alias. Released Python SDKs honor `OTEL_CONFIG_FILE` through the SDK configurator; when
 set, the file is authoritative and the env-var initialization path is skipped.
-Programmatic loading is also available. See the `otel-python` skill and its
-`declarative-setup.md` reference.
+Programmatic loading is available from the public `opentelemetry.configuration`
+namespace. See the `otel-python` skill and its `declarative-setup.md` reference.
 
 **\.NET note:** declarative YAML config is **not yet implemented** in OpenTelemetry .NET
 (tracked by [`open-telemetry/opentelemetry-dotnet#6380`](https://github.com/open-telemetry/opentelemetry-dotnet/issues/6380)).
@@ -84,9 +86,10 @@ The standard environment variable is `OTEL_CONFIG_FILE`:
 export OTEL_CONFIG_FILE=/app/configs/otel.yaml
 ```
 
-When set, the SDK reads this file at startup. In file-config mode, SDKs ignore `OTEL_*`
-environment variables except those referenced through environment-variable substitution
-inside the config file.
+Setting the variable alone does not bootstrap every language. When the selected language's
+declarative bootstrap or autoconfigure path runs, it reads this file at startup. In
+file-config mode, SDKs ignore `OTEL_*` environment variables except those referenced through
+environment-variable substitution inside the config file.
 
 Language-specific activation varies — see the language `sdk-setup` skills for details.
 
@@ -110,11 +113,13 @@ Rules:
 - No recursive substitution
 - Invalid references produce a parse error
 
-**Released Java qualification:** OpenTelemetry Java 1.64.0 still leaves scalar sequence items
-unsubstituted and treats invalid references such as `${VAR&}` as literal text. Java users must
-not rely on the two corresponding specification rules until their selected release implements
-them. The schema repository's structural validation also does not prove every substitution
-behavior; use the target SDK parser for that verification.
+**Released implementation qualifications:** Go `otelconf` 0.24.0 expands references in mapping
+keys. OpenTelemetry Java 1.64.0 still leaves scalar sequence items unsubstituted and treats
+invalid references such as `${VAR&}` as literal text. Python `opentelemetry-configuration`
+0.65b0 does not recognize `${env:VAR}`, expands references in mapping keys, and leaves invalid
+references as literal text. Keep substitutions in scalar values, prefer `${VAR}` for portable
+files, and verify the target SDK parser; structural schema validation does not prove these
+behaviors.
 
 ## Configuration Interaction
 
