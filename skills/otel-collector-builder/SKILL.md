@@ -56,7 +56,7 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.62.0
 ```
 
-**`providers:` semantics.** Omitting the key entirely keeps OCB's built-in default set (env, file, http, https, yaml at the paired stable version). But setting `providers:` at all **replaces** that set — listing only `fileprovider` silently removes `${env:VAR}` substitution. Either omit the key, or list every scheme the collector's config will use.
+**`providers:` semantics.** Omitting the key entirely keeps OCB's built-in default set (env, file, http, https, yaml at the paired stable version). But setting `providers:` at all **replaces** that set. The generated Collector defaults `conf_resolver.default_uri_scheme` to `env`, so an explicit list without `envprovider` fails configuration validation unless you set another included provider as the default. Either omit the key, or include `envprovider` plus every scheme the collector's config will use.
 
 Contrib components use the same list syntax:
 

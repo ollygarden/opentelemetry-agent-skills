@@ -24,7 +24,7 @@ receivers:
 Requirements:
 
 - The local directory must contain a `go.mod` whose module path matches the `gomod` path.
-- The component's Go version must satisfy OCB's floor — OCB runs `go mod tidy` with a `-compat` pinned to the current Go release, so keep the local module's toolchain current.
+- Run OCB with a Go toolchain new enough for both OCB and the selected modules. OCB v0.156.0 declares Go 1.25, generates a `go 1.25` module, and runs `go mod tidy -compat=1.25`; a local component that requires newer Go needs that newer toolchain.
 - Since v0.151.0 the generated `replace` uses a path relative to `dist.output_path`, so the generated tree can be committed or moved. Set `dist.use_absolute_replace_paths: true` if external tooling expects absolute paths.
 
 This is also the fastest verification loop when authoring a new component: manifest with the local component + `otlpreceiver` + `debugexporter`, build, run, send data with `telemetrygen`.

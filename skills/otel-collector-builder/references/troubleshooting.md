@@ -27,10 +27,10 @@ Strict checking is off by default; run with `--skip-strict-versioning=false` to 
 ## Missing providers at runtime
 
 ```
-cannot load configuration: no provider found for scheme "file"
+invalid 'confmap.ResolverSettings' configuration: DefaultScheme not found in providers list
 ```
 
-The binary was built without the provider for that config URI scheme. This only happens when the manifest sets `providers:` explicitly — the key **replaces** OCB's default set (env, file, http, https, yaml), so listing only `fileprovider` removes `${env:VAR}` expansion. Add the missing provider to `providers:` (or drop the key to restore all defaults) and rebuild.
+The manifest set `providers:` explicitly and omitted `envprovider`. The key **replaces** OCB's default set (env, file, http, https, yaml), while the generated Collector defaults `conf_resolver.default_uri_scheme` to `env`. Add `envprovider` (and every other scheme the config uses), or drop `providers:` to restore all defaults. To intentionally omit `envprovider`, set `conf_resolver.default_uri_scheme` to an included provider and ensure the config has no environment references.
 
 ## Module resolution failures
 
@@ -49,7 +49,7 @@ The binary was built without the provider for that config URI scheme. This only 
 - `cgo: C compiler "gcc" not found`: a component needs CGO. Either install a C toolchain and set `dist.cgo_enabled: true`, or drop the component. Default is CGO off.
 - `build constraints exclude all Go files`: `dist.build_tags` or `GOOS`/`GOARCH` excludes everything — clear the tags or fix the target platform.
 - OOM on small CI runners: the collector dependency graph is large. `GOMAXPROCS=2 ocb --config=builder.yaml`, or split into generate + `go build` stages.
-- `exec: "go": executable file not found`: install Go or set `dist.go` to its path. OCB requires a current Go toolchain (it invokes `go mod tidy` with a recent `-compat` version).
+- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB v0.156.0 declares Go 1.25 and runs `go mod tidy -compat=1.25`; selected modules may require newer Go.
 
 ## Runtime failures
 
