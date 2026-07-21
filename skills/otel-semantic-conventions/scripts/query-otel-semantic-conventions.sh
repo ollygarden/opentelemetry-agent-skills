@@ -56,8 +56,17 @@ is_supported_kind() {
   esac
 }
 
+validate_release_tag() {
+  local tag="$1"
+  if [[ ! "$tag" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+    echo "not a stable semantic conventions release tag: ${tag}" >&2
+    return 1
+  fi
+}
+
 fetch_latest_tag() {
   if [[ -n "$SEMCONV_TAG" ]]; then
+    validate_release_tag "$SEMCONV_TAG" || return 1
     printf '%s\n' "$SEMCONV_TAG"
     return 0
   fi
@@ -74,11 +83,15 @@ fetch_latest_tag() {
       echo "failed to find a stable semantic conventions release tag in ${SEMCONV_REPO}" >&2
       return 1
     fi
+    validate_release_tag "$tag" || return 1
     printf '%s\n' "$tag"
     return 0
   fi
 
-  curl -fsSL "$RELEASE_API_URL" | jq -er '.tag_name'
+  local tag
+  tag="$(curl -fsSL "$RELEASE_API_URL" | jq -er '.tag_name')"
+  validate_release_tag "$tag" || return 1
+  printf '%s\n' "$tag"
 }
 
 fetch_model_paths() {
