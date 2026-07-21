@@ -18,7 +18,7 @@ skill. For Java-specific facts:
 |---|---|
 | Latest BOM (`opentelemetry-bom`) | `gh api repos/open-telemetry/opentelemetry-java/releases/latest -q '.tag_name'` |
 | Latest Javaagent | `gh api repos/open-telemetry/opentelemetry-java-instrumentation/releases/latest -q '.tag_name'` |
-| SDK declarative-config expected `file_format` for a selected BOM tag | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java/<selected-sdk-tag>/sdk-extensions/declarative-config/src/main/java/io/opentelemetry/sdk/autoconfigure/declarativeconfig/OpenTelemetryConfigurationFactory.java` |
+| SDK declarative-config accepted and preferred `file_format` for a selected BOM tag | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java/<selected-sdk-tag>/sdk-extensions/declarative-config/src/main/java/io/opentelemetry/sdk/autoconfigure/declarativeconfig/OpenTelemetryConfigurationFactory.java` |
 | Javaagent declarative-config docs (current activation flag, supported `file_format`) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/declarative-configuration/` |
 | Javaagent declarative-config smoke fixture (parser truth for selected agent tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/smoke-tests/src/test/resources/declarative-config.yaml` |
 | Javaagent CHANGELOG (when each schema rc landed) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/CHANGELOG.md` |
@@ -46,11 +46,12 @@ java -javaagent:opentelemetry-javaagent.jar \
 Declarative config has been supported since Javaagent 2.9.0; the property is now the stable
 `otel.config.file` (the experimental `otel.experimental.config.file` alias was removed in the
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
-Confirm the exact `file_format` literal from the tag-matched Javaagent or Spring Boot Starter
-fixture for the selected release, not from `main` or the generic language support matrix alone.
-For example, as of 2026-07-16, the latest released SDK BOM is 1.64.0 and expects
-`file_format: "1.1"`, but the latest released Javaagent/Spring Boot Starter is 2.29.0, targets
-SDK 1.63.0, and its released fixtures use `file_format: "1.0"`.
+Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
+the preferred value from that release's fixture to avoid compatibility warnings for experimental
+properties. As of 2026-07-20, SDK BOM 1.64.0 accepts `0.4` and `1.*` and prefers `"1.1"`.
+Javaagent/Spring Boot Starter 2.29.0 targets SDK 1.63.0, whose parser accepts `0.4` and the
+`1.0` release/RC forms and prefers `"1.0"`; both released fixtures use the value `1.0`. Do not
+infer this from `main` or the generic language support matrix alone.
 
 When `otel.config.file` / `OTEL_CONFIG_FILE` is set, all other SDK autoconfigure properties are
 ignored except agent-only properties (see Key API Facts).
@@ -66,7 +67,7 @@ use the selected Javaagent parser/docs/fixtures. The generic language support ma
 coverage metadata and may not be the exact YAML literal accepted by the Javaagent.
 
 ```yaml
-# file_format: use the exact literal accepted by the selected Javaagent version
+# file_format: use the preferred literal for the selected Javaagent version
 resource:
   attributes:
     - name: service.name
@@ -113,3 +114,12 @@ AutoConfiguredOpenTelemetrySdk sdk =
 - **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, and
   `otel.javaagent.debug` cannot be set via declarative config. Set them as system properties or
   their corresponding environment variables instead.
+- **Released 2.29.0 selectors**: Javaagent and Starter declarative config can select semantic
+  conventions per `db`, `code`, `rpc`, or `messaging` domain under
+  `instrumentation/development.general.<domain>.semconv` with `version`, `experimental`, and
+  `dual_emit`. `service.peer` is still flag-only in this release. Check the schema for supported
+  value combinations; unsupported combinations fall back rather than forcing the requested mode.
+- **Starter thread details**: Starter 2.29.0 can add experimental `thread.id` and `thread.name`
+  to spans with `distribution.spring_starter.thread_details_enabled: true`. This path is
+  Starter-only; the Javaagent uses the separate
+  `distribution.javaagent.thread_details_enabled` path.
