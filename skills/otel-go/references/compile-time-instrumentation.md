@@ -1,10 +1,11 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, first stable release **v1.0.0**) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.0.1**) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
-dependencies and stdlib packages you don't own.
+dependencies and stdlib packages you don't own. v1.0.0 is retracted because `otelc pin` generated
+the pre-v1 module paths in consumer `go.mod` files; use v1.0.1 or later.
 
 ## When to use it (vs. the rest of this skill)
 
@@ -43,20 +44,20 @@ go build -o myapp .
 ```
 
 Obtain the binary by building from source (`make build` in the upstream repo), `go install
-go.opentelemetry.io/otelc/tool/cmd/otelc`, or the tool-dependency mode above.
+go.opentelemetry.io/otelc/tool/cmd/otelc@latest`, or the tool-dependency mode above.
 
 **Zero-config:** with no instrumentation file present, `otelc go build` analyzes the dependency
-graph, generates a temporary config for the build, and cleans up. Convenient, but **not
-reproducible** — upgrading `otelc` can silently change what gets instrumented. For auditable builds,
-pin instrumentations explicitly (see below).
+graph, generates a temporary config for the build, and cleans up. Upgrading `otelc` can change what
+gets instrumented, so pin the `otelc` version and inspect `.otelc-build/matched.json` in auditable
+builds. In v1.0.1, committing `otelc pin` output is not yet supported (see below).
 
 ## Subcommands
 
 | Subcommand | Purpose |
 |---|---|
 | `otelc go …` | Instrument and run the go toolchain; everything after `go` is forwarded verbatim. |
-| `otelc setup` | Analyze the module, generate instrumentation sources, write the matched rule set to `.otelc-build/` (needed before Mode 3). Also runs the interactive wizard. |
-| `otelc pin` | Create/update `otel.instrumentation.go` to pin instrumentation packages. Flags: `--prune` (default on), `--validate`, `--generate`. |
+| `otelc setup` | Analyze the module, generate instrumentation sources, and write the matched rule set to `.otelc-build/` (needed before Mode 3). |
+| `otelc pin` | Create/update the local-workflow `otel.instrumentation.go`. Flags: `--prune` (default on), `--validate`, `--generate`. |
 | `otelc cleanup` | Delete `.otelc-build/` and generated files. |
 | `otelc version` | Print the tool version (`--verbose` adds the Go runtime version). |
 | `otelc toolexec …` | Hidden interceptor invoked by `-toolexec=otelc toolexec`; never call it directly. |
@@ -98,11 +99,13 @@ ones below it:**
 | 4 | Embedded default bundle |
 
 This is the top cause of "nothing got instrumented": an `OTELC_RULES`/`--rules` override silently
-masks the tool file and the embedded bundle. `--rules`/`OTELC_RULES` are for dev/debugging;
-pin via the tool file for production.
+masks the tool file and the embedded bundle. `--rules`/`OTELC_RULES` are for dev/debugging. The
+tool file is the intended explicit model, but v1.0.1 has not yet published the instrumentation
+submodules: `otelc pin` adds local `replace` directives into `.otelc-build/`. Treat its output as
+a local workflow, not a source-controlled production configuration.
 
-**Explicit pinning** uses the standard Go `tools.go` blank-import pattern in a module-scoped file
-next to `go.mod`:
+**Local explicit selection** uses the standard Go `tools.go` blank-import pattern in a
+module-scoped file next to `go.mod`. Let `otelc pin` generate and manage this file:
 
 ```go
 //go:build tools
@@ -111,11 +114,14 @@ package tools
 
 import (
 	_ "go.opentelemetry.io/otelc/instrumentation/net/http/server"
-	_ "go.opentelemetry.io/otelc/instrumentation/google.golang.org/grpc"
+	_ "go.opentelemetry.io/otelc/instrumentation/google.golang.org/grpc/client"
+	_ "go.opentelemetry.io/otelc/instrumentation/google.golang.org/grpc/server"
 )
 ```
 
-Only blank (`_`) imports are allowed; run `go mod tidy` after editing, or let `otelc pin` manage it.
+Only blank (`_`) imports are allowed. Do not hand-copy the parent
+`instrumentation/google.golang.org/grpc` import shown in the v1.0.1 upstream protocol example: it
+is not a Go package; the client and server are separate instrumentation modules.
 
 **Runtime tuning:** instrumented binaries embed an auto-initialized SDK that reads the standard
 [OTel SDK env vars](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/)

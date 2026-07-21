@@ -337,7 +337,9 @@ The OTLP exporters use exponential backoff with jitter:
 | Max interval | 30s |
 | Max elapsed time | 1min |
 
-Retries honor `Retry-After` headers from the backend.
+gRPC retries honor server pushback. In the current v1.44.0 HTTP exporters, integer
+`Retry-After` values are mistakenly treated as nanoseconds rather than seconds, and HTTP-date
+values are ignored; do not rely on server-directed HTTP backoff in this release.
 
 ### Request Size Cap (v1.44.0+)
 

@@ -198,9 +198,10 @@ attrs := attribute.NewSet(
 )
 
 // Filter attributes
-filtered := attrs.Filter(func(kv attribute.KeyValue) bool {
+filtered, excluded := attrs.Filter(func(kv attribute.KeyValue) bool {
     return kv.Key != "service.version"
 })
+_ = excluded // attributes removed by the filter
 ```
 
 ## Propagation
@@ -225,9 +226,9 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 ## Logs API
 
 The Logs API and SDK are versioned on a **separate v0.x line** (currently `otel/log` and
-`otel/sdk/log` v0.20.0, released alongside core v1.44.0) and are **not yet declared stable** —
-interfaces may still change without a major bump. They primarily provide a bridge for existing
-logging libraries. Track their version independently from the stable v1.x traces/metrics
+`otel/sdk/log` v0.20.0, released alongside core v1.44.0) and are **Beta** — interfaces may
+still change without a major bump. They primarily provide a bridge for existing logging
+libraries. Track their version independently from the stable v1.x traces/metrics
 signals (see the module-versioning table in SKILL.md).
 
 ### Core Types
