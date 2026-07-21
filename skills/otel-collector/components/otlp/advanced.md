@@ -25,8 +25,6 @@ receivers:
       grpc:
         endpoint: 0.0.0.0:4317
         include_metadata: true     # headers survive into the pipeline
-        auth:
-          authenticator: bearertokenauth
 ```
 
 `include_metadata: true` is the prerequisite for:
