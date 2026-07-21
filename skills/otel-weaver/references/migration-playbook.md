@@ -30,7 +30,7 @@ Build the four files:
 See `references/registry-authoring.md` for field reference and a working sample.
 
 While moving entries, normalize:
-- counter names: drop `.total`
+- Counter and UpDownCounter names: drop an appended `_total`
 - duration histograms: convert `ms` → `s` and rescale bucket boundaries (e.g. `0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5`)
 - enum-shaped strings: declare them as enum types so consumers see allowed values
 
@@ -88,4 +88,4 @@ See `references/ci-integration.md`. Ship the workflow in the same PR as the migr
 - `weaver registry generate --v2` followed by the language formatter leaves `git diff --exit-code` clean
 - the application builds and tests pass
 - a sample trace shows org-local span names and attributes from the generated symbols
-- a sample metric shows the renamed/rescaled units and no leftover `.total` suffix
+- a sample metric shows the renamed/rescaled units and no leftover `_total` suffix
