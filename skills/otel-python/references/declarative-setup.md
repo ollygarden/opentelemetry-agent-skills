@@ -1,17 +1,13 @@
 # Python SDK Setup with Declarative File Configuration
 
 Configure the OpenTelemetry SDK in Python via a YAML file processed by
-`opentelemetry.sdk._configuration.file`.
+the `opentelemetry-configuration` package (`opentelemetry.configuration`).
 
-> **Experimental / private API.** The `opentelemetry.sdk._configuration.*`
-> modules are private (leading underscore) and experimental. They may change
-> or be removed without a deprecation notice between SDK releases. Check the
-> SDK CHANGELOG (see Sources of Truth) before upgrading.
->
-> **Main-branch note (post-1.43.0):** upstream `main` has moved the
-> declarative configuration implementation into an unreleased
-> `opentelemetry-configuration` package. Keep released guidance on
-> `opentelemetry.sdk._configuration.*` until that package is released.
+> **Experimental public package.** Release 1.44.0 / 0.65b0 moved declarative
+> configuration from the private `opentelemetry.sdk._configuration.*` modules
+> into the public `opentelemetry-configuration` package. The package is still
+> experimental (Development Status: Alpha), so its API and models may change
+> between minor releases. Pin and audit the changelog when upgrading.
 
 For the YAML configuration schema, load the `otel-declarative-config` skill.
 
@@ -23,19 +19,26 @@ For YAML schema details, fetch the upstream sources listed in the
 | Fact | Fetch |
 |---|---|
 | Latest `opentelemetry-sdk` / `opentelemetry-api` | `WebFetch https://pypi.org/pypi/opentelemetry-sdk/json` (`.info.version`) |
+| Latest `opentelemetry-configuration` | `WebFetch https://pypi.org/pypi/opentelemetry-configuration/json` |
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support + vendored schema version (released 1.43.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.43.0/opentelemetry-sdk/src/opentelemetry/sdk/_configuration/README.md` |
-| SDK CHANGELOG | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/main/CHANGELOG.md` |
+| Declarative config support (released 1.44.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/README.rst` |
+| Vendored schema (released 1.44.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
+| SDK CHANGELOG through 1.44.0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md` |
 
 ## Install
 
-The `file-configuration` extras group is required; plain `opentelemetry-sdk`
-lacks `pyyaml` and `jsonschema` and `load_config_file` will raise `ImportError`.
+Install the separate experimental package directly. It installs matching
+`opentelemetry-api` and `opentelemetry-sdk` versions plus the YAML/schema
+dependencies:
 
 ```bash
-pip install "opentelemetry-sdk[file-configuration]" opentelemetry-api
+pip install opentelemetry-configuration
 ```
+
+`opentelemetry-sdk[file-configuration]` remains as a deprecated compatibility
+alias that installs `opentelemetry-configuration`; prefer the direct package for
+new setups.
 
 Add exporters and instrumentation libraries as needed:
 
@@ -47,7 +50,7 @@ pip install opentelemetry-exporter-otlp opentelemetry-distro \
 
 ## Activation
 
-As of SDK **1.43.0 / 0.64b0** there are two supported activation paths.
+As of SDK **1.44.0 / 0.65b0** there are two supported activation paths.
 
 ### Zero-code: `OTEL_CONFIG_FILE`
 
@@ -63,6 +66,9 @@ When `OTEL_CONFIG_FILE` is set, the file is the **sole** source of SDK
 construction: spec-defined `OTEL_*` variables that have schema equivalents are
 ignored. Env vars are still read via `${VAR}` / `${VAR:-default}` substitution
 inside the file and by components the file enables (e.g. resource detectors).
+Python-specific `OTEL_PYTHON_*` configuration extensions are also bypassed
+because the regular env-var initialization path is skipped; express equivalent
+behavior in the file or in code.
 
 ### Programmatic: `configure_sdk`
 
@@ -73,7 +79,7 @@ tracer/meter/logger providers and propagator globally — honoring the top-level
 
 ```python
 """bootstrap.py — import before any application code."""
-from opentelemetry.sdk._configuration.file import load_config_file, configure_sdk
+from opentelemetry.configuration import configure_sdk, load_config_file
 
 configure_sdk(load_config_file("otel.yaml"))
 ```
@@ -84,11 +90,11 @@ validates against the vendored schema, and returns a **fully-typed**
 `meter_provider`, `logger_provider`) are typed dataclasses, not raw dicts. (Prior
 to 1.43.0 the loader returned raw dicts for nested fields and callers had to
 build the dataclass tree by hand.) Both `load_config_file` and `configure_sdk`
-are exported from `opentelemetry.sdk._configuration.file`.
+are exported from `opentelemetry.configuration`.
 
 For finer control, the per-signal factories (`configure_tracer_provider`,
 `configure_meter_provider`, `configure_logger_provider`, `configure_propagator`,
-`create_resource`) are also exported from the same package.
+`create_resource`) are exported from `opentelemetry.configuration.file`.
 
 ### Application entry point
 
@@ -104,10 +110,12 @@ imported (or before the CLI activates the config) uses no-op providers.
 
 ## YAML Config
 
-`file_format` is required and must be a string version. SDK 1.43.0 validates it
+`file_format` is required and must be a string version. Release 1.44.0 validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
 versions with the same major version are accepted with a warning. Use `"1.0"`
 unless you have checked the currently vendored schema and SDK loader.
+The package vendors configuration schema 1.1.0 in this release, while the loader
+still declares 1.0 as its supported `file_format` target.
 
 Minimal verified skeleton (all three signals, console exporters):
 
@@ -140,7 +148,29 @@ logger_provider:
 For OTLP exporters and the full schema, load the `otel-declarative-config` skill.
 
 Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; it is handled
-by `load_config_file` before the YAML is further processed.
+by `load_config_file` before the YAML is further processed. Use `$$` for a
+literal dollar sign.
+
+## Instrumentor Activation
+
+Release 1.44.0 can activate installed contrib instrumentors from the
+`instrumentation/development.python` section. Keys are
+`opentelemetry_instrumentor` entry-point names; `enabled: false` skips one:
+
+```yaml
+instrumentation/development:
+  python:
+    requests:
+      enabled: true
+    urllib3:
+      enabled: false
+```
+
+Additional keys are passed to `instrument()`. If an instrumentor publishes a
+dataclass in its `configuration` attribute, those values are type-coerced and
+validated first. Already-active instrumentors are skipped to avoid double
+instrumentation; unknown or failing instrumentors are logged and do not stop
+the remaining entries.
 
 ## Key Facts
 
@@ -154,6 +184,10 @@ by `load_config_file` before the YAML is further processed.
 - **Absent section ⇒ global left unset.** A config section that is absent
   (`None`) leaves the corresponding global untouched — it stays the no-op
   default. Each signal is independent.
+
+- **Configured ID generator is applied.** Release 1.44.0 wires the
+  `tracer_provider.id_generator` configuration into `TracerProvider`; resolve
+  the supported shape from the vendored schema.
 
 - **`LoggingHandler` import.** The deprecated
   `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 1.40.0/0.61b0) should be
