@@ -8,7 +8,7 @@ across all three.
 | Budget | Main levers |
 |---|---|
 | Bundle size | Tree-shaking, per-signal SDK imports, prefer events over spans, skip `zone.js` when you can |
-| Runtime cost | Off-main-thread processing, batch processors, idle callbacks |
+| Runtime cost | Idle-time scheduling, batch processors, bounded work per callback |
 | Telemetry volume/cost | Fewer instrumentations, restrict resource-timing, sampling, Collector-side trimming |
 | Privacy (PII) | URL sanitization, restrict console capture, redact in the Collector |
 
@@ -33,10 +33,10 @@ more so than for backend SDKs.
 
 ## Runtime cost (don't block the main thread)
 
-The main thread renders the page; telemetry must stay off it.
+The main thread renders the page; telemetry must minimize and bound work on it.
 
-- **Resource timing** already uses `requestIdleCallback` (Safari `setTimeout` fallback), processes in
-  batches, and bounds time per idle callback. Tune `batchSize`, `maxProcessingTime`, and
+- **Resource timing** defers work with `requestIdleCallback` (Safari `setTimeout` fallback), processes
+  in batches, and bounds time per callback. Tune `batchSize`, `maxProcessingTime`, and
   `maxQueueSize` if you load many resources. See
   [instrumentation.md](instrumentation.md#resource-timing-browserresource_timing).
 - **Always use the Batch processors** (`BatchSpanProcessor`, `BatchLogRecordProcessor`), never the

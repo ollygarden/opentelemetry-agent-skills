@@ -33,11 +33,11 @@ resource-timing events are correlated automatically.
 
 ## Event-based instrumentations (`@opentelemetry/browser-instrumentation`)
 
-Entry points are subpath exports under `./experimental/*`; they emit through the global
-`LoggerProvider` (see [setup-sdk.md](setup-sdk.md#logger-provider-events)), so call
-`logs.setGlobalLoggerProvider(...)` **before** `registerInstrumentations`. (Span-based
-instrumentations resolve their tracer at registration time too — pass `tracerProvider` or register
-the provider globally first; see [setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
+Entry points are subpath exports under `./experimental/*`. Set the global `LoggerProvider` before
+constructing them, because an enabled instrumentation can emit immediately; `registerInstrumentations`
+also accepts `loggerProvider` and rebinds each instrumentation at registration. (Span-based
+instrumentations are similarly rebound from `tracerProvider` or the then-current global provider;
+see [setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
 
 ```typescript
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -84,8 +84,9 @@ lost if `load` never fires).
 
 One event per resource the page loads (scripts, CSS, images, fonts, XHR/fetch) from
 [PerformanceResourceTiming](https://developer.mozilla.org/docs/Web/API/PerformanceResourceTiming).
-Stays off the main thread (`requestIdleCallback`, Safari `setTimeout` fallback), processes in
-batches, captures resources loaded before it was enabled (buffered), and flushes on visibility change.
+Defers processing to main-thread idle time (`requestIdleCallback`, Safari `setTimeout` fallback),
+works in batches, captures resources loaded before it was enabled (buffered), and flushes on
+visibility change.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -112,11 +113,15 @@ conventions are **merged** (see the
 [WebVital event](https://opentelemetry.io/docs/specs/semconv/browser/browser-events/#webvital-event)).
 
 The released `browser.web_vital` event (development stability; verify via the
-`otel-semantic-conventions` skill, group `browser`, entry `event.browser.web_vital`) carries `name`,
-`value`, `delta`, and `id` — not a custom `web_vital.*` attribute namespace.
-`WebVitalsInstrumentation` already emits these correctly; if you must hand-write reporting (e.g. no
-`LoggerProvider`/instrumentation available), emit a `LogRecord` named `browser.web_vital` with those
-attributes rather than opening a span with invented keys.
+`otel-semantic-conventions` skill, group `browser`, entry `event.browser.web_vital`) requires a map
+**body** with `name`, `value`, `delta`, and `id`. These are body fields, not log attributes.
+
+`@opentelemetry/browser-instrumentation` 0.6.0 does not yet match that released shape: it uses the
+correct event name but emits `browser.web_vital.name`, `.value`, `.rating`, `.delta`, `.id`, and
+`.navigation_type` as attributes; `body` is only set to raw attribution when
+`includeRawAttribution` is enabled. Account for that package shape in queries or transform it at
+the pipeline edge. For strict semconv output from hand-written reporting, emit a `LogRecord` with
+`eventName: 'browser.web_vital'` and the four required fields in its map body.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -226,6 +231,6 @@ The server must list `traceparent` (and `tracestate`/`baggage` if used) in
 | Putting PII in `data-otel-*` or URLs | Exported verbatim to your backend | Use `sanitizeUrl`; keep `data-otel-*` to non-PII business keys |
 | Tracing your own OTLP export calls | Infinite telemetry-about-telemetry loop | `ignoreUrls` the `/v1/traces` and `/v1/logs` endpoints |
 | Forcing spans around point-in-time facts | Wrong model; bloats traces | Use the event-based instrumentations for vitals/navigation/errors |
-| Hand-rolling event/span attributes without checking semconv | Invents non-standard keys (e.g. `web_vital.name`/`web_vital.value`) instead of the released event/attribute names | Check the `browser` group first via the `otel-semantic-conventions` skill or WebFetch the spec page — see [SKILL.md](../SKILL.md#verify-attributes-against-released-semantic-conventions-before-hand-rolling) |
+| Treating event body fields as attributes | Produces the wrong shape (the released Web Vitals convention requires a map body) | Check the full event definition, not only its name; account for the documented 0.6.0 implementation mismatch above |
 | Relying on navigation *timing* for page-view counts | Lost when `load` never fires / user leaves early | Use the navigation *event* for counts, timing for performance |
 | Assuming an instrumentation works because registration threw no error | These packages are experimental; a misconfigured or no-op instrumentation emits neither errors nor telemetry | Verify each one reaches the Collector (diag logging + `debug` exporter) — see [setup-sdk.md](setup-sdk.md#verify-it-actually-emits) |
