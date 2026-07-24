@@ -52,8 +52,8 @@ Version-specific or *"what changed between releases"*:
 `https://explorer.opentelemetry.io/data/javaagent/versions/<version>-index.json` gives the
 `id`→`hash` map for a version — a differing hash for the same `id` across two versions means that
 instrumentation changed. Schema:
-`https://explorer.opentelemetry.io/schemas/javaagent-instrumentation.schema.json`; `/llms.txt` is
-the full index.
+`https://explorer.opentelemetry.io/schemas/javaagent-instrumentation.schema.json`; use
+`/llms.txt` for the agent-oriented index and `/llms-full.txt` for the full documentation.
 
 Prefer this Explorer data over the raw `ecosystem-registry` YAML on GitHub: the Explorer applies
 upstream metadata corrections that the raw registry does not.
