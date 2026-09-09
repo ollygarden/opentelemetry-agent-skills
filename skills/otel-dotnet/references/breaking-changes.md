@@ -45,8 +45,8 @@ Breaking changes, deprecations, and renames are documented per package in each r
 # Discover current core release tag
 gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'
 
-# Fetch CHANGELOG for a specific core package — replace <Package> with the directory name
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/<Package>/CHANGELOG.md
+# Fetch CHANGELOG for a specific core package — replace both placeholders
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/<Package>/CHANGELOG.md
 ```
 
 Common core package names (match the directory under `src/`):
@@ -59,9 +59,13 @@ Common core package names (match the directory under `src/`):
 
 ### 2b. Contrib / instrumentation packages (`opentelemetry-dotnet-contrib`)
 
+Resolve the package version from NuGet first. For the packages below, the release tag is the
+package ID without the `OpenTelemetry.` prefix, followed by `-<version>` (for example,
+`Instrumentation.Http-1.18.0`). Confirm that tag exists before fetching it.
+
 ```bash
-# Fetch CHANGELOG for a contrib package — replace <Package> with the directory name
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/<Package>/CHANGELOG.md
+# Fetch CHANGELOG for a contrib package at that package's release tag
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<package-tag>/src/<Package>/CHANGELOG.md
 ```
 
 Common contrib package names (match the directory under `src/`):
@@ -96,7 +100,8 @@ Look for `### Breaking changes`, `### Deprecated`, and `### Removed` sections.
 Run this sequence when upgrading any package:
 
 1. **Identify the package type** (core or contrib) and its repository.
-2. **Fetch the CHANGELOG** (Step 2 above) for the exact package being upgraded.
+2. **Fetch the CHANGELOG** (Step 2 above) from the exact release tag being upgraded. Do not
+   use `main`, whose `Unreleased` section may describe APIs that are not published.
 3. **Scan from the previous pinned version to the target version** — read every release section in
    that range for breaking changes and deprecations.
 4. **Cross-reference semconv renames** — if the CHANGELOG mentions attribute renames, fetch the
@@ -112,16 +117,16 @@ gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'
 
 # Step 2: fetch changelogs for every package in use
 # Core examples:
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/OpenTelemetry/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/OpenTelemetry.Extensions.Hosting/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/OpenTelemetry/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/OpenTelemetry.Extensions.Hosting/CHANGELOG.md
 
 # Contrib examples:
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/OpenTelemetry.Instrumentation.AspNetCore/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/OpenTelemetry.Instrumentation.Http/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<aspnetcore-tag>/src/OpenTelemetry.Instrumentation.AspNetCore/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<http-tag>/src/OpenTelemetry.Instrumentation.Http/CHANGELOG.md
 
 # Zero-code / CLR-profiler agent (single-repo product — CHANGELOG is at the repo root, not per-package):
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-instrumentation/main/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-instrumentation/<agent-tag>/CHANGELOG.md
 ```
 
 ---
@@ -132,11 +137,11 @@ The .NET SDK exposes opt-in experimental behaviors via environment variables pre
 `OTEL_DOTNET_EXPERIMENTAL_`. These are not stable API surface and may change or be removed
 without a major version bump.
 
-To discover which flags are in effect in a given release, search the CHANGELOG and the source for
-`OTEL_DOTNET_EXPERIMENTAL_` after fetching:
+To discover which flags are in effect in a given release, search that release's CHANGELOG and
+source for `OTEL_DOTNET_EXPERIMENTAL_` after fetching:
 
 ```bash
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/OpenTelemetry/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/OpenTelemetry/CHANGELOG.md
 ```
 
 Then search the result for `OTEL_DOTNET_EXPERIMENTAL_` to enumerate flags introduced or changed

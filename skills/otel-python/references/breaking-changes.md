@@ -7,7 +7,7 @@ rots with each release.
 ## Step 1: Fetch the CHANGELOGs
 
 Fetch both released upstream sources before reviewing any code. As of
-2026-09-03, the released ceiling is core **1.44.0** and contrib **0.65b0**:
+2026-09-09, the released ceiling is core **1.44.0** and contrib **0.65b0**:
 
 ```
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md
@@ -89,6 +89,10 @@ When crossing this release boundary, explicitly check for:
 - `ProcessResourceDetector` consumers expecting `process.command_args` or
   `process.command_line`; these privacy-sensitive attributes are now omitted by
   default and require `include_command_args=True`.
+- Pre-fork servers that explicitly set `service.instance.id`; tracer, meter,
+  and logger providers now refresh process-dependent resource attributes in
+  the child, and the regenerated `service.instance.id` overrides the configured
+  value there.
 - In-place mutation of `opentelemetry.context.Context`; inherited `dict`
   mutation methods no longer modify it. Use the context API to create updated
   contexts.

@@ -474,6 +474,8 @@ Export retries are opt-in (see the Retry section above). For reliable delivery i
 
 ## Sources of Truth
 
+Inspect these paths at the exact `core-*` release tag being audited, not at `main`:
+
 - Batch processor defaults: `src/OpenTelemetry/BatchExportProcessor.cs` and `src/OpenTelemetry/Trace/Processor/BatchExportActivityProcessorOptions.cs`
 - Metric reader defaults: `src/OpenTelemetry/Metrics/Reader/PeriodicExportingMetricReader.cs`
 - OTLP exporter options and protocol defaults: `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/OtlpExporterOptions.cs`

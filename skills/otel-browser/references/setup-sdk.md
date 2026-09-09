@@ -13,7 +13,7 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Stability (captured 2026-09):** the latest released Browser SDK is 0.3.0. Check the current
+> **Stability (captured 2026-09):** the latest released Browser SDK is 0.4.0. Check the current
 > package version and matching tagged source before answering. The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
 > for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
@@ -99,8 +99,9 @@ provider.register({
 });
 ```
 
-> `ZoneContextManager` requires `zone.js` (~1 MB). It is the only reliable way to propagate context
-> across async boundaries in the browser, but it is a heavy dependency — see the
+> `ZoneContextManager` bundles `zone.js` to propagate context across async boundaries. Account for
+> it in the measured application bundle, and transpile code to ES2015 because the released package
+> documents a `zone.js` compatibility issue with ES2017+ targets. See the
 > [bundle-size trade-off](performance.md#bundle-size).
 
 ### Logger provider (events)
@@ -218,7 +219,8 @@ as `session.*` attributes (e.g. `session.id`) attached to every span/log. The Br
 session manager under `@opentelemetry/browser-sdk/session` (`createSessionManager`,
 `createDefaultSessionIdGenerator`, `createLocalStorageSessionStore`, `createSessionSpanProcessor`,
 `createSessionLogRecordProcessor`), with configurable `maxDuration` and `inactivityTimeout`
-(seconds).
+(seconds). Call and await `sessionManager.start()` before starting the signal SDKs so a stored
+session is restored before telemetry is created.
 
 > **Processor ordering**: register the session processor **before** the export (batch) processor so
 > `session.id` is stamped before export. With the per-signal `startLogsSdk` / `startTracesSdk`, put

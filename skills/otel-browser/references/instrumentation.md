@@ -1,6 +1,6 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.0 (2026-09). Verify current exports,
+Captured against `@opentelemetry/browser-instrumentation` 0.8.1 (2026-09). Verify current exports,
 README options, and release notes before relying on experimental behavior.
 
 ## Contents
@@ -26,7 +26,7 @@ with a real begin/end and parent/child relationship.
 > against the upstream READMEs and `package.json` `exports` (see
 > [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth)).
 
-### Network context correlation (captured through 0.8.0)
+### Network context correlation (captured through 0.8.1)
 
 Release 0.6.0 added `ContextRegistry` and `NetworkContextRegistry` as a proposal for sharing
 OpenTelemetry context between instrumentations that observe the same network operation from
@@ -129,7 +129,7 @@ stability; verify via the
 `browser.web_vital.name`, `.value`, `.delta`, and `.id` log attributes. The `.rating` and
 `.navigation_type` attributes are recommended.
 
-`@opentelemetry/browser-instrumentation` 0.8.0 matches that released shape. Its record body is unset
+`@opentelemetry/browser-instrumentation` 0.8.1 matches that released shape. Its record body is unset
 unless `includeRawAttribution` is enabled, which adds JSON-stringified attribution details outside
 the semantic-convention fields. For hand-written reporting, put the web-vital fields in attributes,
 not the record body.
@@ -146,8 +146,9 @@ INP and CLS finalize near the end of the page lifecycle — they depend on the S
 
 Captures console API calls (by default `log`, `warn`, `error`, `info`, `debug`); records carry
 `browser.console.method`. The `messageSerializer` option controls how console arguments become the
-record body (default: join arguments as strings). Capturing `log`/`info`/`debug` in production is
-typically noise and a PII risk — restrict it:
+record body. By default, objects are JSON-stringified when possible, other values use `String()`,
+and the results are joined with spaces. Capturing `log`/`info`/`debug` in production is typically
+noise and a PII risk — restrict it:
 
 ```typescript
 new ConsoleInstrumentation({ logMethods: ['error', 'warn'] });
@@ -164,7 +165,7 @@ scripts), the message is still emitted; rejections with a null/undefined reason 
 emitting an exception are contained and reported through SDK diagnostics rather than escaping the
 global error handler.
 
-### User Action (`browser.user_action`)
+### User Action (`browser.user_action.click`)
 
 Captures user input events (by default `click`). Any `data-otel-*` attribute on the clicked element
 is copied into the `browser.element.attributes` map with the prefix removed — a deliberate channel
@@ -185,8 +186,8 @@ untrusted-data handling and keep any added fields bounded and non-PII.
 
 ## Span-based instrumentations
 
-These produce **spans**. The established opentelemetry-js and js-contrib packages are available
-through the auto bundle:
+These produce **spans**. The auto bundle contains fetch, XHR, document-load, and user-interaction;
+the other packages listed below must be installed separately:
 
 ```typescript
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
@@ -207,9 +208,11 @@ registerInstrumentations({
 | `instrumentation-document-load` | js-contrib | Spans for document load + navigation/resource timing (span flavor). |
 | `instrumentation-user-interaction` | js-contrib | Spans for user interactions (clicks) with their async causal tree. |
 | `instrumentation-long-task` | js-contrib | Spans for [Long Tasks](https://developer.mozilla.org/docs/Web/API/Long_Tasks_API) (>50 ms main-thread blocks). |
-| `instrumentation-browser-navigation` | js-contrib | Event-based SPA navigation (alternative to the one above). |
-| `instrumentation-web-exception` | js-contrib | Event-based unhandled exception capture. |
 | `plugin-react-load` | js-contrib | React component mount/load performance; **unmaintained** upstream. |
+
+The js-contrib `instrumentation-browser-navigation` and `instrumentation-web-exception` packages
+are separately installed, event-based alternatives to the consolidated Navigation and Errors
+instrumentations above; they are not span instrumentations or part of the auto bundle.
 
 The released opentelemetry-js fetch/XHR instrumentations `0.222.0` and js-contrib document-load
 `0.67.0` emit only the stable

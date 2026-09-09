@@ -8,7 +8,7 @@ Performance tuning reference for the OpenTelemetry Python SDK. Covers sampling, 
 
 | Signal | Unsampled Overhead | Sampled Overhead | Primary Cost |
 |--------|-------------------|------------------|--------------|
-| Traces | Near-zero (noop span) | Moderate | Object creation, export I/O |
+| Traces | Lower (non-recording span) | Moderate | Context/sampling or recording/export I/O |
 | Metrics | N/A (always collected) | N/A | Aggregation, cardinality |
 | Logs | Low if handler level filtered | Low-moderate | Serialization, export I/O |
 
@@ -40,7 +40,9 @@ The SDK reads defaults from environment variables; check the [released OpenTelem
 
 ## Sampling
 
-Sampling is the most impactful performance lever for traces. Unsampled spans return a noop span with virtually zero overhead — no attribute storage, no events, no export.
+Sampling is the most impactful performance lever for traces. Unsampled spans
+are non-recording: they skip attribute/event storage and export, but still incur
+context propagation, ID generation, and sampling-decision work.
 
 ### Head Sampling Configuration
 
@@ -78,13 +80,16 @@ Supported `OTEL_TRACES_SAMPLER` values: `always_on`, `always_off`, `traceidratio
 ```
 ALWAYS_ON                   -> Full span lifecycle: allocation + recording + export
 ParentBased(ALWAYS_ON)      -> Same, but respects upstream not-sampled decisions
-TraceIdRatioBased(0.1)      -> ~90% of root spans become noops (near-zero cost)
-ALWAYS_OFF                  -> All spans noop — useful for benchmarking app overhead
+TraceIdRatioBased(0.1)      -> ~90% of root spans become non-recording
+ALWAYS_OFF                  -> All spans are non-recording
 ```
 
 The SDK default is `ParentBased(ALWAYS_ON)`: it honors upstream sampling decisions propagated via W3C TraceContext and samples new root traces.
 
-> **Tail sampling**: For sampling decisions based on complete trace data (error status, latency), use the OpenTelemetry Collector's `tail_sampling` processor rather than SDK-level head sampling. SDK head sampling combined with Collector tail sampling is a common production pattern.
+> **Tail sampling**: A Collector `tail_sampling` processor can decide from
+> complete traces that reach it (for example by error status or latency), but
+> it cannot recover spans discarded by SDK head sampling. Keep that interaction
+> in mind when combining both stages.
 
 ---
 
@@ -185,6 +190,16 @@ reader = PeriodicExportingMetricReader(
     export_timeout_millis=15_000,   # Timeout per export attempt
 )
 ```
+
+SDK 1.43.0 added public APIs for changing readers after construction:
+
+```python
+meter_provider.add_metric_reader(reader)
+meter_provider.remove_metric_reader(reader)  # also shuts down reader
+```
+
+Adding the same reader twice or removing an unregistered reader logs a warning
+and returns. Readers remain independent and collect separate metric streams.
 
 Or via environment variables:
 
@@ -348,7 +363,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 or HTTP/2 |
+| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 

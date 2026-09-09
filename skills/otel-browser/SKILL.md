@@ -64,7 +64,7 @@ known mismatches. If no convention exists, use bounded, low-cardinality custom n
 guessing a released-looking name.
 
 The reviewed package-map snapshot is the upstream
-[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.8.0`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.8.0#browser-packages).
+[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.8.1`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.8.1#browser-packages).
 For current versions, select the matching release tag as described below.
 Use [`references/instrumentation.md`](references/instrumentation.md) for task routing instead of
 copying volatile package inventories.

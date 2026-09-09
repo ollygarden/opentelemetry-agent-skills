@@ -25,10 +25,10 @@ more so than for backend SDKs.
 - **Use the instrumentation subpath exports**
   (`@opentelemetry/browser-instrumentation/experimental/web-vitals`). The package declares itself
   side-effect-free so bundlers can remove unused instrumentation code.
-- **`zone.js` is ~1 MB.** `ZoneContextManager` is the only reliable way to propagate trace context
-  across async boundaries, but it is heavy. A common trade-off is to relax in-browser async tracing
-  and rely on **session correlation** instead, adding `zone.js` only when stitched async spans are
-  genuinely needed.
+- **`ZoneContextManager` adds the `zone.js` runtime.** Use it when trace context must cross async
+  boundaries, and account for that dependency in the measured application bundle. The released
+  package also requires code to be transpiled to ES2015 because of a `zone.js` compatibility issue.
+  Session correlation is a different, lighter mechanism when stitched async spans are not needed.
 - Pin exact versions and watch the bundle in CI — experimental packages change size between minors.
 
 ## Runtime cost (don't block the main thread)
