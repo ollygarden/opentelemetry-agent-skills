@@ -12,18 +12,16 @@ Tag prefix: ${TagPrefix}
 Force: ${Force}
 Output root: ${OutDir}
 
-## Output
-
 ## Procedure
 
-1. **Resolve versions.** The repo is already cloned locally at `/tmp/otel-component-telemetry/<repo basename>` — do not clone it yourself. List the component's requested number of released versions from its git tags (`git tag`). When `Tag prefix` is non-empty, consider only tags beginning with that literal prefix, check out the full tag, and strip the prefix to obtain the version used in frontmatter and the output filename. In monorepos where packages version independently of repo tags and no tag prefix is provided (e.g. opentelemetry-js experimental packages), use the package's own version from its manifest at each release tag, and name files after the package version.
+1. **Resolve versions.** The repo is already cloned locally at `/tmp/otel-component-telemetry/<repo basename>` — do not clone it yourself. `Versions to scan` is either a count of recent releases or one exact tag. For a count, list that many released versions from `git tag`. For an exact tag, scan only that tag. When `Tag prefix` is non-empty, consider only tags beginning with that literal prefix, check out the full tag, and strip the prefix to obtain the version used in frontmatter and the output filename. In monorepos where packages version independently of repo tags and no tag prefix is provided (e.g. opentelemetry-js experimental packages), use the package's own version from its manifest at each release tag, and name files after the package version.
 
 2. **Get source.** Check out each resolved tag into its own temp directory: `git worktree add "$(mktemp -d)" <tag>`. Never scan a branch — only pinned tags.
 
-3. **Ground truth in the code.** Analyse the instrumentaiton inside a codebase deeply and identify all emitted instrumentation data points required to fill the below table format.
+3. **Ground truth in the code.** Analyse the instrumentation inside a codebase deeply and identify all emitted instrumentation data points required to fill the table format below.
 
-5. **Record conditionality.** If a signal, metric, or attribute is gated (feature gate, opt-in config, experimental semconv env var), it still gets a row — with the gate named in `Notes`.
-6. **Apply the skip/force rule**, run the self-check, write the file(s).
+4. **Record conditionality.** If a signal, metric, or attribute is gated (feature gate, opt-in config, experimental semconv env var), it still gets a row — with the gate named in `Notes`.
+5. **Apply the skip/force rule**, run the self-check, write the file(s).
 
 ## Updates
 

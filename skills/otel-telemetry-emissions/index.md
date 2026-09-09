@@ -90,7 +90,7 @@
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
-| opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.156.0.md | v0.156.0 | 2026-08-06 |
+| opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.156.0.md | v0.156.0 | 2026-09-09 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.157.0.md | v0.157.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.158.0.md | v0.158.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
