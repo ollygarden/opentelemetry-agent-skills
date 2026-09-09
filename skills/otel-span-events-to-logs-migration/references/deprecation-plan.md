@@ -7,7 +7,7 @@ This reference summarizes the [OTEP 4430](https://github.com/open-telemetry/open
 - `Span.AddEvent` -- the API method for attaching events to spans
 - `Span.RecordException` -- the API method for recording exceptions on spans
 
-As of 2026-09-03, these methods are planned deprecation targets from the accepted OTEP. They are not yet marked Deprecated in `specification/trace/api.md`.
+As of 2026-09-09, these methods are planned deprecation targets from the accepted OTEP. They are not yet marked Deprecated in `specification/trace/api.md`.
 
 ## What Is NOT Being Deprecated
 
@@ -41,7 +41,7 @@ Stabilize log-based Events. (The `event_name` LogRecord field is part of the sta
 - Next major version: migrate to the Logs API; for span-detail-without-a-timestamp cases, record span attributes instead ([semantic-conventions#2010](https://github.com/open-telemetry/semantic-conventions/issues/2010), [opentelemetry-specification#4446](https://github.com/open-telemetry/opentelemetry-specification/issues/4446))
 - Users opt into the SDK bridge if they need span events in the proto envelope
 
-## Current Status (2026-09-03)
+## Current Status (2026-09-09)
 
 - **Proto 1.11.0**: log-based Events are stable; `event_name` is a stable LogRecord field.
 - **Specification 1.60.0**: the Logs API is Stable, including the `event_name` field and the optional `Exception` parameter to Emit, so log-based exception/event emission is specified. The "event to span event bridge" `LogRecordProcessor` is specified in `specification/logs/sdk.md` (Status: Development), with a matching `event_to_span_event_bridge/development` declarative-config key.
@@ -53,7 +53,7 @@ Stabilize log-based Events. (The `event_name` LogRecord field is part of the sta
 
 Use current released source for the target language before editing user code.
 The snapshot below was verified against synced upstream checkouts and exact
-released tags on 2026-09-03:
+released tags on 2026-09-09:
 
 | Language | Current migration-relevant status |
 |---|---|

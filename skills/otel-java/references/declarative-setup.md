@@ -49,7 +49,7 @@ Declarative config has been supported since Javaagent 2.9.0; the property is now
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
 Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
 the preferred value from that release's fixture to avoid compatibility warnings for experimental
-properties. As of 2026-09-03, the latest SDK BOM is 1.65.0, and Javaagent/Spring Boot Starter
+properties. As of 2026-09-09, the latest SDK BOM is 1.65.0, and Javaagent/Spring Boot Starter
 2.31.1 target SDK 1.65.0. The released SDK parser accepts `0.4` and `1.*` and prefers
 `"1.1"`; both 2.31.1 instrumentation fixtures use `1.1`. Keep the selected distribution's
 embedded SDK distinct from the independently released BOM, and do not infer either from `main` or
