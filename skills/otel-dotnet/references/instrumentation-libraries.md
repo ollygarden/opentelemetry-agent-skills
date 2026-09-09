@@ -127,7 +127,7 @@ All packages below have a released package tag in
 in lockstep with the core SDK. Do not pin versions in prose — fetch the current version
 for each package from NuGet:
 
-```
+```text
 https://www.nuget.org/packages/<PackageId>
 ```
 
@@ -135,7 +135,7 @@ Or from the per-package CHANGELOG at that package's release tag (source of truth
 released breaking changes). For these packages, form the tag by removing `OpenTelemetry.`
 from the package ID and appending `-<version>`; confirm that tag exists before fetching it:
 
-```
+```text
 https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<package-tag>/src/<Package>/CHANGELOG.md
 ```
 

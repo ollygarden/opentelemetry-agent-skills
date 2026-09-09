@@ -189,9 +189,9 @@ the remaining entries.
 
 - **Absent provider section ⇒ provider global left unset.** An absent
   `tracer_provider`, `meter_provider`, or `logger_provider` section leaves that
-  signal's global untouched. Propagators differ: `configure_sdk` always applies
-  the propagator configuration, and an absent propagator section installs an
-  empty `CompositePropagator`.
+  signal's global untouched. Propagators differ: when configuration is enabled,
+  `configure_sdk` always applies the propagator configuration, and an absent
+  propagator section installs an empty `CompositePropagator`.
 
 - **Configured ID generator is applied.** Release 1.44.0 wires the
   `tracer_provider.id_generator` configuration into `TracerProvider`; resolve
