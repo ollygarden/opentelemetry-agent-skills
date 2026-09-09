@@ -88,7 +88,12 @@ components | {
       matched=0
       if [ -n "$scan_tag" ]; then
         matched=1
-        version="${scan_tag#"$tag_prefix"}"
+        version=""
+        if [ -z "$tag_prefix" ]; then
+          version="$(git -C "$WORK_DIR/$(basename "$repo")" show "$scan_tag:$path/package.json" 2>/dev/null |
+            jq -r '.version // empty' || true)"
+        fi
+        version="${version:-${scan_tag#"$tag_prefix"}}"
         [ -f "$OUT_DIR/$(basename "$repo")/$path/v${version#v}.md" ] || missing=1
       elif [ -n "$tag_prefix" ]; then
         while IFS= read -r tag; do
