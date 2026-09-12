@@ -115,8 +115,9 @@ Before finalizing a response, check that:
 
 ## Installation and container use
 
-Pin the released Go module. The newest published versioned GHCR image as of 2026-09-09 is
-`v0.159.0`; the `v0.160.0` source release does not currently have a corresponding image:
+Pin the released Go module. The newest published versioned GHCR image as of 2026-09-12 remains
+`v0.159.0`; the `v0.160.0` source release does not currently have a corresponding image. A newer
+mutable `latest` image exists, but do not substitute it for a version-pinned image:
 
 ```bash
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.160.0
