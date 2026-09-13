@@ -65,7 +65,7 @@ record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName("cache.miss")
 record.AddAttributes(
-    log.String("cache.key", key),
+    attribute.String("cache.key", key),
 )
 logger.Emit(ctx, record)
 ```

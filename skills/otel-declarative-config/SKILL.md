@@ -107,7 +107,8 @@ For released implementations, verify the package version before using these exac
 |---|---|
 | Go | `go.opentelemetry.io/contrib/otelconf.NewSDK`; it reads `OTEL_CONFIG_FILE`. The old `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected, not accepted as an alias. |
 | Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
-| JavaScript (Node.js) | `@opentelemetry/configuration` exposes `createConfigFactory()`, which selects file configuration when `OTEL_CONFIG_FILE` names a YAML file; `@opentelemetry/sdk-node` consumes that model during its startup path. Both packages are experimental. |
+| JavaScript (Node.js) | Call the experimental `startNodeSDK()` from `@opentelemetry/sdk-node`; it uses `@opentelemetry/configuration`'s `createConfigFactory()`, which selects file configuration when `OTEL_CONFIG_FILE` names a YAML file. |
+| Python | Install the experimental `opentelemetry-configuration` package alongside its matching SDK release. When `OTEL_CONFIG_FILE` is set, the SDK configurator used by `opentelemetry-instrument` calls `load_config_file()` and `configure_sdk()`; those functions are also the direct programmatic entry points. When configuration is enabled, an absent propagator section makes `configure_sdk()` install an empty `CompositePropagator`. |
 
 Other languages, agents, and framework starters can expose different or no bootstrap paths. Use the
 language-specific cross-reference below rather than extrapolating this table.
