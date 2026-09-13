@@ -92,9 +92,13 @@ to 1.43.0 the loader returned raw dicts for nested fields and callers had to
 build the dataclass tree by hand.) Both `load_config_file` and `configure_sdk`
 are exported from `opentelemetry.configuration`.
 
-For finer control, the per-signal factories (`configure_tracer_provider`,
-`configure_meter_provider`, `configure_logger_provider`, `configure_propagator`,
-`create_resource`) are exported from `opentelemetry.configuration.file`.
+For finer control, `opentelemetry.configuration.file` exports paired
+`create_tracer_provider` / `configure_tracer_provider`,
+`create_meter_provider` / `configure_meter_provider`, and
+`create_logger_provider` / `configure_logger_provider` functions, plus
+`create_propagator`, `configure_propagator`, and `create_resource`. The
+`create_*` functions return objects without registering them globally; the
+`configure_*` functions set the corresponding global.
 
 ### Application entry point
 
@@ -183,9 +187,11 @@ the remaining entries.
   `set_logger_provider(...)`. After the bootstrap runs, `trace.get_tracer(...)` etc.
   return providers backed by the configured SDK.
 
-- **Absent section ⇒ global left unset.** A config section that is absent
-  (`None`) leaves the corresponding global untouched — it stays the no-op
-  default. Each signal is independent.
+- **Absent provider section ⇒ provider global left unset.** An absent
+  `tracer_provider`, `meter_provider`, or `logger_provider` section leaves that
+  signal's global untouched. Propagators differ: when configuration is enabled,
+  `configure_sdk` always applies the propagator configuration, and an absent
+  propagator section installs an empty `CompositePropagator`.
 
 - **Configured ID generator is applied.** Release 1.44.0 wires the
   `tracer_provider.id_generator` configuration into `TracerProvider`; resolve

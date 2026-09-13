@@ -26,7 +26,7 @@ version exists for metrics, logs, semantic conventions, exporters, or contrib in
 Resolve each gem independently with Bundler, inspect its changelog, and keep the resulting
 `Gemfile.lock` change under review.
 
-Released snapshot verified 2026-09-03: tracing API `1.11.0`, tracing SDK `1.13.0`, trace OTLP
+Released snapshot verified 2026-09-09: tracing API `1.11.0`, tracing SDK `1.13.0`, trace OTLP
 exporter `0.35.1`; metrics API `0.7.0`, SDK `0.17.0`, OTLP exporter `0.11.0`; logs API `0.4.1`, SDK
 `0.6.1`, OTLP exporter `0.5.1`. Treat this as an audit anchor, not a version-alignment rule; use the
 lookups below for newer releases.

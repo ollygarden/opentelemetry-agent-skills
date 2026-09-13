@@ -4,7 +4,7 @@
 
 ## Import Paths
 
-### API packages (stable, no SDK dependency)
+### API packages (no SDK dependency)
 ```python
 from opentelemetry import trace               # TracerProvider, get_tracer
 from opentelemetry import metrics             # MeterProvider, get_meter
@@ -23,6 +23,9 @@ from opentelemetry.sdk.resources import Resource
 ```
 
 SDK packages ship in `opentelemetry-sdk`. The API packages ship in `opentelemetry-api`. Application code should import from the API; SDK imports belong in bootstrap/setup code.
+The trace and metrics API surfaces are stable. The Logs API remains under active
+stabilization in 1.44.0, even though it is distributed in the stable-versioned
+`opentelemetry-api` package.
 
 ## Global API Access
 
@@ -43,6 +46,28 @@ metrics.set_meter_provider(meter_provider)
 logger_provider = LoggerProvider(resource=resource)
 set_logger_provider(logger_provider)
 ```
+
+### Provider lifecycle additions in 1.43.0 / 1.44.0
+
+`MeterProvider.add_metric_reader()` and `remove_metric_reader()` are public as
+of SDK 1.43.0, so a reader can be attached after provider construction. Removing
+a registered reader detaches and shuts it down:
+
+```python
+meter_provider.add_metric_reader(reader)
+# ... collect/export through reader ...
+meter_provider.remove_metric_reader(reader)
+```
+
+SDK 1.44.0 also publicly exports `SynchronousMultiLogRecordProcessor` and
+`ConcurrentMultiLogRecordProcessor` from `opentelemetry.sdk._logs`. Pass one as
+`LoggerProvider(multi_log_record_processor=...)` when processor fan-out needs an
+explicit sequential or parallel strategy; the default is synchronous.
+
+On platforms with `os.register_at_fork`, the tracer, meter, and logger providers
+refresh process-dependent resource attributes after a fork. In 1.44.0 this
+includes `service.instance.id`; the refreshed value overrides an explicitly set
+value in the child process.
 
 ### Obtaining instances (application code)
 ```python

@@ -11,7 +11,7 @@ multi-signal processes on SDK 1.10.0 or newer, use `OpenTelemetrySdk.Create(...)
 |---|---|
 | Latest `OpenTelemetry` core / `core-*` tag | `gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'` |
 | Latest NuGet package (`OpenTelemetry`, `OpenTelemetry.Extensions.Hosting`, exporters) | `WebFetch https://www.nuget.org/packages/<PackageId>` (Version) |
-| Core CHANGELOG (per package) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/<Package>/CHANGELOG.md` |
+| Core CHANGELOG (per package, at the release being audited) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/<Package>/CHANGELOG.md` |
 | .NET getting-started / instrumentation docs | `WebFetch https://opentelemetry.io/docs/languages/dotnet/instrumentation/` |
 
 ## Hosted Setup

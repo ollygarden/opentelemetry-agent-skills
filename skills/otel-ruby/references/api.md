@@ -49,7 +49,7 @@ context behavior when an application mixes threads, fibers, async schedulers, or
 Metrics remain in separate `0.x` gems. After requiring and configuring the metrics SDK:
 
 ```ruby
-meter = OpenTelemetry.meter_provider.meter('checkout.pricing', '1.0.0')
+meter = OpenTelemetry.meter_provider.meter('checkout.pricing', version: '1.0.0')
 quotes = meter.create_counter('pricing.quotes', unit: '1')
 duration = meter.create_histogram('pricing.quote.duration', unit: 's')
 

@@ -29,8 +29,8 @@ For .NET-specific facts:
 | Latest `OpenTelemetry` core / `core-*` tag | `gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'` |
 | Latest NuGet package (`OpenTelemetry`, `OpenTelemetry.Extensions.Hosting`, exporters, `OpenTelemetry.Instrumentation.<pkg>`) | `WebFetch https://www.nuget.org/packages/<PackageId>` (Version) |
 | Latest auto-instrumentation agent | `gh api repos/open-telemetry/opentelemetry-dotnet-instrumentation/releases/latest -q '.tag_name'` |
-| Core CHANGELOG (per package) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/<Package>/CHANGELOG.md` |
-| Contrib CHANGELOG (per package) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/main/src/<Package>/CHANGELOG.md` |
+| Core CHANGELOG (per package, at the release being audited) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/<Package>/CHANGELOG.md` |
+| Contrib CHANGELOG (per package, at that package's release tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<package-tag>/src/<Package>/CHANGELOG.md` |
 | .NET getting-started / instrumentation docs | `WebFetch https://opentelemetry.io/docs/languages/dotnet/instrumentation/` |
 | Zero-code agent docs | `WebFetch https://opentelemetry.io/docs/zero-code/dotnet/` |
 

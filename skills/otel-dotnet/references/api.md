@@ -11,7 +11,7 @@ at compile time.
 |---|---|
 | Latest `OpenTelemetry` core / `core-*` tag | `gh api repos/open-telemetry/opentelemetry-dotnet/releases/latest -q '.tag_name'` |
 | Latest NuGet package versions | `WebFetch https://www.nuget.org/packages/<PackageId>` |
-| Core CHANGELOG (per package) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/main/src/<Package>/CHANGELOG.md` |
+| Core CHANGELOG (per package, at the release being audited) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet/<core-tag>/src/<Package>/CHANGELOG.md` |
 | Instrumentation docs | `WebFetch https://opentelemetry.io/docs/languages/dotnet/instrumentation/` |
 
 ---
@@ -70,14 +70,14 @@ span?.SetStatus(ActivityStatusCode.Error, "something went wrong");
 ### Adding events
 
 ```csharp
-span?.AddEvent("cache-miss");
+span?.AddEvent(new ActivityEvent("cache-miss"));
 
 // Event with attributes
 var tags = new ActivityTagsCollection
 {
     { "cache.key", "user:42" },
 };
-span?.AddEvent("cache-miss", DateTimeOffset.UtcNow, tags);
+span?.AddEvent(new ActivityEvent("cache-miss", DateTimeOffset.UtcNow, tags));
 ```
 
 ### Adding links

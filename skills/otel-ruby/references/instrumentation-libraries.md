@@ -44,13 +44,13 @@ directory. It currently includes categories such as:
 | Databases and caches | Active Record, PG, mysql2, Trilogy, Mongo, Redis, Dalli, LMDB |
 | Jobs and messaging | Active Job, Sidekiq, Resque, Delayed Job, Que, Bunny, ruby-kafka, Racecar, rdkafka |
 | Runtime and testing | concurrent-ruby, Logger, Rake, RSpec, Factory Bot |
-| Cloud and AI | AWS SDK/Lambda, OpenAI, Anthropic |
+| Cloud and AI | AWS SDK/Lambda, Anthropic |
 
 This table is a routing aid, not a package/version inventory. Before recommending a gem, open its
 README and gemspec in the locked release to confirm its target-library range, Ruby requirement,
 registered constant, options, and emitted semantic-convention mode.
 
-As of 2026-09-03, the latest relevant releases are Rails `0.42.0` (Ruby >= 3.3, Rails >= 7.1),
+As of 2026-09-09, the latest relevant releases are Rails `0.42.0` (Ruby >= 3.3, Rails >= 7.1),
 Rack `0.31.1`, Sinatra `0.30.0`, Sidekiq `0.29.0`, Logger `0.4.0`, and the `all` bundle `0.96.0`.
 The latter five also require Ruby >= 3.3. Do not transfer these constraints to an older lockfile.
 
