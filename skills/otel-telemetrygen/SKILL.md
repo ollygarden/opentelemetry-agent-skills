@@ -115,11 +115,13 @@ Before finalizing a response, check that:
 
 ## Installation and container use
 
-Pin the release:
+Pin the released Go module. The newest published versioned GHCR image as of 2026-09-12 remains
+`v0.159.0`; the `v0.160.0` source release does not currently have a corresponding image. A newer
+mutable `latest` image exists, but do not substitute it for a version-pinned image:
 
 ```bash
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.160.0
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.160.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0
 ```
 
 The version belongs in the installation or image reference, not between the installed
@@ -129,7 +131,7 @@ Run the container with the same flags after the image name:
 
 ```bash
 docker run --rm --network "container:<collector-container-name>" \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.160.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0 \
   traces --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --traces 100 --workers 1 --rate 1
 ```
