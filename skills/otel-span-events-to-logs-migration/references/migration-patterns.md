@@ -13,6 +13,8 @@ operation-specific name with a `.exception` suffix. Use the generic
 
 ## Go
 
+The examples import `go.opentelemetry.io/otel` (for `otel.Logger`) and `go.opentelemetry.io/otel/log`.
+
 ### Exception Recording
 
 Before:
