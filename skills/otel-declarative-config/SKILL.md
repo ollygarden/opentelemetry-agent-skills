@@ -138,7 +138,7 @@ Rules:
 - Substitution applies only to scalar values, not mapping keys
 - Type coercion happens after substitution (`${BOOL}` where `BOOL=true` becomes boolean)
 - No recursive substitution
-- Invalid references produce a parse error
+- Malformed references (e.g. `${1API_KEY}`, `${API_$KEY}`) are invalid and produce a parse error; a well-formed `${VAR}` that is merely unset is not invalid and becomes an empty value
 
 Do not rely on mapping-key, sequence-item, invalid-reference, or type-coercion behavior without a
 target-parser test. For runtime-specific exceptions, load the matching language reference below and

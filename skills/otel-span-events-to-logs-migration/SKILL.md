@@ -34,6 +34,7 @@ See `references/deprecation-plan.md` for the full context.
 3. Apply the migration for each call site.
 - see `references/migration-patterns.md` for language-specific before/after patterns
 - ensure the replacement log record carries the correct span context, event name, attributes, and timestamp; for exceptions use the applicable semantic-convention event name (normally an operation-specific `.exception` name), reserving `exception` for generic handlers
+- in Go (1.47.0+, Logs API/SDK stable), get loggers with `otel.Logger` from the root `go.opentelemetry.io/otel` package (`otel/log/global` is deprecated)
 - in Go, `log.Record.AddAttributes` accepts `attribute.KeyValue`: use `attribute.String(...)`, not `log.String(...)`; set the event name with `Record.SetEventName(...)`
 - for exceptions, preserve the applicable semconv attributes: `exception.type` and `exception.message` (at least one is required), plus `exception.stacktrace` when the language/error type makes it meaningful (in Go, omit it unless an error library preserves the origin stack -- do not call `runtime.Stack` at the emit site)
 
