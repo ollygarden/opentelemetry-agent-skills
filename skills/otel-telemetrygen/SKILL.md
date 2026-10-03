@@ -117,8 +117,8 @@ Before finalizing a response, check that:
 
 Pin the released Go module and a versioned GHCR image (`v0.162.0` is published as of 2026-10-03);
 do not substitute the mutable `latest` image. To pair it with a local contrib Collector, use
-`otel/opentelemetry-collector-contrib:0.161.0`: as of 2026-10-03 the `0.162.0` contrib image has no
-multi-arch tag (see [references/collector-verification.md](references/collector-verification.md)):
+`otel/opentelemetry-collector-contrib:0.161.0`: as of 2026-10-03 the plain `0.162.0` contrib tag is not
+published, only per-architecture tags such as `0.162.0-amd64` (see [references/collector-verification.md](references/collector-verification.md)):
 
 ```bash
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.162.0

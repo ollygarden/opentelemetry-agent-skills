@@ -12,7 +12,7 @@ fixture execution, and live execution; report only the levels actually completed
 - Pick a unique container name and a newly created empty output directory. Never reuse `./out` or
   a prior `result.json`; stale output can create a false positive.
 - Pin Collector and telemetrygen to compatible reviewed versions. The examples use Collector
-  `0.161.0` (the contrib `0.162.0` image has no multi-arch tag yet, as of 2026-10-03) and
+  `0.161.0` (as of 2026-10-03 the plain contrib `0.162.0` tag is not published, only per-architecture tags such as `0.162.0-amd64`) and
   telemetrygen `v0.162.0`.
 
 ## Minimal local pipeline
