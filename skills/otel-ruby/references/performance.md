@@ -35,7 +35,8 @@ jobs, and callbacks that framework instrumentation does not already cover.
 
 ## Metrics cardinality and cost
 
-The experimental metrics SDK applies cardinality limits and supports views. Prefer bounded
+The experimental metrics SDK applies cardinality limits (default 2000 per stream in `0.19.0`) and
+supports views. Prefer bounded
 dimensions; use a view to retain only useful attribute keys or drop a noisy instrument. Confirm
 the locked release's limit and overflow behavior before relying on it. Check delta/cumulative
 temporality against the receiving backend when changing the OTLP metrics preference.
@@ -58,6 +59,6 @@ not make sensitive values safe to collect.
 An empty backend query is not proof of zero telemetry. Enable `OTEL_LOG_LEVEL=debug`, inspect SDK
 warnings and processor drop signals, and compare with a disposable local receiver.
 
-Sources: [trace SDK 1.13.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.0/sdk),
-[metrics SDK 0.17.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-sdk/v0.17.0/metrics_sdk), and
-[Ruby API 1.11.0 benchmarks](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.0/api/benchmarks).
+Sources: [trace SDK 1.13.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.1/sdk),
+[metrics SDK 0.19.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-sdk/v0.19.0/metrics_sdk), and
+[Ruby API 1.11.1 benchmarks](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.1/api/benchmarks).

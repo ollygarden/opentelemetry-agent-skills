@@ -30,10 +30,10 @@ For Python-specific facts:
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest `opentelemetry-instrumentation-<pkg>` (contrib) | `WebFetch https://pypi.org/pypi/opentelemetry-instrumentation-<pkg>/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support (released 1.44.0 overview) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/README.rst` |
-| Declarative config vendored schema (released 1.44.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
-| SDK CHANGELOG through 1.44.0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md` |
-| Contrib CHANGELOG through 0.65b0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.65b0/CHANGELOG.md` |
+| Declarative config support (released 1.45.0 overview) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/README.rst` |
+| Declarative config vendored schema (released 1.45.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
+| SDK CHANGELOG through 1.45.0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/CHANGELOG.md` |
+| Contrib CHANGELOG through 0.66b0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b0/CHANGELOG.md` |
 | Python getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/python/getting-started/` |
 
 ## Cross-References

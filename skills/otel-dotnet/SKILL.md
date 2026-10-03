@@ -15,7 +15,7 @@ task; each reference is self-contained.
 | [`references/setup.md`](references/setup.md) | Setting up the SDK via the DI/builder path (`AddOpenTelemetry().WithTracing/WithMetrics/WithLogging`, `UseOtlpExporter`, `OpenTelemetrySdk.Create`, `OpenTelemetry.Extensions.Hosting`), exporter wiring, env-var / `IConfiguration` inputs, and why there is no released declarative YAML config in .NET. |
 | [`references/api.md`](references/api.md) | Instrumenting with native BCL APIs (`ActivitySource`/`Activity`, `System.Diagnostics.Metrics.Meter`, `ILogger`), how the SDK subscribes (`AddSource`/`AddMeter`), attributes, propagation, and the optional OTel API shim. |
 | [`references/instrumentation-libraries.md`](references/instrumentation-libraries.md) | Zero-code (the `opentelemetry-dotnet-instrumentation` CLR-profiler agent), the contrib instrumentation-package catalog, and manual instrumentation following semconv. |
-| [`references/performance.md`](references/performance.md) | Tuning sampling, batch export processor, periodic metric reader, views, exporter choice, async context, graceful shutdown. |
+| [`references/performance.md`](references/performance.md) | Tuning sampling (built-in samplers incl. `AlwaysRecordSampler`), batch export processor, periodic metric reader, views, exporter choice, async context, graceful shutdown. |
 | [`references/breaking-changes.md`](references/breaking-changes.md) | Auditing existing code for deprecated/renamed APIs and semconv changes across recent core/contrib releases. |
 
 ## Sources of Truth

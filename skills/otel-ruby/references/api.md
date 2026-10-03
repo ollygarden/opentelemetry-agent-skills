@@ -66,7 +66,7 @@ README for supported instruments, views, exemplars, and temporality because the 
 The Logs API/SDK are also separate `0.x` gems. Applications usually bridge an existing logging
 library rather than replacing it. For Ruby's standard `Logger`, install and configure
 `opentelemetry-instrumentation-logger`; consult its README for options and emitted fields.
-Direct `LoggerProvider#logger(...).on_emit(...)` is intended for instrumentation libraries and
+Direct `LoggerProvider#logger(name:, version:).on_emit(...)` is intended for instrumentation libraries and
 advanced integrations, not as a requirement to rewrite application logging.
 
 ## Tests
@@ -79,6 +79,6 @@ The core repository ships `opentelemetry-test-helpers`,
 For integration tests, send to a disposable local OTLP receiver and verify the whole path. Never
 point a test at a production endpoint.
 
-Sources: [Ruby API 1.11.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.0/api),
-[metrics API 0.7.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-api/v0.7.0/metrics_api), and
-[logs SDK 0.6.1 examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-logs-sdk/v0.6.1/examples/logs_sdk).
+Sources: [Ruby API 1.11.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.1/api),
+[metrics API 0.8.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-api/v0.8.0/metrics_api), and
+[logs SDK 0.7.0 examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-logs-sdk/v0.7.0/examples/logs_sdk).
