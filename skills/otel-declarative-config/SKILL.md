@@ -109,6 +109,7 @@ For released implementations, verify the package version before using these exac
 | Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
 | JavaScript (Node.js) | Call the experimental `startNodeSDK()` from `@opentelemetry/sdk-node`; it uses `@opentelemetry/configuration`'s `createConfigFactory()`, which selects file configuration whenever `OTEL_CONFIG_FILE` is non-empty. |
 | Python | Install the experimental `opentelemetry-configuration` package alongside its matching SDK release. When `OTEL_CONFIG_FILE` is set, the SDK configurator used by `opentelemetry-instrument` calls `load_config_file()` and `configure_sdk()`; those functions are also the direct programmatic entry points. When configuration is enabled, an absent propagator section makes `configure_sdk()` install an empty `CompositePropagator`. |
+| Ruby | Experimental `opentelemetry-config` gem (0.1.0+). The app must call `OpenTelemetry::Config.configure` (reads `OTEL_CONFIG_FILE`) or `configure_from_file(path)`; nothing loads the file automatically. 0.1.0 applies only `resource`, `tracer_provider`, and `propagator` (`meter_provider` and `logger_provider` are parsed but ignored), performs no `${VAR}` substitution, does not validate `file_format`, does not give the file precedence over env vars, and falls back to a no-op SDK when the file is missing or invalid. |
 
 Other languages, agents, and framework starters can expose different or no bootstrap paths. Use the
 language-specific cross-reference below rather than extrapolating this table.
@@ -147,7 +148,7 @@ portable files; schema validation does not prove substitution behavior.
 ## Cross-References
 
 - Language-specific setup and package versions: `otel-go`, `otel-java`, `otel-js`, `otel-python`
-  (load `references/declarative-setup.md`) and `otel-dotnet` (load `references/setup.md`).
+  (load `references/declarative-setup.md`), and `otel-dotnet` and `otel-ruby` (load `references/setup.md`).
 
 ## Response completion
 
