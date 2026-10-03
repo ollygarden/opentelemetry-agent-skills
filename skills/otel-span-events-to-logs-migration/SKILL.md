@@ -5,13 +5,13 @@ description: Migrate OpenTelemetry Span Events (AddEvent, RecordException, and l
 
 # Span Events to Logs Migration
 
-Use this skill to migrate instrumentation from the Span Event API (`AddEvent`, `RecordException`, and language equivalents) to the Logs API, following the accepted [OTEP 4430 deprecation plan](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.60.0/oteps/4430-span-event-api-deprecation-plan.md).
+Use this skill to migrate instrumentation from the Span Event API (`AddEvent`, `RecordException`, and language equivalents) to the Logs API, following the accepted [OTEP 4430 deprecation plan](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.61.0/oteps/4430-span-event-api-deprecation-plan.md).
 
 ## Background
 
 The OpenTelemetry project accepted a plan to deprecate `Span.AddEvent` and `Span.RecordException` in favor of emitting events and exceptions through the Logs API. Span Events as a concept remain valid -- they can be emitted via logs that correlate to the active span, and optionally bridged back into the span proto.
 
-Status as of 2026-09-09: OTEP 4430 is accepted, log-based event/exception emission is specified in the Logs API, and the SDK "event to span event bridge" is specified with Development status. The trace API methods `AddEvent`/`RecordException` are not yet formally marked Deprecated in the specification -- that step is still pending. Treat existing span-event calls as migration candidates, not automatically invalid code; some SDK-specific equivalents have already changed status (for example OpenTelemetry .NET's `Activity.RecordException` extension is `[Obsolete]` in favor of `Activity.AddException`, which is still a span-event API).
+Status as of 2026-10-03: OTEP 4430 is accepted, log-based event/exception emission is specified in the Logs API, and the SDK "event to span event bridge" is specified with Development status. The trace API methods `AddEvent`/`RecordException` are not yet formally marked Deprecated in the specification -- that step is still pending. Treat existing span-event calls as migration candidates, not automatically invalid code; some SDK-specific equivalents have already changed status (for example OpenTelemetry .NET's `Activity.RecordException` extension is `[Obsolete]` in favor of `Activity.AddException`, which is still a span-event API).
 
 See `references/deprecation-plan.md` for the full context.
 

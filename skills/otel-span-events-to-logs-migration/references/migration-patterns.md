@@ -24,7 +24,7 @@ span.SetStatus(codes.Error, err.Error())
 After:
 ```go
 // Use the event logger to record the exception as a log-based event
-logger := global.Logger("my-package")
+logger := otel.Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName(exceptionEventName)
@@ -41,7 +41,7 @@ logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
 ```
 
-Go log SDK 0.22.0 derives `exception.type` and `exception.message` from
+Go log SDK 1.47.0 derives `exception.type` and `exception.message` from
 `SetErr`. An explicitly supplied exception attribute is preserved, while each
 missing `exception.type` or `exception.message` attribute is derived independently.
 When an error library preserves the origin stack, add `exception.stacktrace` and
@@ -60,7 +60,7 @@ span.AddEvent("cache.miss", trace.WithAttributes(
 
 After:
 ```go
-logger := global.Logger("my-package")
+logger := otel.Logger("my-package")
 record := log.Record{}
 record.SetTimestamp(time.Now())
 record.SetEventName("cache.miss")
@@ -305,7 +305,7 @@ logger.on_emit(
 )
 ```
 
-Ruby Logs API 0.4.1 and Logs SDK 0.6.1 expose `Logger#on_emit` with
+Ruby Logs API 0.5.0 and Logs SDK 0.7.0 expose `Logger#on_emit` with
 `event_name:` and use the current context by default. They do not expose an
 exception convenience parameter, so populate the applicable `exception.*`
 attributes explicitly.
