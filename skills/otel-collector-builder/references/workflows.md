@@ -24,7 +24,7 @@ receivers:
 Requirements:
 
 - The local directory must contain a `go.mod` whose module path matches the `gomod` path.
-- Run OCB with a Go toolchain new enough for both OCB and the selected modules. OCB v0.160.0 declares Go 1.26. Its source template starts the generated distribution at `go 1.25`, then `go mod tidy -compat=1.25` raises the final `go` directive to 1.26 for v0.160.0 modules; a local component that requires newer Go needs that newer toolchain.
+- Run OCB with a Go toolchain new enough for both OCB and the local component — see [Compilation failures](troubleshooting.md#compilation-failures).
 - Since v0.151.0 the generated `replace` uses a path relative to `dist.output_path`, so the generated tree can be committed or moved. Set `dist.use_absolute_replace_paths: true` if external tooling expects absolute paths.
 
 This is also the fastest verification loop when authoring a new component: manifest with the local component + `otlpreceiver` + `debugexporter`, build, run, send data with `telemetrygen`.
@@ -56,7 +56,7 @@ Run OCB in a container (no local Go needed):
 
 ```bash
 docker run --rm -v "$(pwd):/work" -w /work \
-  otel/opentelemetry-collector-builder:0.160.0 \
+  otel/opentelemetry-collector-builder:0.162.0 \
   --config=/work/builder.yaml
 ```
 
@@ -68,7 +68,7 @@ Typical multi-stage Dockerfile for shipping the result:
 FROM golang:1.26 AS build
 WORKDIR /build
 COPY builder.yaml .
-RUN go install go.opentelemetry.io/collector/cmd/builder@v0.160.0 \
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.162.0 \
  && builder --config=builder.yaml
 
 FROM gcr.io/distroless/static-debian12:nonroot
@@ -106,7 +106,7 @@ Note `--ldflags` replaces the default entirely — re-add `-s -w` if you still w
 
 ## Relationship to opentelemetry-collector-releases
 
-[opentelemetry-collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases) is where the official distributions (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, `otelcol-otlp`) are defined and built — each is just an OCB manifest under `distributions/<name>/manifest.yaml` plus goreleaser packaging (archives, deb/rpm, container images, signing).
+[opentelemetry-collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases) is where the official distributions (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, `otelcol-otlp`, `otelcol-ebpf-profiler`, `otelcol-prometheus`) are defined and built — each is just an OCB manifest under `distributions/<name>/manifest.yaml` plus goreleaser packaging (archives, deb/rpm, container images, signing).
 
 Use it two ways:
 

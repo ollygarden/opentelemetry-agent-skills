@@ -80,10 +80,11 @@ Every detector reports `cloud.provider`/`cloud.platform` plus a platform-specifi
 | `ecs` | ECS Task Metadata Endpoint (V4/V3) | `cloud.*`, `aws.ecs.*` |
 | `eks` | EC2 IMDS + k8s/EC2 API fallback | `cloud.*`; `k8s.cluster.name` opt-in (needs `EC2:DescribeInstances`). `node_from_env_var` |
 | `lambda` | Lambda runtime env vars | `cloud.*`, `faas.*` |
-| `gcp` | GCP metadata server | `cloud.*`, `host.*`, `k8s.cluster.name`, `faas.*` per platform (GCE/GKE/Cloud Run/Functions/App Engine). Optional `labels` (regex list; needs `roles/compute.viewer`) |
+| `gcp` | GCP metadata server | `cloud.*`, `host.*`, `k8s.cluster.name`, `faas.*` per platform (GCE/GKE/Cloud Run/Functions/App Engine). Optional `labels` (regex list; needs `roles/compute.viewer`). Since v0.161.0, `host.type` on GKE is fetched via the Compute API (needs `compute.instances.get`; disable `host.type` to skip the call) |
 | `azure` | Azure IMDS | `cloud.*`, `host.*`. Optional `tags` (regex → `azure.tags.<name>`) |
 | `aks` | Azure IMDS | `cloud.*`; `k8s.cluster.name` opt-in |
 | `azureappservice` | Azure App Service environment variables | `azure.app_service.instance.id`, `azure.resource_group.name`, `cloud.*`, `deployment.environment.name`, `service.name` |
+| `azurefunctions` | Azure Functions environment variables (`FUNCTIONS_WORKER_RUNTIME` / `FUNCTIONS_EXTENSION_VERSION`); v0.162.0+ | `azure.resource_group.name`, `cloud.*` (incl. `cloud.resource_id`), `faas.instance`, `service.name`; `deployment.environment.name` opt-in. Flex Consumption plans lack `azure.resource_group.name` / `cloud.resource_id` |
 | `azurecontainerapps` | Azure Container Apps environment variables | `azure.container_app.instance.id`, `cloud.platform`, `cloud.provider`, `service.name` |
 | `k8s_api` | k8s API server | node/cluster attrs; requires `node_from_env_var` (default `K8S_NODE_NAME`) and `nodes` RBAC. `auth_type` (`serviceAccount` default / `none` / `kubeConfig`). `k8snode` is the deprecated alias |
 | `kubeadm` | k8s API (`kubeadm-config` ConfigMap) | `k8s.cluster.name`, `k8s.cluster.uid`. `auth_type` |

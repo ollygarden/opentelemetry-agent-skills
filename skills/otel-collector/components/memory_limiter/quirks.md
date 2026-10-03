@@ -67,7 +67,7 @@ service:
   extensions: [memory_limiter]
 ```
 
-The extension reached **Beta** stability in v0.158.0. It is still **not compiled into the stock core or contrib distributions** (`metadata.yaml` lists no distributions), so it requires a custom build. The processor form remains the bundled pipeline component; choose between them based on whether refusal should happen as receiver middleware or in a pipeline.
+The extension reached **Beta** stability in v0.158.0. It is still **not compiled into the stock core or contrib distributions** (`metadata.yaml` lists no distributions), so it requires a custom build. The processor form remains the bundled pipeline component; choose between them based on whether refusal should happen as receiver middleware or in a pipeline. Since core v0.162.0 the extension emits `otelcol_memorylimiter_refused_requests` (attribute `transport`) for refused network requests.
 
 ## Stability caveats
 

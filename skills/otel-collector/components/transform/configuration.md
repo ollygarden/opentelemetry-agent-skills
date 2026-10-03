@@ -27,7 +27,7 @@ service:
 | `log_statements` | list | `[]` | Statements run against log data. |
 | `profile_statements` | list | `[]` | Statements run against profile data (Development stability). |
 
-> The default `error_mode` is permanently `ignore` as of v0.157.0. The `processor.transform.defaultErrorModeIgnore` gate remains registered as **Stable** through v0.160.0 despite its v0.159.0 metadata end version; disabling it fails startup. On v0.153.0–v0.156.0 it was Beta and could still be disabled to restore the old `propagate` default.
+> The default `error_mode` is `ignore`. The `processor.transform.defaultErrorModeIgnore` gate was removed in v0.162.0, so naming it in `--feature-gates` fails startup; see [quirks](quirks.md#error_mode-propagate-drops-the-whole-batch-on-error).
 >
 > A `flatten_data` boolean (default `false`, behind the `transform.flatten.logs` alpha feature gate) gives each log record a distinct copy of its resource and scope before transformation, then regroups afterwards — useful when log-level data drives resource/scope edits. It copies and hashes every record, so enable only when needed.
 
@@ -81,7 +81,7 @@ transform:
 | `context` | string | No | Explicit OTTL context (see [Context values](#context-values)). Usually inferred — only set it to override inference. |
 | `error_mode` | string | No | Overrides the top-level `error_mode` for this group only. |
 | `conditions` | list | No | Group-level OTTL booleans, OR'd together. If any is true (or the list is empty), the group's statements run. |
-| `shared_cache` | bool | No (`false`) | Experimental. Share one OTTL cache map among statement groups of the same signal instead of clearing it between groups. Added in v0.160.0. |
+| `shared_cache` | bool | No (`false`) | Experimental. Share one OTTL cache map among statement groups of the same signal instead of clearing it between groups. The cache never persists across batches (v0.162.0 fixed a bug where it could). Added in v0.160.0. |
 | `statements` | list | Yes | The OTTL statements to execute, in order. |
 
 ## Context values

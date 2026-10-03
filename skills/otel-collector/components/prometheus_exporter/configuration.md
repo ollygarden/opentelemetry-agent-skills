@@ -65,3 +65,4 @@ An empty `endpoint` is not caught by `Config.Validate()`; `endpoint` has no defa
 |------|-------|-------|--------|
 | `exporter.prometheusexporter.DisableAddMetricSuffixes` | `beta` | v0.132.0 | When enabled, the deprecated `add_metric_suffixes` is ignored and `translation_strategy` is always used. (Spec PR 4533.) |
 | `exporter.prometheus.DisableResourceToTelemetryConversion` | `alpha` | v0.160.0 | Rejects deprecated `resource_to_telemetry_conversion`; use `resource_constant_labels`. |
+| `pkg.translator.prometheus.PermissiveLabelSanitization` | `beta` (since v0.162.0) | v0.55.0 | Shared with `prometheus_remote_write`. Enabled by default: labels with a single leading underscore (`_foo`) are kept instead of being rewritten to `key_foo`. Disable to restore the prefixing. |

@@ -16,10 +16,11 @@ Common OCB build and runtime failures, most frequent first.
 
 Symptoms: `go mod tidy` errors during the "get modules" step, `there is a mismatch in go.mod and builder configuration versions`, or components silently resolved to unexpected versions.
 
-Fix: align every core and contrib component on the same `v0.x.0` matching the OCB version, and providers on the paired `v1.y.0` (pairing rule in SKILL.md). Common mistakes:
+Fix: align every core and contrib component on the same `v0.x.0` matching the OCB version, and providers on the paired `v1.y.0` (pairing rules in SKILL.md). Common mistakes:
 
 - One component pinned at an older `v0.x.0` than the rest — Go resolves the highest requested version and the manifest no longer matches reality.
-- Version written without the `v` prefix (`0.160.0`) — module query fails outright.
+- Writing a stable contrib module (e.g. `k8sattributesprocessor`) at `v0.x.0` past its v1 move — no such tag exists; use its `v1.x` version.
+- Version written without the `v` prefix (`0.162.0`) — module query fails outright.
 - OCB binary older than the component versions in the manifest — upgrade OCB first; the generated templates encode assumptions about the core APIs of the matching release.
 
 Strict checking is off by default; run with `--skip-strict-versioning=false` to make OCB verify resolved versions against the manifest instead of failing later in `go build`.
@@ -49,7 +50,7 @@ The manifest set `providers:` explicitly and omitted `envprovider`. The key **re
 - `cgo: C compiler "gcc" not found`: a component needs CGO. Either install a C toolchain and set `dist.cgo_enabled: true`, or drop the component. Default is CGO off.
 - `build constraints exclude all Go files`: `dist.build_tags` or `GOOS`/`GOARCH` excludes everything — clear the tags or fix the target platform.
 - OOM on small CI runners: the collector dependency graph is large. `GOMAXPROCS=2 ocb --config=builder.yaml`, or split into generate + `go build` stages.
-- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB v0.160.0 declares Go 1.26. Its source template starts generated distributions at `go 1.25`, but `go mod tidy -compat=1.25` raises the final `go` directive to 1.26 for v0.160.0 modules. Selected modules may require newer Go.
+- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB v0.162.0 needs Go 1.26+; selected or local modules may require newer.
 
 ## Runtime failures
 

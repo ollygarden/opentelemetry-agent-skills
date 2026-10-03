@@ -14,7 +14,7 @@
 Detects **resource** attributes from the environment the Collector runs in — host machine, cloud provider metadata services, container runtimes, Kubernetes, and environment variables — and merges them onto every span, metric data point, and log record passing through the pipeline, in a form that follows the [OpenTelemetry resource semantic conventions](https://github.com/open-telemetry/semantic-conventions/tree/main/docs/resource). You enable detection by listing one or more named **detectors** in `detectors`; each detector contributes the attributes it knows how to find (e.g. `system` → `host.name`/`os.type`, `ec2` → `cloud.provider`/`cloud.region`/`host.id`, `gcp` → `cloud.platform`/`k8s.cluster.name`).
 
 A global `retry` block applies to detector failures. Azure Container Apps (`azurecontainerapps`)
-and, since v0.160.0, Azure App Service (`azureappservice`) are available as detectors. Retries are
+Azure App Service (`azureappservice`, v0.160.0+), and Azure Functions (`azurefunctions`, v0.162.0+) are available as detectors. Retries are
 enabled by default, with the overall default session bounded by the 5s HTTP timeout.
 
 Detection normally runs **once at startup** and the results are cached. Detectors run in the order listed and, by default (`override: true`), the detected values overwrite any existing resource attributes on incoming telemetry; set `override: false` to keep values already present (the safer choice when telemetry arrives pre-enriched from SDKs or upstream Collectors). Unlike [`resource`](../resource/README.md), it does not take an explicit attribute action list — it *discovers* attributes rather than setting literal values, and is commonly chained **before** `resource` so you can rename or trim what it found.
