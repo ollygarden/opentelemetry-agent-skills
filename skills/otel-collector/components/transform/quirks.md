@@ -20,13 +20,13 @@ A `resource`-context statement runs once per resource and changes are seen by **
 
 ## `error_mode: propagate` drops the whole batch on error
 
-Under `propagate`, the first statement that errors (a type mismatch, a nil dereference like `log.cache["x"]["y"]` when `x` is nil) **drops the entire payload**, not just the offending item, and the remaining statements never run. The default is now `ignore` (since v0.153.0), but any config or group that still sets `propagate` behaves this way. Keep `error_mode: ignore` (or `silent`) in production, and nil-check before accessing nested fields:
+Under `propagate`, the first statement that errors (a type mismatch, a nil dereference like `log.cache["x"]["y"]` when `x` is nil) **drops the entire payload**, not just the offending item, and the remaining statements never run. The default is `ignore`, but any config or group that still sets `propagate` behaves this way. Keep `error_mode: ignore` (or `silent`) in production, and nil-check before accessing nested fields:
 
 ```yaml
 - set(log.attributes["uid"], log.cache["user"]["id"]) where log.cache["user"] != nil
 ```
 
-`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default flipped from `propagate` to `ignore` in v0.153.0 and became permanent when `processor.transform.defaultErrorModeIgnore` reached Stable in v0.157.0. The gate remains registered through released v0.160.0 despite its v0.159.0 metadata end version, and disabling it fails startup. Pre-v0.153.0 collectors still default to `propagate`; on v0.153.0–v0.156.0 the Beta gate could be disabled to restore it.
+`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default flipped from `propagate` to `ignore` in v0.153.0 and became permanent when `processor.transform.defaultErrorModeIgnore` reached Stable in v0.157.0. Disabling the gate failed startup on v0.157.0–v0.161.0; the gate was removed in v0.162.0, so any remaining `--feature-gates` reference to it now fails startup as an unknown gate. Pre-v0.153.0 collectors still default to `propagate`; on v0.153.0–v0.156.0 the Beta gate could be disabled to restore it.
 
 ## Context performance
 
@@ -50,7 +50,7 @@ metric_statements:
 
 ## OTTL version drift
 
-`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0`. Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
+`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0, `extract_avg_metric` in v0.162.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0`. Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
 
 ## Don't change identity carelessly
 

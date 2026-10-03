@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.66.0 / v0.160.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
+All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.66.0 / v0.160.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`); `sending_queue.batch.partition` rows re-checked at v1.68.0 / v0.162.0.
 
 ## Top-level (gRPC client) keys
 
@@ -85,6 +85,8 @@ using `NewDefaultQueueConfig`; this is phase 1 of the Collector batching migrati
 | `min_size` | int | `8192` | Flush once the batch reaches this many items (the soft trigger). |
 | `max_size` | int | `0` (unlimited) | Hard cap; when > 0, a batch is split to never exceed it. |
 | `partition.metadata_keys` | list of string | — | One batcher per distinct combination of these client-metadata values. |
+| `partition.cache_size` | int | `10000` | Max active partition batchers (LRU); must be > 0. Exposed as `otelcol_exporter_queue_batch_partition_cache_size` / `_capacity`. Core v0.162.0+. |
+| `partition.idle_timeout` | duration | `90s` | How long an empty partition lives before removal; must be > 0. Configurable (and default raised to 90s) in core v0.162.0. |
 
 ## Validation summary
 

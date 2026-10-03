@@ -35,17 +35,20 @@ Validation: `interval` must be greater than `0`. A zero or negative value fails 
 | Cumulative monotonic exponential histogram | Aggregated | — |
 | Gauge | Aggregated (lossy — see below) | `pass_through.gauge: true` |
 | Summary | Aggregated (lossy — see below) | `pass_through.summary: true` |
-| Delta (any) | Passed through unchanged, immediately | — (always pass-through) |
-| Non-monotonic sum | Passed through unchanged, immediately | — (always pass-through) |
+| Delta monotonic sum, delta histogram, delta exponential histogram | Accumulated: the interval's points are **added** per series and emitted once, with the earliest start and latest timestamp | — |
+| Non-monotonic sum (any temporality) | Passed through unchanged, immediately | — (always pass-through) |
+
+> **Doc drift, upstream:** as of v0.162.0 the upstream README still says all delta metrics pass through unchanged; the code (`processor.go`, PR #50922) aggregates them as above.
 
 ## What "lossy" means here
 
 - Monotonic cumulative series: you lose **precision** (intermediate values), not totals — the final cumulative value still represents the full count.
+- Delta series: per-point granularity is merged into one delta per interval; the total is preserved.
 - Gauges and summaries: actual **data loss**. A value that rose and fell back inside the interval is reduced to whatever the last reading happened to be. If the up-and-down matters (latency spikes, queue depth bursts), set `pass_through.gauge: true` / `pass_through.summary: true` to keep them flowing as-is.
 
 ## Behavior example
 
-Source metrics arriving into the processor:
+Monotonic sums arriving into the processor:
 
 | Time | Metric | Temporality | Attributes | Value |
 |------|--------|-------------|------------|------:|
@@ -56,10 +59,11 @@ Source metrics arriving into the processor:
 | 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
 | 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
 
-`other_metric` (delta) is forwarded immediately. At the next interval boundary, only the latest value per series is forwarded:
+At the next interval boundary, the processor forwards the latest value of each cumulative series and the sum of each delta series (here a single point):
 
 | Time | Metric | Temporality | Attributes | Value |
 |------|--------|-------------|------------|------:|
+| 4 | `other_metric` | Delta | `fruitType: orange` | 77.4 |
 | 8 | `test_metric` | Cumulative | `labelA: foo` | 12.8 |
 | 10 | `test_metric` | Cumulative | `labelA: bar` | 6.4 |
 

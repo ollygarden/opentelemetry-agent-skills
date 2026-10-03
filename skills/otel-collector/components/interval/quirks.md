@@ -9,8 +9,11 @@
 ## Troubleshooting
 
 **Nothing comes out of the processor.**
-- All upstream metrics are delta or non-monotonic sums — those would already pass through but produce no buffered emission. Confirm a cumulative monotonic metric reaches the processor.
+- All upstream metrics are non-monotonic sums — those pass through but produce no buffered emission. Confirm a monotonic sum, histogram, gauge, or summary reaches the processor.
 - No new samples arrived in the most recent interval — state is cleared at emission, so a silent source means a silent output. Reduce the source's scrape gap or increase `interval`.
+
+**Delta metrics show no volume drop.**
+- Before v0.162.0, delta metrics passed through unchanged. Upgrade the collector.
 
 **Gauge spikes disappeared from dashboards.**
 - Aggregation flattened them. Set `pass_through.gauge: true`.
@@ -23,10 +26,10 @@
 
 ## Anti-patterns
 
-**Stacking `interval` with delta-only metrics.**
+**Stacking `interval` with pass-through-only metrics.**
 
 ```yaml
-# BAD — adds a stateful component for no benefit; deltas pass through anyway
+# BAD when the source emits only non-monotonic sums — they pass through anyway
 processors:
   interval:
 service:
@@ -35,7 +38,7 @@ service:
       processors: [interval]
 ```
 
-If the source emits only deltas, remove the processor.
+If nothing the source emits is aggregated, remove the processor.
 
 **Using it as a backpressure / rate-limit substitute.**
 
