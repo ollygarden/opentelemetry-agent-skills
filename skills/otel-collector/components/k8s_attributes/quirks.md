@@ -18,11 +18,11 @@ Without a `filter`, a DaemonSet caches metadata for **every pod in the cluster**
 
 ## The `regex` value-extraction field was removed
 
-The old `extract.labels[].regex` / `extract.annotations[].regex` fields (which parsed a **value** out of a label/annotation) are disallowed by the now-Stable `k8sattr.fieldExtractConfigRegex.disallow` gate. Extract the full value here, then parse it with `transform` and OTTL's `ExtractPatterns`. This is distinct from `key_regex`, which matches label/annotation **keys** and still works.
+The old `extract.labels[].regex` / `extract.annotations[].regex` fields (which parsed a **value** out of a label/annotation) no longer exist — the `k8sattr.fieldExtractConfigRegex.disallow` gate that disallowed them went Stable and was then removed. Extract the full value here, then parse it with `transform` and OTTL's `ExtractPatterns`. This is distinct from `key_regex`, which matches label/annotation **keys** and still works.
 
-## Semantic-convention label/annotation format is changing
+## Semantic-convention label/annotation format changed in v0.161.0
 
-By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). The same gates also switch `container.image.tag` (string) → `container.image.tags` (slice). Migrate by enabling the first gate, repointing dashboards/queries to the singular/plural names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed** in v0.155.0.)
+Since v0.161.0 the `processor.k8sattributes.EmitV1K8sConventions` and `processor.k8sattributes.DontEmitV0K8sConventions` gates are **Beta (enabled by default)**, so label/annotation attributes use the **singular** v1 semconv form (`k8s.pod.label.<key>`, `k8s.node.annotation.<key>`, `k8s.namespace.label.<key>`, …) and the plural v0 form (`k8s.pod.labels.<key>`) is no longer emitted. The same gates switch `container.image.tag` (string) → `container.image.tags` (slice). Upgrading from ≤ v0.160 silently renames these attributes — repoint dashboards/queries, or dual-emit during migration with `--feature-gates=-processor.k8sattributes.DontEmitV0K8sConventions,processor.k8sattributes.EmitV1K8sConventions`; disable both to restore the old names. Enabling `DontEmitV0K8sConventions` without `EmitV1K8sConventions` is a startup error. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed** in v0.155.0.)
 
 The internal-telemetry gates `processor.k8sattributes.telemetry.enableNewFormatMetrics` and
 `processor.k8sattributes.telemetry.disableOldFormatMetrics` are Beta and enabled by default in
@@ -34,4 +34,4 @@ For a sidecar, inject pod metadata via the Kubernetes downward API as env vars �
 
 ## Stability caveats
 
-Traces, metrics, and logs are Beta; profiles are Development. The semconv migration gates above and ongoing efficiency work (e.g. `PartialObjectMetadata` informers, and the `otelcol.k8s.pod.association` internal metric — disabled in v0.151.0, then re-enabled in v0.153.0 with a low-cardinality `pod_identifier` attribute) mean behavior and attribute names still shift between releases — confirm against the upstream README for your exact collector version.
+Traces, metrics, and logs are Stable since v0.161.0 (the Go module is versioned `v1.x`); profiles are Development. Ongoing efficiency work (e.g. `PartialObjectMetadata` informers, and the `otelcol.k8s.pod.association` internal metric — disabled in v0.151.0, then re-enabled in v0.153.0 with a low-cardinality `pod_identifier` attribute) means behavior and internal metrics still shift between releases — confirm against the upstream README for your exact collector version.

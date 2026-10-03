@@ -16,14 +16,14 @@ Performance tuning reference for the OpenTelemetry Python SDK. Covers sampling, 
 
 ## Default Configuration Values
 
-The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.44.0/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
+The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.0/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
 
 | Parameter | Environment Variable | Note |
 |-----------|---------------------|------|
 | BSP max queue size | `OTEL_BSP_MAX_QUEUE_SIZE` | Check SDK default |
 | BSP max export batch size | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Check SDK default |
 | BSP schedule delay (ms) | `OTEL_BSP_SCHEDULE_DELAY` | Check SDK default |
-| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Accepted but not applied by `BatchSpanProcessor` in SDK 1.44.0 |
+| BSP export timeout (ms) | `OTEL_BSP_EXPORT_TIMEOUT` | Not applied — see [BatchSpanProcessor Tuning](#constructor-arguments-and-env-vars) |
 | Span attribute count limit | `OTEL_SPAN_ATTRIBUTE_COUNT_LIMIT` | Check SDK default |
 | Span event count limit | `OTEL_SPAN_EVENT_COUNT_LIMIT` | Check SDK default |
 | Span link count limit | `OTEL_SPAN_LINK_COUNT_LIMIT` | Check SDK default |
@@ -121,7 +121,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` in SDK 1.44.0 |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` as of SDK 1.45.0 |
 
 ### Tuning for Throughput
 
@@ -363,7 +363,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport) |
+| Connection model | Persistent, multiplexed | HTTP/1.1 (`urllib3` transport by default since 1.45.0; `requests` only when a `requests.Session` is supplied, e.g. `session=`; install the `[requests]` extra) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 
@@ -402,7 +402,7 @@ exporter = OTLPSpanExporter(compression=Compression.Gzip)
 
 ### Retry and Timeout
 
-The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.44.0/exporter) — do not assume specific backoff intervals.
+The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.45.0/exporter) — do not assume specific backoff intervals.
 
 Configure timeout via environment variable or constructor:
 
@@ -415,6 +415,10 @@ exporter = OTLPSpanExporter(timeout=5)  # seconds in constructor
 ```
 
 Note: Python interprets `OTEL_EXPORTER_OTLP_TIMEOUT` and the `timeout=` constructor argument in **seconds** (default `10`). This deviates from the OpenTelemetry specification, which defines the variable in milliseconds (default `10000`). A value of `5` is a 5-second timeout in Python, not 5 milliseconds. This is a known, tracked deviation ([opentelemetry-python#4044](https://github.com/open-telemetry/opentelemetry-python/issues/4044)); revisit this guidance if that issue is resolved.
+
+Since 1.45.0 the OTLP HTTP exporters also take `max_request_size` (default
+64 MiB, measured before compression; `0` disables): larger serialized requests
+are dropped instead of sent.
 
 Lower timeout: fail fast and free the batch processor for the next export cycle.
 Higher timeout: accommodate large batches or slow backends.
@@ -513,7 +517,7 @@ exact behavior depends on the processor and exporter:
 - **Built-in span processors catch exporter exceptions** and log them; custom
   samplers, processors, and exporters must honor the same non-throwing contract
 - **Invalid metric measurements** such as NaN and Inf are logged and dropped at
-  the instrument boundary in SDK 1.44.0
+  the instrument boundary (SDK 1.44.0+)
 - **OTLP exporters retry eligible failures** according to their transport-specific
   retry behavior; other exporters may not retry
 - **Queue overflow drops spans** — the application is not blocked
@@ -534,5 +538,5 @@ Key signals to watch:
 | Indicator | Meaning |
 |-----------|---------|
 | `Queue full, dropping Span.` warnings | Queue overflow — increase `max_queue_size` or reduce `schedule_delay_millis` |
-| Export timeout errors | Backend/exporter too slow or batch too large — tune the exporter timeout or `max_export_batch_size`; BSP `export_timeout_millis` is not applied in SDK 1.44.0 |
+| Export timeout errors | Backend/exporter too slow or batch too large — tune the exporter timeout or `max_export_batch_size` (BSP `export_timeout_millis` is [not applied](#constructor-arguments-and-env-vars)) |
 | High memory growth | Metric cardinality explosion — add Views to filter attributes |

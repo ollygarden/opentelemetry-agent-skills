@@ -26,7 +26,7 @@ Pick the OCB version equal to the Collector core version you're targeting.
 ```bash
 # Release binary (named ocb): https://github.com/open-telemetry/opentelemetry-collector-releases/releases?q=cmd/builder
 # Go install (binary is named `builder`, not `ocb`):
-go install go.opentelemetry.io/collector/cmd/builder@v0.160.0
+go install go.opentelemetry.io/collector/cmd/builder@v0.162.0
 ```
 
 The commands below use `ocb`, the release-archive binary name. If you install with
@@ -45,18 +45,18 @@ dist:
   version: 1.0.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.160.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.162.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.160.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.162.0
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.160.0
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.160.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.162.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.162.0
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.66.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.66.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.68.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.68.0
 ```
 
 **`providers:` semantics.** Omitting the key entirely keeps OCB's built-in default set (env, file, http, https, yaml at the paired stable version). But setting `providers:` at all **replaces** that set. The generated Collector defaults `conf_resolver.default_uri_scheme` to `env`, so an explicit list without `envprovider` fails configuration validation unless you set another included provider as the default. Either omit the key, or include `envprovider` plus every scheme the collector's config will use.
@@ -65,23 +65,25 @@ Contrib components use the same list syntax:
 
 ```yaml
 processors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.160.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.162.0
 ```
 
 ## Version alignment
 
-Two version streams exist and must be paired:
+Three version streams exist and must be paired:
 
 | Stream | Modules | Example |
 |--------|---------|---------|
-| `v0.x.0` | OCB itself, all core components (`go.opentelemetry.io/collector/...`), all contrib components | `v0.160.0` |
-| `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) | `v1.66.0` |
+| `v0.x.0` | OCB itself, all core components (`go.opentelemetry.io/collector/...`), contrib components in contrib's `contrib-base` module set | `v0.162.0` |
+| `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) | `v1.68.0` |
+| contrib `v1.x` (stable) | contrib modules in contrib's `stable-base` module set (e.g. `processor/k8sattributesprocessor`) | `v1.1.0` with `v0.162.0` |
 
 Rules:
 
-- Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version.
-- The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.160.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.160.0` it is `v1.66.0`).
-- Versions require the `v` prefix (`v0.160.0`, not `0.160.0`).
+- Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version — except contrib modules in the `stable-base` set of contrib's [`versions.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/versions.yaml) at the matching tag; use that set's `v1.x` version (the `otelcol-contrib` manifest of the same release shows the pairing).
+- For `v0.162.0`, the `stable-base` set is `processor/k8sattributesprocessor` at **`v1.1.0`** — pin it at `v1.1.0`, not `v0.162.0` (no such tag exists).
+- The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.162.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.162.0` it is `v1.68.0`).
+- Versions require the `v` prefix (`v0.162.0`, not `0.162.0`).
 - `--skip-strict-versioning` defaults to `true`, so mismatches surface as Go module resolution errors, not friendly OCB errors. Align versions up front instead of debugging `go mod tidy` output.
 
 ## Build commands and flags

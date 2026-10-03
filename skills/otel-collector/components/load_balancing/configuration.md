@@ -1,6 +1,6 @@
 # `load_balancing`: configuration
 
-All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.157.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files).
+All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.157.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files); routing-key and k8s-resolver rows re-checked at `v0.162.0`.
 
 ## Top-level keys
 
@@ -18,7 +18,7 @@ All keys live under the exporter instance (e.g. `exporters: { load_balancing: { 
 
 ### `routing_key` support per signal
 
-`routing_key` is validated **per signal exporter at startup**, and support differs by signal — this is stricter than the upstream README's prose. The table reflects **v0.157.0**:
+`routing_key` is validated **per signal exporter at startup**, and support differs by signal — this is stricter than the upstream README's prose. The table reflects **v0.162.0**:
 
 | `routing_key` | Traces | Logs | Metrics | Keyed on |
 |---------------|:------:|:----:|:-------:|----------|
@@ -28,10 +28,11 @@ All keys live under the exporter instance (e.g. `exporters: { load_balancing: { 
 | `resource` | ❌ | ✅ | ✅ | Hash of all resource attributes. |
 | `metric` | ❌ | ❌ | ✅ | Metric name. |
 | `streamID` | ❌ | ❌ | ✅ | Datapoint stream identity (resource + scope + attributes). |
+| `randomness` | ✅ (v0.162.0+) | ❌ | ❌ | OTel randomness: the tracestate `ot=rv` value when present, else the trace ID's low 56 bits. Traces sharing an explicit `rv` (e.g. one session/workflow) go to the same backend. |
 
-- **Traces** accept `traceID` (default, also when empty), `service`, `attributes`. Any other value fails startup with `unsupported routing_key: <value>`.
+- **Traces** accept `traceID` (default, also when empty), `service`, `attributes`, and (since v0.162.0) `randomness`. Any other value fails startup with `unsupported routing_key: <value>`. `randomness` assumes conformant random low bytes in trace IDs and a constant `rv` across a trace; one `rv` group can be arbitrarily large and lands on a single backend — see the upstream README before using it.
 - **Logs** accept `service` (default, also when empty), `traceID`, `resource`, `attributes`. For `traceID`, a log without a trace ID gets a random one (so it still lands somewhere). **Version note:** logs routing arrived in **v0.154.0** (contrib PR #46241); at **v0.152.0–v0.153.0** the log exporter ignored `routing_key` and always routed by trace ID without validating the value. See [quirks.md](quirks.md).
-- **Metrics** accept `service` (default, also when empty), `resource`, `metric`, `streamID`, `attributes`. Metrics are **Development** stability.
+- **Metrics** accept `service` (default, also when empty), `resource`, `metric`, `streamID`, `attributes`. Metrics are **Alpha** stability.
 
 ### `protocol.otlp`
 
@@ -92,6 +93,8 @@ Watches a Kubernetes Service's `EndpointSlice`s directly (reacts faster than DNS
 | `return_hostnames` | bool | `false` | Return pod hostnames instead of IPs (requires a headless Service backing a StatefulSet). |
 
 **RBAC:** the Collector's ServiceAccount needs `get`, `list`, `watch` on `discovery.k8s.io/v1` `EndpointSlice`.
+
+Since v0.161.0 endpoints whose `EndpointSlice` `conditions.ready` is explicitly `false` are excluded from the ring; set `publishNotReadyAddresses: true` on the Service to keep not-ready pods routable.
 
 ### `aws_cloud_map`
 

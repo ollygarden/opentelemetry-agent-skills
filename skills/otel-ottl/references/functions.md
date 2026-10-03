@@ -1,6 +1,6 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.160.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.162.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
 
 ## Contents
 
@@ -16,12 +16,13 @@ Editor and converter reference for collector-contrib **v0.160.0**. Editors mutat
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.160.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#supported-functions).
+[v0.162.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
 | `metric` | `convert_sum_to_gauge()` | Sum to Gauge; other metric types are unchanged. The conversion can violate Gauge semantics. |
 | `metric` | `convert_gauge_to_sum(aggregation_temporality, is_monotonic)` | Gauge to Sum; temporality is `"delta"` or `"cumulative"`; other metric types are unchanged. The caller owns the resulting Sum semantics. |
+| `metric` | `extract_avg_metric(suffix?)` | Creates a Gauge of sum/count per datapoint from Histogram, ExponentialHistogram, or Summary; default suffix `_avg`; skips datapoints with an absent sum or zero count. Added in v0.162. |
 | `metric` | `extract_count_metric(is_monotonic, suffix?)` | Creates a Sum from Histogram, ExponentialHistogram, or Summary counts; default suffix `_count`; only creates output when datapoints exist. |
 | `metric` | `extract_percentile_metric(percentile, suffix?)` | Creates a Gauge from Histogram or ExponentialHistogram buckets; `0 < percentile < 100`; default suffix `_p{percentile}`; the result is an interpolated estimate. |
 | `metric` | `extract_sum_metric(is_monotonic, suffix?)` | Creates a Sum from Histogram, ExponentialHistogram, or Summary sums; default suffix `_sum`; skips datapoints whose sum is absent. |
@@ -31,23 +32,23 @@ The contexts and signatures below are pinned to the released
 | `metric` | `copy_metric(name?, description?, unit?)` | Appends a full copy, optionally overriding metadata. The copy runs through later metric statements, so guard it with a condition that excludes the copy. |
 | `metric` | `scale_metric(factor, unit?)` | Scales Gauge, Sum, Histogram, and Summary values; optionally changes the unit. |
 | `metric` | `aggregate_on_attributes(function, attributes?)` | Aggregates Sum, Gauge, Histogram, or ExponentialHistogram datapoints. Functions are `sum`, `max`, `min`, `mean`, `median`, or `count`; histogram types support only `sum`. Omitted attributes retain all keys, while `[]` drops all keys. |
-| `metric` | `convert_exponential_histogram_to_histogram(distribution, explicit_bounds)` | Converts ExponentialHistogram to explicit Histogram using `upper`, `midpoint`, `uniform`, or `random`; bounds must be non-empty. This lossy conversion is not specified by OpenTelemetry. |
+| `metric` | `convert_exponential_histogram_to_histogram(distribution, explicit_bounds)` | Converts ExponentialHistogram to explicit Histogram using `upper`, `midpoint`, `uniform`, or `random`; bounds must be non-empty and strictly increasing. Since v0.162 it converts positive, negative, and zero buckets and preserves the total count. This lossy conversion is not specified by OpenTelemetry. |
 | `metric` | `aggregate_on_attribute_value(function, attribute, values, new_value)` | Aggregates selected attribute values for Sum, Gauge, Histogram, or ExponentialHistogram datapoints; histogram types support only `sum`. |
 | `datapoint` | `merge_histogram_buckets(target_value, method?)` | Explicit Histograms only. Default `remove_explicit_bound` removes a matching bound; `limit_buckets` requires a positive integer target and reduces resolution. Other metric types are unchanged. |
 | `log` | `ParseCEF(target)` | Parses Common Event Format into a map, including an optional syslog prefix and string-valued extensions; malformed or empty input errors. |
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.160 accepts semantic-convention versions 1.37.0 through 1.43.0; unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 accepts semantic-convention versions 1.37.0 through 1.43.0; unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#parsecef), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -60,11 +61,11 @@ set(span.attributes["env"], "production")
 set(log.body, Concat([log.severity_text, ": ", log.body.string], ""))
 ```
 
-In v0.160, `nil` is still ignored by default, preserving the existing target value and logging a
-one-time deprecation warning. Enabling the alpha `ottl.set.allowNil` feature gate passes `nil`
-directly to the target: a map or slice path may be cleared, a `pcommon.Value` may become empty, and
-strictly typed targets may return an error. Guard missing sources when behavior must not depend on
-the gate.
+`set` passes `nil` directly to the target: a map or slice path is cleared, a `pcommon.Value` (for
+example a missing attribute key) is set to an empty value, and scalar or struct-typed targets return
+an error. This is the `ottl.set.allowNil` behavior, beta (on by default) in v0.161 and stable in
+v0.162; through v0.160 a nil value was a no-op. Guard missing sources with `where source != nil`
+when the target must stay unchanged.
 
 ### `clear` (v0.160+)
 ```ottl
@@ -204,6 +205,7 @@ Split(span.name, "/")                         # ["", "api", "v1", "users"]
 Split(span.name, "/")[1]                      # "api"
 Substring(span.span_id.string, 0, 8)          # first 8 chars
 Substring(target, start, length, utf8_safe?)  # byte offsets; utf8_safe defaults false; added v0.156
+Concat(Split(span.attributes["request.id"], "-"), "")   # v0.161+: values may be a slice-valued path or converter
 ```
 
 With `utf8_safe=true`, a start inside a multi-byte character advances to the next UTF-8 boundary and an end inside one backs up to the previous boundary. The result stays valid UTF-8 but can be shorter than `length` bytes.
@@ -403,7 +405,6 @@ Murmur3Hash(s) / Murmur3Hash128(s)            # v0.129+; hexadecimal string
 XXH3(s) / XXH128(s)                           # v0.135+; hexadecimal string
 Decode(value, encoding)                       # v0.141+; "base64", "base64-raw", "base64-url", "base64-raw-url", IANA charsets
 Base64Encode(s, variant?)                     # v0.147+; default base64
-Base64Decode(s)                               # DEPRECATED — use Decode(s, "base64")
 Hex(bytes)
 ```
 

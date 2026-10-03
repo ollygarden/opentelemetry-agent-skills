@@ -23,11 +23,13 @@ set(span.attributes["environment"], "production")
 set(span.attributes["version"], "unknown")
     where span.attributes["version"] == nil
 
-# Copy from resource
+# Copy from resource (guard: since v0.161 a nil source creates an empty-valued key)
 set(span.attributes["service"], resource.attributes["service.name"])
+    where resource.attributes["service.name"] != nil
 
 # Rename
 set(span.attributes["host.name"], span.attributes["hostname"])
+    where span.attributes["hostname"] != nil
 delete_key(span.attributes, "hostname")
 
 # Drop sensitive keys
@@ -81,8 +83,9 @@ set(span.status.code, STATUS_CODE_ERROR)
 
 # Exception spans
 set(span.status.code, STATUS_CODE_ERROR)
-set(span.status.message, span.attributes["exception.message"])
     where span.attributes["exception.type"] != nil
+set(span.status.message, span.attributes["exception.message"])
+    where IsString(span.attributes["exception.message"])
 
 # Slow spans
 set(span.attributes["slow"], true)
@@ -353,7 +356,7 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| `nil value` | Path resolves to a missing field | Add `where path != nil` (or `IsString(path)` etc.) |
+| `nil value`, or an empty attribute appears | Path resolves to a missing field; since v0.161 `set` passes nil through | Add `where path != nil` (or `IsString(path)` etc.) |
 | `type mismatch` | Wrong types in arithmetic / function args | Convert with `Int`, `Double`, `String` after type-checking |
 | `invalid regex` | Unescaped metacharacter | Double-escape: `\\d`, `\\.`, `\\s` |
 | `division by zero` | `/` with a zero divisor | Add `where divisor != 0` |
@@ -361,7 +364,7 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 | `attributes` processor doesn't touch resource | Wrong processor | Use `resource` processor or `transform` with `context: resource` |
 | `cache["x"]` errors in span context | Cache requires a context prefix since v0.120 | Write `span.cache["x"]` |
 | `Bool("yes")` errors | String inputs use Go boolean parsing; arbitrary non-empty strings are not truthy | Use `IsMatch` with an explicit pattern, or check with `where` |
-| `Base64Decode` deprecation warning | v0.141+ moved to generic decoder | Use `Decode(value, "base64")` |
+| Unknown function `Base64Decode` | Removed in v0.161 (deprecated since v0.141) | Use `Decode(value, "base64")` |
 
 Since v0.160, parser diagnostics identify the input kind, line and column, nearby source, and the
 expected token when available, for example

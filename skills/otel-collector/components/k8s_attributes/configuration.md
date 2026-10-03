@@ -34,7 +34,7 @@ service:
 | `extract` | object | (see below) | Which metadata, labels, and annotations to add. |
 | `filter` | object | `{}` | Restrict which pods are watched (node/namespace/label/field). The main memory lever. |
 | `pod_association` | array | (see below) | Ordered strategies for tying a record to a pod; first match wins. |
-| `exclude` | object | excludes `jaeger-agent`, `jaeger-collector` | Pods to skip (by name, regex allowed). A pod can also opt out with the annotation `opentelemetry.io/k8s-processor.ignore: "true"`. |
+| `exclude` | object | excludes `jaeger-agent`, `jaeger-collector` | Pods to skip (by name, regex allowed; an invalid regex fails config validation since v0.162.0). A pod can also opt out with the annotation `opentelemetry.io/k8s-processor.ignore: "true"`. |
 | `wait_for_metadata` | bool | `false` | Block startup until the metadata cache has synced. |
 | `wait_for_metadata_timeout` | duration | `10s` | Max wait for the initial sync when `wait_for_metadata: true`; on timeout the collector fails to start. |
 | `watch_sync_period` | duration | `5m` | Informer cache resync period (v0.152.0). Set `0s` to disable resync — recommended for very large clusters, where periodic resyncs cause CPU spikes and memory churn. |
@@ -62,7 +62,7 @@ extract:
 
 | Field | Default | Meaning |
 |-------|---------|---------|
-| `tag_name` | `k8s.<from>.labels.<key>` / `k8s.<from>.annotations.<key>` | Output attribute name. With `key_regex`, may use `$1` backreferences. |
+| `tag_name` | `k8s.<from>.label.<key>` / `k8s.<from>.annotation.<key>` (singular, v1 semconv — default since v0.161.0; plural `labels`/`annotations` when the semconv gates are disabled, see [quirks](quirks.md)) | Output attribute name. With `key_regex`, may use `$1` backreferences. |
 | `key` | — | Exact key to match. Mutually exclusive with `key_regex`. |
 | `key_regex` | — | Regex matched against the **key** (not the value). Mutually exclusive with `key`. |
 | `from` | `pod` | Source object: `pod`, `namespace`, `node`, `deployment`, `replicaset`, `statefulset`, `daemonset`, `job`, `cronjob`. |
@@ -77,7 +77,7 @@ omitting the list uses the defaults below.
 
 ### Default-extracted metadata
 
-Even with no `extract.metadata` list, these are added: `k8s.namespace.name`, `k8s.pod.name`, `k8s.pod.uid`, `k8s.pod.start_time`, `k8s.deployment.name`, `k8s.node.name`, and (when a container identifier is present) `container.image.name` plus the image-tag attribute selected by the semantic-convention gates (`container.image.tag` on v0, `container.image.tags` on v1 — see [quirks](quirks.md)). Set an explicit `metadata` list to narrow this.
+Even with no `extract.metadata` list, these are added: `k8s.namespace.name`, `k8s.pod.name`, `k8s.pod.uid`, `k8s.pod.start_time`, `k8s.deployment.name`, `k8s.node.name`, and (when a container identifier is present) `container.image.name` plus the image-tag attribute selected by the semantic-convention gates (`container.image.tags` with the v1 gates enabled — the default since v0.161.0 — or `container.image.tag` on v0; see [quirks](quirks.md)). Set an explicit `metadata` list to narrow this.
 
 ### Available metadata fields
 

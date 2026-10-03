@@ -24,7 +24,7 @@ from opentelemetry.sdk.resources import Resource
 
 SDK packages ship in `opentelemetry-sdk`. The API packages ship in `opentelemetry-api`. Application code should import from the API; SDK imports belong in bootstrap/setup code.
 The trace and metrics API surfaces are stable. The Logs API remains under active
-stabilization in 1.44.0, even though it is distributed in the stable-versioned
+stabilization as of 1.45.0, even though it is distributed in the stable-versioned
 `opentelemetry-api` package.
 
 ## Global API Access
@@ -65,7 +65,7 @@ SDK 1.44.0 also publicly exports `SynchronousMultiLogRecordProcessor` and
 explicit sequential or parallel strategy; the default is synchronous.
 
 On platforms with `os.register_at_fork`, the tracer, meter, and logger providers
-refresh process-dependent resource attributes after a fork. In 1.44.0 this
+refresh process-dependent resource attributes after a fork. Since 1.44.0 this
 includes `service.instance.id`; the refreshed value overrides an explicitly set
 value in the child process.
 
@@ -184,7 +184,11 @@ The callback receives an `options` argument and must `yield` (or return) `Observ
 
 ## Attributes
 
-Python attribute values are `str | bool | int | float` or sequences thereof.
+Since API/SDK 1.45.0, `AttributeValue` is the spec's `AnyValue`: `str | bool | int | float | bytes`,
+`None`, (possibly heterogeneous or nested) sequences, and string-keyed mappings of those. `bytes`
+values are passed through as bytes instead of being UTF-8 decoded. Before 1.45.0 only primitives
+and homogeneous primitive sequences were accepted. Exporters and backends may not support
+complex values.
 
 ```python
 span.set_attribute("service.name", "api")

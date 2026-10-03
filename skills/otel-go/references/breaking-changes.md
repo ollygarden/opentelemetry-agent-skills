@@ -18,7 +18,10 @@ the SDK migration.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
 - `sdk/log.WithExportBufferSize` is deprecated and has no effect as of log SDK v0.21.0 (core v1.45.0 release); the batch processor no longer keeps a separate export-request buffer.
 - `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
-- `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` is deprecated in v0.71.0 (contrib v1.46.0). Use `github.com/labstack/echo-opentelemetry`; removal is unreleased as of 2026-09-03.
+- `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` was deprecated in v0.71.0 (contrib v1.46.0) and removed in v0.72.0 (contrib v1.47.0). Use `github.com/labstack/echo-opentelemetry`.
+- `go.opentelemetry.io/otel/log/global` is deprecated (core v1.47.0). Use `otel.Logger`, `otel.GetLoggerProvider`, and `otel.SetLoggerProvider` from `go.opentelemetry.io/otel`.
+- Deprecated as no longer supported in contrib v1.47.0, with no contrib replacement: `instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (v0.72.0), `propagators/aws`, and `samplers/probability/consistent`.
+- otelhttp v0.72.0 deprecates `ReadBytesKey`, `ReadErrorKey`, `WroteBytesKey`, and `WriteErrorKey`; `WithMessageEvents` no longer emits `http.read_bytes` / `http.wrote_bytes`. Total body sizes remain on the server span as `http.request.body.size` / `http.response.body.size`.
 
 ## Removed APIs (instrumentation v0.65.0; contrib v1.40.0 release)
 
@@ -58,6 +61,19 @@ RPC attribute changes:
 ## OTLP HTTP endpoint URLs (core v1.45.0)
 
 - `otlptracehttp.WithEndpointURL` and `otlpmetrichttp.WithEndpointURL` no longer append `/v1/traces` or `/v1/metrics` when the URL has no path. They now use `/`, matching signal-specific endpoint environment variables and the log exporter. Join the signal path explicitly to preserve the old behavior.
+
+## Core v1.47.0 (logs API/SDK v1.47.0; log exporters v0.23.0)
+
+- `go.opentelemetry.io/otel/log` and `go.opentelemetry.io/otel/sdk/log` are stable and now tagged on the v1.x line (`@v1.47.0`); the OTLP/stdout log exporters and `logtest` modules continue on v0.x (v0.23.0).
+- Requires Go 1.26 or later (Go 1.25 support dropped in core and contrib v1.47.0).
+- Nested attribute values are capped at depth 64 by default (tuning: [performance.md](performance.md#span-attribute-limits)).
+- The experimental `OTEL_GO_X_METRIC_EXPORT_BATCH_SIZE` variable was removed; use `sdkmetric.WithMaxExportBatchSize` on the `PeriodicReader`.
+- Empty `OTEL_TRACES_SAMPLER` / `OTEL_TRACES_SAMPLER_ARG` values are treated as unset.
+- gRPC OTLP exporters ignore HTTP URL paths when deriving targets from `OTEL_EXPORTER_OTLP_ENDPOINT` / signal-specific endpoint variables.
+
+## otelhttp client metrics labeler (instrumentation v0.72.0; contrib v1.47.0 release)
+
+- Client metrics no longer include attributes from the server-side `Labeler`. Code that used `ContextWithLabeler` to add custom *client* metric attributes must switch to `ContextWithClientLabeler` (read back with `ClientLabelerFromContext`). Server-side `ContextWithLabeler` / `LabelerFromContext` is unchanged.
 
 ## Log exporter shutdown (log SDK v0.22.0; core v1.46.0 release)
 

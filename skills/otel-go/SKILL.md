@@ -31,20 +31,20 @@ and version churn:
 
 | Module group | Example modules | Version line |
 |---|---|---|
-| Stable signals (traces, metrics) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, OTLP trace/metric exporters | **v1.x** (e.g. v1.46.0) |
-| Logs | `otel/log`, `otel/sdk/log`, `otel/exporters/otlp/otlplog/otlploghttp` | **v0.x** (separate, lower line) |
-| Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v0.x** (separate line, e.g. v0.71.0) |
+| Stable (traces, metrics, logs API/SDK) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, `otel/log`, `otel/sdk/log`, OTLP trace/metric exporters | **v1.x** (e.g. v1.47.0; logs API/SDK joined at v1.47.0) |
+| Log exporters and test helpers | `otel/exporters/otlp/otlplog/otlploghttp`, `.../otlploggrpc`, `otel/exporters/stdout/stdoutlog`, `otel/log/logtest`, `otel/sdk/log/logtest` | **v0.x** (separate, lower line, e.g. v0.23.0) |
+| Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v0.x** (separate line, e.g. v0.72.0) |
 | Contrib log bridges | `contrib/bridges/otelslog`, `otelzap`, `otellogrus`, `otellogr` | **v0.x** |
 
-**The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/log@v1.46.0`)
-fails — log and bridge modules have no v1.x tag. Hand-picking and re-guessing each `@vX`
+**The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp@v1.47.0`)
+fails — log exporter, log test-helper, and bridge modules have no v1.x tag. Hand-picking and re-guessing each `@vX`
 is the churn to avoid.
 
 **Do this instead** — add each module with `@latest` and let Go resolve a compatible set:
 
 ```bash
 go get go.opentelemetry.io/otel@latest go.opentelemetry.io/otel/sdk@latest
-# logs (separate v0.x line — do NOT force the core version):
+# logs (API/SDK are v1.x; log exporters stay on a v0.x line — do NOT force the core version):
 go get go.opentelemetry.io/otel/log@latest go.opentelemetry.io/otel/sdk/log@latest \
        go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp@latest
 # contrib (instrumentation and bridges each resolve to their own v0.x line):

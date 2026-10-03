@@ -26,7 +26,7 @@ service:
       exporters: [debug]
 ```
 
-Generate cumulative-sum metrics frequently (see the `otel-telemetrygen` skill). The explicit `--aggregation-temporality cumulative` is load-bearing — `interval` only aggregates cumulative series; delta sums pass through unchanged and would show no volume drop:
+Generate cumulative-sum metrics frequently (see the `otel-telemetrygen` skill). Cumulative series keep their latest value per interval (delta series are summed instead):
 
 ```bash
 telemetrygen metrics --otlp-insecure --otlp-endpoint localhost:4317 \

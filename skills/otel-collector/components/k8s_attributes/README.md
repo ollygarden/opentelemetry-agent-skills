@@ -4,7 +4,7 @@
 |-|-|
 | Kind | processor |
 | Type | `k8s_attributes` |
-| Signals | traces (Beta), metrics (Beta), logs (Beta), profiles (Development) |
+| Signals | traces (Stable), metrics (Stable), logs (Stable), profiles (Development) — Stable since v0.161.0 (Go module `v1.x`) |
 | Distributions | contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/k8sattributesprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/k8sattributesprocessor> |

@@ -76,6 +76,13 @@ builder.Logging.AddOpenTelemetry(o =>
 
 Both approaches work; `WithLogging(...)` keeps all OTel config co-located.
 
+**`IHostApplicationBuilder` overload (core 1.19.0+):** `builder.AddOpenTelemetry()` (instead
+of `builder.Services.AddOpenTelemetry()`) returns the same `OpenTelemetryBuilder`, and also
+seeds `service.name` from `IHostEnvironment.ApplicationName` and `deployment.environment.name`
+from `IHostEnvironment.EnvironmentName` as low-priority resource defaults. `OTEL_SERVICE_NAME`,
+`OTEL_RESOURCE_ATTRIBUTES`, or an explicit `ConfigureResource` call override them. See the
+`OpenTelemetry.Extensions.Hosting` README at the core tag for details.
+
 **Resource:** `ConfigureResource` accepts any `ResourceBuilder` callback. The resource is
 shared across all three signals, which is why `service.name`, `service.version`, and
 `telemetry.sdk.*` appear on every export.

@@ -13,11 +13,15 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Stability (captured 2026-09):** the latest released Browser SDK is 0.4.0. Check the current
+> **Stability (captured 2026-10):** the latest released Browser SDK is 0.4.0. Check the current
 > package version and matching tagged source before answering. The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
 > for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
-> still on the 0.x line) for events. Both approaches are shown below.
+> still on the 0.x line) for events. Both approaches are shown below. The opentelemetry-js 2.x
+> line also ships `@opentelemetry/sdk-trace` (since 2.9.0), which its CHANGELOG says will eventually
+> replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 builds on it. Its processors take an
+> options object (`new BatchSpanProcessor({ exporter })`), unlike the positional `sdk-trace-web`
+> re-export used below.
 
 ## Core principles
 
@@ -227,7 +231,9 @@ session is restored before telemetry is created.
 > the session processor in `processors` and keep `exportConfig` configured. The SDK appends its
 > default batch export processor after the supplied processors, including when `processors` is
 > non-empty. Only construct and include an export processor yourself when you intentionally omit
-> `exportConfig`.
+> `exportConfig`. With the combined `startBrowserSdk`, a signal block that sets `processors` does
+> **not** inherit the root `exportConfig`; also set that signal's own `exportConfig`, or the signal
+> exports nothing.
 
 `session.*` follows the
 [session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/v1.44.0/docs/general/session.md).

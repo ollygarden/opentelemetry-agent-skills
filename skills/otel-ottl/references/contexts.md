@@ -1,6 +1,6 @@
 # OTTL Contexts Reference
 
-Context paths and enums for collector-contrib **v0.160.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
+Context paths and enums for collector-contrib **v0.162.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
 
 ## Contents
 
@@ -8,7 +8,7 @@ Context paths and enums for collector-contrib **v0.160.0**. Higher-level context
 - [Resource](#resource-context), [scope](#scope-instrumentation-scope-context), [span](#span-context-beta), and [span event](#span-event-context-beta)
 - [Metric](#metric-context-beta), [data point](#datapoint-context), and [exemplar](#exemplar-context-v0156)
 - [Log](#log-context-beta), [profile](#profile-context-development-v0124), and [profile sample](#profile-sample-context-development-v0132)
-- [Collector request metadata](#otelcol-context-v0147-enabled-by-default-feature-gate)
+- [Collector request metadata](#otelcol-context-v0147-always-available-since-v0161)
 - [Enums](#enums)
 
 ## Context hierarchy
@@ -204,6 +204,7 @@ set(datapoint.attributes["value_range"], "high")
 
 # Rename an attribute
 set(datapoint.attributes["host.name"], datapoint.attributes["hostname"])
+    where datapoint.attributes["hostname"] != nil
 delete_key(datapoint.attributes, "hostname")
 ```
 
@@ -276,6 +277,8 @@ set(log.body, "REDACTED")
 
 ## Profile context (Development, v0.124+)
 
+Since v0.162, the profile and profile-sample contexts are documented under upstream `pkg/ottl/contexts/xprofile/`, outside OTTL's stability guarantees; their paths are unchanged.
+
 ```ottl
 profile.profile_id
 profile.profile_id.string
@@ -313,9 +316,9 @@ profilesample.attribute_indices
 cache["key"]
 ```
 
-## OTelCol context (v0.147+, enabled by default feature gate)
+## OTelCol context (v0.147+, always available since v0.161)
 
-The `otelcol` context exposes Collector-side client and request data that is not part of the telemetry payload. It is read-only. In v0.156, the routing connector deprecated its old `request` context in favor of these paths. OTLP receivers must set `include_metadata: true` for request metadata to reach downstream routing. HTTP/client key spelling may retain its form; gRPC keys are lowercase.
+The `otelcol` context exposes Collector-side client and request data that is not part of the telemetry payload. It is read-only. Its `ottl.contexts.enableOTelColContext` gate became stable in v0.161 and was removed in v0.162. In v0.156, the routing connector deprecated its old `request` context in favor of these paths. OTLP receivers must set `include_metadata: true` for request metadata to reach downstream routing. HTTP/client key spelling may retain its form; gRPC keys are lowercase.
 
 ```ottl
 otelcol.client.addr

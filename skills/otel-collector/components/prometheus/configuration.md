@@ -92,7 +92,7 @@ so targets that do not return a content type still parse.
 
 - `target_info` is dropped; its attributes populate the OTel **Resource**.
 - `otel_scope_name` / `otel_scope_version` labels are dropped and populate the Instrumentation **Scope** name/version.
-- `otel_scope_info` is dropped; its remaining attributes populate Scope **attributes**.
+- Other `otel_scope_<name>` labels populate Scope **attributes**. `otel_scope_info` is not used for scope attributes (since v0.156.0 by default, unconditionally since v0.162.0) and is converted like any other metric.
 - The `job` target label (its value comes from `job_name`) maps to `service.name`, and `instance` maps to `service.instance.id` (plus `server.address`/`server.port` when discernible). Kubernetes SD meta-labels map to `k8s.*` resource attributes — see the upstream [resource attribute mapping][resmap].
 - Native histograms are converted to OTel exponential histograms (see [advanced.md](advanced.md)).
 

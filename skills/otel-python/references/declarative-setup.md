@@ -22,9 +22,9 @@ For YAML schema details, fetch the upstream sources listed in the
 | Latest `opentelemetry-configuration` | `WebFetch https://pypi.org/pypi/opentelemetry-configuration/json` |
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support (released 1.44.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/README.rst` |
-| Vendored schema (released 1.44.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
-| SDK CHANGELOG through 1.44.0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md` |
+| Declarative config support (released 1.45.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/README.rst` |
+| Vendored schema (released 1.45.0) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
+| SDK CHANGELOG through 1.45.0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/CHANGELOG.md` |
 
 ## Install
 
@@ -50,7 +50,7 @@ pip install opentelemetry-exporter-otlp opentelemetry-distro \
 
 ## Activation
 
-As of SDK **1.44.0 / 0.65b0** there are two supported activation paths.
+As of SDK **1.45.0 / 0.66b0** there are two supported activation paths.
 
 ### Zero-code: `OTEL_CONFIG_FILE`
 
@@ -116,12 +116,11 @@ but spans started before setup are not retroactively recorded.
 
 ## YAML Config
 
-`file_format` is required and must be a string version. Release 1.44.0 validates it
+`file_format` is required and must be a string version. The loader validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
-versions with the same major version are accepted with a warning. Use `"1.0"`
-unless you have checked the currently vendored schema and SDK loader.
-The package vendors configuration schema 1.1.0 in this release, while the loader
-still declares 1.0 as its supported `file_format` target.
+versions with the same major version are accepted with a warning. Release 1.45.0
+vendors configuration schema 1.1 and its loader targets 1.1, so `"1.0"` and
+`"1.1"` load without a warning (1.44.0 targeted 1.0 and warned on `"1.1"`).
 
 Minimal verified skeleton (all three signals, console exporters):
 
@@ -153,13 +152,15 @@ logger_provider:
 
 For OTLP exporters and the full schema, load the `otel-declarative-config` skill.
 
-Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; it is handled
-by `load_config_file` before the YAML is further processed. Use `$$` for a
-literal dollar sign.
+Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; use `$$` for a
+literal dollar sign. Since 1.45.0, `load_config_file` substitutes only scalar
+values after parsing (never keys or comments), and an unset variable with no
+default becomes an empty value (YAML null) instead of an error; a resource
+attribute that resolves to null is skipped with a warning.
 
 ## Instrumentor Activation
 
-Release 1.44.0 can activate installed contrib instrumentors from the
+Since 1.44.0, the loader can activate installed contrib instrumentors from the
 `instrumentation/development.python` section. Keys are
 `opentelemetry_instrumentor` entry-point names; `enabled: false` skips one:
 
@@ -193,9 +194,18 @@ the remaining entries.
   `configure_sdk` always applies the propagator configuration, and an absent
   propagator section installs an empty `CompositePropagator`.
 
-- **Configured ID generator is applied.** Release 1.44.0 wires the
-  `tracer_provider.id_generator` configuration into `TracerProvider`; resolve
-  the supported shape from the vendored schema.
+- **Configured ID generator is applied.** Since 1.44.0 the
+  `tracer_provider.id_generator` configuration is wired into `TracerProvider`;
+  resolve the supported shape from the vendored schema.
+
+- **Fields wired in 1.45.0.** Top-level `log_level` sets the level of the
+  `opentelemetry` Python logger (SDK self-diagnostics); top-level
+  `attribute_limits` applies to the tracer and logger providers; the
+  experimental `tracer_configurator/development`,
+  `meter_configurator/development`, and `logger_configurator/development`
+  per-scope `enabled` overrides are applied (earlier releases parsed and
+  discarded them). Logger-configurator `minimum_severity` / `trace_based` are
+  ignored with a warning.
 
 - **`LoggingHandler` import.** The deprecated
   `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 1.40.0/0.61b0) should be

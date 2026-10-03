@@ -5,7 +5,7 @@ description: OpenTelemetry browser/RUM mechanics for SPAs and MPAs. Use for “b
 
 # OpenTelemetry in the Browser (RUM)
 
-> **Stability (captured 2026-09):** the JS API and web tracing primitives
+> **Stability (captured 2026-10):** the JS API and web tracing primitives
 > (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) are stable. The Browser SDK and
 > event instrumentations are experimental 0.x packages. Pin exact compatible versions and verify
 > current releases/source before relying on configuration or output shape.
