@@ -81,6 +81,7 @@ Three version streams exist and must be paired:
 Rules:
 
 - Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version — except contrib modules in the `stable-base` set of contrib's [`versions.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/versions.yaml) at the matching tag; use that set's `v1.x` version (the `otelcol-contrib` manifest of the same release shows the pairing).
+- For `v0.162.0`, the `stable-base` set is `processor/k8sattributesprocessor` at **`v1.1.0`** — pin it at `v1.1.0`, not `v0.162.0` (no such tag exists).
 - The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.162.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.162.0` it is `v1.68.0`).
 - Versions require the `v` prefix (`v0.162.0`, not `0.162.0`).
 - `--skip-strict-versioning` defaults to `true`, so mismatches surface as Go module resolution errors, not friendly OCB errors. Align versions up front instead of debugging `go mod tidy` output.
