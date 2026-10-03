@@ -43,7 +43,7 @@ logger_provider:
             endpoint: "http://collector:4318"
 ```
 
-A schema key does not imply SDK support. As of 2026-10-03, Java 1.66.0 declarative config maps this key to its incubator bridge, while the JavaScript Node SDK (experimental 0.222.0) rejects it as unsupported; check the target SDK's declarative-config loader before relying on it.
+A schema key does not imply SDK support. As of 2026-10-03, Java 1.66.0 declarative config maps this key to its incubator bridge. The JavaScript Node SDK (experimental 0.222.0) accepts the key when parsing, but processor construction fails (`unknown LogRecordProcessor name`), so `startNodeSDK()` logs the error and returns a no-op SDK — no telemetry at all. Check the target SDK's processor-construction path, not just its parser, before relying on it.
 
 ### Via Code
 
