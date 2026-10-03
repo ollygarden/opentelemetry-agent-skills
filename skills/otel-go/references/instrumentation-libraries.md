@@ -10,7 +10,7 @@ import (
     "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
     "go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
     "go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
-    "go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+    "go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" // removed in v0.72.0
 
     // gRPC
     "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -74,7 +74,7 @@ A data layer built on a global `*gorm.DB` (or `*sql.DB`) plus functions that don
 | net/http | `go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp` |
 | Gin | `go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin` |
 | Gorilla mux | `go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux` |
-| Echo | `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` is deprecated as of v0.71.0; use `github.com/labstack/echo-opentelemetry` for new integrations. |
+| Echo | `github.com/labstack/echo-opentelemetry` (contrib `otelecho` was removed in v0.72.0; v0.71.0 is its last release). |
 | go-restful | `go.opentelemetry.io/contrib/instrumentation/github.com/emicklei/go-restful/otelrestful` |
 
 ```go
@@ -161,7 +161,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 
 | Library | Package |
 |---------|---------|
-| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` |
+| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (deprecated in v0.72.0 as no longer supported; no contrib replacement) |
 | Lambda | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda` |
 
 ### Logging Bridges
@@ -179,7 +179,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 // zap bridge setup
 import (
     "go.opentelemetry.io/contrib/bridges/otelzap"
-    "go.opentelemetry.io/otel/log/global"
+    "go.opentelemetry.io/otel"
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
 )
@@ -193,7 +193,7 @@ func setupLogger() *zap.Logger {
             zapcore.InfoLevel,
         ),
         otelzap.NewCore("myservice",
-            otelzap.WithLoggerProvider(global.GetLoggerProvider())),
+            otelzap.WithLoggerProvider(otel.GetLoggerProvider())),
     )
     return zap.New(core)
 }
@@ -204,12 +204,12 @@ func setupLogger() *zap.Logger {
 import (
     "log/slog"
     "go.opentelemetry.io/contrib/bridges/otelslog"
-    "go.opentelemetry.io/otel/log/global"
+    "go.opentelemetry.io/otel"
 )
 
 func setupLogger() *slog.Logger {
     handler := otelslog.NewHandler("myservice",
-        otelslog.WithLoggerProvider(global.GetLoggerProvider()))
+        otelslog.WithLoggerProvider(otel.GetLoggerProvider()))
     return slog.New(handler)
 }
 ```
@@ -219,12 +219,12 @@ func setupLogger() *slog.Logger {
 import (
     "github.com/sirupsen/logrus"
     "go.opentelemetry.io/contrib/bridges/otellogrus"
-    "go.opentelemetry.io/otel/log/global"
+    "go.opentelemetry.io/otel"
 )
 
 func setupLogger() {
     logrus.AddHook(otellogrus.NewHook("myservice",
-        otellogrus.WithLoggerProvider(global.GetLoggerProvider())))
+        otellogrus.WithLoggerProvider(otel.GetLoggerProvider())))
 }
 ```
 

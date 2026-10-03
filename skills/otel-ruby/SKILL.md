@@ -26,9 +26,10 @@ version exists for metrics, logs, semantic conventions, exporters, or contrib in
 Resolve each gem independently with Bundler, inspect its changelog, and keep the resulting
 `Gemfile.lock` change under review.
 
-Released snapshot verified 2026-09-09: tracing API `1.11.0`, tracing SDK `1.13.0`, trace OTLP
-exporter `0.35.1`; metrics API `0.7.0`, SDK `0.17.0`, OTLP exporter `0.11.0`; logs API `0.4.1`, SDK
-`0.6.1`, OTLP exporter `0.5.1`. Treat this as an audit anchor, not a version-alignment rule; use the
+Released snapshot verified 2026-10-03: tracing API `1.11.1`, tracing SDK `1.13.1`, trace OTLP
+exporter `0.37.0`; metrics API `0.8.0`, SDK `0.19.0`, OTLP exporter `0.13.0`; logs API `0.5.0`, SDK
+`0.7.0`, OTLP exporter `0.6.0`; experimental declarative-config gem `opentelemetry-config` `0.1.0`
+(traces only). Treat this as an audit anchor, not a version-alignment rule; use the
 lookups below for newer releases.
 
 ## Sources of truth

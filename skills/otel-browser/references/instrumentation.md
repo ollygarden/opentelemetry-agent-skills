@@ -1,6 +1,6 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.1 (2026-09). Verify current exports,
+Captured against `@opentelemetry/browser-instrumentation` 0.8.1 (re-verified 2026-10). Verify current exports,
 README options, and release notes before relying on experimental behavior.
 
 ## Contents
@@ -80,9 +80,10 @@ An event for the initial page load (hard navigation) and SPA route changes (soft
 
 Captured attributes include `url.full`, `browser.navigation.same_document` (false = full-page load,
 true = SPA route change), `browser.navigation.hash_change`, and `browser.navigation.type`
-(`push`/`replace`/`reload`/`traverse`). A `defaultSanitizeUrl` helper strips `user:password@`
-credentials and common sensitive query params (`api_key`, `token`, `password`, …); compose your own
-on top.
+(`push`/`replace`/`reload`/`traverse`). Without `sanitizeUrl`, `url.full` is the unmodified
+document URL. The 0.8.1 README imports a `defaultSanitizeUrl` helper, but no public subpath export
+provides it in 0.8.1; write your own sanitizer (strip `user:password@` credentials, tokens, and
+sensitive query params) rather than importing it.
 
 ### Navigation Timing (`browser.navigation_timing`)
 
@@ -208,7 +209,7 @@ registerInstrumentations({
 | `instrumentation-document-load` | js-contrib | Spans for document load + navigation/resource timing (span flavor). |
 | `instrumentation-user-interaction` | js-contrib | Spans for user interactions (clicks) with their async causal tree. |
 | `instrumentation-long-task` | js-contrib | Spans for [Long Tasks](https://developer.mozilla.org/docs/Web/API/Long_Tasks_API) (>50 ms main-thread blocks). |
-| `plugin-react-load` | js-contrib | React component mount/load performance; **unmaintained** upstream. |
+| `plugin-react-load` | js-contrib | React mount/load spans; **deprecated** on npm (final 0.54.0) and removed from js-contrib — do not adopt. |
 
 The js-contrib `instrumentation-browser-navigation` and `instrumentation-web-exception` packages
 are separately installed, event-based alternatives to the consolidated Navigation and Errors
