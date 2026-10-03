@@ -28,7 +28,7 @@ an older parser.
 |---|---|
 | Schema release discovery and selected-tag validation | `gh release list --repo open-telemetry/opentelemetry-configuration --exclude-drafts --json tagName,publishedAt --limit 100`, then `gh release view <schema-release-tag> --repo open-telemetry/opentelemetry-configuration --json tagName,publishedAt,targetCommitish` |
 | Language Support Status (coverage advisory, not authoritative for `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
-| Field-by-field docs for the latest release | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/schema-docs.md` |
+| Field-by-field type docs (renders the current schema; from `v1.2.0`, the tagged `schema-docs.md` is only a redirect stub) | `WebFetch https://opentelemetry.io/docs/specs/otel-config/types/`; for tags up to `v1.1.0`, the tagged `schema-docs.md` |
 | Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/opentelemetry_configuration.json` |
 | Canonical full example | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-config.yaml` |
 | Migration template (every option, with comments) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-migration-config.yaml` |
@@ -105,15 +105,18 @@ For released implementations, verify the package version before using these exac
 
 | Runtime | Bootstrap / activation |
 |---|---|
-| Go | `go.opentelemetry.io/contrib/otelconf.NewSDK`; it reads `OTEL_CONFIG_FILE`. The old `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected, not accepted as an alias. |
+| Go | `go.opentelemetry.io/contrib/otelconf.NewSDK`; it reads `OTEL_CONFIG_FILE`. The old `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected, not accepted as an alias. The experimental-types package `otelconf/x` still reads only `OTEL_EXPERIMENTAL_CONFIG_FILE`. |
 | Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
-| JavaScript (Node.js) | Call the experimental `startNodeSDK()` from `@opentelemetry/sdk-node`; it uses `@opentelemetry/configuration`'s `createConfigFactory()`, which selects file configuration when `OTEL_CONFIG_FILE` names a YAML file. |
+| JavaScript (Node.js) | Call the experimental `startNodeSDK()` from `@opentelemetry/sdk-node`; it uses `@opentelemetry/configuration`'s `createConfigFactory()`, which selects file configuration whenever `OTEL_CONFIG_FILE` is non-empty. |
 | Python | Install the experimental `opentelemetry-configuration` package alongside its matching SDK release. When `OTEL_CONFIG_FILE` is set, the SDK configurator used by `opentelemetry-instrument` calls `load_config_file()` and `configure_sdk()`; those functions are also the direct programmatic entry points. When configuration is enabled, an absent propagator section makes `configure_sdk()` install an empty `CompositePropagator`. |
+| Ruby | Experimental `opentelemetry-config` gem (0.1.0+). The app must call `OpenTelemetry::Config.configure` (reads `OTEL_CONFIG_FILE`) or `configure_from_file(path)`; nothing loads the file automatically. 0.1.0 applies only `resource`, `tracer_provider`, and `propagator` (`meter_provider` and `logger_provider` are parsed but ignored), performs no `${VAR}` substitution, does not validate `file_format`, does not give the file precedence over env vars, and returns a no-op SDK (leaving existing global state unchanged) only for an unset or missing path or a YAML syntax error; other file or model errors (e.g. a disallowed YAML tag) raise. |
 
 Other languages, agents, and framework starters can expose different or no bootstrap paths. Use the
 language-specific cross-reference below rather than extrapolating this table.
 
-Precedence is runtime/loader-specific: verify it in the selected loader's documentation or a
+The specification baseline: when `OTEL_CONFIG_FILE` is set, all other SDK environment variables are
+ignored except those referenced through substitution in the file. Implementations can lag, so
+precedence is runtime/loader-specific: verify it in the selected loader's documentation or a
 controlled parser test. Do not assume a file overrides or merges with `OTEL_*` variables.
 Programmatic setup can choose whether to load or override a file, or build providers directly;
 treat that code path as runtime source of truth.
@@ -126,8 +129,8 @@ so the selected parser is authoritative.
 | Syntax | Behavior |
 |--------|----------|
 | `${VAR}` | Substitute with value of `VAR` |
-| `${env:VAR}` | Same as `${VAR}` (explicit prefix) |
-| `${VAR:-default}` | Use `default` if `VAR` is unset or empty |
+| `${env:VAR}` | Same as `${VAR}` (explicit prefix); other prefixes are language-specific extensions |
+| `${VAR:-default}` | Use `default` if `VAR` is unset or empty; an unset `VAR` without a default becomes an empty value |
 | `$$` | Escape sequence, resolves to literal `$` |
 
 Rules:
@@ -135,7 +138,7 @@ Rules:
 - Substitution applies only to scalar values, not mapping keys
 - Type coercion happens after substitution (`${BOOL}` where `BOOL=true` becomes boolean)
 - No recursive substitution
-- Invalid references produce a parse error
+- Malformed references (e.g. `${1API_KEY}`, `${API_$KEY}`) are invalid and produce a parse error; a well-formed `${VAR}` that is merely unset is not invalid and becomes an empty value
 
 Do not rely on mapping-key, sequence-item, invalid-reference, or type-coercion behavior without a
 target-parser test. For runtime-specific exceptions, load the matching language reference below and
@@ -145,7 +148,7 @@ portable files; schema validation does not prove substitution behavior.
 ## Cross-References
 
 - Language-specific setup and package versions: `otel-go`, `otel-java`, `otel-js`, `otel-python`
-  (load `references/declarative-setup.md`) and `otel-dotnet` (load `references/setup.md`).
+  (load `references/declarative-setup.md`), and `otel-dotnet` and `otel-ruby` (load `references/setup.md`).
 
 ## Response completion
 

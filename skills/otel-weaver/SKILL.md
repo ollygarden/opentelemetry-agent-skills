@@ -45,7 +45,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 4. **Validate and generate.** `weaver registry check --v2 -r ./telemetry/registry/` for fast feedback. `weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./telemetry/templates/ <lang> <output-dir>` for codegen. Run the language formatter on the output.
 5. **Wire into CI.** Three gates: `check` (schema), `generate` + `git diff --exit-code` (checked-in code is current), `diff` against the base branch (surfaces breaking changes). See `references/ci-integration.md`.
 
-The Weaver CLI has more subcommands than this workflow touches: `stats` and `json-schema` for quick registry sanity checks, `update-markdown` for keeping semconv snippets in docs current, `emit`/`live-check`/`infer` for working against live OTLP telemetry, `mcp` for exposing a registry to LLM tooling, and `serve` for an HTTP+UI mode. All are out of scope here (see below) but worth knowing exist before assuming `check`/`generate`/`diff` is the whole surface.
+The Weaver CLI has more subcommands than this workflow touches: `stats` and `json-schema` for quick registry sanity checks, `update-markdown` for keeping semconv snippets in docs current, `emit`/`live-check`/`infer` for working against live OTLP telemetry, `package` for writing a self-contained resolved registry artifact (the replacement for the deprecated `resolve`), `mcp` for exposing a registry to LLM tooling, and `serve` for an HTTP+UI mode. All are out of scope here (see below) but worth knowing exist before assuming `check`/`generate`/`diff` is the whole surface.
 
 ## Gotchas
 
@@ -76,7 +76,7 @@ These cost time and are not obvious from the upstream docs:
 ## Out Of Scope
 
 These are natural follow-ups but not part of this skill:
-- publishing the registry as a versioned artifact for downstream consumers
+- publishing the registry as a versioned artifact for downstream consumers (`weaver registry package`)
 - declaring upstream semantic-conventions as a manifest dependency
 - `weaver registry live-check`/`emit`/`infer` against live OTLP telemetry
 - `weaver registry mcp` / `weaver serve`
