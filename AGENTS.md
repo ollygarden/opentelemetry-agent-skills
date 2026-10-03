@@ -18,7 +18,7 @@ The two skill gates are scripts in `bin/`. Both resolve the repository root them
 
 ```bash
 ./bin/validate-skill.sh            # spec conformance + house rules; a path checks one skill
-./bin/check-skill-inventory.py     # skills/, marketplace.json, and README in sync
+./bin/check-skill-inventory.py     # skills/, marketplace.json, README, and skills.sh.json in sync
 ```
 
 CI enforces one further check that is not a `bin/` script: the `Link Check` workflow. Reproduce it locally with the `lychee` command in [`docs/preferred-workflow.md`](docs/preferred-workflow.md#5-run-the-gates).
@@ -30,7 +30,7 @@ CI enforces one further check that is not a `bin/` script: the `Link Check` work
 - The directory name equals the `name:` field — **automated** by `bin/validate-skill.sh` (via `skills-ref`).
 - Frontmatter parses as YAML, `description` fits in 1024 characters, no unknown keys — **automated**, same script.
 - `SKILL.md` stays under 500 lines — **automated**. Past that, move detail into `references/`.
-- Registration across `skills/`, `marketplace.json`, and `README.md` — **automated** by `bin/check-skill-inventory.py`.
+- Registration across `skills/`, `marketplace.json`, `README.md`, and `skills.sh.json` — **automated** by `bin/check-skill-inventory.py`.
 - Links resolve — **automated** by the `Link Check` workflow, which scans the whole repository weekly and on every PR.
 - Keeping content vendor-neutral, DRY, and token-efficient — **review-enforced**, not automated. A green build says nothing about it.
 
@@ -55,13 +55,14 @@ A small Go CLI under `tools/otel-agent-tools/` (wired into the workspace via `go
 - `go build ./cmd/otel-agent-tools` and `go test ./...` from `tools/otel-agent-tools/`.
 - Generated output (e.g. `skills/otel-sdk-versions/references/generated/otel-version-index.md`) is produced by the tool — regenerate it rather than hand-editing, so it stays consistent and the link check passes.
 
-## Adding or renaming a skill — keep three places in sync
+## Adding or renaming a skill — keep four places in sync
 
 A new skill is only "registered" when it appears in **all** of these. Missing any one is the most common defect:
 
 1. The directory `skills/<name>/` with a `SKILL.md`.
 2. The `plugins` array in `.claude-plugin/marketplace.json` (`name` + `source: ./skills/<name>` + `description`).
 3. The "Available Skills" table **and** the Repository Structure layout tree in `README.md`.
+4. A grouping in `skills.sh.json`, which sets the sections on the skills.sh repository page.
 
 ## Contribution requirements (external PRs)
 
