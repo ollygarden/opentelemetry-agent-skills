@@ -112,8 +112,8 @@ When crossing this release boundary, explicitly check for:
   `enabled()` support).
 - Code or exporters that assume primitive-only attribute values; `AttributeValue`
   is now `AnyValue` — see [api.md](api.md#attributes).
-- OTLP HTTP exporters: new `urllib3` default transport and `max_request_size`
-  limit — see [performance.md](performance.md#exporter-configuration).
+- OTLP HTTP exporters: new `urllib3` default transport and a `max_request_size`
+  limit (default 64 MiB; larger requests are dropped; `0` disables) — see [performance.md](performance.md#exporter-configuration).
 - `SimpleSpanProcessor` now drops spans ended after `shutdown()`; SDK
   self-metrics `otel.sdk.processor.{span,log}.processed` now count at
   submission and no longer carry exporter failures as `error.type`.
