@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Check that every skill is registered consistently across repository indexes.
 
-Three places list skills, and a skill is only "registered" when it appears in
+Four places list skills, and a skill is only "registered" when it appears in
 all of them: skills/ on disk, the plugins array in
-.claude-plugin/marketplace.json, and both the "Available Skills" table and the
-Repository Structure tree in README.md. Missing one is the most common defect
-in a new-skill PR, so this fails the build in both directions — a skill with no
+.claude-plugin/marketplace.json, both the "Available Skills" table and the
+Repository Structure tree in README.md, and the groupings in skills.sh.json.
+Missing one is the most common defect in a new-skill PR, so this fails the build in both directions — a skill with no
 entry, and an entry with no skill.
 
 Spec conformance (frontmatter shape, name/description limits) is a separate
@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 README = ROOT / "README.md"
+SKILLS_SH = ROOT / "skills.sh.json"
 
 
 def frontmatter_value(text: str, key: str) -> str | None:
@@ -121,19 +122,22 @@ def main() -> int:
         r"^\| `([a-z0-9-]+)` \| `skills/\1/` \|", readme, re.MULTILINE
     )
     tree_entries = readme_tree_entries(readme)
+    groupings = json.loads(SKILLS_SH.read_text())["groupings"]
+    grouped = [name for group in groupings for name in group["skills"]]
 
-    for label, found in (
-        ("Available Skills table", table_rows),
-        ("Repository Structure tree", tree_entries),
+    for source, label, found in (
+        (readme_label, "Available Skills table", table_rows),
+        (readme_label, "Repository Structure tree", tree_entries),
+        (SKILLS_SH.relative_to(ROOT), "grouping", grouped),
     ):
         if len(found) != len(set(found)):
             duplicates = sorted({name for name in found if found.count(name) > 1})
-            errors.append(f"{readme_label}: {label} lists {duplicates} more than once")
+            errors.append(f"{source}: {label} lists {duplicates} more than once")
         for name in sorted(expected_names - set(found)):
-            errors.append(f"{readme_label}: missing {label} entry for {name!r}")
+            errors.append(f"{source}: missing {label} entry for {name!r}")
         for name in sorted(set(found) - expected_names):
             errors.append(
-                f"{readme_label}: {label} lists {name!r}, which is not a directory under skills/"
+                f"{source}: {label} lists {name!r}, which is not a directory under skills/"
             )
 
     if errors:

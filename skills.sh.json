@@ -1,0 +1,29 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Languages",
+      "description": "SDK setup, instrumentation libraries, and upgrades per language.",
+      "skills": ["otel-go", "otel-java", "otel-js", "otel-python", "otel-dotnet", "otel-ruby", "otel-browser"]
+    },
+    {
+      "title": "Collector",
+      "description": "Configuring, building, and testing the OpenTelemetry Collector.",
+      "skills": ["otel-collector", "otel-collector-builder", "otel-ottl", "otel-telemetrygen"]
+    },
+    {
+      "title": "Specifications and lifecycle",
+      "description": "Semantic conventions, declarative configuration, versions, and migrations.",
+      "skills": [
+        "otel-semantic-conventions",
+        "otel-declarative-config",
+        "otel-sdk-versions",
+        "otel-upgrade",
+        "otel-telemetry-emissions",
+        "otel-span-events-to-logs-migration",
+        "otel-weaver"
+      ]
+    }
+  ]
+}

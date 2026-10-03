@@ -66,7 +66,7 @@ works from any working directory; the `./` form below assumes you are at the roo
 
 ```bash
 ./bin/validate-skill.sh            # all skills; pass a path to check just one
-./bin/check-skill-inventory.py     # README, marketplace, and skills/ in sync
+./bin/check-skill-inventory.py     # README, marketplace, skills.sh.json, and skills/ in sync
 ```
 
 `validate-skill.sh` delegates spec conformance to the
@@ -77,7 +77,7 @@ front.
 
 These skills are **non-opinionated and vendor neutral by design** — they describe how OpenTelemetry works, not how you should use it. Keep them DRY and token efficient: prefer linking to official docs, examples, and source code that are already maintained over copying large amounts of knowledge into a skill, and prefer a targeted lookup or small generated artifact over dumping broad context. OllyGarden's opinionated guidance lives in the companion [`skills`](https://github.com/ollygarden/skills) repo.
 
-When you add or rename a skill, keep all three registration points in sync: the `skills/<skill-name>/SKILL.md` directory, the `plugins` entry in `.claude-plugin/marketplace.json`, and the "Available Skills" table and Repository Structure layout tree in `README.md`.
+When you add or rename a skill, keep all four registration points in sync: the `skills/<skill-name>/SKILL.md` directory, the `plugins` entry in `.claude-plugin/marketplace.json`, the "Available Skills" table and Repository Structure layout tree in `README.md`, and a grouping in `skills.sh.json`.
 
 ## Proving the skill helps: harness results
 
