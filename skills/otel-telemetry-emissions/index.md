@@ -10,6 +10,7 @@
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/connector/servicegraphconnector/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -18,6 +19,7 @@
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.154.0.md | v0.154.0 | 2026-09-02 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.155.0.md | v0.155.0 | 2026-09-02 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.156.0.md | v0.156.0 | 2026-09-02 |
@@ -26,6 +28,7 @@
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.159.0.md | v0.159.0 | 2026-09-02 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.160.0.md | v0.160.0 | 2026-09-05 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -34,6 +37,7 @@
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/processor/filterprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/processor/filterprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -42,6 +46,7 @@
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/processor/k8sattributesprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -50,6 +55,7 @@
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/processor/resourcedetectionprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -58,6 +64,7 @@
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -67,6 +74,7 @@
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -75,6 +83,7 @@
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/filelogreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/filelogreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -83,6 +92,7 @@
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.158.0.md | v0.158.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/hostmetricsreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -91,6 +101,7 @@
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/httpcheckreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -99,6 +110,7 @@
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/icmpcheckreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -107,6 +119,7 @@
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.158.0.md | v0.158.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/k8sclusterreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -116,6 +129,7 @@
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/k8seventsreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -124,6 +138,7 @@
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.158.0.md | v0.158.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/kafkareceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/kafkareceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -133,6 +148,7 @@
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.159.0.md | v0.159.0 | 2026-08-26 |
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/kubeletstatsreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -141,6 +157,7 @@
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/mongodbreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -150,6 +167,7 @@
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.159.0.md | v0.159.0 | 2026-08-26 |
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/mysqlreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -158,6 +176,7 @@
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/nginxreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/nginxreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -167,6 +186,7 @@
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.159.0.md | v0.159.0 | 2026-08-26 |
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/postgresqlreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -176,6 +196,7 @@
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/prometheusreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -184,6 +205,7 @@
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/rabbitmqreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -192,6 +214,7 @@
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.158.0.md | v0.158.0 | 2026-08-06 |
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/redisreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/redisreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -201,6 +224,7 @@
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.159.0.md | v0.159.0 | 2026-08-26 |
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/sqlserverreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -209,6 +233,7 @@
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.158.0.md | v0.158.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector-contrib/receiver/tcpcheckreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/exporter/debugexporter/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/debugexporter/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/debugexporter/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -218,6 +243,7 @@
 | opentelemetry-collector/exporter/debugexporter/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/exporter/debugexporter/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/exporter/debugexporter/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/exporter/debugexporter/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/exporter/otlpexporter/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/otlpexporter/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/otlpexporter/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -227,6 +253,7 @@
 | opentelemetry-collector/exporter/otlpexporter/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/exporter/otlpexporter/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/exporter/otlpexporter/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/exporter/otlpexporter/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/exporter/otlphttpexporter/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/otlphttpexporter/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector/exporter/otlphttpexporter/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -236,6 +263,7 @@
 | opentelemetry-collector/exporter/otlphttpexporter/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/exporter/otlphttpexporter/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/exporter/otlphttpexporter/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/exporter/otlphttpexporter/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/processor/batchprocessor/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector/processor/batchprocessor/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector/processor/batchprocessor/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -245,6 +273,7 @@
 | opentelemetry-collector/processor/batchprocessor/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/processor/batchprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/processor/batchprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/processor/batchprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.153.0.md | v0.153.0 | 2026-08-06 |
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.154.0.md | v0.154.0 | 2026-08-06 |
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.155.0.md | v0.155.0 | 2026-08-06 |
@@ -254,6 +283,7 @@
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/processor/memorylimiterprocessor/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/processor/memorylimiterprocessor/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-collector/receiver/otlpreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector/receiver/otlpreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector/receiver/otlpreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |
@@ -263,6 +293,7 @@
 | opentelemetry-collector/receiver/otlpreceiver/v0.159.0.md | v0.159.0 | 2026-08-24 |
 | opentelemetry-collector/receiver/otlpreceiver/v0.160.0.md | v0.160.0 | 2026-09-03 |
 | opentelemetry-collector/receiver/otlpreceiver/v0.161.0.md | v0.161.0 | 2026-10-03 |
+| opentelemetry-collector/receiver/otlpreceiver/v0.162.0.md | v0.162.0 | 2026-10-03 |
 | opentelemetry-go-contrib/instrumentation/github.com/gin-gonic/gin/otelgin/v0.65.0.md | v0.65.0 | 2026-08-11 |
 | opentelemetry-go-contrib/instrumentation/github.com/gin-gonic/gin/otelgin/v0.66.0.md | v0.66.0 | 2026-08-11 |
 | opentelemetry-go-contrib/instrumentation/github.com/gin-gonic/gin/otelgin/v0.67.0.md | v0.67.0 | 2026-08-11 |
