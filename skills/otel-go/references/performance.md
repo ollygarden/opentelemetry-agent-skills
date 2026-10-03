@@ -289,6 +289,10 @@ tp := sdktrace.NewTracerProvider(
 `AttributeValueLengthLimit` truncates strings, string-slice elements, byte slices, and those values
 nested in slice attributes that would otherwise consume unbounded memory.
 
+Since v1.47.0, nested (slice/map) attribute values are also capped at a depth of 64 by default
+(`DefaultAttributeValueDepthLimit`); tune with `sdktrace.WithAttributeValueDepthLimit` or
+`SpanLimits.AttributeValueDepthLimit`, and `sdklog.WithAttributeValueDepthLimit` for logs.
+
 ---
 
 ## Exporter Configuration
@@ -381,7 +385,7 @@ the log level is below threshold or when a processor filters it. Call it at each
 the optimization matters; its result can change and should not be cached:
 
 ```go
-logger := otellog.GetLoggerProvider().Logger("my-service")
+logger := otel.Logger("my-service") // v1.47.0+; replaces deprecated otel/log/global
 
 if logger.Enabled(ctx, log.EnabledParameters{Severity: log.SeverityInfo}) {
     var rec log.Record

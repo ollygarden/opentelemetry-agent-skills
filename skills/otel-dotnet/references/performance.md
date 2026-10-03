@@ -81,6 +81,11 @@ TraceIdRatioBasedSampler(0.1) -> Consistent 10% sampling ignoring parent
 AlwaysOffSampler            -> No recording/export; context may still use propagation-only Activities
 ```
 
+Core 1.19.0 added `AlwaysRecordSampler(rootSampler)`, which turns the wrapped sampler's
+`Drop` decisions into `RecordOnly`: every span is created and passed to processors, but
+only sampled spans are exported. This removes the sampling saving on in-process cost, so
+use it only when a processor must see all spans.
+
 Core 1.17.0 also emits a verbose `OpenTelemetry-Sdk` self-diagnostics event when
 `ParentBasedSampler` drops an activity because its local parent is not recorded.
 

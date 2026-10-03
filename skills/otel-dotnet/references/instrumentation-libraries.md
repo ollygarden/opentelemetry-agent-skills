@@ -133,7 +133,9 @@ https://www.nuget.org/packages/<PackageId>
 
 Or from the per-package CHANGELOG at that package's release tag (source of truth for
 released breaking changes). For these packages, form the tag by removing `OpenTelemetry.`
-from the package ID and appending `-<version>`; confirm that tag exists before fetching it:
+from the package ID and appending `-<version>`; confirm that tag exists before fetching it.
+Exception: `OpenTelemetry.Instrumentation.AWSLambda` releases under `Instrumentation.AWS-<version>`
+tags (its `<MinVerTagPrefix>`).
 
 ```text
 https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<package-tag>/src/<Package>/CHANGELOG.md
@@ -155,7 +157,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/<p
 | `OpenTelemetry.Instrumentation.EntityFrameworkCore` | `.AddEntityFrameworkCoreInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.EntityFrameworkCore) |
 | `OpenTelemetry.Instrumentation.StackExchangeRedis` | `.AddRedisInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.StackExchangeRedis) |
 | `OpenTelemetry.Instrumentation.Cassandra` | `.AddCassandraInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Cassandra) |
-| `OpenTelemetry.Instrumentation.ElasticsearchClient` | `.AddElasticsearchClientInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ElasticsearchClient) |
+| `OpenTelemetry.Instrumentation.ElasticsearchClient` | `.AddElasticsearchClientInstrumentation()` for NEST/Elasticsearch.Net; deprecated upstream (no new versions planned) — `Elastic.Clients.Elasticsearch` emits `ActivitySource` telemetry directly, register it with `.AddSource("Elastic.Transport")` (8.10.0+) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ElasticsearchClient) |
 | `OpenTelemetry.Instrumentation.Kusto` | `.AddKustoInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Kusto) |
 
 ### RPC

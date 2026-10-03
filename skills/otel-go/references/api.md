@@ -8,8 +8,7 @@ import (
     "go.opentelemetry.io/otel"                    // Global API
     "go.opentelemetry.io/otel/trace"              // Tracing API
     "go.opentelemetry.io/otel/metric"             // Metrics API
-    "go.opentelemetry.io/otel/log"                // Logs API (separate v0.x line — see note below)
-    "go.opentelemetry.io/otel/log/global"         // Global LoggerProvider
+    "go.opentelemetry.io/otel/log"                // Logs API (stable v1.x since v1.47.0)
     "go.opentelemetry.io/otel/attribute"          // Attributes
     "go.opentelemetry.io/otel/codes"              // Status codes
     "go.opentelemetry.io/otel/propagation"        // Context propagation
@@ -24,11 +23,13 @@ import (
 // Set global providers (typically in main())
 otel.SetTracerProvider(tracerProvider)
 otel.SetMeterProvider(meterProvider)
+otel.SetLoggerProvider(loggerProvider) // v1.47.0+; replaces deprecated otel/log/global
 otel.SetTextMapPropagator(propagator)
 
 // Get providers from global
 tp := otel.GetTracerProvider()
 mp := otel.GetMeterProvider()
+lp := otel.GetLoggerProvider()
 ```
 
 ### Convenience Accessors
@@ -38,6 +39,9 @@ tracer := otel.Tracer("github.com/user/pkg")
 
 // Get a meter from the global MeterProvider
 meter := otel.Meter("github.com/user/pkg")
+
+// Get a logger from the global LoggerProvider (v1.47.0+)
+logger := otel.Logger("github.com/user/pkg")
 ```
 
 ### Error Handling
@@ -231,11 +235,14 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 
 ## Logs API
 
-The Logs API and SDK are versioned on a **separate v0.x line** (currently `otel/log` and
-`otel/sdk/log` v0.22.0, released alongside core v1.46.0) and are **Beta** — interfaces may
-still change without a major bump. They primarily provide a bridge for existing logging
-libraries. Track their version independently from the stable v1.x traces/metrics
-signals (see the module-versioning table in SKILL.md).
+As of core v1.47.0 (2026-10-02), `otel/log` and `otel/sdk/log` are **stable** and share the
+v1.x line with traces and metrics. The OTLP/stdout log exporters and the `logtest` helpers
+remain on a separate v0.x line (see the module-versioning table in SKILL.md). The Logs API
+primarily provides a bridge for existing logging libraries.
+
+`go.opentelemetry.io/otel/log/global` is deprecated since v1.47.0; use `otel.Logger`,
+`otel.GetLoggerProvider`, and `otel.SetLoggerProvider` instead. The contrib log bridges
+(v0.21.0+, contrib v1.47.0) default to `otel.GetLoggerProvider()`.
 
 ### Core Types
 ```go
@@ -249,7 +256,7 @@ log.Severity           // Log severity level
 ### Creating Loggers and Emitting Records
 ```go
 // Get logger (use import path as name)
-logger := global.GetLoggerProvider().Logger("github.com/user/pkg")
+logger := otel.Logger("github.com/user/pkg")
 
 // Optionally skip expensive record construction. Do not cache the result: it can change.
 // EnabledParameters is a plain struct; set fields directly.

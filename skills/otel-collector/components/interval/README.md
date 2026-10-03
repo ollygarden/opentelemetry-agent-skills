@@ -12,9 +12,9 @@
 
 ## Description
 
-Buffers cumulative metrics and emits the latest value once per interval. Reduces metric point volume from chatty sources while preserving the most recent reading per series.
+Buffers metrics and emits one point per series once per interval: the latest value for cumulative series, gauges, and summaries, and the **sum** of the interval's points for delta series. Reduces metric point volume from chatty sources.
 
-By default it aggregates cumulative monotonic sums/histograms plus gauges and summaries; delta and non-monotonic sums pass through unchanged. Gauges and summaries can be kept flowing as-is with `pass_through`.
+By default it aggregates monotonic sums, histograms, and exponential histograms (cumulative or delta) plus gauges and summaries; non-monotonic sums pass through unchanged. Gauges and summaries can be kept flowing as-is with `pass_through`.
 
 ## Main use-cases
 
@@ -24,7 +24,7 @@ Use it when:
 - Backend cost scales with point count and you have many slow-changing series.
 
 Avoid it when:
-- The pipeline carries mostly delta metrics — they bypass the processor entirely and you've added a stateful component for nothing.
+- The pipeline carries mostly non-monotonic sums — they bypass the processor entirely and you've added a stateful component for nothing.
 - Gauge spikiness matters and you can't set `pass_through.gauge: true` for the relevant signals.
 - The collector restarts often — buffered state is in-memory only and is lost on restart (see [State and restart behavior](quirks.md#state-and-restart-behavior)).
 

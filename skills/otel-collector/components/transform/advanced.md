@@ -114,7 +114,7 @@ service:
 | Set a default | `set(log.severity_text, "INFO") where log.severity_text == nil or log.severity_text == ""`. |
 | Limit / truncate attributes | `keep_keys(...)`, `limit(...)`, `truncate_all(...)`. |
 | Convert metric types | `convert_sum_to_gauge()`, `convert_gauge_to_sum(...)` (metric context, with a `where` clause). |
-| Reshape histograms | `extract_count_metric(...)`, `extract_sum_metric(...)`, `extract_percentile_metric(...)`. |
+| Reshape histograms | `extract_count_metric(...)`, `extract_sum_metric(...)`, `extract_percentile_metric(...)`, `extract_avg_metric(...)` (v0.162.0+). |
 | Aggregate datapoints | `aggregate_on_attributes(...)`, `aggregate_on_attribute_value(...)`. |
 
 These are processor-specific OTTL functions; their full signatures and the general OTTL converter set live in the `otel-ottl` skill.

@@ -6,7 +6,7 @@ description: Build safe, version-pinned telemetrygen commands for synthetic OTLP
 # Telemetrygen
 
 Generate synthetic OpenTelemetry telemetry with `telemetrygen` from
-[opentelemetry-collector-contrib v0.160.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.160.0/cmd/telemetrygen).
+[opentelemetry-collector-contrib v0.162.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.162.0/cmd/telemetrygen).
 Upstream metadata marks its traces, metrics, and logs subcommands as alpha.
 
 ## Safety and input gate
@@ -85,7 +85,7 @@ compression can otherwise remain inherited.
 - **Traces:** `--child-spans` defaults to one effective child. `--size` adds payload to each parent;
   pair it with a low explicit rate. Status, span duration, and links are in the flag reference.
 - **Metrics:** choose the metric type, name, and temporality deliberately. `--trace-id` and
-  `--span-id` link exemplars; `--unique-timeseries` intentionally raises cardinality. In v0.160.0,
+  `--span-id` link exemplars; `--unique-timeseries` intentionally raises cardinality. In v0.162.0,
   `--size` does not add payload to `ExponentialHistogram` points.
 - **Logs:** set body and severity deliberately. `--trace-id` and `--span-id` correlate logs to an
   existing trace context.
@@ -115,13 +115,14 @@ Before finalizing a response, check that:
 
 ## Installation and container use
 
-Pin the released Go module. The newest published versioned GHCR image as of 2026-09-12 remains
-`v0.159.0`; the `v0.160.0` source release does not currently have a corresponding image. A newer
-mutable `latest` image exists, but do not substitute it for a version-pinned image:
+Pin the released Go module and a versioned GHCR image (`v0.162.0` is published as of 2026-10-03);
+do not substitute the mutable `latest` image. To pair it with a local contrib Collector, use
+`otel/opentelemetry-collector-contrib:0.161.0`: as of 2026-10-03 the plain `0.162.0` contrib tag is not
+published, only per-architecture tags such as `0.162.0-amd64` (see [references/collector-verification.md](references/collector-verification.md)):
 
 ```bash
-go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.160.0
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0
+go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.162.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.162.0
 ```
 
 The version belongs in the installation or image reference, not between the installed
@@ -131,7 +132,7 @@ Run the container with the same flags after the image name:
 
 ```bash
 docker run --rm --network "container:<collector-container-name>" \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.162.0 \
   traces --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --traces 100 --workers 1 --rate 1
 ```

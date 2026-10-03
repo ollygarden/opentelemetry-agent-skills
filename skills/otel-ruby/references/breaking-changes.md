@@ -45,6 +45,12 @@ Read every changed gem's changelog from the old locked version through the propo
 - semantic-convention migrations and span-name/attribute changes;
 - expanded or narrowed target-library version constraints.
 
+Recent examples: metrics API `0.8.0` / SDK `0.19.0` (and SDK `0.18.0` / OTLP metrics exporter
+`0.12.0`) are marked `BREAKING CHANGE` for spec alignment and change the internal instrument-creation
+signature that custom SDKs or proxies implement; logs API `0.5.0` changes `LoggerProvider#logger` to
+keyword arguments (`logger(name:, version: nil)`), so positional calls in custom bridges break; trace
+OTLP exporter `0.37.0` changes its default compression (see [setup.md](setup.md#environment-configuration)).
+
 For contrib, inspect the released gem's README, gemspec, and tests when the changelog does not fully
 describe emitted telemetry.
 
