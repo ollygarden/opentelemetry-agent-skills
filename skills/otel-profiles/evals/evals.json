@@ -1,0 +1,53 @@
+{
+  "skill": "otel-profiles",
+  "cases": [
+    {
+      "id": "k3d-pods-missing",
+      "prompt": "I'm running the OpenTelemetry eBPF profiler as a DaemonSet on a local k3d cluster, image otel/opentelemetry-collector-ebpf-profiler:0.162.0, hostPID and privileged. First it crashed with 'failed to determine system configs: system analysis request was not handled for pid 1234'. I added pid_namespace_translation: true and now it fails with 'failed to attach scheduler monitor: ... neither debugfs nor tracefs are mounted'. What exactly do I need to change so I get profiles for my pods? Give me the config and manifest changes; don't run anything.",
+      "expectations": [
+        "Explains that k3d nodes are containers, so hostPID only reaches the node container's PID namespace and pods live in descendant PID namespaces.",
+        "States that the boolean pid_namespace_translation on 0.162.0 (ebpf-profiler v0.0.202636) only covers the profiler's own namespace, so pod processes stay invisible even once it starts.",
+        "Recommends pid_namespace_translation_mode: auto (or recursive) and states it requires ebpf-profiler v0.0.202640 or newer, which 0.162.0 does not ship (a 0.163.0 nightly or the 0.163.0 release).",
+        "Warns that each translation key is rejected as an invalid key by the other profiler version, so the key must match the image.",
+        "Fixes tracefs by mounting tracefs inside the node's mount namespace (for example a privileged init container using nsenter) plus a /sys/kernel/tracing hostPath, and does not claim that a hostPath alone is enough on k3d.",
+        "Does not claim to have run the profiler, applied manifests, or inspected the user's cluster (read-only upstream lookups are fine)."
+      ]
+    },
+    {
+      "id": "eks-daemonset-to-pyroscope",
+      "prompt": "We want continuous CPU profiling for every pod in our EKS cluster (Linux nodes, recent kernels) using OpenTelemetry, sent to our self-hosted Grafana Pyroscope at pyroscope.observability.svc:4040. Write the Kubernetes manifests and Collector config, with namespace, pod, and service labels on the profiles. Pin real versions and tell me anything still experimental.",
+      "expectations": [
+        "Uses the otel/opentelemetry-collector-ebpf-profiler image (otelcol-ebpf-profiler distribution) with a pinned version and the profiling receiver.",
+        "Starts the Collector with the service.profilesSupport feature gate.",
+        "DaemonSet sets hostPID: true, privileged (or the eBPF capabilities), and mounts /sys/kernel/tracing from the host.",
+        "Uses k8s_attributes with pod_association on the container.id resource attribute and RBAC granting get/list/watch on at least pods and namespaces.",
+        "Exports with otlp_grpc (or otlp_http) to Pyroscope on port 4040, not a separate 4317 port.",
+        "Configures memory_limiter with absolute limit_mib/spike_limit_mib, or explicitly warns that percentage limits may resolve against node memory in this pod.",
+        "Does not add the batch processor to the profiles pipeline and does not use components absent from otelcol-ebpf-profiler.",
+        "Does not require PID namespace translation or a nightly image for EKS, and labels the profiles signal and receiver as Alpha/Development."
+      ]
+    },
+    {
+      "id": "offcpu-and-drop-shims",
+      "prompt": "On our bare-metal Linux hosts (kernel 6.1, amd64) we run otelcol-ebpf-profiler 0.162.0 in Docker. I want off-CPU profiles in addition to CPU, and I want to drop profiles coming from containerd-shim processes before they leave the host. Write the config and the docker run command; don't execute anything.",
+      "expectations": [
+        "States that 0.162.0 does not bundle the offcpu extension and that a build including it is needed (a 0.163.0 nightly or release, or a custom OCB build importing go.opentelemetry.io/ebpf-profiler/probes/offcpu).",
+        "Configures off-CPU as extensions.offcpu.threshold within (0, 1], receivers.profiling.probes: [offcpu], and offcpu listed under service.extensions.",
+        "States that the filter processor is not part of otelcol-ebpf-profiler and proposes a downstream Collector or a custom OCB build for dropping profiles.",
+        "Drops shim processes with filter profile_conditions on a resource attribute such as process.executable.name (not on service.name, which the profiler does not set).",
+        "The docker run command uses --privileged (or the eBPF capabilities), --pid=host, a /sys/kernel/tracing bind mount, and the service.profilesSupport feature gate."
+      ]
+    },
+    {
+      "id": "pyroscope-k8s-labels-missing",
+      "prompt": "Our OTel eBPF profiler adds k8s.namespace.name and k8s.pod.name with k8s_attributes (I see them in the debug exporter), and exports to Pyroscope 2.3.1. But Pyroscope's LabelNames API only returns service_name and a few underscore labels, no k8s_namespace_name. Are the labels being dropped? How do I query CPU by namespace from the API?",
+      "expectations": [
+        "Explains that Pyroscope 2.x keeps dotted OTel attribute names as-is because label sanitization is disabled by default, so there is no k8s_namespace_name label.",
+        "Explains that LabelNames lists only Prometheus-style names, so dotted labels look missing even though they are stored.",
+        "Shows a query using the quoted dotted label, for example LabelValues with name k8s.namespace.name or a SelectSeries selector {\"k8s.namespace.name\"=\"...\"}.",
+        "Uses the CPU profile type process_cpu:cpu:nanoseconds:cpu:nanoseconds or another correct way to select CPU profiles.",
+        "Does not recommend re-enabling sanitization or renaming attributes as the required fix."
+      ]
+    }
+  ]
+}
