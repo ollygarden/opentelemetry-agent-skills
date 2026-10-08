@@ -7,7 +7,7 @@ gh api 'repos/open-telemetry/opentelemetry-collector-releases/contents/distribut
 # then: https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/<pin>/collector/config/config_linux.go
 ```
 
-## Keys (ebpf-profiler `v0.0.202640`)
+## Keys (ebpf-profiler `v0.0.202640`; identical on `v0.0.202636` except the translation key)
 
 Source of truth: [`collector/config/config_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202640/collector/config/config_linux.go) and defaults in [`collector/factory_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202640/collector/factory_linux.go).
 
@@ -16,7 +16,7 @@ Source of truth: [`collector/config/config_linux.go`](https://github.com/open-te
 | `samples_per_second` | `20` | CPU sampling frequency. |
 | `reporter_interval` / `reporter_jitter` | `5s` / `0.2` | Export cadence. |
 | `interpreters.<name>.disabled` | all enabled | `python`, `perl`, `php`, `hotspot`, `ruby`, `v8`, `dotnet`, `go`, `beam`, `luajit`, `thread_context`. |
-| `pid_namespace_translation_mode` | `none` | `none`, `auto`, `exact`, `recursive`. Pins before `v0.0.202640` have the boolean `pid_namespace_translation` instead; each version rejects the other key. Only needed in [nested containers](nested-containers.md). |
+| `pid_namespace_translation_mode` | `none` | `none`, `auto`, `exact`, `recursive`. Pins before `v0.0.202640` use boolean `pid_namespace_translation`. Only for [nested containers](nested-containers.md). |
 | `probes` | `[]` | Extension IDs, for example `[offcpu]`. |
 | `include_env_vars` | `""` | Comma-separated env var names to attach as attributes. |
 | `filter_min_process_age` | `0` | Skip short-lived processes. |
@@ -29,11 +29,11 @@ Other keys are tuning or debugging knobs; read the source before setting them.
 
 ## What it emits
 
- Resource attributes `process.pid`, `process.executable.name`, `process.executable.path`, and `container.id` for containerized processes; sample attributes `thread.name`, `thread.id`, `cpu.logical_number`. It does not set `service.name`: add it with `k8s_attributes`, the `resource` processor, or backend relabeling.
+Resource attributes `process.pid`, `process.executable.name`, `process.executable.path`, and `container.id` for containerized processes; sample attributes `thread.name`, `thread.id`, `cpu.logical_number`. It does not set `service.name`: add it with `k8s_attributes`, the `resource` processor, or backend relabeling.
 
 ## Off-CPU
 
-Off-CPU needs the `offcpu` extension (`go.opentelemetry.io/ebpf-profiler/probes/offcpu`, present in the module since at least `v0.0.202636`). `0.162.0` does not bundle it and fails with `unknown type: "offcpu"`; use a `0.163.0` nightly or an OCB build that imports it:
+Off-CPU needs the `offcpu` extension (`go.opentelemetry.io/ebpf-profiler/probes/offcpu`, present in the module since at least `v0.0.202636`). Not bundled in `0.162.0` (images that bundle it: SKILL.md matrix); otherwise build with OCB importing it:
 
 ```yaml
 extensions:

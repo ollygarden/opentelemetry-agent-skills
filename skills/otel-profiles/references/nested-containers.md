@@ -6,27 +6,13 @@ Docker Desktop, Colima, and similar VMs are not nested by themselves: a `docker 
 
 ## 1. PID namespaces
 
-`hostPID: true` only reaches the node container's PID namespace, and pods sit in descendant namespaces below it.
+`hostPID: true` reaches only the node container's PID namespace; pods sit in descendant namespaces. Without translation the receiver fails at startup. The boolean `pid_namespace_translation: true` (ebpf-profiler `v0.0.202636`, Collector `0.162.0`) starts but sees only the node's own processes (kubelet/k3s, containerd, shims), never pods. Use `pid_namespace_translation_mode: auto` (ebpf-profiler `v0.0.202640`+; images in the SKILL.md matrix). Exact errors and logs for each state, including the invalid-key errors when the key does not match the pin: `troubleshooting.md`.
 
-| Configuration | Result |
-|---|---|
-| No translation (default) | Receiver fails at startup: `failed to determine system configs: system analysis request was not handled for pid N`. |
-| `pid_namespace_translation: true` (ebpf-profiler `v0.0.202636`, Collector `0.162.0`) | Starts and logs `PID namespace translation enabled (...), only processes traces within the profiler namespace will be collected`. Node processes (kubelet/k3s, containerd, shims) appear; **pod processes do not**. |
-| `pid_namespace_translation_mode: auto` (ebpf-profiler `v0.0.202640`+, `0.163.0-nightly.*` until `0.163.0` ships) | Translates descendant namespaces when kernel BTF exposes the PID namespace layout; all pods become visible. |
-
-Modes (`v0.0.202640`): `none` disables translation; `exact` matches only the profiler's own namespace and needs no BTF layout; `auto` adds descendant namespaces when BTF allows and falls back to exact matching otherwise; `recursive` requires descendant translation and fails at startup with `recursive PID namespace translation requires readable kernel BTF ...` if BTF is missing. Tasks outside the profiler's namespace tree are dropped. Check `/sys/kernel/btf/vmlinux` on the kernel host.
-
-Use the key that matches the pinned ebpf-profiler; the other one fails config decoding with `invalid keys` (see `troubleshooting.md`).
-
-Real clusters run the profiler in the root PID namespace and should leave translation at `none`.
+Modes: `none` (default; correct on real nodes, which run in the root PID namespace); `exact` (own namespace only, no BTF needed); `auto` (adds descendants when kernel BTF at `/sys/kernel/btf/vmlinux` exposes the layout, else falls back to exact); `recursive` (requires BTF, fails at startup without it). Tasks outside the profiler's namespace tree are dropped.
 
 ## 2. tracefs missing inside the node
 
-The node container gets a fresh sysfs without tracefs, so a hostPath of `/sys/kernel/tracing` (or `/sys/kernel/debug`) is an empty directory. Startup fails with:
-
-```
-failed to start "profiling" receiver: failed to attach scheduler monitor: failed to configure tracepoint on tracer.hookPoint{group:"sched", name:"sched_process_free"}: neither debugfs nor tracefs are mounted
-```
+The node container gets a fresh sysfs without tracefs, so a hostPath of `/sys/kernel/tracing` (or `/sys/kernel/debug`) is an empty directory. Startup fails with `... neither debugfs nor tracefs are mounted` (full string in `troubleshooting.md`).
 
 Fix: a privileged init container that enters the node's mount namespace and mounts tracefs if absent, plus the existing hostPath mount in the profiler container. It is a no-op where tracefs is already mounted. Add to the DaemonSet pod spec from `kubernetes.md`:
 

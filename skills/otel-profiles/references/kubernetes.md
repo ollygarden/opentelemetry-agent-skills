@@ -4,15 +4,10 @@ Run one profiler per node as a DaemonSet. Each pod profiles every process on its
 
 Component details are in the `otel-collector` skill: `components/k8s_attributes/` (association, `extract`, computed `service.name`) and `components/memory_limiter/` (limit keys and validation).
 
-## Requirements
+The manifest carries the host requirements from SKILL.md (`hostPID`, `privileged` or the capabilities, the tracefs hostPath). Kubernetes-specific:
 
-| Need | Why |
-|---|---|
-| `hostPID: true` | The profiler must see node processes. |
-| `privileged: true` (or `CAP_SYS_ADMIN`, `CAP_BPF`, `CAP_PERFMON`) | Loads eBPF programs and reads other processes' memory. |
-| hostPath `/sys/kernel/tracing` | Scheduler tracepoints need tracefs; the container's own `/sys` lacks it. |
-| ServiceAccount with get/list/watch on `pods` and `namespaces` | `k8s_attributes` with the extract list below. Other metadata needs more resources; see the RBAC table in the `otel-collector` skill's `components/k8s_attributes/advanced.md`. |
-| `memory_limiter` with `limit_mib`/`spike_limit_mib` | In a privileged hostPID pod, `limit_percentage` resolved against node memory instead of the container limit in field testing (logged `total_memory_mib` equal to the node). Absolute limits avoid that. Keep `limit_mib` below the container memory limit. |
+- RBAC: get/list/watch on `pods` and `namespaces` covers the extract list below; other metadata needs more (RBAC table in the `otel-collector` skill's `components/k8s_attributes/advanced.md`).
+- `memory_limiter`: absolute `limit_mib`/`spike_limit_mib`, below the container memory limit. In a privileged hostPID pod, `limit_percentage` resolved against node memory in field testing (logged `total_memory_mib` equal to the node).
 
 ## Manifest
 
