@@ -16,7 +16,7 @@ Source of truth: [`collector/config/config_linux.go`](https://github.com/open-te
 | `samples_per_second` | `20` | CPU sampling frequency. |
 | `reporter_interval` / `reporter_jitter` | `5s` / `0.2` | Export cadence. |
 | `interpreters.<name>.disabled` | all enabled | `python`, `perl`, `php`, `hotspot`, `ruby`, `v8`, `dotnet`, `go`, `beam`, `luajit`, `thread_context`. |
-| `pid_namespace_translation_mode` | `none` | `none`, `auto`, `exact`, `recursive`. Pins before `v0.0.202640` use boolean `pid_namespace_translation`. Only for [nested containers](nested-containers.md). |
+| `pid_namespace_translation_mode` | `none` | `none`, `auto`, `exact`, `recursive`. Pins before `v0.0.202640` use boolean `pid_namespace_translation`; each rejects the other's key. Only for [nested containers](nested-containers.md). |
 | `probes` | `[]` | Extension IDs, for example `[offcpu]`. |
 | `include_env_vars` | `""` | Comma-separated env var names to attach as attributes. |
 | `filter_min_process_age` | `0` | Skip short-lived processes. |

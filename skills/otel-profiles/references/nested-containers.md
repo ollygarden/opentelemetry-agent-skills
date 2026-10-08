@@ -6,7 +6,7 @@ Docker Desktop, Colima, and similar VMs are not nested by themselves: a `docker 
 
 ## 1. PID namespaces
 
-`hostPID: true` reaches only the node container's PID namespace; pods sit in descendant namespaces. Without translation the receiver fails at startup. The boolean `pid_namespace_translation: true` (ebpf-profiler `v0.0.202636`, Collector `0.162.0`) starts but sees only the node's own processes (kubelet/k3s, containerd, shims), never pods. Use `pid_namespace_translation_mode: auto` (ebpf-profiler `v0.0.202640`+; images in the SKILL.md matrix). Exact errors and logs for each state, including the invalid-key errors when the key does not match the pin: `troubleshooting.md`.
+`hostPID: true` reaches only the node container's PID namespace; pods sit in descendant namespaces. Without translation the receiver fails at startup. The boolean `pid_namespace_translation: true` (ebpf-profiler `v0.0.202636`, Collector `0.162.0`) starts but sees only the node's own processes (kubelet/k3s, containerd, shims), never pods. Use `pid_namespace_translation_mode: auto` (ebpf-profiler `v0.0.202640`+; images in the SKILL.md matrix). Each pin rejects the other pin's key with `invalid keys`, so match the key to the image. Exact errors and logs for each state: `troubleshooting.md`.
 
 Modes: `none` (default; correct on real nodes, which run in the root PID namespace); `exact` (own namespace only, no BTF needed); `auto` (adds descendants when kernel BTF at `/sys/kernel/btf/vmlinux` exposes the layout, else falls back to exact); `recursive` (requires BTF, fails at startup without it). Tasks outside the profiler's namespace tree are dropped.
 
