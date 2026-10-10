@@ -48,7 +48,7 @@ docker run -d --name otel-ebpf-profiler --privileged --pid=host \
 ```yaml
 receivers:
   profiling:
-    samples_per_second: 97      # default 20
+    samples_per_second: 20      # default
 processors:
   memory_limiter:
     check_interval: 1s
