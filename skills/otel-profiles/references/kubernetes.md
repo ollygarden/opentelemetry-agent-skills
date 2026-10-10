@@ -146,7 +146,7 @@ spec:
 
 Notes:
 
-- `k8s_attributes` computes `service.name` for pod processes (order in the `otel-collector` skill's `components/k8s_attributes/configuration.md`). Processes with no matching pod (kubelet, container runtime, shims, host daemons) keep only `process.*` attributes; give them a fallback `service.name` (for example `resource` with `action: insert`, which keeps pod-derived values) if the backend needs one.
+- `k8s_attributes` computes `service.name` for pod processes (order in the `otel-collector` skill's `components/k8s_attributes/configuration.md`). Processes with no matching pod (kubelet, container runtime, shims, host daemons) get no pod-derived attributes such as `service.name` or `k8s.namespace.name`; they keep `process.*` and whatever other processors add (here `k8s.cluster.name`). Give them a fallback `service.name` (for example `resource` with `action: insert`, which keeps pod-derived values) if the backend needs one.
 - Field measurement at 97 Hz (about five times the default) on a small cluster: roughly 6 to 13 mCPU and 110 to 370 MiB per node. Size requests from your own measurement; upstream states 1% CPU and 250 MB as its testing upper bounds.
 - To add the `offcpu` probe or OBI correlation, see `receiver.md`; OBI correlation also needs `/sys/fs/bpf` mounted from the host.
 
@@ -160,6 +160,10 @@ processors:
     error_mode: ignore
     profile_conditions:
       - resource.attributes["k8s.namespace.name"] != "my-namespace"
+service:
+  pipelines:
+    profiles:
+      processors: [memory_limiter, k8s_attributes, resource, filter/my-namespace]
 ```
 
 `otelcol-ebpf-profiler` does not bundle `filter`, so run it in one of two places:
