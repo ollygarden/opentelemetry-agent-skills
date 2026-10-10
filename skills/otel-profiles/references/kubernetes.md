@@ -152,7 +152,7 @@ Notes:
 
 ## Keep only some workloads
 
-`filter` runs after `k8s_attributes` and drops what its conditions match, so this keeps only one namespace, node processes included (they carry no namespace):
+`filter` runs after `k8s_attributes` and drops what its conditions match, so this keeps only one namespace; node processes, which carry no namespace, are dropped too:
 
 ```yaml
 processors:
