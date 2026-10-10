@@ -150,6 +150,25 @@ Notes:
 - Field measurement at 97 Hz (about five times the default) on a small cluster: roughly 6 to 13 mCPU and 110 to 370 MiB per node. Size requests from your own measurement; upstream states 1% CPU and 250 MB as its testing upper bounds.
 - To add the `offcpu` probe or OBI correlation, see `receiver.md`; OBI correlation also needs `/sys/fs/bpf` mounted from the host.
 
+## Keep only some workloads
+
+`filter` runs after `k8s_attributes` and drops what its conditions match, so this keeps only one namespace, node processes included (they carry no namespace):
+
+```yaml
+processors:
+  filter/my-namespace:
+    error_mode: ignore
+    profile_conditions:
+      - resource.attributes["k8s.namespace.name"] != "my-namespace"
+```
+
+`otelcol-ebpf-profiler` does not bundle `filter`, so run it in one of two places:
+
+- **On the node:** an OCB build of the [distribution manifest](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/main/distributions/otelcol-ebpf-profiler/manifest.yaml) plus `github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor` at the same version (`otel-collector-builder` skill). Dropped profiles never leave the node.
+- **Downstream:** export `otlp_grpc` to a Collector that has `filter` and the `service.profilesSupport` gate (a gateway or a dedicated relay). Its OTLP profiles decoding must match the profiler's: when the two run different Collector versions, confirm a round trip through `debug` (`verbosity: detailed`) keeps resource attributes, sample attributes, and stack frames.
+
+`filter` drops whole resources but keeps the shared symbol dictionary, so some symbols of dropped processes still travel; only payload size is affected.
+
 ## Verify
 
 ```bash

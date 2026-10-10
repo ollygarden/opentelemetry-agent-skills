@@ -73,5 +73,6 @@ The image is built `FROM scratch`: no shell, so debug from logs, not `exec`. Exp
 
 ## Known limitations
 
+- The receiver profiles every process; it has no process, container, or namespace selection, and upstream declined to add one ([#358](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/issues/358)). To keep a subset, filter on enrichment attributes with `filter` `profile_conditions`; see "Keep only some workloads" in [references/kubernetes.md](references/kubernetes.md). Sampling cost on the node stays the same; only exported volume drops.
 - Linux `amd64`/`arm64`, kernel 5.10+ (checked at config validation; `no_kernel_version_check` bypasses it). Backends may lag the proto; check which OTLP profiles version they accept.
 - Trace-to-profile correlation is partial: OTLP profiles can link samples to `trace_id`/`span_id`, but the profiler fills them only from a context producer (OBI via `obi_process_ctx`; the [thread-context OTEP](https://github.com/open-telemetry/opentelemetry-specification/pull/4947) implementation is in progress). Go pprof labels are read as custom labels.

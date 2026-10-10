@@ -59,5 +59,5 @@ exporters:
 
 - Stacks symbolize and resource attributes are kept.
 - OTLP/HTTP (`https://profiles-prod-NNN.grafana.net/v1development/profiles`) authenticates, but with Collector `0.162.0` every batch fails with HTTP 400 `invalid labels '{="<pid>", ...}' with error: invalid label name ''`. Grafana Cloud's HTTP decoder turns the integer resource attribute `process.pid` into an empty-named label and drops string resource attributes. Deleting `process.pid` gets a 200, but all resource attributes are lost (`service_name="unknown_service"`), so it is not a fix.
-- Dotted attribute names become underscores in labels (`k8s.namespace.name` is queried as `k8s_namespace_name`), unlike self-hosted Pyroscope above.
+- Only `service.name`, `service.namespace`, `service.version`, and `deployment.environment.name` become underscore labels (`service_namespace`, `deployment_environment_name`, ...); every other attribute (`k8s.*`, `container.id`, `process.*`, `thread.name`) keeps its dotted name and is queried quoted, as in self-hosted Pyroscope. Self-hosted Pyroscope `v2.3.1` keeps all four dotted too. Observed 2026-10-10.
 - Without `service.name`, `service_name` is `unknown_service:<process.executable.name>`, as in Pyroscope.

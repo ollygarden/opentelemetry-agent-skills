@@ -57,8 +57,20 @@
         "Authenticates with HTTP Basic auth (user = the stack's numeric Profiles user/instance ID, password = a Cloud Access Policy token with profiles:write) via exporter headers, and does not depend on the basicauth extension, which otelcol-ebpf-profiler does not bundle (or explicitly notes that it needs a relay Collector or OCB build).",
         "Attributes the HTTP 400 to Grafana Cloud's OTLP/HTTP profiles decoding of resource attributes (the integer process.pid becoming an empty-named label, string resource attributes dropped), not to the endpoint path or credentials.",
         "Notes that removing process.pid makes OTLP/HTTP accept the data but loses the resource attributes (service_name becomes unknown_service), so it is not a real fix.",
-        "States that Grafana Cloud sanitizes dotted attribute names to underscores (k8s_namespace_name), unlike self-hosted Pyroscope 2.x, so the k8s.namespace.name queries must change.",
+        "States that k8s.namespace.name queries keep working in Grafana Cloud because k8s.* attributes stay dotted, and that only service.name, service.namespace, service.version and deployment.environment.name become underscore labels there (unlike self-hosted Pyroscope 2.x, which keeps them dotted).",
         "Does not claim to have run the Collector or contacted Grafana Cloud."
+      ]
+    },
+    {
+      "id": "keep-one-namespace",
+      "prompt": "We run otel/opentelemetry-collector-ebpf-profiler:0.162.0 as a DaemonSet on Kubernetes with k8s_attributes, and it profiles every process on every node: databases, the kubelet, containerd shims. We only want profiles from pods in our 'payments' namespace to reach the backend. Is there a profiling receiver setting to target only those pods? If not, what is the right way to do it, and does it reduce the profiler's CPU cost on the nodes? Don't run anything.",
+      "expectations": [
+        "States that the profiling receiver has no setting to select processes, containers, pods, or namespaces (it profiles the whole host), and does not invent a receiver key for it.",
+        "Filters with the filter processor using profile_conditions on the resource attribute k8s.namespace.name, placed after k8s_attributes, with a condition that drops everything not equal to 'payments' (filter conditions select what to drop).",
+        "States that otelcol-ebpf-profiler 0.162.0 does not bundle the filter processor, and offers both options: a custom OCB build of the distribution adding filterprocessor at a matching version (filtering on the node), or exporting to a downstream Collector that has filter and the service.profilesSupport feature gate.",
+        "States that filtering does not reduce the profiler's sampling CPU cost on the node, only the exported or stored volume.",
+        "Notes that node processes without a pod (kubelet, containerd shims) carry no k8s.namespace.name and are therefore dropped by the same condition.",
+        "Does not claim to have run the Collector or a cluster."
       ]
     }
   ]
