@@ -7,7 +7,7 @@ description: OpenTelemetry Collector component configuration. Use when authoring
 
 This skill covers the configuration surface of individual OpenTelemetry Collector components. It targets [opentelemetry-collector](https://github.com/open-telemetry/opentelemetry-collector) and [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib).
 
-It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK configuration (`otel-declarative-config`), or end-to-end pipeline design choices. Reach for those skills when the question is about transformation language, SDK setup, or pipeline composition.
+It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK configuration (`otel-declarative-config`), deploying the eBPF profiler or other profiles producers (`otel-profiles`), or end-to-end pipeline design choices. Reach for those skills when the question is about transformation language, SDK setup, or pipeline composition.
 
 ## Workflow
 

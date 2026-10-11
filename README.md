@@ -19,6 +19,7 @@ Language-agnostic skills:
 | `otel-collector-builder` | `skills/otel-collector-builder/` | Building custom OpenTelemetry Collector distributions with OCB — authoring the builder manifest, aligning core/contrib/provider versions, local component development, CI/Docker/multi-arch builds, and build troubleshooting. |
 | `otel-declarative-config` | `skills/otel-declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
 | `otel-ottl` | `skills/otel-ottl/` | Authoring or reviewing OTTL statements for `transform`, `filter`, `routing`, and `tail_sampling` processors; debugging OTTL syntax and semantics; transforming traces, metrics, logs, and profiles in the Collector. |
+| `otel-profiles` | `skills/otel-profiles/` | Continuous profiling with the OpenTelemetry profiles signal: deploying the eBPF profiler (`otelcol-ebpf-profiler`) on Linux hosts and Kubernetes, including kind/k3d, exporting OTLP profiles to a backend, verifying data arrives, and troubleshooting by error message. |
 | `otel-sdk-versions` | `skills/otel-sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
 | `otel-semantic-conventions` | `skills/otel-semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking compliance; looking up exact upstream entries via the bundled query script. |
 | `otel-span-events-to-logs-migration` | `skills/otel-span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (`AddEvent`, `RecordException`) to the Logs API following the OTEP 4430 deprecation plan. |
@@ -122,6 +123,9 @@ skills/
     references/        # manifest, workflows, troubleshooting
   otel-declarative-config/
   otel-ottl/
+  otel-profiles/
+    SKILL.md
+    references/        # receiver, kubernetes, nested-containers, backends, troubleshooting
   otel-sdk-versions/
   otel-semantic-conventions/
   otel-span-events-to-logs-migration/

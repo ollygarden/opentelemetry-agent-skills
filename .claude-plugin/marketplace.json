@@ -29,6 +29,11 @@
       "description": "OpenTelemetry Transformation Language (OTTL) expert for writing and debugging telemetry transformations in the Collector (transform, filter, routing, tail_sampling)."
     },
     {
+      "name": "otel-profiles",
+      "source": "./skills/otel-profiles",
+      "description": "OpenTelemetry profiles signal and the eBPF profiler: deploying otelcol-ebpf-profiler on hosts and Kubernetes (including kind/k3d), version-pinned receiver keys, exporting OTLP profiles to backends, verification, and troubleshooting."
+    },
+    {
       "name": "otel-sdk-versions",
       "source": "./skills/otel-sdk-versions",
       "description": "OpenTelemetry SDK and package version lookup across languages."

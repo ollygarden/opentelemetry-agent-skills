@@ -10,7 +10,7 @@
     {
       "title": "Collector",
       "description": "Configuring, building, and testing the OpenTelemetry Collector.",
-      "skills": ["otel-collector", "otel-collector-builder", "otel-ottl", "otel-telemetrygen"]
+      "skills": ["otel-collector", "otel-collector-builder", "otel-ottl", "otel-telemetrygen", "otel-profiles"]
     },
     {
       "title": "Specifications and lifecycle",
