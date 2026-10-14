@@ -10,7 +10,7 @@ set -euo pipefail
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_DIR="$(cd "$SKILL_DIR/../.." && pwd)/skills/otel-telemetry-emissions"
 CONFIG="$SKILL_DIR/config.json"
-PI_CMD="${PI_CMD:-pi -p --provider openai-codex --model gpt-5.6-luna --thinking medium}"
+PI_CMD="${PI_CMD:-pi -p --provider openai-codex --model gpt-6-luna --thinking medium}"
 WORK_DIR="/tmp/otel-component-telemetry"
 mkdir -p "$WORK_DIR"
 
@@ -121,7 +121,8 @@ components | {
     prompt="$(awk 'NR==1 && $0=="---" {skip=1; next} skip && $0=="---" {skip=0; next} !skip' "$SKILL_DIR/SKILL.md" |
       Repo="$repo" Path="$path" Version="$version_request" TagPrefix="$tag_prefix" Force="$force" OutDir="$OUT_DIR" \
       envsubst '${Repo} ${Path} ${Version} ${TagPrefix} ${Force} ${OutDir}')"
-    $PI_CMD "$prompt" &
+    # pi reads piped stdin as prompt input; keep it away from the component list.
+    $PI_CMD "$prompt" </dev/null &
 
     while [ "$(jobs -rp | wc -l)" -ge "$parallel_agents" ]; do sleep 1; done
   done
