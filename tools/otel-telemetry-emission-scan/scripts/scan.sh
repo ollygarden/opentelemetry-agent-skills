@@ -32,6 +32,25 @@ components() {
     '.components[] | select($selected == "" or (.repo + "/" + .path) == $selected)' "$CONFIG"
 }
 
+version_at_tag() {
+  local repo="$1" path="$2" tag="$3" prefix="$4" version="" module
+  version="$(git -C "$WORK_DIR/$(basename "$repo")" show "$tag:$path/package.json" 2>/dev/null |
+    jq -r '.version // empty' || true)"
+  if [ "$(basename "$repo")" = opentelemetry-python-contrib ]; then
+    module="${path##*/}"
+    module="${module#opentelemetry-instrumentation-}"
+    module="${module//-/_}"
+    version="$(git -C "$WORK_DIR/$(basename "$repo")" show "$tag:$path/src/opentelemetry/instrumentation/$module/version.py" 2>/dev/null |
+      sed -nE 's/^__version__ *= *"([^"]+)".*/\1/p' || true)"
+  fi
+  version="${version:-${tag#"$prefix"}}"
+  printf 'v%s\n' "${version#v}"
+}
+
+already_scanned() {
+  [ -f "$1" ] && ! grep -Eq '^last_verified: *null *$' "$1"
+}
+
 if [ -n "$scan_component" ] && [ "$(components | wc -l | tr -d ' ')" -ne 1 ]; then
   echo "SCAN_COMPONENT must match exactly one configured component: $scan_component" >&2
   exit 1
@@ -63,6 +82,7 @@ components | jq -r .repo | sort -u | while read -r repo; do
 done
 
 components | {
+  pids=()
   while read -r entry; do
     repo="$(jq -r .repo <<<"$entry")"
     path="$(jq -r .path <<<"$entry")"
@@ -88,26 +108,28 @@ components | {
       matched=0
       if [ -n "$scan_tag" ]; then
         matched=1
-        version=""
-        if [ -z "$tag_prefix" ]; then
-          version="$(git -C "$WORK_DIR/$(basename "$repo")" show "$scan_tag:$path/package.json" 2>/dev/null |
-            jq -r '.version // empty' || true)"
-        fi
-        version="${version:-${scan_tag#"$tag_prefix"}}"
-        [ -f "$OUT_DIR/$(basename "$repo")/$path/v${version#v}.md" ] || missing=1
+        version="$(version_at_tag "$repo" "$path" "$scan_tag" "$tag_prefix")"
+        already_scanned "$OUT_DIR/$(basename "$repo")/$path/$version.md" || missing=1
       elif [ -n "$tag_prefix" ]; then
         while IFS= read -r tag; do
           [ -n "$tag" ] || continue
           matched=1
-          version="${tag#"$tag_prefix"}"
-          [ -f "$OUT_DIR/$(basename "$repo")/$path/v$version.md" ] || missing=1
+          version="$(version_at_tag "$repo" "$path" "$tag" "$tag_prefix")"
+          already_scanned "$OUT_DIR/$(basename "$repo")/$path/$version.md" || missing=1
         done < <(git -C "$WORK_DIR/$(basename "$repo")" tag --list "$tag_prefix*" | sort -V | tail -n "$last_versions")
       else
+        tag_pattern='^v[0-9]+\.[0-9]+\.[0-9]+$'
+        if [ "$(basename "$repo")" = opentelemetry-python-contrib ]; then
+          # Instrumentation releases use b-tags; the historical v1.16.0 tag
+          # names the SDK and must not outrank current instrumentation releases.
+          tag_pattern='^v[0-9]+\.[0-9]+b[0-9]+$'
+        fi
         while IFS= read -r tag; do
           [ -n "$tag" ] || continue
           matched=1
-          [ -f "$OUT_DIR/$(basename "$repo")/$path/$tag.md" ] || missing=1
-        done < <(git -C "$WORK_DIR/$(basename "$repo")" tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n "$last_versions")
+          version="$(version_at_tag "$repo" "$path" "$tag" "")"
+          already_scanned "$OUT_DIR/$(basename "$repo")/$path/$version.md" || missing=1
+        done < <(git -C "$WORK_DIR/$(basename "$repo")" tag | grep -E "$tag_pattern" | sort -V | tail -n "$last_versions")
       fi
       [ "$matched" = 1 ] || missing=1
       if [ "$missing" = 0 ]; then
@@ -123,11 +145,28 @@ components | {
       envsubst '${Repo} ${Path} ${Version} ${TagPrefix} ${Force} ${OutDir}')"
     # pi reads piped stdin as prompt input; keep it away from the component list.
     $PI_CMD "$prompt" </dev/null &
+    pids+=("$!")
 
     while [ "$(jobs -rp | wc -l)" -ge "$parallel_agents" ]; do sleep 1; done
   done
-  wait
+  failed=0
+  if [ "${#pids[@]}" -gt 0 ]; then
+    for pid in "${pids[@]}"; do
+      if ! wait "$pid"; then
+        echo "scanner agent failed (pid $pid); output not accepted" >&2
+        failed=1
+      fi
+    done
+  fi
+  exit "$failed"
 }
+
+# Check even skipped files; existence alone does not establish valid provenance.
+if [ -n "$scan_component" ]; then
+  python3 "$SKILL_DIR/scripts/validate.py" --component "$scan_component"
+else
+  python3 "$SKILL_DIR/scripts/validate.py"
+fi
 
 {
   echo "# Telemetry emissions index"
