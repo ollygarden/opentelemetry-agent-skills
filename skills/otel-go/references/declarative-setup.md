@@ -12,15 +12,10 @@ skill. For Go-specific facts:
 
 | Fact | Fetch |
 |---|---|
-| Latest `otelconf` module tag | the version-sorted tag command below the table |
 | `otelconf` CHANGELOG (which schema rc each release supports, breaking changes) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/main/CHANGELOG.md` |
 | Current API surface (`SDK` methods, options) | `WebFetch https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf` |
 | Schema tag the generated types come from (`genjsonschema` target) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/otelconf/<tag>/Makefile` |
 | Latest `go.opentelemetry.io/otel` core release | `gh api repos/open-telemetry/opentelemetry-go/releases/latest -q '.tag_name'` |
-
-```bash
-gh api repos/open-telemetry/opentelemetry-go-contrib/git/matching-refs/tags/otelconf -q '.[].ref' | sort -V | tail -1
-```
 
 ## Choosing an Import Path
 
@@ -35,8 +30,10 @@ The `otelconf` repo ships two flavors of the package:
   `"0.3"` (a 2024 schema). Has no `Propagator()` method; propagators must be installed
   manually via `otel.SetTextMapPropagator(...)`.
 
-Online, confirm which schema the selected module tag targets from its Makefile pin and the
-CHANGELOG (see Sources of Truth) before generating deployable YAML.
+Answering from the runtime table, give its verification date, say newer `otelconf` releases may
+exist, and name the tag's Makefile pin and CHANGELOG entry as the evidence to check before deploying.
+Online, check only those for the selected tag; for "latest", resolve the tag once with the `otelconf`
+tag command in `SKILL.md`.
 
 ## Migration notes
 
