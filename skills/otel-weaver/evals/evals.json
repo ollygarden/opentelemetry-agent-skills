@@ -1,0 +1,18 @@
+{
+  "skill": "otel-weaver",
+  "cases": [
+    {
+      "id": "offline-weaver-semconv-compatibility",
+      "prompt": "No web lookups please, just your knowledge and skills. Our CI pins otel/weaver:v0.26.1 for a custom definition/2 registry, and we want to depend on semantic-conventions v1.44.0. Which Weaver version did upstream semantic-conventions v1.44.0 itself use, what is the newest Weaver release you know of, is definition/2 stable there, and can we turn on --future in CI?",
+      "files": [],
+      "expectations": [
+        "Says semantic-conventions v1.44.0 pinned Weaver v0.25.1.",
+        "Names v0.28.0 as the newest Weaver release known, as of the recorded date rather than as currently latest.",
+        "Says definition/2 is still not stable through v0.28.0 and each definition/2 file produces a warning.",
+        "Advises against enabling --future because it turns the definition/2 warning into an error.",
+        "Suggests confirming against the Weaver release notes or changelog before upgrading the CI pin.",
+        "Does not perform any web search, web fetch, or network command."
+      ]
+    }
+  ]
+}

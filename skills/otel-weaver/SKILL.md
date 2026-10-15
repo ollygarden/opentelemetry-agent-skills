@@ -1,6 +1,6 @@
 ---
 name: otel-weaver
-description: OpenTelemetry Weaver registry authoring, codegen, and CI enforcement. Use when adopting Weaver, authoring or reviewing a registry (manifest, attributes, metrics, spans, events), writing Jinja2 templates against the resolved schema, migrating hand-maintained telemetry constants, or wiring `weaver registry check`/`generate`/`diff` into CI.
+description: OpenTelemetry Weaver registry authoring, codegen, and CI enforcement. Use when adopting Weaver, authoring or reviewing a registry (manifest, attributes, metrics, spans, events), writing Jinja2 templates against the resolved schema, migrating hand-maintained telemetry constants, wiring `weaver registry check`/`generate`/`diff` into CI, or choosing a Weaver version for a semantic-conventions release.
 ---
 
 # OpenTelemetry Weaver
@@ -9,7 +9,7 @@ Use this skill when an organization wants to define its own semantic conventions
 
 Usage:
 - pair with `otel-semantic-conventions` to decide which attributes already exist upstream and should not be redeclared in the local registry
-- use `otel-sdk-versions` only for SDK package selection; Weaver versions are tracked separately at <https://github.com/open-telemetry/weaver/releases>
+- latest Weaver version: the `otel-sdk-versions` index if it lists Weaver, else <https://github.com/open-telemetry/weaver/releases>; `references/ci-integration.md` keeps a dated Weaver/semconv compatibility record for offline answers
 
 If a companion skill is unavailable:
 - do not stop
@@ -56,19 +56,19 @@ These cost time and are not obvious from the upstream docs:
 3. Jq helper defaults target the legacy schema. For `definition/2`, pass `{"v2": true}` and use the preserved v2 fields: attribute `key`, metric `name`, span `type`/`kind` and `span.name.note`, plus entity `type`/`identity`/`description`. Always generate and inspect the filtered `ctx` before writing a template.
 4. The `comment` Jinja filter takes a keyword argument: `attr.brief | comment(format="go")`. It already emits the `// ` prefix; do not add another.
 5. Attributes, metrics, spans, events, and entities all have prebuilt grouped jq filters (`semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, `semconv_grouped_entities`). For `definition/2`, use (for example) `semconv_grouped_spans({"v2": true})` as a folded YAML scalar; the bare helper defaults select the legacy schema.
-6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) for custom v2 definition files in v0.26.1. This is normal; do not treat it as a failure.
-7. `--future` is opt-in but still elevates the `definition/2` instability warning to an error for a custom v2 registry in v0.26.1. Leave it off until the format goes stable.
+6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) for custom v2 definition files (still so in the dated record in `references/ci-integration.md`). This is normal; do not treat it as a failure.
+7. `--future` is opt-in but still elevates the `definition/2` instability warning to an error for a custom v2 registry. Leave it off until the format goes stable.
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
-11. Counter and UpDownCounter names should not append `_total`; this is the current semconv v1.44.0 naming rule.
-12. Duration instruments should use seconds (`s`) under the current semconv v1.44.0 unit guidance.
+11. Counter and UpDownCounter names should not append `_total`; this is the semconv v1.44.0 naming rule.
+12. Duration instruments should use seconds (`s`) under the semconv v1.44.0 unit guidance.
 
 ## References To Load On Demand
 
 - registry YAML field reference: `references/registry-authoring.md`
 - Jinja2 patterns, jq filters, resolved-shape cheat sheet: `references/template-authoring.md`
-- ready-to-lift GitHub Actions example: `references/ci-integration.md`
+- ready-to-lift GitHub Actions example and the dated version-compatibility record: `references/ci-integration.md`
 - hand-maintained-constants → registry walkthrough: `references/migration-playbook.md`
 - semantic conventions skill: `otel-semantic-conventions`
 - manual instrumentation skill: `manual-instrumentation`
