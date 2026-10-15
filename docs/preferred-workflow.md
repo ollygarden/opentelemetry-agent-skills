@@ -59,7 +59,7 @@ lychee --no-progress --root-dir "$PWD" --config .github/lychee.toml .
 
 It honours `.gitignore`, so scratch files under `local/` are not scanned. Quote any count you report with the command and version that produced it — an error total on its own is not reproducible.
 
-If you touched `tools/otel-agent-tools/` or anything it generates, also run `go build ./cmd/otel-agent-tools` and `go test ./...` from that directory, and **regenerate** the output rather than hand-editing it.
+If you touched `tools/otel-agent-tools/` or anything it generates, also run `go build ./cmd/otel-agent-tools` and `go test ./...` from that directory, and **regenerate** the output rather than hand-editing it. If you edit `skills/otel-declarative-config/references/runtime-compatibility.md`, run `check pins` as well (see [`tools/otel-agent-tools/README.md`](../tools/otel-agent-tools/README.md)): it reads the recorded pins from that file's evidence lines, so rewording them can break the daily check.
 
 ## 6. Sweep for stale documentation
 

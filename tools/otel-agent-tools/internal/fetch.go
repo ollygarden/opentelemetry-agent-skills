@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"slices"
 	"strconv"
@@ -18,6 +19,13 @@ import (
 type fetcher func(context.Context, string) (string, error)
 
 var githubTagPattern = regexp.MustCompile(`^v?[0-9]+(\.[0-9]+){1,3}$`)
+
+var (
+	githubAPIBase = "https://api.github.com"
+	githubRawBase = "https://raw.githubusercontent.com"
+)
+
+const userAgent = "otel-agent-tools/1.0"
 
 var httpClient = &http.Client{
 	Timeout: 20 * time.Second,
@@ -49,26 +57,43 @@ func FetchVersion(ctx context.Context, sourceKind, target string) (string, error
 	return normalizeVersion(version), nil
 }
 
-func fetchJSON(ctx context.Context, rawURL string, dst any) error {
+// httpGet returns the body of a 2xx response to a GET of rawURL.
+func httpGet(ctx context.Context, rawURL, accept string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
-		return fmt.Errorf("build request: %w", err)
+		return nil, fmt.Errorf("build request: %w", err)
 	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "otel-agent-tools/1.0")
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
+	req.Header.Set("User-Agent", userAgent)
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" && strings.HasPrefix(rawURL, githubAPIBase+"/") {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("request %s: %w", rawURL, err)
+		return nil, fmt.Errorf("request %s: %w", rawURL, err)
 	}
 	defer closeBody(resp.Body)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return fmt.Errorf("request %s: unexpected status %d: %s", rawURL, resp.StatusCode, strings.TrimSpace(string(body)))
+		return nil, fmt.Errorf("request %s: unexpected status %d: %s", rawURL, resp.StatusCode, strings.TrimSpace(string(body)))
 	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read %s: %w", rawURL, err)
+	}
+	return body, nil
+}
 
-	if err := json.NewDecoder(resp.Body).Decode(dst); err != nil {
+func fetchJSON(ctx context.Context, rawURL string, dst any) error {
+	body, err := httpGet(ctx, rawURL, "application/json")
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(body, dst); err != nil {
 		return fmt.Errorf("decode %s: %w", rawURL, err)
 	}
 	return nil
@@ -228,22 +253,9 @@ func fetchMavenVersion(ctx context.Context, target string) (string, error) {
 }
 
 func fetchMavenMetadataRelease(ctx context.Context, rawURL string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	body, err := httpGet(ctx, rawURL, "application/xml")
 	if err != nil {
-		return "", fmt.Errorf("build request: %w", err)
-	}
-	req.Header.Set("Accept", "application/xml")
-	req.Header.Set("User-Agent", "otel-agent-tools/1.0")
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("request %s: %w", rawURL, err)
-	}
-	defer closeBody(resp.Body)
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return "", fmt.Errorf("request %s: unexpected status %d: %s", rawURL, resp.StatusCode, strings.TrimSpace(string(body)))
+		return "", err
 	}
 
 	var meta struct {
@@ -253,7 +265,7 @@ func fetchMavenMetadataRelease(ctx context.Context, rawURL string) (string, erro
 			Versions []string `xml:"versions>version"`
 		} `xml:"versioning"`
 	}
-	if err := xml.NewDecoder(resp.Body).Decode(&meta); err != nil {
+	if err := xml.Unmarshal(body, &meta); err != nil {
 		return "", fmt.Errorf("decode %s: %w", rawURL, err)
 	}
 
@@ -269,43 +281,69 @@ func fetchMavenMetadataRelease(ctx context.Context, rawURL string) (string, erro
 	return "", fmt.Errorf("%s: no stable version found", rawURL)
 }
 
+// GitHubRelease is the newest stable release of a GitHub repository.
+type GitHubRelease struct {
+	Tag  string
+	Name string
+}
+
 func fetchGitHubVersion(ctx context.Context, target string) (string, error) {
+	release, err := LatestGitHubRelease(ctx, target, "")
+	if err != nil {
+		return "", err
+	}
+	return release.Tag, nil
+}
+
+// LatestGitHubRelease returns the newest non-draft, non-prerelease release of
+// repo whose tag is tagPrefix followed by a numeric version, falling back to
+// the highest such tag when the repository publishes no matching release.
+func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRelease, error) {
+	isVersionTag := func(tag string) bool {
+		rest, ok := strings.CutPrefix(tag, tagPrefix)
+		return ok && githubTagPattern.MatchString(rest)
+	}
+
 	var releases []struct {
 		TagName    string `json:"tag_name"`
+		Name       string `json:"name"`
 		Draft      bool   `json:"draft"`
 		Prerelease bool   `json:"prerelease"`
 	}
-
-	releasesURL := fmt.Sprintf("https://api.github.com/repos/%s/releases?per_page=20", target)
+	releasesURL := fmt.Sprintf("%s/repos/%s/releases?per_page=30", githubAPIBase, repo)
 	if err := fetchJSON(ctx, releasesURL, &releases); err == nil {
 		for _, release := range releases {
-			if release.Draft || release.Prerelease || release.TagName == "" {
-				continue
+			if !release.Draft && !release.Prerelease && isVersionTag(release.TagName) {
+				return GitHubRelease{Tag: release.TagName, Name: strings.TrimSpace(release.Name)}, nil
 			}
-			return release.TagName, nil
 		}
 	}
 
 	var tags []struct {
 		Name string `json:"name"`
 	}
-	tagsURL := fmt.Sprintf("https://api.github.com/repos/%s/tags?per_page=100", target)
+	tagsURL := fmt.Sprintf("%s/repos/%s/tags?per_page=100", githubAPIBase, repo)
 	if err := fetchJSON(ctx, tagsURL, &tags); err != nil {
-		return "", err
+		return GitHubRelease{}, err
 	}
 
 	var versions []string
 	for _, tag := range tags {
-		if githubTagPattern.MatchString(tag.Name) {
-			versions = append(versions, tag.Name)
+		if isVersionTag(tag.Name) {
+			versions = append(versions, strings.TrimPrefix(tag.Name, tagPrefix))
 		}
 	}
 	if len(versions) == 0 {
-		return "", fmt.Errorf("github: no release or semver tag found for %s", target)
+		return GitHubRelease{}, fmt.Errorf("github: no release or version tag with prefix %q found for %s", tagPrefix, repo)
 	}
 
-	slices.SortFunc(versions, compareVersions)
-	return versions[len(versions)-1], nil
+	return GitHubRelease{Tag: tagPrefix + slices.MaxFunc(versions, compareVersions)}, nil
+}
+
+// FetchGitHubFile returns the content of path in repo at ref.
+func FetchGitHubFile(ctx context.Context, repo, ref, path string) (string, error) {
+	body, err := httpGet(ctx, fmt.Sprintf("%s/%s/%s/%s", githubRawBase, repo, ref, path), "")
+	return string(body), err
 }
 
 func fetchGoProxyVersion(ctx context.Context, target string) (string, error) {

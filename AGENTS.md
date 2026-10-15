@@ -50,7 +50,7 @@ Two hard rules that are easy to get wrong:
 
 ## The `tools/otel-agent-tools` Go module
 
-A small Go CLI under `tools/otel-agent-tools/` (wired into the workspace via `go.work`) fetches upstream OpenTelemetry data and renders the generated reference index consumed by `otel-sdk-versions`. CI lints, builds, and tests it, and link-checks the generated index. When changing it:
+A small Go CLI under `tools/otel-agent-tools/` (wired into the workspace via `go.work`) fetches upstream OpenTelemetry data and renders the generated reference index consumed by `otel-sdk-versions` (`reconcile versions`), and flags drift between upstream declarative-config schema pins and the dated record in `otel-declarative-config` (`check pins`). The daily `reconcile-otel-versions` workflow runs both; see [`tools/otel-agent-tools/README.md`](tools/otel-agent-tools/README.md). CI lints, builds, and tests the module, and link-checks the generated index. When changing it:
 
 - `go build ./cmd/otel-agent-tools` and `go test ./...` from `tools/otel-agent-tools/`.
 - Generated output (e.g. `skills/otel-sdk-versions/references/generated/otel-version-index.md`) is produced by the tool — regenerate it rather than hand-editing, so it stays consistent and the link check passes.

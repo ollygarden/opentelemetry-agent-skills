@@ -125,7 +125,7 @@ go build ./cmd/otel-agent-tools
 go test ./...
 ```
 
-Regenerate generated files with the tool rather than hand-editing them. CI lints, builds, and tests the module and link-checks the generated index.
+Regenerate generated files with the tool rather than hand-editing them (see [`tools/otel-agent-tools/README.md`](tools/otel-agent-tools/README.md)). CI lints, builds, and tests the module and link-checks the generated index.
 
 ## Commit Messages
 

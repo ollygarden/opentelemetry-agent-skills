@@ -36,7 +36,7 @@
     {
       "name": "otel-sdk-versions",
       "source": "./skills/otel-sdk-versions",
-      "description": "OpenTelemetry SDK and package version lookup across languages."
+      "description": "OpenTelemetry SDK, Collector, configuration schema, semantic conventions, and Weaver release version lookup."
     },
     {
       "name": "otel-semantic-conventions",

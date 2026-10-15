@@ -1,18 +1,19 @@
 ---
 name: otel-sdk-versions
-description: OpenTelemetry SDK and package version lookup across languages. Use when choosing the latest compatible released OpenTelemetry SDK or package version and locating setup docs or examples.
+description: OpenTelemetry release version lookup for SDKs across languages and for the Collector (core, contrib, distributions, builder/OCB), the declarative configuration schema, semantic conventions, and Weaver. Use when choosing the latest compatible released OpenTelemetry SDK, package, or component version, when asked what the latest release of one of these is, and when locating setup docs or examples.
 ---
 
 # OpenTelemetry SDK Versions
 
-Use this skill when you need the latest released OpenTelemetry SDK or package version for a language.
+Use this skill when you need the latest released version of an OpenTelemetry SDK, package, or component.
 
 ## Workflow
 
 1. Open `references/generated/otel-version-index.md`.
-- identify the row for the project language and package
-- use the bundled table as the default source of truth for supported languages in this repository
-- the table is a snapshot from the last daily regeneration; offline, present its versions as the bundled snapshot, not as currently latest
+- the SDKs table has one primary SDK package per language; the Components table covers the Collector (core, contrib, distributions, builder), the configuration schema, semantic conventions, and Weaver
+- use the bundled tables as the default source of truth for what they cover
+- the index is regenerated daily; its "Versions last changed" date is the last day any row changed
+- offline, give each version with that date: "`<version>` as of `<date>`; a newer release may exist". Never call it the current latest
 
 2. Choose the version deliberately.
 - prefer the latest released version when it is compatible with the project
@@ -20,16 +21,15 @@ Use this skill when you need the latest released OpenTelemetry SDK or package ve
 - reuse that decision for the rest of the task unless the language, package, or constraints change
 
 3. Resolve companion packages from the release source.
-- the index covers one primary SDK package per language
-- if the task requires additional packages from the same ecosystem (exporters, instrumentations, resource detectors), look up their versions from the release source — do not infer or reuse the primary package version
+- if the task requires additional packages from the same ecosystem (exporters, instrumentations, resource detectors, Collector components), look up their versions from the release source — do not infer or reuse the primary package version
 - sub-packages within the same project often share a version line but not always; confirm each package individually
 
 4. Use the linked follow-up sources when needed.
-- use the Release Source column to confirm the package or repo
+- use the Release Source or Release column to confirm the package, repo, or release notes
 - use the Setup Docs column for SDK setup guidance
 - use the Examples column for implementation references when examples are available
 
 5. Handle gaps explicitly.
-- if the requested language or package is not in the bundled index, say that the index does not cover that exact package
+- if the requested language, package, or component is not in the bundled index, say that the index does not cover it
 - then fall back to the official release source and official docs for that package
 - do not assume an unreleased, prerelease, or incompatible version is acceptable without saying so
