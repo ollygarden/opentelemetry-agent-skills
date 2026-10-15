@@ -1,8 +1,8 @@
 # Runtime compatibility
 
 Which configuration-schema release each released parser targets, and the `file_format` literal to
-write for it. Offline, report a row with its verification date and never call it currently latest.
-Online, look up the selected package's latest version: if it matches the row, the row stands;
+write for it. Offline, report a row with its verification date, never call it currently latest, and
+tell the user to confirm it against the row's evidence below before deploying. Online, look up the selected package's latest version: if it matches the row, the row stands;
 otherwise re-verify from its evidence before generating deployable YAML.
 
 ## Verified 2026-10-15
