@@ -187,3 +187,5 @@ behaviors were or were not verified; and the separate status of schema, selected
 validation. When compatibility evidence is cached, also state its reuse or invalidation decision and
 record the complete runtime, package or agent, version, selected schema tag, and source-revision
 identity. Omit only categories that do not apply to the request.
+For an answer from the dated table, state the date, that newer releases may exist, and the pin to
+check before deploying.
