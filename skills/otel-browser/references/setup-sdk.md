@@ -21,7 +21,7 @@ experimental Browser SDK and are outside this RUM setup.
 > never call a value currently latest, and confirm it against the evidence before deploying.
 > Evidence: [browser-sdk-v0.5.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.5.0),
 > [browser-instrumentation-v0.8.2](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.8.2),
-> [sdk-trace-web on npm](https://www.npmjs.com/package/@opentelemetry/sdk-trace-web?activeTab=versions).
+> [opentelemetry-js v2.12.0](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.12.0) (sdk-trace-web).
 >
 > The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
