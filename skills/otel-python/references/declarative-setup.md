@@ -118,9 +118,10 @@ but spans started before setup are not retroactively recorded.
 
 `file_format` is required and must be a string version. The loader validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
-versions with the same major version are accepted with a warning. Release 1.45.0
-vendors configuration schema 1.1 and its loader targets 1.1, so `"1.0"` and
-`"1.1"` load without a warning (1.44.0 targeted 1.0 and warned on `"1.1"`).
+versions with the same major version are accepted with a warning. Verified
+2026-10-15: `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) vendors schema
+v1.1.0 (as does the 1.45.0 pinned above) and its loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning
+and `"1.2"` warns (1.44.0 targeted 1.0 and warned on `"1.1"`).
 
 Minimal verified skeleton (all three signals, console exporters):
 
