@@ -23,17 +23,15 @@ The `otelconf` repo ships two flavors of the package:
 
 - **Root** `go.opentelemetry.io/contrib/otelconf` — trails the schema repository. Verified
   2026-10-15: `v0.27.0` targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`) while the schema
-  repository is at `v1.2.0`; per-runtime table in the `otel-declarative-config` skill's
-  `references/runtime-compatibility.md`. Includes `sdk.Propagator()` for installing
+  repository is at `v1.2.0` (owner: the `otel-declarative-config`
+  [parsers table](../../otel-declarative-config/SKILL.md)). Includes `sdk.Propagator()` for installing
   propagators from YAML.
 - **Schema-pinned** `go.opentelemetry.io/contrib/otelconf/v0.3.0` — frozen at file_format
   `"0.3"` (a 2024 schema). Has no `Propagator()` method; propagators must be installed
   manually via `otel.SetTextMapPropagator(...)`.
 
-Answering from the runtime table, give its verification date, say newer `otelconf` releases may
-exist, and name the tag's Makefile pin and CHANGELOG entry as the evidence to check before deploying.
-Online, check only those for the selected tag; for "latest", resolve the tag once with the `otelconf`
-tag command in `SKILL.md`.
+Newer `otelconf` releases may exist; check the selected tag's Makefile schema tag before deploying.
+For "latest", resolve the tag once with the `otelconf` tag command in this skill's `SKILL.md`.
 
 ## Migration notes
 

@@ -1,22 +1,19 @@
 # Runtime compatibility
 
-Which configuration-schema release each released parser targets, and the `file_format` literal to
-write for it.
+Evidence and parser validation behind the SKILL.md "Parsers verified" table.
 
 ## Verified 2026-10-15
 
-The schema repository's latest release is `v1.2.0`; parsers trail it.
-
-| Runtime | Package and version | Schema | `file_format` | Validation |
-|---|---|---|---|---|
-| Go | `go.opentelemetry.io/contrib/otelconf` v0.27.0 | v1.0.0-rc.3 | `"1.0-rc.3"` | presence only |
-| Java SDK | `opentelemetry-sdk-extension-declarative-config` 1.67.0-alpha (BOM 1.67.0) | v1.2.0 | `"1.2"` | `0.4`/`1.x` accepted; anything but `"1.2"` warns |
-| Java agent, Spring Boot starter | 2.32.0 (embeds SDK 1.66.0) | v1.1.0 | `"1.1"` | `0.4`/`1.x` accepted; prefers `"1.1"` |
-| JavaScript | `@opentelemetry/configuration` 0.223.0 | v1.1.0 | `"1.1"` | major must be 1; newer minor warns |
-| Python | `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) | v1.1.0 | `"1.1"` | major must be 1; newer minor warns |
-| Ruby | `opentelemetry-config` 0.1.1 | v1.0.0-rc.3 | `"1.0"` (README) | none |
-| .NET SDK | none released ([#7658](https://github.com/open-telemetry/opentelemetry-dotnet/issues/7658)) | - | - | - |
-| .NET auto-instrumentation | `opentelemetry-dotnet-instrumentation` v1.17.0, experimental, needs `OTEL_EXPERIMENTAL_FILE_BASED_CONFIGURATION_ENABLED=true` | hand-written model, no pin | `"1.0"` (docs) | none |
+| Runtime | Full package | Schema | Validation |
+|---|---|---|---|
+| Go | `go.opentelemetry.io/contrib/otelconf` | v1.0.0-rc.3 | presence only |
+| Java SDK | `opentelemetry-sdk-extension-declarative-config` (`-alpha` artifact, BOM version) | v1.2.0 | `0.4`/`1.x` accepted; anything but `"1.2"` warns |
+| Java agent / Spring Boot starter | `opentelemetry-javaagent`, `opentelemetry-spring-boot-starter` | v1.1.0 | `0.4`/`1.x` accepted; prefers `"1.1"` |
+| JavaScript | `@opentelemetry/configuration` | v1.1.0 | major must be 1; newer minor warns |
+| Python | `opentelemetry-configuration` (SDK 1.45.1) | v1.1.0 | major must be 1; newer minor warns |
+| Ruby | `opentelemetry-config` | v1.0.0-rc.3 | none |
+| .NET SDK | none released ([#7658](https://github.com/open-telemetry/opentelemetry-dotnet/issues/7658)) | - | - |
+| .NET auto-instrumentation | `opentelemetry-dotnet-instrumentation`, needs `OTEL_EXPERIMENTAL_FILE_BASED_CONFIGURATION_ENABLED=true` | hand-written model, no pin | none |
 
 Evidence, at each release tag or in the published artifact:
 
