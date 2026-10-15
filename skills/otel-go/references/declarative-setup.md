@@ -12,15 +12,10 @@ skill. For Go-specific facts:
 
 | Fact | Fetch |
 |---|---|
-| Latest `otelconf` module tag | the version-sorted tag command below the table |
 | `otelconf` CHANGELOG (which schema rc each release supports, breaking changes) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/main/CHANGELOG.md` |
 | Current API surface (`SDK` methods, options) | `WebFetch https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf` |
 | Schema tag the generated types come from (`genjsonschema` target) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/otelconf/<tag>/Makefile` |
 | Latest `go.opentelemetry.io/otel` core release | `gh api repos/open-telemetry/opentelemetry-go/releases/latest -q '.tag_name'` |
-
-```bash
-gh api repos/open-telemetry/opentelemetry-go-contrib/git/matching-refs/tags/otelconf -q '.[].ref' | sort -V | tail -1
-```
 
 ## Choosing an Import Path
 
@@ -28,15 +23,15 @@ The `otelconf` repo ships two flavors of the package:
 
 - **Root** `go.opentelemetry.io/contrib/otelconf` — trails the schema repository. Verified
   2026-10-15: `v0.27.0` targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`) while the schema
-  repository is at `v1.2.0`; per-runtime table in the `otel-declarative-config` skill's
-  `references/runtime-compatibility.md`. Includes `sdk.Propagator()` for installing
+  repository is at `v1.2.0` (owner: the `otel-declarative-config`
+  [parsers table](../../otel-declarative-config/SKILL.md)). Includes `sdk.Propagator()` for installing
   propagators from YAML.
 - **Schema-pinned** `go.opentelemetry.io/contrib/otelconf/v0.3.0` — frozen at file_format
   `"0.3"` (a 2024 schema). Has no `Propagator()` method; propagators must be installed
   manually via `otel.SetTextMapPropagator(...)`.
 
-Online, confirm which schema the selected module tag targets from its Makefile pin and the
-CHANGELOG (see Sources of Truth) before generating deployable YAML.
+Newer `otelconf` releases may exist; check the selected tag's Makefile schema tag before deploying.
+For "latest", resolve the tag once with the `otelconf` tag command in this skill's `SKILL.md`.
 
 ## Migration notes
 
