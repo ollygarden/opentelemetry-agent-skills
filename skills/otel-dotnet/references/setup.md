@@ -203,8 +203,8 @@ below).
 ## No Released Declarative Config in .NET
 
 > **Note:** .NET does not have a released implementation of the OpenTelemetry declarative
-> YAML (`file_format`) specification. There is no released NuGet package providing a
-> `file_format:` config file equivalent for the .NET SDK.
+> YAML (`file_format`) specification. Verified 2026-10-15: `OpenTelemetry.Configuration.Declarative`
+> exists on `main`, but no NuGet package is published.
 >
 > Upstream tracking issue:
 > [open-telemetry/opentelemetry-dotnet#7658](https://github.com/open-telemetry/opentelemetry-dotnet/issues/7658)

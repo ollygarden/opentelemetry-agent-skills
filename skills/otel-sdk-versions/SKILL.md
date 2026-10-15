@@ -12,6 +12,7 @@ Use this skill when you need the latest released OpenTelemetry SDK or package ve
 1. Open `references/generated/otel-version-index.md`.
 - identify the row for the project language and package
 - use the bundled table as the default source of truth for supported languages in this repository
+- the table is a snapshot from the last daily regeneration; offline, present its versions as the bundled snapshot, not as currently latest
 
 2. Choose the version deliberately.
 - prefer the latest released version when it is compatible with the project

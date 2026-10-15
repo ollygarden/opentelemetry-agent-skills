@@ -16,6 +16,19 @@ Missing runtime identity does not defer safety triage. When supplied configurati
 first perform the bounded, non-constructing inspection below and report a sanitized diagnosis; then
 request the identity before producing a deployable correction.
 
+## Verified records and evidence precedence
+
+For "which schema or `file_format` does runtime X support" or "what is latest", read the dated table
+in [`references/runtime-compatibility.md`](references/runtime-compatibility.md) first; it also says
+how to answer offline.
+
+When sources disagree, the higher one wins; name the conflict and resolve it before recommending:
+
+1. Parser behavior at the release tag or in the published artifact (schema pin, `file_format` check).
+2. Release changelog and migration notes.
+3. Release-tagged fixtures and README examples.
+4. Language Support Status, which is coverage metadata only.
+
 ## Sources of Truth
 
 The schema, `file_format` strings, fields, and SDK coverage evolve per release. Fetch upstream
@@ -38,7 +51,7 @@ an older parser.
 
 1. Identify the exact runtime/package/agent version that will parse the file.
 2. Fetch its source, docs, or release-matched test fixtures and confirm the accepted
-   `file_format`. Runtime/package evidence wins over Language Support Status coverage metadata.
+   `file_format`, applying the evidence precedence above.
 3. Use the tagged `examples/otel-sdk-config.yaml` as a structural template, adapting its literal
    and fields to the selected parser.
 4. Overlay the user's specific values (service name, endpoint, sampling, headers).
