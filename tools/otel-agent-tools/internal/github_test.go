@@ -2,6 +2,7 @@ package otelagenttools
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -34,6 +35,24 @@ func TestLatestGitHubReleaseFiltersByTagPrefix(t *testing.T) {
 	}
 	if builder.ReleaseURL != "https://github.com/o/r/releases/tag/cmd/builder/v0.2.0" {
 		t.Fatalf("release URL %q", builder.ReleaseURL)
+	}
+}
+
+func TestLatestGitHubReleasePicksHighestVersion(t *testing.T) {
+	useGitHubServer(t, map[string]string{
+		"/repos/o/r/releases": `[{"tag_name":"v1.41.1","name":"backport"},{"tag_name":"v1.42.0","name":"v1.42.0"}]`,
+	})
+	release, err := LatestGitHubRelease(context.Background(), "o/r", "")
+	if err != nil || release.Tag != "v1.42.0" {
+		t.Fatalf("got %+v, %v; want tag v1.42.0", release, err)
+	}
+}
+
+func TestLatestGitHubReleaseKeepsBothErrors(t *testing.T) {
+	useGitHubServer(t, map[string]string{})
+	_, err := LatestGitHubRelease(context.Background(), "o/r", "")
+	if err == nil || !strings.Contains(err.Error(), "/releases") || !strings.Contains(err.Error(), "/tags") {
+		t.Fatalf("want both request errors, got %v", err)
 	}
 }
 

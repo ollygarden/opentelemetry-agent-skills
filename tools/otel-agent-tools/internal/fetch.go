@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -295,8 +296,8 @@ func fetchGitHubVersion(ctx context.Context, target string) (string, error) {
 	return release.Tag, nil
 }
 
-// LatestGitHubRelease returns the newest non-draft, non-prerelease release of
-// repo whose tag is tagPrefix followed by a numeric version, falling back to
+// LatestGitHubRelease returns the highest-versioned non-draft, non-prerelease
+// release of repo whose tag is tagPrefix followed by a numeric version, falling back to
 // the highest such tag when the repository publishes no matching release.
 func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRelease, error) {
 	isVersionTag := func(tag string) bool {
@@ -311,12 +312,18 @@ func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRel
 		Prerelease bool   `json:"prerelease"`
 	}
 	releasesURL := fmt.Sprintf("%s/repos/%s/releases?per_page=30", githubAPIBase, repo)
-	if err := fetchJSON(ctx, releasesURL, &releases); err == nil {
-		for _, release := range releases {
-			if !release.Draft && !release.Prerelease && isVersionTag(release.TagName) {
-				return GitHubRelease{Tag: release.TagName, Name: strings.TrimSpace(release.Name)}, nil
-			}
+	releasesErr := fetchJSON(ctx, releasesURL, &releases)
+	var latest *GitHubRelease
+	for _, release := range releases {
+		if release.Draft || release.Prerelease || !isVersionTag(release.TagName) {
+			continue
 		}
+		if latest == nil || compareVersions(strings.TrimPrefix(release.TagName, tagPrefix), strings.TrimPrefix(latest.Tag, tagPrefix)) > 0 {
+			latest = &GitHubRelease{Tag: release.TagName, Name: strings.TrimSpace(release.Name)}
+		}
+	}
+	if latest != nil {
+		return *latest, nil
 	}
 
 	var tags []struct {
@@ -324,7 +331,7 @@ func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRel
 	}
 	tagsURL := fmt.Sprintf("%s/repos/%s/tags?per_page=100", githubAPIBase, repo)
 	if err := fetchJSON(ctx, tagsURL, &tags); err != nil {
-		return GitHubRelease{}, err
+		return GitHubRelease{}, errors.Join(releasesErr, err)
 	}
 
 	var versions []string
