@@ -36,4 +36,5 @@ Evidence, at each release tag or in the published artifact:
 
 For a file shared by several runtimes, use the lowest of the selected parsers' target literals (a
 newer literal may load with a warning in an older parser but is not supported there), keep to
-fields that every selected runtime's schema defines, and name the runtimes that will warn.
+fields every selected runtime supports (its schema, or for .NET auto-instrumentation its documented
+model), and name the runtimes that will warn.
