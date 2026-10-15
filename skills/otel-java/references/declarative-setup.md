@@ -50,7 +50,8 @@ SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer sche
 Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
 the preferred value from that release's fixture to avoid compatibility warnings for experimental
 properties. Verified 2026-10-15: SDK BOM 1.67.0 prefers `"1.2"`, while Javaagent/Spring Boot
-Starter 2.32.0 embeds SDK 1.66.0 and prefers `"1.1"`; per-runtime table in the
+Starter 2.32.0 embeds SDK 1.66.0 and prefers `"1.1"` (other notes in this file were last checked
+against 2.31.1); per-runtime table in the
 `otel-declarative-config` skill's `references/runtime-compatibility.md`. Keep the selected distribution's
 embedded SDK distinct from the independently released BOM, and do not infer either from `main` or
 the generic language support matrix alone.
@@ -109,7 +110,7 @@ AutoConfiguredOpenTelemetrySdk sdk =
 - **Spring Boot Starter activation**: unlike the Javaagent/autoconfigure, the starter does
   not load an external file. Embed the declarative config inline under the `otel:` key in
   `application.yaml` (or as `otel.*` properties in `application.properties`) and opt in by
-  setting `otel.file_format` (for example, `file_format: "1.1"` for starter 2.32.0; verify the
+  setting `otel.file_format` (for example, `file_format: "1.1"` for starter 2.31.1; verify the
   selected release fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.

@@ -63,7 +63,7 @@ For the canonical structure, fetch `examples/otel-sdk-config.yaml` (see the
 `otel-declarative-config` skill's Sources of Truth), then check the installed
 `@opentelemetry/configuration` package or its matching source/fixtures for runtime support.
 Verified 2026-10-15: `@opentelemetry/configuration` 0.223.0 generates its config types from
-schema v1.1.0, so write `file_format: "1.1"`. It accepts schema major `1` including `1.0`, warns
+schema v1.1.0, as has every release since the pinned 0.220.0 line, so write `file_format: "1.1"`. It accepts schema major `1` including `1.0`, warns
 on newer minor versions such as `"1.2"`, and rejects other major versions.
 
 ```yaml

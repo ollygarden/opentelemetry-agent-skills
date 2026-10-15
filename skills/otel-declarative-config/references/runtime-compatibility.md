@@ -17,7 +17,8 @@ The schema repository's latest release is `v1.2.0`; parsers trail it.
 | JavaScript | `@opentelemetry/configuration` 0.223.0 | v1.1.0 | `"1.1"` | major must be 1; newer minor warns |
 | Python | `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) | v1.1.0 | `"1.1"` | major must be 1; newer minor warns |
 | Ruby | `opentelemetry-config` 0.1.1 | v1.0.0-rc.3 | `"1.0"` (README) | none |
-| .NET | none released ([#7658](https://github.com/open-telemetry/opentelemetry-dotnet/issues/7658)) | - | - | - |
+| .NET SDK | none released ([#7658](https://github.com/open-telemetry/opentelemetry-dotnet/issues/7658)) | - | - | - |
+| .NET auto-instrumentation | `opentelemetry-dotnet-instrumentation` v1.17.0, experimental, needs `OTEL_EXPERIMENTAL_FILE_BASED_CONFIGURATION_ENABLED=true` | hand-written model, no pin | `"1.0"` (docs) | none |
 
 Evidence, at each release tag or in the published artifact:
 
@@ -30,6 +31,8 @@ Evidence, at each release tag or in the published artifact:
 - JavaScript: `scripts/generate-config.js` `CONFIG_VERSION = 'v1.1.0'`.
 - Python: the wheel's vendored `schema.json` equals schema `v1.1.0`.
 - Ruby: the gem's `generated_constants.rb` names schema `v1.0.0-rc.3`.
+- .NET auto-instrumentation: `docs/file-based-configuration.md` enables it with the flag above and
+  reads `OTEL_CONFIG_FILE`; `YamlConfiguration.FileFormat` is never checked.
 
 For a file shared by several runtimes, use the highest literal that every selected parser accepts
 without error, and name the runtimes that will warn.

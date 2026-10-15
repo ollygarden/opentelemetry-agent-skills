@@ -12,11 +12,15 @@ skill. For Go-specific facts:
 
 | Fact | Fetch |
 |---|---|
-| Latest `otelconf` module tag | `gh api repos/open-telemetry/opentelemetry-go-contrib/git/matching-refs/tags/otelconf -q '.[].ref' \| sort -V \| tail -1` |
+| Latest `otelconf` module tag | the version-sorted tag command below the table |
 | `otelconf` CHANGELOG (which schema rc each release supports, breaking changes) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/main/CHANGELOG.md` |
 | Current API surface (`SDK` methods, options) | `WebFetch https://pkg.go.dev/go.opentelemetry.io/contrib/otelconf` |
 | Schema tag the generated types come from (`genjsonschema` target) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-contrib/otelconf/<tag>/Makefile` |
 | Latest `go.opentelemetry.io/otel` core release | `gh api repos/open-telemetry/opentelemetry-go/releases/latest -q '.tag_name'` |
+
+```bash
+gh api repos/open-telemetry/opentelemetry-go-contrib/git/matching-refs/tags/otelconf -q '.[].ref' | sort -V | tail -1
+```
 
 ## Choosing an Import Path
 
