@@ -1,4 +1,8 @@
-# OpenTelemetry SDK Version Index
+# OpenTelemetry Version Index
+
+Versions last changed: 2026-10-15 (UTC). Each version below was the latest release on that date; newer releases may exist.
+
+## SDKs
 
 | Language | Package/Repo | Latest | Release Source | Setup Docs | Examples |
 |---|---|---|---|---|---|
@@ -14,3 +18,15 @@
 | Ruby | `opentelemetry-sdk` | `1.13.1` | [RubyGems](https://rubygems.org/gems/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/ruby/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples) |
 | Rust | `opentelemetry_sdk` | `0.33.1` | [crates.io](https://crates.io/crates/opentelemetry_sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/rust/getting-started.md) | [Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples) |
 | Swift | `open-telemetry/opentelemetry-swift` | `2.6.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-swift/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/swift/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-swift/tree/main/Examples) |
+
+## Components
+
+| Component | Latest | Release | Notes |
+|---|---|---|---|
+| Collector core | `1.69.0` / `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector/releases/tag/v0.163.0) | Stable `1.x` modules / other `0.x` modules |
+| Collector contrib | `1.2.0` / `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.163.0) | Stable `1.x` modules / other `0.x` modules |
+| Collector distributions | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.162.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
+| Collector builder (OCB) | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.162.0) | `ocb` binary; can trail core |
+| Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
+| Semantic conventions | `1.44.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.44.0) | Specification release; language semconv packages may lag |
+| Weaver | `0.28.0` | [Notes](https://github.com/open-telemetry/weaver/releases/tag/v0.28.0) | Semantic-convention registry CLI |

@@ -1,0 +1,40 @@
+[
+  {
+    "component": "Collector core",
+    "repo": "open-telemetry/opentelemetry-collector",
+    "release_name_versions": true,
+    "notes": "Stable `1.x` modules / other `0.x` modules"
+  },
+  {
+    "component": "Collector contrib",
+    "repo": "open-telemetry/opentelemetry-collector-contrib",
+    "release_name_versions": true,
+    "notes": "Stable `1.x` modules / other `0.x` modules"
+  },
+  {
+    "component": "Collector distributions",
+    "repo": "open-telemetry/opentelemetry-collector-releases",
+    "notes": "Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core"
+  },
+  {
+    "component": "Collector builder (OCB)",
+    "repo": "open-telemetry/opentelemetry-collector-releases",
+    "tag_prefix": "cmd/builder/",
+    "notes": "`ocb` binary; can trail core"
+  },
+  {
+    "component": "Configuration schema",
+    "repo": "open-telemetry/opentelemetry-configuration",
+    "notes": "Declarative config schema; SDK parsers may target older releases"
+  },
+  {
+    "component": "Semantic conventions",
+    "repo": "open-telemetry/semantic-conventions",
+    "notes": "Specification release; language semconv packages may lag"
+  },
+  {
+    "component": "Weaver",
+    "repo": "open-telemetry/weaver",
+    "notes": "Semantic-convention registry CLI"
+  }
+]

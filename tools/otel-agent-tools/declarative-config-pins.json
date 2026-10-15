@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Go otelconf schema",
+    "repo": "open-telemetry/opentelemetry-go-contrib",
+    "path": "Makefile",
+    "pattern": "opentelemetry-configuration/tarball/(\\S+)",
+    "doc_pattern": "`genjsonschema` downloads the `([^`]+)` schema"
+  },
+  {
+    "name": "Java SDK configurationTag",
+    "repo": "open-telemetry/opentelemetry-java",
+    "path": "sdk-extensions/declarative-config/build.gradle.kts",
+    "pattern": "configurationTag = \"([^\"]+)\""
+  },
+  {
+    "name": "Java SDK EXPECTED_FILE_FORMAT",
+    "repo": "open-telemetry/opentelemetry-java",
+    "path": "sdk-extensions/declarative-config/src/main/java/io/opentelemetry/sdk/autoconfigure/declarativeconfig/OpenTelemetryConfigurationFactory.java",
+    "pattern": "EXPECTED_FILE_FORMAT = \"([^\"]+)\""
+  },
+  {
+    "name": "JavaScript CONFIG_VERSION",
+    "repo": "open-telemetry/opentelemetry-js",
+    "tag_prefix": "experimental/",
+    "path": "experimental/packages/configuration/scripts/generate-config.js",
+    "pattern": "CONFIG_VERSION = '([^']+)'"
+  }
+]

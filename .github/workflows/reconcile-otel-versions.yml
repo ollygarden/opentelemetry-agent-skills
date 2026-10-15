@@ -29,6 +29,8 @@ jobs:
           go-version-file: tools/otel-agent-tools/go.mod
 
       - name: Reconcile Version Index
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           go run ./tools/otel-agent-tools/cmd/otel-agent-tools reconcile versions \
             --out skills/otel-sdk-versions/references/generated/otel-version-index.md
@@ -51,7 +53,7 @@ jobs:
           git config user.email "otel-agent-tools@users.noreply.github.com"
           git checkout -B "$BRANCH_NAME"
           git add skills/otel-sdk-versions/references/generated/otel-version-index.md
-          git commit -m "chore(deps): update OpenTelemetry SDK versions"
+          git commit -m "chore(deps): update OpenTelemetry versions"
           git push --force-with-lease origin "HEAD:$BRANCH_NAME"
 
       - name: Create Or Update Pull Request
@@ -60,7 +62,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH_NAME: automation/reconcile-otel-versions
-          PR_TITLE: "chore(deps): update OpenTelemetry SDK versions"
+          PR_TITLE: "chore(deps): update OpenTelemetry versions"
           PR_BODY: |
             Automated refresh of the generated OpenTelemetry version index.
             This PR will auto-merge after CI passes.
@@ -92,3 +94,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh pr merge "${{ steps.cpr.outputs.pull-request-number }}" --auto --squash --delete-branch
+
+  check-pins:
+    name: Check declarative config pins
+    runs-on: blacksmith
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: tools/otel-agent-tools/go.mod
+
+      # Fails when a latest release pins a schema value that the dated
+      # runtime-compatibility record does not; the record must then be re-verified.
+      - name: Compare Pins With Runtime Compatibility Record
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          go run ./tools/otel-agent-tools/cmd/otel-agent-tools check pins \
+            --doc skills/otel-declarative-config/references/runtime-compatibility.md
