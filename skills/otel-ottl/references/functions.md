@@ -2,6 +2,19 @@
 
 Editor and converter reference for collector-contrib **v0.162.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
 
+## Feature gates (verified 2026-10-15)
+
+OTTL feature gates in `pkg/ottl/metadata.yaml`. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying.
+
+| Gate | v0.162.0 | v0.163.0 |
+|---|---|---|
+| `ottl.functions.enableLambda` (lambda converters) | alpha | alpha |
+| `ottl.set.allowNil` | stable | stable |
+| `pkg.ottl.functions.enableDynamicSliceArguments` (path/converter slice args of `Concat`, `keep_keys`) | none; `Concat` ungated since v0.161 | beta (on) |
+| `pkg.ottl.functions.enableExperimental` (new experimental `xottl` functions) | - | alpha |
+
+v0.163.0 also rejects non-list literal slice arguments such as `Concat("a", "-")` at parse time (CHANGELOG). Component gates (`transform`, `filter`, `routing`) live on the `otel-collector` component pages.
+
 ## Contents
 
 - [Transform-only functions](#transform-processor-only-functions)
@@ -39,7 +52,7 @@ The contexts and signatures below are pinned to the released
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 accepts semantic-convention versions 1.37.0 through 1.43.0; unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 and v0.163 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-10-15; [v0.163.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
 [metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#convert_sum_to_gauge),

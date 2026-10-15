@@ -5,10 +5,11 @@ description: OpenTelemetry browser/RUM mechanics for SPAs and MPAs. Use for “b
 
 # OpenTelemetry in the Browser (RUM)
 
-> **Stability (captured 2026-10):** the JS API and web tracing primitives
+> **Stability (verified 2026-10-15):** the JS API and web tracing primitives
 > (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) are stable. The Browser SDK and
 > event instrumentations are experimental 0.x packages. Pin exact compatible versions and verify
-> current releases/source before relying on configuration or output shape.
+> current releases/source before relying on configuration or output shape. Dated package versions:
+> [references/setup-sdk.md](references/setup-sdk.md).
 
 ## Safety and evidence gate
 
@@ -64,7 +65,7 @@ known mismatches. If no convention exists, use bounded, low-cardinality custom n
 guessing a released-looking name.
 
 The reviewed package-map snapshot is the upstream
-[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.8.1`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.8.1#browser-packages).
+[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.8.2`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.8.2#browser-packages).
 For current versions, select the matching release tag as described below.
 Use [`references/instrumentation.md`](references/instrumentation.md) for task routing instead of
 copying volatile package inventories.

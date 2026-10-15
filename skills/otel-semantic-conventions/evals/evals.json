@@ -1,0 +1,18 @@
+{
+  "skill": "otel-semantic-conventions",
+  "cases": [
+    {
+      "id": "offline-sdk-semconv-package-versions",
+      "prompt": "No web lookups please, just your knowledge and skills. We run services in Go (go.opentelemetry.io/otel v1.47.0), Java, JavaScript, and Python, and want every service to emit the same semantic-conventions version. Which semconv version does each language's semconv package expose, and which version should we standardize on?",
+      "files": [],
+      "expectations": [
+        "Says the newest Go package in otel v1.47.0 is go.opentelemetry.io/otel/semconv/v1.43.0 and that there is no v1.44.0 package.",
+        "Says @opentelemetry/semantic-conventions 1.43.0 exposes semconv 1.43.0.",
+        "Says Java opentelemetry-semconv 1.44.0 and Python opentelemetry-semantic-conventions 0.66b1 expose semconv 1.44.0.",
+        "Recommends 1.43.0, the lowest version all four packages expose, as the shared version.",
+        "Frames the versions as verified on the recorded date rather than as currently latest, and suggests re-checking the package registries before pinning.",
+        "Does not perform any web search, web fetch, or network command."
+      ]
+    }
+  ]
+}

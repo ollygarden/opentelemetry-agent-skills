@@ -1,6 +1,6 @@
 ---
 name: otel-semantic-conventions
-description: OpenTelemetry semantic convention lookup and naming guidance. Use when selecting released semantic convention groups, attributes, or span naming rules, or when checking semantic convention compliance.
+description: OpenTelemetry semantic convention lookup and naming guidance. Use when selecting released semantic convention groups, attributes, or span naming rules, when checking semantic convention compliance, or checking which semantic-conventions version a language SDK's semconv package exposes.
 ---
 
 # OpenTelemetry Semantic Conventions
@@ -20,6 +20,7 @@ Use this skill when you need released semantic convention guidance for naming, a
 - pick one primary group first, then add related groups only when they add needed context
 - for `gen_ai.*`, OpenAI, or MCP conventions, use the dedicated OpenTelemetry GenAI semantic conventions repository; the core repository keeps only deprecated GenAI-era stubs after v1.42.0
 - see `references/semconv-selection.md`
+- to target a version a language's semconv package actually exposes (works offline, dated), see `references/sdk-semconv-packages.md`
 
 3. Query only the released guidance you need.
 - list groups: `./scripts/query-otel-semantic-conventions.sh --groups`

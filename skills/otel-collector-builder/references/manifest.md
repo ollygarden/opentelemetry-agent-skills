@@ -77,7 +77,7 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.68.0   # yaml: (inline YAML)
 ```
 
-Providers version on the stable `v1.y.0` stream (see the version-alignment section in SKILL.md for the pairing rule).
+Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.162.0` row of the dated record in SKILL.md's version-alignment section.
 
 **Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. With the default `conf_resolver`, `envprovider` is required even when the config has no environment references; omitting it fails with `DefaultScheme not found in providers list`. A common explicit base is `fileprovider` + `envprovider`.
 

@@ -21,7 +21,7 @@ This skill covers building the distribution. For configuring individual componen
 
 ## Install
 
-Pick the OCB version equal to the Collector core version you're targeting.
+Pick the OCB version equal to the Collector core version you're targeting; the [dated record](#verified-2026-10-15) shows which releases have a binary.
 
 ```bash
 # Release binary (named ocb): https://github.com/open-telemetry/opentelemetry-collector-releases/releases?q=cmd/builder
@@ -72,17 +72,27 @@ processors:
 
 Three version streams exist and must be paired:
 
-| Stream | Modules | Example |
-|--------|---------|---------|
-| `v0.x.0` | OCB itself, all core components (`go.opentelemetry.io/collector/...`), contrib components in contrib's `contrib-base` module set | `v0.162.0` |
-| `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) | `v1.68.0` |
-| contrib `v1.x` (stable) | contrib modules in contrib's `stable-base` module set (e.g. `processor/k8sattributesprocessor`) | `v1.1.0` with `v0.162.0` |
+| Stream | Modules |
+|--------|---------|
+| `v0.x.0` | OCB itself, all core components (`go.opentelemetry.io/collector/...`), contrib components in contrib's `contrib-base` module set |
+| `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) |
+| contrib `v1.x` (stable) | contrib modules in contrib's `stable-base` module set (e.g. `processor/k8sattributesprocessor`) |
+
+### Verified 2026-10-15
+
+Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. The examples in this skill pin the `v0.162.0` row. OCB, core, and `contrib-base` components use the release version; both rows need Go 1.26+.
+
+| Release | Providers (core `stable`) | Contrib `stable-base` (`k8sattributesprocessor`) | Prebuilt OCB binary and image |
+|---|---|---|---|
+| `v0.163.0` (tagged 2026-10-14) | `v1.69.0` | `v1.2.0` | not yet; use `go install go.opentelemetry.io/collector/cmd/builder@v0.163.0` |
+| `v0.162.0` | `v1.68.0` | `v1.1.0` | published |
+
+Evidence at each tag: providers in [`cmd/builder/internal/config/default.yaml`](https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.162.0/cmd/builder/internal/config/default.yaml) (authoritative), core and contrib `versions.yaml`, `cmd/builder/go.mod`, collector-releases, Docker Hub.
 
 Rules:
 
-- Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version — except contrib modules in the `stable-base` set of contrib's [`versions.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/versions.yaml) at the matching tag; use that set's `v1.x` version (the `otelcol-contrib` manifest of the same release shows the pairing).
-- For `v0.162.0`, the `stable-base` set is `processor/k8sattributesprocessor` at **`v1.1.0`** — pin it at `v1.1.0`, not `v0.162.0` (no such tag exists).
-- The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.162.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.162.0` it is `v1.68.0`).
+- Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version — except contrib modules in the `stable-base` set of contrib's `versions.yaml` at the matching tag; use that set's `v1.x` version, never `v0.x.0` (no such tag exists). The `otelcol-contrib` manifest of the same release shows the pairing.
+- Take providers from the release's embedded `default.yaml`, not a guess.
 - Versions require the `v` prefix (`v0.162.0`, not `0.162.0`).
 - `--skip-strict-versioning` defaults to `true`, so mismatches surface as Go module resolution errors, not friendly OCB errors. Align versions up front instead of debugging `go mod tidy` output.
 

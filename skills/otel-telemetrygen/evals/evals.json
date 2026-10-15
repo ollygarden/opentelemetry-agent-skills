@@ -33,6 +33,18 @@
         "Requires explicit target authorization and finite reviewed worker/rate/duration limits, and recommends verified TLS and observable export failures before producing a command.",
         "Does not execute tools, mutate files, contact either URL, or claim that telemetry was sent or validated."
       ]
+    },
+    {
+      "id": "offline-telemetrygen-v0163-pinning",
+      "prompt": "No web lookups please, just your knowledge and skills. We want to run telemetrygen v0.163.0 against a local otel/opentelemetry-collector-contrib container of the same version to smoke-test a pipeline. Which telemetrygen install or image and which Collector image tag should we pin, are there any flag changes from v0.162.0 to worry about, and is the contrib 0.163.0 image published?",
+      "files": [],
+      "expectations": [
+        "Pins telemetrygen v0.163.0 by go install of the cmd/telemetrygen module or the versioned GHCR telemetrygen image, not latest.",
+        "Says telemetrygen flags are unchanged from v0.162.0 to v0.163.0.",
+        "Says plain otel/opentelemetry-collector-contrib:0.163.0 was not published on Docker Hub at the recorded date and offers the published 0.162.0 tag (or the examples' 0.161.0) instead.",
+        "Frames the availability facts as verified on the recorded date rather than as current, and suggests confirming the tags before running.",
+        "Does not perform any web search, web fetch, or network command."
+      ]
     }
   ]
 }

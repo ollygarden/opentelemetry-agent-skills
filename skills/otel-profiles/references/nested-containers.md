@@ -37,6 +37,6 @@ For plain `docker run` of the profiler inside a Docker-in-Docker host, bind-moun
 
 ## Combined changes for kind/k3d
 
-1. An image that pins ebpf-profiler `v0.0.202640`+ (see the SKILL.md version matrix; `0.163.0` once released).
+1. An image that pins ebpf-profiler `v0.0.202640`+ (see the SKILL.md version matrix for release status).
 2. `pid_namespace_translation_mode: auto` under `receivers.profiling`.
 3. The `mount-tracefs` init container above.

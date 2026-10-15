@@ -50,7 +50,7 @@ The manifest set `providers:` explicitly and omitted `envprovider`. The key **re
 - `cgo: C compiler "gcc" not found`: a component needs CGO. Either install a C toolchain and set `dist.cgo_enabled: true`, or drop the component. Default is CGO off.
 - `build constraints exclude all Go files`: `dist.build_tags` or `GOOS`/`GOARCH` excludes everything — clear the tags or fix the target platform.
 - OOM on small CI runners: the collector dependency graph is large. `GOMAXPROCS=2 ocb --config=builder.yaml`, or split into generate + `go build` stages.
-- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB v0.162.0 needs Go 1.26+; selected or local modules may require newer.
+- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB needs the Go version in its `cmd/builder/go.mod` (dated values in the SKILL.md record); selected or local modules may require newer.
 
 ## Runtime failures
 

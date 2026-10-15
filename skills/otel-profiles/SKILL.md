@@ -13,12 +13,14 @@ Collector-side component facts (OTLP receiver/exporter profile support, the fixe
 
 `otelcol-ebpf-profiler` `0.162.0` bundles only: receivers `profiling`, `nop`; processors `memory_limiter`, `k8s_attributes`, `resource_detection`, `resource`, `transform` (plus `batch`, which does not support profiles); exporters `otlp_grpc`, `otlp_http`, `debug`, `file`, `nop`; extensions `health_check`, `pprof`, `opamp`. For anything else (`filter`, the `basicauth` extension, vendor exporters), relay to a regular Collector or build a distribution (`otel-collector-builder` skill).
 
-## Version matrix (verified 2026-10-07)
+## Version matrix (Verified 2026-10-15)
 
 | Artifact | Version | What it means |
 |---|---|---|
-| `otel/opentelemetry-collector-ebpf-profiler` | `0.162.0` (latest release, 2026-09-29) | Pins ebpf-profiler `v0.0.202636`: boolean `pid_namespace_translation`; does not bundle the `offcpu` extension. |
-| Same image, `0.163.0-nightly.*` | prerelease | Bundles `offcpu` from `0.163.0-nightly.3d037de` (2026-10-05); pins ebpf-profiler `v0.0.202640`, with `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)), from `0.163.0-nightly.2e6f5c3` (2026-10-07). Expected in release `0.163.0`, unreleased at verification time. |
+| `otel/opentelemetry-collector-ebpf-profiler` | `0.162.0` (newest release at verification, 2026-09-29) | Pins ebpf-profiler `v0.0.202636`: boolean `pid_namespace_translation`; does not bundle the `offcpu` extension. |
+| Same image, `0.163.0-nightly.*` | prerelease | Bundles `offcpu` from `0.163.0-nightly.3d037de` (2026-10-05); pins ebpf-profiler `v0.0.202640`, with `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)), from `0.163.0-nightly.2e6f5c3` (2026-10-07). Release `0.163.0` is unpublished; until it is, these need a nightly or an OCB build. |
+
+Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags) (no `0.163.0`), [collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) (latest `v0.162.0`), the [distribution manifest](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/main/distributions/otelcol-ebpf-profiler/manifest.yaml) history.
 
 Read [references/receiver.md](references/receiver.md) when setting keys beyond `samples_per_second`, enabling off-CPU or OBI correlation, or pinning a release not in this table (keys follow the pinned ebpf-profiler, not the Collector version).
 

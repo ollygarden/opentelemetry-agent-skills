@@ -1,6 +1,6 @@
 # Telemetrygen Flag Reference
 
-Complete flag reference for `telemetrygen` v0.162.0.
+Complete flag reference for `telemetrygen` v0.162.0 (later tags: `collector-verification.md`).
 
 ## Table of Contents
 

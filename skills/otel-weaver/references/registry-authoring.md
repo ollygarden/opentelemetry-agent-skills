@@ -183,4 +183,4 @@ Fast feedback loop:
 weaver registry check --v2 -r ./telemetry/registry/
 ```
 
-Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal as of v0.26.1. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.
+Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal; its status by Weaver version is in the dated record in `ci-integration.md`. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.

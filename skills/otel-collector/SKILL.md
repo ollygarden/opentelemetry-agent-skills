@@ -23,6 +23,8 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 
 Coverage is intentionally selective. If a component is not indexed here, fall back to the upstream component README for the user's Collector version.
 
+Verified 2026-10-15: Stability cells here and in component README headers match `metadata.yaml` at core and contrib `v0.163.0`; rename and "since" versions match `metadata.yaml` at the named tag and the one before. Offline, cite that release and date, not current stability.
+
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
 | `log_dedup` | `components/log_dedup/README.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |
@@ -86,7 +88,7 @@ Stability now varies per component — and per signal for multi-signal component
 
 ### Recent renames
 
-Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. `awss3` → `aws_s3` in v0.162.0). The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
+Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. the `awss3` receiver → `aws_s3` in v0.162.0; receivers and exporters of one family rename separately, so check the component's `metadata.yaml` `type`). The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
 
 Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
 
