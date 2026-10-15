@@ -55,7 +55,7 @@ var lastChangedPattern = regexp.MustCompile(`(?m)^` + lastChangedPrefix + `(\d{4
 
 var versionIndexTemplate = template.Must(template.New("version-index").Parse(`# OpenTelemetry Version Index
 
-` + lastChangedPrefix + `{{ .LastChanged }} (UTC). Each version below was the latest stable release on that date; newer releases may exist.
+` + lastChangedPrefix + `{{ .LastChanged }} (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 

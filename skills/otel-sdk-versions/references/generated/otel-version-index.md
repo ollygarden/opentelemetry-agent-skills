@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-10-15 (UTC). Each version below was the latest stable release on that date; newer releases may exist.
+Versions last changed: 2026-10-15 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
