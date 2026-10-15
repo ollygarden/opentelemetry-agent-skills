@@ -15,6 +15,10 @@ fixture execution, and live execution; report only the levels actually completed
   `0.161.0` and telemetrygen `v0.162.0`, the versions they were run with. Verified 2026-10-15:
   telemetrygen `v0.163.0` (Go module and GHCR image) exists with no `cmd/telemetrygen` source change
   from `v0.162.0`; Docker Hub has plain `otel/opentelemetry-collector-contrib:0.162.0` but no `0.163.0`.
+  Evidence: [Go module](https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.163.0),
+  [GHCR image](https://github.com/open-telemetry/opentelemetry-collector-contrib/pkgs/container/opentelemetry-collector-contrib%2Ftelemetrygen),
+  [source comparison](https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.162.0...v0.163.0) (only `go.mod`/`go.sum` under `cmd/telemetrygen`),
+  [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-contrib/tags).
 
 ## Minimal local pipeline
 
