@@ -1,6 +1,7 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.1 (re-verified 2026-10). Verify current exports,
+Captured against `@opentelemetry/browser-instrumentation` 0.8.1; 0.8.2 changes no exports or options documented
+here (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports,
 README options, and release notes before relying on experimental behavior.
 
 ## Contents
@@ -82,7 +83,7 @@ Captured attributes include `url.full`, `browser.navigation.same_document` (fals
 true = SPA route change), `browser.navigation.hash_change`, and `browser.navigation.type`
 (`push`/`replace`/`reload`/`traverse`). Without `sanitizeUrl`, `url.full` is the unmodified
 document URL. The 0.8.1 README imports a `defaultSanitizeUrl` helper, but no public subpath export
-provides it in 0.8.1; write your own sanitizer (strip `user:password@` credentials, tokens, and
+provides it through 0.8.2; write your own sanitizer (strip `user:password@` credentials, tokens, and
 sensitive query params) rather than importing it.
 
 ### Navigation Timing (`browser.navigation_timing`)
@@ -216,7 +217,7 @@ are separately installed, event-based alternatives to the consolidated Navigatio
 instrumentations above; they are not span instrumentations or part of the auto bundle.
 
 The released opentelemetry-js fetch/XHR instrumentations `0.222.0` and js-contrib document-load
-`0.67.0` emit only the stable
+`0.67.0` (and `0.223.0`/`0.68.0`, verified 2026-10-15) emit only the stable
 HTTP semantic conventions. Their `semconvStabilityOptIn` migration option and legacy attributes
 (`http.method`, `http.url`, `http.status_code`, …) are gone; query the stable names such as
 `http.request.method`, `url.full`, and `http.response.status_code`.

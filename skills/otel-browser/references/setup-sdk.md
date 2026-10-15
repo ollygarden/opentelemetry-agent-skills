@@ -13,13 +13,19 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Stability (captured 2026-10):** the latest released Browser SDK is 0.4.0. Check the current
-> package version and matching tagged source before answering. The settled path wires providers
+> **Verified 2026-10-15** (npm, release notes, and the published `.d.ts`): the latest releases were
+> `@opentelemetry/browser-sdk` 0.5.0, which adds an `instrumentations` start option and validates
+> export URLs before starting (its other options match the 0.4.0 examples below);
+> `@opentelemetry/browser-instrumentation` 0.8.2, which only fixes dependencies, fetch header writes,
+> and user-action selectors; and `@opentelemetry/sdk-trace-web` 2.12.0. Offline, cite this date,
+> never call a value currently latest, and confirm it against the evidence before deploying.
+>
+> The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
 > for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
 > still on the 0.x line) for events. Both approaches are shown below. The opentelemetry-js 2.x
 > line also ships `@opentelemetry/sdk-trace` (since 2.9.0), which its CHANGELOG says will eventually
-> replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 builds on it. Its processors take an
+> replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 and later build on it. Its processors take an
 > options object (`new BatchSpanProcessor({ exporter })`), unlike the positional `sdk-trace-web`
 > re-export used below.
 
