@@ -9,6 +9,9 @@ OTTL transforms or selects telemetry inside Collector components. This skill is 
 collector-contrib **v0.162.0**. Function, path, default, and feature-gate availability varies by
 release; when the user's version differs, verify against the matching upstream tag.
 
+Dated OTTL feature-gate status for v0.162.0 and v0.163.0 is in
+[references/functions.md](references/functions.md#feature-gates-verified-2026-10-15).
+
 ## Workflow
 
 1. **Choose the component.** `transform` rewrites, `filter` drops, `tail_sampling` decides whether

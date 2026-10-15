@@ -35,6 +35,17 @@
         "Treats function availability as release-dependent and keeps the answer compatible with v0.156.",
         "Writes or merges the parsed JSON object into log.attributes under the object-type guard rather than discarding the parse result."
       ]
+    },
+    {
+      "id": "offline-ottl-v0163-upgrade-gates",
+      "prompt": "No web lookups please, just your knowledge and skills. We're upgrading collector-contrib from v0.162.0 to v0.163.0. Our transform processor has set_semconv_span_name(\"1.44.0\") and set(span.attributes[\"rid\"], Concat(Split(span.attributes[\"request.id\"], \"-\"), \"\")). Will both work on v0.163.0, and are there new OTTL feature gates we need to know about?",
+      "expectations": [
+        "Says set_semconv_span_name accepts only 1.37.0 through 1.43.0 in v0.163.0, so \"1.44.0\" is rejected and \"1.43.0\" should be used.",
+        "Says Concat over Split works on v0.163.0 because pkg.ottl.functions.enableDynamicSliceArguments is beta and enabled by default.",
+        "Names the new alpha pkg.ottl.functions.enableExperimental gate for experimental functions, and keeps lambda converters on ottl.functions.enableLambda.",
+        "Frames the answer as verified on the recorded date and suggests confirming against the v0.163.0 tag.",
+        "Does not perform any web search, web fetch, or network command."
+      ]
     }
   ]
 }
