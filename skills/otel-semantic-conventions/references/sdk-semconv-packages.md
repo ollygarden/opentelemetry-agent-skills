@@ -33,5 +33,6 @@ Evidence, at each release tag or in the published artifact:
 - Rust: the crate's `SCHEMA_URL` is `schemas/1.42.0`.
 - .NET: NuGet registration (`listed: false`); dotnet-contrib `src/OpenTelemetry.SemanticConventions/CHANGELOG.md` Unreleased (#5121).
 
-For services in several languages, the shared version is the lowest row among them (1.43.0 for Go
-plus JavaScript, 1.42.0 with Rust).
+For services in several languages, the shared version is the lowest "Newest semconv exposed" value
+among the languages in use (1.43.0 for Go plus JavaScript, 1.42.0 with Rust). .NET has no value, so
+it cannot join a shared version.
