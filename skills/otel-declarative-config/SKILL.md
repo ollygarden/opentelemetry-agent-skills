@@ -43,8 +43,8 @@ an older parser.
 | Language Support Status (coverage advisory, not authoritative for `file_format`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/main/language-support-status.md` |
 | Field-by-field type docs (renders the current schema; from `v1.2.0`, the tagged `schema-docs.md` is only a redirect stub) | `WebFetch https://opentelemetry.io/docs/specs/otel-config/types/`; for tags up to `v1.1.0`, the tagged `schema-docs.md` |
 | Compiled JSON Schema (validate generated YAML against this) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/opentelemetry_configuration.json` |
-| Canonical full example (`examples/sdk-config.yaml` for tags before `v1.0.0`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-config.yaml` |
-| Migration template (every option, with comments) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-migration-config.yaml` |
+| Canonical full example | From `v1.0.0`: `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-config.yaml`; earlier tags: `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/sdk-config.yaml` |
+| Migration template (every option, with comments) | From `v1.0.0`: `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/otel-sdk-migration-config.yaml`; earlier tags: `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/examples/sdk-migration-config.yaml` |
 | Schema CHANGELOG (breaking-change history with migration steps) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-configuration/<schema-release-tag>/CHANGELOG.md` |
 
 ## Generate YAML

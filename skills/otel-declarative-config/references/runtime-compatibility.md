@@ -34,5 +34,6 @@ Evidence, at each release tag or in the published artifact:
 - .NET auto-instrumentation: `docs/file-based-configuration.md` enables it with the flag above and
   reads `OTEL_CONFIG_FILE`; `YamlConfiguration.FileFormat` is never checked.
 
-For a file shared by several runtimes, use the highest literal that every selected parser accepts
-without error, and name the runtimes that will warn.
+For a file shared by several runtimes, use the lowest of the selected parsers' target literals (a
+newer literal may load with a warning in an older parser but is not supported there), keep to
+fields that every selected runtime's schema defines, and name the runtimes that will warn.
