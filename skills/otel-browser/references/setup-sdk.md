@@ -19,6 +19,9 @@ experimental Browser SDK and are outside this RUM setup.
 > `@opentelemetry/browser-instrumentation` 0.8.2, which only fixes dependencies, fetch header writes,
 > and user-action selectors; and `@opentelemetry/sdk-trace-web` 2.12.0. Offline, cite this date,
 > never call a value currently latest, and confirm it against the evidence before deploying.
+> Evidence: [browser-sdk-v0.5.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.5.0),
+> [browser-instrumentation-v0.8.2](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.8.2),
+> [sdk-trace-web on npm](https://www.npmjs.com/package/@opentelemetry/sdk-trace-web?activeTab=versions).
 >
 > The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
