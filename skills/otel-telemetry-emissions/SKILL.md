@@ -43,6 +43,10 @@ Frontmatter (`repo`, `path`, `version`, `scope_name`, `commit_sha`,
 - **Logs** — log/event name, attributes, notes
 
 `scope_name` is the component's instrumentation scope — the anchor for
-matching runtime telemetry back to the component. Absent signals are omitted
+matching runtime telemetry back to the component. When helper or pipeline
+telemetry uses another scope, its rows name that scope in `Notes`.
+`last_verified: null` means the historical verification date could not be
+substantiated; recheck the pinned source before presenting its rows as verified.
+Absent signals are omitted
 entirely. `Notes` marks conditional emission (feature gates, opt-in config,
 experimental semconv). `Sources` lists the upstream files the data came from.

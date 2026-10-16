@@ -52,7 +52,7 @@ source .venv/bin/activate
 python -m pip install "$(cat bin/skills-ref.requirement)"
 ```
 
-Go is only required when changing `tools/otel-agent-tools/` or its generated output.
+Go and Python is only required when changing `tools/otel-agent-tools/` or its generated output.
 
 ## Adding a Skill
 

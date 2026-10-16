@@ -132,19 +132,23 @@
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
-      "path": "instrumentation/github.com/gin-gonic/gin/otelgin"
+      "path": "instrumentation/github.com/gin-gonic/gin/otelgin",
+      "tag_prefix": "instrumentation/github.com/gin-gonic/gin/otelgin/"
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
-      "path": "instrumentation/google.golang.org/grpc/otelgrpc"
+      "path": "instrumentation/google.golang.org/grpc/otelgrpc",
+      "tag_prefix": "instrumentation/google.golang.org/grpc/otelgrpc/"
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
-      "path": "instrumentation/net/http/otelhttp"
+      "path": "instrumentation/net/http/otelhttp",
+      "tag_prefix": "instrumentation/net/http/otelhttp/"
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
-      "path": "instrumentation/runtime"
+      "path": "instrumentation/runtime",
+      "tag_prefix": "instrumentation/runtime/"
     },
     {
       "repo": "open-telemetry/opentelemetry-java-instrumentation",
@@ -232,23 +236,28 @@
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
-      "path": "packages/instrumentation-express"
+      "path": "packages/instrumentation-express",
+      "tag_prefix": "instrumentation-express-"
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
-      "path": "packages/instrumentation-ioredis"
+      "path": "packages/instrumentation-ioredis",
+      "tag_prefix": "instrumentation-ioredis-"
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
-      "path": "packages/instrumentation-mongodb"
+      "path": "packages/instrumentation-mongodb",
+      "tag_prefix": "instrumentation-mongodb-"
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
-      "path": "packages/instrumentation-mysql2"
+      "path": "packages/instrumentation-mysql2",
+      "tag_prefix": "instrumentation-mysql2-"
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
-      "path": "packages/instrumentation-pg"
+      "path": "packages/instrumentation-pg",
+      "tag_prefix": "instrumentation-pg-"
     },
     {
       "repo": "open-telemetry/opentelemetry-python-contrib",
