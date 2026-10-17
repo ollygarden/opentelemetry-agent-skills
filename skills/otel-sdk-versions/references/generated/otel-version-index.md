@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-10-16 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-10-17 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
@@ -25,8 +25,8 @@ Versions last changed: 2026-10-16 (UTC). Each version below was the latest relea
 |---|---|---|---|
 | Collector core | `1.69.0` / `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector/releases/tag/v0.163.0) | Stable `1.x` modules / other `0.x` modules |
 | Collector contrib | `1.2.0` / `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.163.0) | Stable `1.x` modules / other `0.x` modules |
-| Collector distributions | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.162.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
-| Collector builder (OCB) | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.162.0) | `ocb` binary; can trail core |
+| Collector distributions | `0.163.1` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.163.1) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
+| Collector builder (OCB) | `0.163.1` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.163.1) | `ocb` binary; can trail core |
 | Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
 | Semantic conventions | `1.44.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.44.0) | Specification release; language semconv packages may lag |
 | Weaver | `0.28.0` | [Notes](https://github.com/open-telemetry/weaver/releases/tag/v0.28.0) | Semantic-convention registry CLI |
