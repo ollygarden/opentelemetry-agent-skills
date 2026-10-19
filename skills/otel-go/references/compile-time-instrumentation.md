@@ -20,7 +20,7 @@ compile-time / build-time.
 
 ## Requirements
 
-- **Go 1.26+** toolchain for otelc v1.2.0+ (`go 1.26.0` in its `go.mod`); v1.1.0 and earlier need Go 1.25+.
+- **Go 1.26+** toolchain for otelc v1.2.0+ (`go 1.26.0` in its [`go.mod`](https://proxy.golang.org/go.opentelemetry.io/otelc/@v/v1.2.0.mod)); v1.1.0 and earlier need Go 1.25+.
 - **Go 1.24+** for the tool-dependency workflow (`go get -tool` / `go tool otelc`).
 - Operates on the module containing your `go.mod`.
 

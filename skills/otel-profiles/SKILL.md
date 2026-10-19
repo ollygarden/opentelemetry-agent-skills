@@ -20,7 +20,7 @@ Collector-side component facts (OTLP receiver/exporter profile support, the fixe
 | `otel/opentelemetry-collector-ebpf-profiler` | `0.163.0`, `0.163.1` (newest release at verification, 2026-10-16) | Pins ebpf-profiler `v0.0.202640`: `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)); bundles the `offcpu` extension. |
 | Same image, `0.162.0` | last release before the change | Pins ebpf-profiler `v0.0.202636`: boolean `pid_namespace_translation`; does not bundle `offcpu`. |
 
-Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), the [`v0.163.1` distribution manifest](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.1/distributions/otelcol-ebpf-profiler/manifest.yaml).
+Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), the [`v0.163.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.0/distributions/otelcol-ebpf-profiler/manifest.yaml) and [`v0.163.1`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.1/distributions/otelcol-ebpf-profiler/manifest.yaml) distribution manifests.
 
 Read [references/receiver.md](references/receiver.md) when setting keys beyond `samples_per_second`, enabling off-CPU or OBI correlation, or pinning a release not in this table (keys follow the pinned ebpf-profiler, not the Collector version).
 
