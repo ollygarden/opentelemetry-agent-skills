@@ -30,10 +30,7 @@ experimental Browser SDK and are outside this RUM setup.
 > line also ships `@opentelemetry/sdk-trace` (since 2.9.0), which its CHANGELOG says will eventually
 > replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 and later build on it. Its processors take an
 > options object (`new BatchSpanProcessor({ exporter })`), unlike the positional `sdk-trace-web`
-> re-export used below. In opentelemetry-js 3.0 (`3.0.0-rc.0`, 2026-10-13), `sdk-trace-web` is removed in
-> favor of `sdk-trace`, `sdk-logs` becomes stable, and `instrumentation-fetch` /
-> `instrumentation-xml-http-request` are soft-deprecated in favor of the `@opentelemetry/browser-instrumentation`
-> fetch/xhr exports; this page covers 2.x.
+> re-export used below.
 
 ## Core principles
 

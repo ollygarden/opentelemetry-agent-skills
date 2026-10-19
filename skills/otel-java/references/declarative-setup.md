@@ -119,9 +119,6 @@ AutoConfiguredOpenTelemetrySdk sdk =
   OTLP or send OTLP to a Collector with a Zipkin-compatible exporter before upgrading. Javaagent
   2.31.1 still accepts `otel.traces.exporter=zipkin` and `otel.exporter.zipkin.endpoint`, but both
   are deprecated in favor of OTLP configuration.
-- **`service.instance.id` default**: SDK/BOM 1.67.0 autoconfigure generates `service.instance.id`
-  by default ([#8770](https://github.com/open-telemetry/opentelemetry-java/pull/8770)); expect a
-  new resource attribute when comparing telemetry across the upgrade.
 - **Declarative-config model builders**: SDK/BOM 1.66.0 renamed the generated declarative-config
   model POJO setters from `with<Prop>` to `set<Prop>` (breaking). Code that builds the config model
   programmatically must be updated; YAML files are unaffected.

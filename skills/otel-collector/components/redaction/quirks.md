@@ -27,8 +27,6 @@ Key allow-listing is fail-closed; value matching is not. Relying only on `blocke
 
 `debug` verbosity records the redacted/masked/allowed **key names** as attributes. If a key name is itself sensitive, keep `summary: info` (counts only) in production and reserve `debug` for short-lived investigation.
 
-Before v0.163.0, a second redaction processor in the same path treated 9 of the 14 `redaction.*` summary attributes written by the first as unknown keys: it deleted them and reported them as redacted ([#50770](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/50770)). Upgrade before trusting summary counts from chained instances.
-
 ## DB sanitizer firing conditions
 
 DB sanitization only fires on spans carrying `db.system`/`db.system.name` with `CLIENT` or `SERVER` span kind. Query text on spans without those attributes — or with a different span kind — is not sanitized. Enable per-engine sanitization explicitly (`db_sanitizer.<engine>.enabled: true`) and point it at the attributes holding the query text.

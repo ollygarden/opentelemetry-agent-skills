@@ -45,7 +45,6 @@ excludes: []      # go.mod exclude directives
 | `cgo_enabled` | `false` | Sets `CGO_ENABLED=1` for components needing native libraries. |
 | `build_tags` | empty | Comma-separated Go build tags. |
 | `use_absolute_replace_paths` | `false` | See below. |
-| `resource.detection.detectors` | empty (all detectors) | v0.163.0+. List keyed by detector name, as in the configuration schema (`- env:`, `- system:`); every other known resource detector is compiled out via `omit_detector_<name>` build tags. Unknown names fail the build ([`config.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.163.0/cmd/builder/internal/builder/config.go)). |
 
 **`use_absolute_replace_paths` (v0.151.0 breaking change):** when a component uses `path:` or a `replaces` entry points at a local directory, OCB writes a `replace` directive into the generated `go.mod`. Since v0.151.0 those paths are **relative** to `output_path` by default, making the generated tree portable (committable, buildable on another machine). Set `true` to restore the pre-v0.151.0 absolute-path behavior.
 

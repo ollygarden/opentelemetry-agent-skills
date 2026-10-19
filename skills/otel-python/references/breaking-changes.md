@@ -114,8 +114,6 @@ When crossing this release boundary, explicitly check for:
   is now `AnyValue` — see [api.md](api.md#attributes).
 - OTLP HTTP exporters: a new `max_request_size`
   limit (default 64 MiB; larger requests are dropped; `0` disables) — see [performance.md](performance.md#exporter-configuration).
-  1.45.0 also switched the default transport to `urllib3`, which ignored
-  `HTTPS_PROXY`; 1.45.1 restored `requests`, so skip 1.45.0 behind a proxy.
 - `SimpleSpanProcessor` now drops spans ended after `shutdown()`; SDK
   self-metrics `otel.sdk.processor.{span,log}.processed` now count at
   submission and no longer carry exporter failures as `error.type`.
