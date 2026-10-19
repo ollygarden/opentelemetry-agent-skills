@@ -6,12 +6,12 @@ rots with each release.
 
 ## Step 1: Fetch the CHANGELOGs
 
-Fetch both released upstream sources before reviewing any code. As of
-2026-10-03, the released ceiling is core **1.45.0** and contrib **0.66b0**:
+Fetch both released upstream sources before reviewing any code. Verified
+2026-10-19: the released ceiling is core **1.45.1** and contrib **0.66b1**:
 
 ```
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b0/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b1/CHANGELOG.md
 ```
 
 Scan for entries marked **Deprecated**, **Removed**, or **Breaking** in the version range you are
@@ -112,7 +112,7 @@ When crossing this release boundary, explicitly check for:
   `enabled()` support).
 - Code or exporters that assume primitive-only attribute values; `AttributeValue`
   is now `AnyValue` — see [api.md](api.md#attributes).
-- OTLP HTTP exporters: new `urllib3` default transport and a `max_request_size`
+- OTLP HTTP exporters: a new `max_request_size`
   limit (default 64 MiB; larger requests are dropped; `0` disables) — see [performance.md](performance.md#exporter-configuration).
 - `SimpleSpanProcessor` now drops spans ended after `shutdown()`; SDK
   self-metrics `otel.sdk.processor.{span,log}.processed` now count at
@@ -158,11 +158,11 @@ In 1.44.0 / 0.65b0, declarative configuration moved from the private
 namespace. The new package remains experimental, so audit it on each upgrade.
 
 Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
-latest released SDK (1.45.0), the declarative configuration README and schema are:
+latest released SDK (1.45.1, verified 2026-10-19), the declarative configuration README and schema are:
 
 ```text
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/README.rst
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/opentelemetry-configuration/src/opentelemetry/configuration/schema.json
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json
 ```
 
 Install `opentelemetry-configuration` directly. The old

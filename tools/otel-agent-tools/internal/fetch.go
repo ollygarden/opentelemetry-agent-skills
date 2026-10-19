@@ -311,7 +311,7 @@ func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRel
 		Draft      bool   `json:"draft"`
 		Prerelease bool   `json:"prerelease"`
 	}
-	releasesURL := fmt.Sprintf("%s/repos/%s/releases?per_page=30", githubAPIBase, repo)
+	releasesURL := fmt.Sprintf("%s/repos/%s/releases?per_page=100", githubAPIBase, repo)
 	releasesErr := fetchJSON(ctx, releasesURL, &releases)
 	var latest *GitHubRelease
 	for _, release := range releases {

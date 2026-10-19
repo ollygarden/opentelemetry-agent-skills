@@ -1,6 +1,6 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.1.0**) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.2.0**, verified 2026-10-19) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
@@ -20,7 +20,7 @@ compile-time / build-time.
 
 ## Requirements
 
-- **Go 1.25+** toolchain (`go 1.25.0` in the project's `go.mod`).
+- **Go 1.26+** toolchain for otelc v1.2.0+ (`go 1.26.0` in its [`go.mod`](https://proxy.golang.org/go.opentelemetry.io/otelc/@v/v1.2.0.mod)); v1.1.0 and earlier need Go 1.25+.
 - **Go 1.24+** for the tool-dependency workflow (`go get -tool` / `go tool otelc`).
 - Operates on the module containing your `go.mod`.
 

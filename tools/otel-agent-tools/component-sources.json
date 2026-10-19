@@ -23,6 +23,22 @@
     "notes": "`ocb` binary; can trail core"
   },
   {
+    "component": "Collector Helm chart",
+    "repo": "open-telemetry/opentelemetry-helm-charts",
+    "tag_prefix": "opentelemetry-collector-",
+    "notes": "`opentelemetry-collector` chart; chart version is independent of the Collector"
+  },
+  {
+    "component": "Operator",
+    "repo": "open-telemetry/opentelemetry-operator",
+    "notes": "Kubernetes Operator; version is independent of the Collector"
+  },
+  {
+    "component": "Java agent",
+    "repo": "open-telemetry/opentelemetry-java-instrumentation",
+    "notes": "`opentelemetry-javaagent` 2.x; embeds its own SDK version"
+  },
+  {
     "component": "Configuration schema",
     "repo": "open-telemetry/opentelemetry-configuration",
     "notes": "Declarative config schema; SDK parsers may target older releases"
@@ -31,6 +47,11 @@
     "component": "Semantic conventions",
     "repo": "open-telemetry/semantic-conventions",
     "notes": "Specification release; language semconv packages may lag"
+  },
+  {
+    "component": "Specification",
+    "repo": "open-telemetry/opentelemetry-specification",
+    "notes": "OpenTelemetry specification release"
   },
   {
     "component": "Weaver",

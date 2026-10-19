@@ -33,7 +33,7 @@ Resource attributes `process.pid`, `process.executable.name`, `process.executabl
 
 ## Off-CPU
 
-Off-CPU needs the `offcpu` extension (`go.opentelemetry.io/ebpf-profiler/probes/offcpu`, present in the module since at least `v0.0.202636`). Not bundled in `0.162.0` (images that bundle it: SKILL.md matrix); otherwise build with OCB importing it:
+Off-CPU needs the `offcpu` extension (`go.opentelemetry.io/ebpf-profiler/probes/offcpu`, present in the module since at least `v0.0.202636`). Images that bundle it: SKILL.md version matrix; for older pins build with OCB importing it:
 
 ```yaml
 extensions:

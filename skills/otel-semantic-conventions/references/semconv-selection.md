@@ -23,7 +23,7 @@ Pick the closest released semantic convention group before inventing custom keys
 2. Add related groups only when they add needed context.
 3. Prefer required and recommended attributes before optional ones.
 4. If no released key exists, use a stable custom namespace and keep values bounded.
-5. For `gen_ai.*`, OpenAI, or MCP conventions, use the dedicated OpenTelemetry GenAI semantic conventions repository; do not use deprecated GenAI-era stubs from the core repository as current guidance.
+5. For `gen_ai.*`, OpenAI, or MCP conventions, use [`open-telemetry/semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai); do not use deprecated GenAI-era stubs from the core repository as current guidance.
 
 ## Lookup Workflow
 

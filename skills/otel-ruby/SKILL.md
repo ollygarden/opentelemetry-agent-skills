@@ -26,9 +26,9 @@ version exists for metrics, logs, semantic conventions, exporters, or contrib in
 Resolve each gem independently with Bundler, inspect its changelog, and keep the resulting
 `Gemfile.lock` change under review.
 
-Released snapshot verified 2026-10-03: tracing API `1.11.1`, tracing SDK `1.13.1`, trace OTLP
-exporter `0.37.0`; metrics API `0.8.0`, SDK `0.19.0`, OTLP exporter `0.13.0`; logs API `0.5.0`, SDK
-`0.7.0`, OTLP exporter `0.6.0`; experimental declarative-config gem `opentelemetry-config` `0.1.0`
+Released snapshot verified 2026-10-19: tracing API `1.11.1`, tracing SDK `1.13.1`, trace OTLP
+exporter `0.37.0`; metrics API `0.10.0`, SDK `0.21.0`, OTLP exporter `0.14.0`; logs API `0.7.0`, SDK
+`0.8.1`, OTLP exporter `0.7.0`; experimental declarative-config gem `opentelemetry-config` `0.1.0`
 (traces only; `0.1.1`, verified 2026-10-15, still targets schema `v1.0.0-rc.3`; owner: the
 `otel-declarative-config` [parsers table](../otel-declarative-config/SKILL.md)). Treat this as an audit anchor, not
 a version-alignment rule; use the lookups below for newer releases.

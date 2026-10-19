@@ -49,7 +49,13 @@ Recent examples: metrics API `0.8.0` / SDK `0.19.0` (and SDK `0.18.0` / OTLP met
 `0.12.0`) are marked `BREAKING CHANGE` for spec alignment and change the internal instrument-creation
 signature that custom SDKs or proxies implement; logs API `0.5.0` changes `LoggerProvider#logger` to
 keyword arguments (`logger(name:, version: nil)`), so positional calls in custom bridges break; trace
-OTLP exporter `0.37.0` changes its default compression (see [setup.md](setup.md#environment-configuration)).
+OTLP exporter `0.37.0` changes its default compression (see [setup.md](setup.md#environment-configuration));
+metrics API `0.9.0` and logs API `0.6.0` drop `OpenTelemetry.meter_provider` / `logger_provider`, so
+API-only code raises `NoMethodError` unless it requires the SDK (metrics SDK `0.20.0`+, logs SDK
+`0.8.0`+) or `opentelemetry/metrics/global` / `opentelemetry/logs/global` (older SDKs work through a
+deprecation shim); logs API `0.7.0` swaps the `DEBUG2` and `DEBUG3` severity values (verified 2026-10-19 against the
+[metrics](https://github.com/open-telemetry/opentelemetry-ruby/blob/main/metrics_api/README.md#upgrading-to-090)
+and [logs](https://github.com/open-telemetry/opentelemetry-ruby/blob/main/logs_api/README.md#upgrading-to-060) API READMEs).
 
 For contrib, inspect the released gem's README, gemspec, and tests when the changelog does not fully
 describe emitted telemetry.

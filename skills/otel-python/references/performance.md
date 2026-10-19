@@ -363,7 +363,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 (`urllib3` transport by default since 1.45.0; `requests` only when a `requests.Session` is supplied, e.g. `session=`; install the `[requests]` extra) |
+| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport by default; 1.45.0 alone defaulted to `urllib3`, which ignored `HTTPS_PROXY`; 1.45.1 restored `requests`; verified 2026-10-19, [1.45.1 CHANGELOG](https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md)) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 
