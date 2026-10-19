@@ -7,11 +7,11 @@ rots with each release.
 ## Step 1: Fetch the CHANGELOGs
 
 Fetch both released upstream sources before reviewing any code. As of
-2026-10-03, the released ceiling is core **1.45.0** and contrib **0.66b0**:
+2026-10-19, the released ceiling is core **1.45.1** and contrib **0.66b1**:
 
 ```
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.0/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b0/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b1/CHANGELOG.md
 ```
 
 Scan for entries marked **Deprecated**, **Removed**, or **Breaking** in the version range you are
@@ -112,8 +112,10 @@ When crossing this release boundary, explicitly check for:
   `enabled()` support).
 - Code or exporters that assume primitive-only attribute values; `AttributeValue`
   is now `AnyValue` — see [api.md](api.md#attributes).
-- OTLP HTTP exporters: new `urllib3` default transport and a `max_request_size`
+- OTLP HTTP exporters: a new `max_request_size`
   limit (default 64 MiB; larger requests are dropped; `0` disables) — see [performance.md](performance.md#exporter-configuration).
+  1.45.0 also switched the default transport to `urllib3`, which ignored
+  `HTTPS_PROXY`; 1.45.1 restored `requests`, so skip 1.45.0 behind a proxy.
 - `SimpleSpanProcessor` now drops spans ended after `shutdown()`; SDK
   self-metrics `otel.sdk.processor.{span,log}.processed` now count at
   submission and no longer carry exporter failures as `error.type`.

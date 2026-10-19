@@ -22,7 +22,7 @@ Rules:
 - definition/2 registry attributes, signal definitions, and refinements introduced in v1.44 are parsed by their schema entry keys; messaging provider files are included under their signal kind even when their filenames do not contain `spans`, `metrics`, or `events`
 - deprecated model files and directories are excluded from lookup results
 - the core semantic-conventions repository added `model/manifest.yaml` in v1.43.0; use it as release metadata, not as a convention group
-- `gen_ai.*`, OpenAI, and MCP conventions moved to the dedicated OpenTelemetry GenAI semantic conventions repository in v1.42.0; do not treat deprecated stubs under the core repository as current guidance
+- `gen_ai.*`, OpenAI, and MCP conventions moved to [`open-telemetry/semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai) in v1.42.0; do not treat deprecated stubs under the core repository as current guidance
 
 Common groups:
 `http`, `db`, `messaging`, `rpc`, `network`, `url`, `server`, `error`, `user-agent`, `service`, `cloud`, `k8s`, `process`, `otel`, `log`, `exceptions`

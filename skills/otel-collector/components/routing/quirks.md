@@ -36,6 +36,8 @@ The `request` context is **deprecated as of v0.156.0** (a warning is logged when
 | `"request" context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context (or migrate to `otelcol.*` paths). |
 | `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request` (and one valid for the signal). |
 
+Since v0.163.0, invalid OTTL in a route's `condition` or `statement` fails config validation (`otelcol validate`), not later at component creation ([#51748](https://github.com/open-telemetry/opentelemetry-collector-contrib/pull/51748)).
+
 ## `match_once` was removed in v0.120.0
 
 `match_once` (deprecated v0.116.0, removed v0.120.0) is gone — each item now matches **at most one route**. Configs using `match_once: false` no longer load. To fan out, list multiple pipelines in one route; to route on independent dimensions, use parallel named instances (see [advanced](advanced.md#migrating-from-match_once)).

@@ -103,7 +103,8 @@ Run this sequence when upgrading any package:
 2. **Fetch the CHANGELOG** (Step 2 above) from the exact release tag being upgraded. Do not
    use `main`, whose `Unreleased` section may describe APIs that are not published.
 3. **Scan from the previous pinned version to the target version** — read every release section in
-   that range for breaking changes and deprecations.
+   that range for breaking changes and deprecations. Exporter-level entries count too: OTLP
+   exporter 1.20.0 marks attribute-limit fallbacks and `byte[]` truncation as **Breaking**.
 4. **Cross-reference semconv renames** — if the CHANGELOG mentions attribute renames, fetch the
    current semantic convention definition via the `otel-semantic-conventions` skill.
 5. **Check experimental flags** (Section 4 below).

@@ -89,6 +89,8 @@ For a single path or function, read only the relevant section instead of loading
 - Since v0.159, polymorphic `pcommon.Value` paths compare by their underlying type; maps and slices
   support only equality and inequality, while primitive values also support ordering.
 - Use `Decode(value, "base64")`; `Base64Decode` was removed in v0.161.
+- Before v0.163, `Time` with no `location` parsed a trailing `%Z` as UTC (stanza strptime: v0.155–v0.160);
+  pass `location` or use `%z` offsets when a pipeline may run older versions.
 - Regex escapes inside OTTL strings are doubled (`\\d`, `\\s`, `\\.`).
 
 ## Upstream sources

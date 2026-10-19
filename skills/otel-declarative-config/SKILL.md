@@ -112,6 +112,9 @@ printing their values.
 Report each validation level separately and never claim one that was not run:
 
 1. **Release-schema validation** — validate against the compiled JSON Schema for the selected tag.
+   The upstream [`validator`](https://github.com/open-telemetry/opentelemetry-configuration/tree/main/validator)
+   also does this (and since v1.2.0 checks the declared `file_format`); it substitutes environment
+   variables first, so run it only on the sanitized copy.
 2. **Selected-parser validation** — load with the exact runtime/package parser; this remains
    necessary because implementations can lag or differ from the schema repository.
 3. **Live startup/export verification** — only on an authorized disposable target, with reviewed

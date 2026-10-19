@@ -8,7 +8,7 @@ description: OpenTelemetry release version lookup for SDKs across languages and 
 ## Workflow
 
 1. Open `references/generated/otel-version-index.md`.
-- the SDKs table has one primary SDK package per language; the Components table covers the Collector (core, contrib, distributions, builder), the configuration schema, semantic conventions, and Weaver
+- the SDKs table has one primary SDK package per language; the Components table covers the Collector (core, contrib, distributions, builder, Helm chart), the Operator, the Java agent, the configuration schema, semantic conventions, the specification, and Weaver
 - use the bundled tables as the default source of truth for what they cover
 - its "Versions last changed" date is the last day any row changed
 - offline, give each version with that date: "`<version>` as of `<date>`; a newer release may exist". Never call it the current latest
