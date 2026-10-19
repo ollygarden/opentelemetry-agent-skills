@@ -33,7 +33,7 @@ For Python-specific facts:
 | Declarative config support (released 1.45.1 overview; verified 2026-10-19) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst` |
 | Declarative config vendored schema (released 1.45.1) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
 | SDK CHANGELOG through 1.45.1 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md` |
-| Contrib CHANGELOG through 0.66b0 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b0/CHANGELOG.md` |
+| Contrib CHANGELOG through 0.66b1 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b1/CHANGELOG.md` |
 | Python getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/python/getting-started/` |
 
 ## Cross-References
