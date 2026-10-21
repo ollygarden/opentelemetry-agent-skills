@@ -19,12 +19,12 @@ skill. For JS-specific facts:
 | Latest `@opentelemetry/configuration` | `npm view @opentelemetry/configuration version` |
 | Latest `@opentelemetry/sdk-node` | `npm view @opentelemetry/sdk-node version` |
 | Latest `@opentelemetry/auto-instrumentations-node` | `npm view @opentelemetry/auto-instrumentations-node version` |
-| Released package status / breaking changes (`2.11.0` / `0.222.0`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/configuration/README.md` and `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/opentelemetry-sdk-node/README.md` |
-| SDK declarative startup helper at `0.222.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/opentelemetry-sdk-node/src/start.ts` |
-| Released file config parser (`file_format` acceptance) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/configuration/src/FileConfigFactory.ts` |
-| Released file config fixtures | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/configuration/test/fixtures/sdk-config.yaml` |
-| Experimental CHANGELOG through `0.222.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/CHANGELOG.md` |
-| ESM / CJS preload mechanics at `2.11.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/doc/esm-support.md` |
+| Released package status / breaking changes (`3.0.0` / `0.300.0`, verified 2026-10-21) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/configuration/README.md` and `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/opentelemetry-sdk-node/README.md` |
+| SDK declarative startup helper at `0.300.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/opentelemetry-sdk-node/src/start.ts` |
+| Released file config parser (`file_format` acceptance) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/configuration/src/FileConfigFactory.ts` |
+| Released file config fixtures | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/configuration/test/fixtures/sdk-config.yaml` |
+| Experimental CHANGELOG through `0.300.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/CHANGELOG.md` |
+| ESM / CJS preload mechanics at `3.0.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/doc/esm-support.md` |
 | Auto-instrumentations register entry point at `0.80.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js-contrib/auto-instrumentations-node-v0.80.0/packages/auto-instrumentations-node/README.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
@@ -98,7 +98,7 @@ const meter = metrics.getMeter(SCOPE);
 For ESM projects, use `--import` to ensure instrumentation loads before application code:
 
 ```bash
-# ESM (Node.js >=18.19.0)
+# ESM (3.x / 0.300.x need Node.js >=22.15.0; the 2.x line supported >=18.19.0)
 OTEL_CONFIG_FILE=configs/otel.yaml node --import ./dist/instrumentation.js ./dist/index.js
 
 # CommonJS
@@ -121,6 +121,7 @@ declarative YAML via `OTEL_CONFIG_FILE`.
 - **Import order matters**: Telemetry setup must be imported and started before any other application imports. Auto-instrumentation patches modules at require/import time.
 - **`@opentelemetry/sdk-node` is experimental**. `new NodeSDK()` is its currently recommended startup mechanism; the declarative `startNodeSDK()` helper is also experimental. Both handle context manager, propagator, and provider registration automatically.
 - **v2.0 migration**: `Resource` class is no longer exported. Use `resourceFromAttributes()`, `defaultResource()`, `emptyResource()` instead.
-- **2.9.0 / 0.220.0 migration note**: `@opentelemetry/sdk-node` now uses `@opentelemetry/sdk-trace`; the `node` and `tracing` namespace re-exports are deprecated. Import trace SDK types/classes directly from their packages.
-- **2.10.0 / 0.221.0 propagator note**: Selecting `jaeger` through `OTEL_PROPAGATORS` or declarative config emits a deprecation warning. Use `tracecontext`; the Jaeger propagator still works in this release but is planned for removal.
+- **2.9.0 / 0.220.0 migration note**: `@opentelemetry/sdk-node` now uses `@opentelemetry/sdk-trace`; the `node` and `tracing` namespace re-exports were deprecated and are removed in 0.300.0. Import trace SDK types/classes directly from their packages.
+- **2.10.0 / 0.221.0 propagator note**: Selecting `jaeger` through `OTEL_PROPAGATORS` or declarative config emits a deprecation warning. Use `tracecontext`; 0.300.0 removed `jaeger` entirely.
+- **3.0.0 / 0.300.0 (verified 2026-10-21, [3.x migration guide](https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md))**: requires Node.js >=22.15.0 and `@opentelemetry/api` 1.10.x. `sdk-trace-base`, `sdk-trace-node` and `sdk-trace-web` are removed in favor of `@opentelemetry/sdk-trace`; `@opentelemetry/api-logs` is folded into `@opentelemetry/api`; deep imports such as `<pkg>/build/src/...` now fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`; `NodeSDK` drops the singular `spanProcessor`/`metricReader`/`logRecordProcessor` options (use the plural arrays).
 - **2.11.0 / 0.222.0 declarative migration note**: `startNodeSDK()` now fails fast while creating invalid resource, tracer-provider, meter-provider, or propagator configuration and returns a no-op SDK. This can also affect environment-derived configuration—for example, `OTEL_NODE_RESOURCE_DETECTORS=all` currently includes the unsupported declarative `container` detector. This does not affect `new NodeSDK()`.

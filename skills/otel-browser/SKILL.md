@@ -6,7 +6,9 @@ description: OpenTelemetry browser/RUM mechanics for SPAs and MPAs. Use for “b
 # OpenTelemetry in the Browser (RUM)
 
 > **Stability (verified 2026-10-15):** the JS API and web tracing primitives
-> (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) are stable. The Browser SDK and
+> (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) are stable. Verified 2026-10-21:
+> opentelemetry-js 3.0.0 removed `sdk-trace-web` (last release 2.12.0) in favor of `@opentelemetry/sdk-trace`,
+> so pin one release line; see [references/setup-sdk.md](references/setup-sdk.md#dependencies). The Browser SDK and
 > event instrumentations are experimental 0.x packages. Pin exact compatible versions and verify
 > current releases/source before relying on configuration or output shape. Dated package versions:
 > [references/setup-sdk.md](references/setup-sdk.md).
@@ -86,7 +88,7 @@ Fetch current versions and status before answering version-sensitive questions.
 | `opentelemetry-browser` package versions / status | `gh api repos/open-telemetry/opentelemetry-browser/releases -q '.[].tag_name'` |
 | Latest `@opentelemetry/browser-instrumentation` | `npm view @opentelemetry/browser-instrumentation version` |
 | Latest `@opentelemetry/browser-sdk` (0.x, published) | `npm view @opentelemetry/browser-sdk version` |
-| Latest `@opentelemetry/sdk-trace-web` | `npm view @opentelemetry/sdk-trace-web version` |
+| Latest `@opentelemetry/sdk-trace-web` (2.x only; removed in 3.0.0) | `npm view @opentelemetry/sdk-trace-web version` |
 | Latest `@opentelemetry/auto-instrumentations-web` | `npm view @opentelemetry/auto-instrumentations-web version` |
 | Authoritative browser package map | Match the release tag, then read its repository `README.md#browser-packages` |
 | `browser-instrumentation` README / config | Match the `browser-instrumentation-v*` release tag, then read `packages/instrumentation/README.md` |

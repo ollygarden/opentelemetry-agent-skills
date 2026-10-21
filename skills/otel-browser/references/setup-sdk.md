@@ -60,20 +60,27 @@ stable browser events path yet — the Logs SDK is the current mechanism.
 
 ### Dependencies
 
+> **Verified 2026-10-21:** opentelemetry-js 3.0.0 / 0.300.0 (published 2026-10-20) removed
+> `@opentelemetry/sdk-trace-web` and `@opentelemetry/api-logs`, and needs `@opentelemetry/api` 1.10.x,
+> while `sdk-trace-web` 2.12.0 requires `@opentelemetry/api` <1.10.0. Unpinned installs now mix the two
+> lines, so this example pins the last 2.x / 0.223.x releases. For 3.x, follow the
+> [3.x migration guide](https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md), section "`@opentelemetry/sdk-trace-web` (package removed)"
+> (`TracerProvider` from `@opentelemetry/sdk-trace`, logs API from `@opentelemetry/api`).
+
 ```bash
-# Tracing (stable)
-npm install @opentelemetry/api \
-  @opentelemetry/sdk-trace-web \
-  @opentelemetry/context-zone \
-  @opentelemetry/exporter-trace-otlp-http \
-  @opentelemetry/resources \
+# Tracing (stable 2.x line)
+npm install @opentelemetry/api@1.9 \
+  @opentelemetry/sdk-trace-web@2 \
+  @opentelemetry/context-zone@2 \
+  @opentelemetry/exporter-trace-otlp-http@0.223 \
+  @opentelemetry/resources@2 \
   @opentelemetry/semantic-conventions
 
 # Events (Logs API) for event-based instrumentations
-npm install @opentelemetry/api-logs \
-  @opentelemetry/sdk-logs \
-  @opentelemetry/exporter-logs-otlp-http \
-  @opentelemetry/instrumentation
+npm install @opentelemetry/api-logs@0.223 \
+  @opentelemetry/sdk-logs@0.223 \
+  @opentelemetry/exporter-logs-otlp-http@0.223 \
+  @opentelemetry/instrumentation@0.223
 ```
 
 ### Tracer provider (spans)
