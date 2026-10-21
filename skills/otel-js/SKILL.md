@@ -24,10 +24,11 @@ For Node.js-specific facts:
 | Latest `@opentelemetry/configuration` | `npm view @opentelemetry/configuration version` |
 | Latest `@opentelemetry/sdk-node` | `npm view @opentelemetry/sdk-node version` |
 | Latest `@opentelemetry/auto-instrumentations-node` | `npm view @opentelemetry/auto-instrumentations-node version` |
-| Released package status / breaking changes (`2.11.0` / `0.222.0`) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/configuration/README.md` and `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/packages/opentelemetry-sdk-node/README.md` |
-| Experimental CHANGELOG through `0.222.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/experimental/CHANGELOG.md` |
-| ESM / CJS preload mechanics at `2.11.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v2.11.0/doc/esm-support.md` |
+| Released package status / breaking changes (`3.0.0` / `0.300.0`, verified 2026-10-21) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/configuration/README.md` and `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/packages/opentelemetry-sdk-node/README.md` |
+| Experimental CHANGELOG through `0.300.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/experimental/CHANGELOG.md` |
+| ESM / CJS preload mechanics at `3.0.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/doc/esm-support.md` |
 | Auto-instrumentations register entry point at `0.80.0` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js-contrib/auto-instrumentations-node-v0.80.0/packages/auto-instrumentations-node/README.md` |
+| 2.x → 3.x migration (removed packages, Node.js floor) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-js/v3.0.0/doc/3.x/migration-guide.md` |
 | Node.js getting-started docs | `WebFetch https://opentelemetry.io/docs/languages/js/getting-started/nodejs/` |
 
 ## Cross-References
