@@ -67,7 +67,7 @@ known mismatches. If no convention exists, use bounded, low-cardinality custom n
 guessing a released-looking name.
 
 The reviewed package-map snapshot is the upstream
-[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.8.2`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.8.2#browser-packages).
+[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.9.0`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.9.0#browser-packages).
 For current versions, select the matching release tag as described below.
 Use [`references/instrumentation.md`](references/instrumentation.md) for task routing instead of
 copying volatile package inventories.
@@ -88,10 +88,11 @@ Fetch current versions and status before answering version-sensitive questions.
 | `opentelemetry-browser` package versions / status | `gh api repos/open-telemetry/opentelemetry-browser/releases -q '.[].tag_name'` |
 | Latest `@opentelemetry/browser-instrumentation` | `npm view @opentelemetry/browser-instrumentation version` |
 | Latest `@opentelemetry/browser-sdk` (0.x, published) | `npm view @opentelemetry/browser-sdk version` |
-| Latest `@opentelemetry/sdk-trace-web` (2.x only; removed in 3.0.0) | `npm view @opentelemetry/sdk-trace-web version` |
+| Latest `@opentelemetry/sdk-trace-web` (2.x only; removed in 3.0.0, npm-deprecated) | `npm view @opentelemetry/sdk-trace-web version` |
 | Latest `@opentelemetry/auto-instrumentations-web` | `npm view @opentelemetry/auto-instrumentations-web version` |
 | Authoritative browser package map | Match the release tag, then read its repository `README.md#browser-packages` |
 | `browser-instrumentation` README / config | Match the `browser-instrumentation-v*` release tag, then read `packages/instrumentation/README.md` |
+| Migrating from `opentelemetry-js` / js-contrib browser packages | Match the release tag, then read `docs/migration-guide.md` |
 | `browser.*` event semantic-convention status | `WebFetch https://opentelemetry.io/docs/specs/semconv/browser/` |
 
 ## Cross-References

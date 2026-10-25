@@ -1,7 +1,7 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.1; 0.8.2 changes no exports or options documented
-here (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports,
+Captured against `@opentelemetry/browser-instrumentation` 0.8.1 and rechecked through 0.9.0; later
+additions are marked inline (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports,
 README options, and release notes before relying on experimental behavior.
 
 ## Contents
@@ -82,9 +82,10 @@ An event for the initial page load (hard navigation) and SPA route changes (soft
 Captured attributes include `url.full`, `browser.navigation.same_document` (false = full-page load,
 true = SPA route change), `browser.navigation.hash_change`, and `browser.navigation.type`
 (`push`/`replace`/`reload`/`traverse`). Without `sanitizeUrl`, `url.full` is the unmodified
-document URL. The 0.8.1 README imports a `defaultSanitizeUrl` helper, but no public subpath export
-provides it through 0.8.2 (verified 2026-10-15: no such entry in the
-[0.8.2 `package.json` exports](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-instrumentation-v0.8.2/packages/instrumentation/package.json)); write your own sanitizer (strip `user:password@` credentials, tokens, and
+document URL. The README imports a `defaultSanitizeUrl` helper, but no public subpath export
+provides it through 0.9.0 (verified 2026-10-25: no such entry in the
+[0.9.0 `package.json` exports](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-instrumentation-v0.9.0/packages/instrumentation/package.json)
+or the published `experimental/navigation` typings); write your own sanitizer (strip `user:password@` credentials, tokens, and
 sensitive query params) rather than importing it.
 
 ### Navigation Timing (`browser.navigation_timing`)
@@ -132,7 +133,7 @@ stability; verify via the
 `browser.web_vital.name`, `.value`, `.delta`, and `.id` log attributes. The `.rating` and
 `.navigation_type` attributes are recommended.
 
-`@opentelemetry/browser-instrumentation` 0.8.1 matches that released shape. Its record body is unset
+`@opentelemetry/browser-instrumentation` 0.8.1 through 0.9.0 matches that released shape. Its record body is unset
 unless `includeRawAttribution` is enabled, which adds JSON-stringified attribution details outside
 the semantic-convention fields. For hand-written reporting, put the web-vital fields in attributes,
 not the record body.
@@ -141,6 +142,7 @@ not the record body.
 |---|---|---|---|
 | `includeRawAttribution` | `boolean` | `false` | Set the record body to the JSON-stringified `web-vitals` attribution object (which element/event caused the metric). |
 | `applyCustomLogRecordData` | `(logRecord) => void` | — | Mutate the record before emit. |
+| `reportAllChanges` | `boolean` | `false` | (0.9.0+) Passed to `web-vitals`; reports metric updates, with `delta` carrying the change since the previous report. Set before listeners register; raises event volume. |
 
 INP and CLS finalize near the end of the page lifecycle — they depend on the SDK flushing on
 `pagehide`/`visibilitychange`.
@@ -170,7 +172,8 @@ global error handler.
 
 ### User Action (`browser.user_action.click`)
 
-Captures user input events (by default `click`). Any `data-otel-*` attribute on the clicked element
+Captures user input events (by default `click`; since 0.9.0 this includes middle clicks via
+`auxclick` and right clicks via `contextmenu`). Any `data-otel-*` attribute on the clicked element
 is copied into the `browser.element.attributes` map with the prefix removed — a deliberate channel
 for **non-PII** business context.
 
@@ -206,8 +209,8 @@ registerInstrumentations({
 |---|---|---|
 | `@opentelemetry/browser-instrumentation/experimental/fetch` | browser | Experimental consolidated Fetch spans; correlates matching Resource Timing events. |
 | `@opentelemetry/browser-instrumentation/experimental/xhr` | browser | Experimental consolidated XHR spans; correlates matching Resource Timing events. |
-| `instrumentation-fetch` | js | Spans for `fetch()`; injects `traceparent` (configure `propagateTraceHeaderCorsUrls`). |
-| `instrumentation-xml-http-request` | js | Spans for `XMLHttpRequest`; same propagation knobs. |
+| `instrumentation-fetch` | js | Spans for `fetch()`; injects `traceparent` (configure `propagateTraceHeaderCorsUrls`). Soft-deprecated; see [setup-sdk.md](setup-sdk.md#dependencies). |
+| `instrumentation-xml-http-request` | js | Spans for `XMLHttpRequest`; same propagation knobs. Soft-deprecated; see [setup-sdk.md](setup-sdk.md#dependencies). |
 | `instrumentation-document-load` | js-contrib | Spans for document load + navigation/resource timing (span flavor). |
 | `instrumentation-user-interaction` | js-contrib | Spans for user interactions (clicks) with their async causal tree. |
 | `instrumentation-long-task` | js-contrib | Spans for [Long Tasks](https://developer.mozilla.org/docs/Web/API/Long_Tasks_API) (>50 ms main-thread blocks). |
@@ -220,7 +223,8 @@ instrumentations above; they are not span instrumentations or part of the auto b
 Verified 2026-10-15 (published npm tarballs): `@opentelemetry/instrumentation-fetch` 0.222.0 and
 0.223.0, `@opentelemetry/instrumentation-xml-http-request` 0.222.0 and 0.223.0 (published 2026-10-06),
 and js-contrib `@opentelemetry/instrumentation-document-load` 0.67.0 and 0.68.0 emit only the stable
-HTTP semantic conventions. Their `semconvStabilityOptIn` migration option and legacy attributes
+HTTP semantic conventions; verified 2026-10-25 the same for fetch/XHR 0.300.0 and document-load
+0.69.0 (the 3.x-line releases). Their `semconvStabilityOptIn` migration option and legacy attributes
 (`http.method`, `http.url`, `http.status_code`, …) are gone; query the stable names such as
 `http.request.method`, `url.full`, and `http.response.status_code`.
 
