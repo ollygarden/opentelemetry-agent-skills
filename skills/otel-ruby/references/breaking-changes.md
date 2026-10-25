@@ -53,9 +53,13 @@ OTLP exporter `0.37.0` changes its default compression (see [setup.md](setup.md#
 metrics API `0.9.0` and logs API `0.6.0` drop `OpenTelemetry.meter_provider` / `logger_provider`, so
 API-only code raises `NoMethodError` unless it requires the SDK (metrics SDK `0.20.0`+, logs SDK
 `0.8.0`+) or `opentelemetry/metrics/global` / `opentelemetry/logs/global` (older SDKs work through a
-deprecation shim); logs API `0.7.0` swaps the `DEBUG2` and `DEBUG3` severity values (verified 2026-10-19 against the
-[metrics](https://github.com/open-telemetry/opentelemetry-ruby/blob/main/metrics_api/README.md#upgrading-to-090)
-and [logs](https://github.com/open-telemetry/opentelemetry-ruby/blob/main/logs_api/README.md#upgrading-to-060) API READMEs).
+deprecation shim); logs API `0.7.0` swaps the `DEBUG2` and `DEBUG3` severity values (verified 2026-10-25 against the
+[metrics](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemetry-metrics-api/v0.10.0/metrics_api/README.md#upgrading-to-090)
+and [logs](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemetry-logs-api/v0.7.0/logs_api/README.md#upgrading-to-060) API READMEs).
+In contrib, `opentelemetry-instrumentation-base` `0.27.0` adds meter and logger accessors and depends
+on metrics API `~> 0.9` and logs API `~> 0.6`, so any instrumentation upgrade can pull those
+experimental API gems into the lockfile; Logger instrumentation `0.5.0` (`BREAKING CHANGE`) emits
+through that base logger and requires base `~> 0.27`.
 
 For contrib, inspect the released gem's README, gemspec, and tests when the changelog does not fully
 describe emitted telemetry.

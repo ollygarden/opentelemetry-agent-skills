@@ -47,12 +47,12 @@ java -javaagent:opentelemetry-javaagent.jar \
 Declarative config has been supported since Javaagent 2.9.0; the property is now the stable
 `otel.config.file` (the experimental `otel.experimental.config.file` alias was removed in the
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
-Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
-the preferred value from that release's fixture to avoid compatibility warnings for experimental
-properties. Verified 2026-10-15: SDK BOM 1.67.0 prefers `"1.2"`, while Javaagent/Spring Boot
-Starter 2.32.0 embeds SDK 1.66.0 and prefers `"1.1"` (other notes in this file were last checked
-against 2.31.1); per-runtime table in the
-`otel-declarative-config` skill's `references/runtime-compatibility.md`. Keep the selected distribution's
+Confirm both the accepted range and preferred `file_format` from the tag-matched parser of the
+embedded SDK and use that preferred value to avoid compatibility warnings; release fixtures can lag
+the parser. Verified 2026-10-25: SDK BOM 1.67.0 and Javaagent/Spring Boot Starter 2.33.0 (which
+embeds SDK 1.67.0) accept `0.4`/`1.*` and prefer `"1.2"`. The 2.33.0 Javaagent smoke fixture still
+uses `1.1`, which loads with a warning. Per-runtime table: the `otel-declarative-config` skill's
+`references/runtime-compatibility.md`. Other notes in this file were checked against 2.33.0. Keep the selected distribution's
 embedded SDK distinct from the independently released BOM, and do not infer either from `main` or
 the generic language support matrix alone.
 
@@ -110,27 +110,27 @@ AutoConfiguredOpenTelemetrySdk sdk =
 - **Spring Boot Starter activation**: unlike the Javaagent/autoconfigure, the starter does
   not load an external file. Embed the declarative config inline under the `otel:` key in
   `application.yaml` (or as `otel.*` properties in `application.properties`) and opt in by
-  setting `otel.file_format` (for example, `file_format: "1.1"` for starter 2.31.1; verify the
-  selected release fixture). The presence of `otel.file_format` is what switches the starter into
+  setting `otel.file_format` (for example, `file_format: "1.2"` for starter 2.33.0; verify the
+  selected release's parser and fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
 - **Zipkin exporter removal**: SDK/BOM 1.65.0 no longer publishes
   `opentelemetry-exporter-zipkin`. It was previously deprecated; migrate direct Zipkin export to
   OTLP or send OTLP to a Collector with a Zipkin-compatible exporter before upgrading. Javaagent
-  2.31.1 still accepts `otel.traces.exporter=zipkin` and `otel.exporter.zipkin.endpoint`, but both
-  are deprecated in favor of OTLP configuration.
+  2.33.0 still accepts `otel.traces.exporter=zipkin` and `otel.exporter.zipkin.endpoint`, but both
+  are deprecated in favor of OTLP configuration and rejected when the v3 preview is enabled.
 - **Declarative-config model builders**: SDK/BOM 1.66.0 renamed the generated declarative-config
   model POJO setters from `with<Prop>` to `set<Prop>` (breaking). Code that builds the config model
   programmatically must be updated; YAML files are unaffected.
 - **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, and
   `otel.javaagent.debug` cannot be set via declarative config. Set them as system properties or
   their corresponding environment variables instead.
-- **Semantic-convention selection**: In 2.31.1 declarative config, prefer
+- **Semantic-convention selection**: In 2.33.0 declarative config, prefer
   `instrumentation/development.general.stability_opt_in_list`, a comma-separated string such as
   `database,code,messaging` or `<group>/dup` for dual emission. The older
   `general.semconv_stability.opt_in` field is deprecated. Check the tag-matched generated config
   and instrumentation metadata because support differs by domain and instrumentation.
-- **Starter thread details**: Starter 2.31.1 can add experimental `thread.id` and `thread.name`
+- **Starter thread details**: Starter 2.33.0 can add experimental `thread.id` and `thread.name`
   to spans with `distribution.spring_starter.thread_details_enabled: true`. This path is
   Starter-only; the Javaagent uses the separate
   `distribution.javaagent.thread_details_enabled` path.

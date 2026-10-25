@@ -7,7 +7,7 @@ rots with each release.
 ## Step 1: Fetch the CHANGELOGs
 
 Fetch both released upstream sources before reviewing any code. Verified
-2026-10-19: the released ceiling is core **1.45.1** and contrib **0.66b1**:
+2026-10-25: the released ceiling is core **1.45.1** and contrib **0.66b1**:
 
 ```
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md
@@ -158,7 +158,7 @@ In 1.44.0 / 0.65b0, declarative configuration moved from the private
 namespace. The new package remains experimental, so audit it on each upgrade.
 
 Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
-latest released SDK (1.45.1, verified 2026-10-19), the declarative configuration README and schema are:
+latest released SDK (1.45.1, verified 2026-10-25), the declarative configuration README and schema are:
 
 ```text
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst

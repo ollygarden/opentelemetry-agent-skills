@@ -33,7 +33,7 @@ otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters=\
 
 - Type: list of case-sensitive parameter names. Setting it **replaces** the default list
   (full override, not additive) — re-list the credential defaults when extending it.
-- In Javaagent and Spring Boot Starter **v2.31.1**, the equivalent declarative field is
+- In Javaagent and Spring Boot Starter **v2.33.0**, the equivalent declarative field is
   `instrumentation/development.general.sanitization.url.sensitive_query_parameters`. It also
   replaces the default list, so include every default that must remain active.
 - History: replaces `otel.instrumentation.http.client.experimental.redact-query-parameters`
@@ -65,7 +65,7 @@ is no per-header/per-parameter value redaction. Servlet selectors are case-sensi
 take precedence. With both lists empty, nothing is captured. An exclude-only selector captures
 every available parameter not excluded, so prefer an explicit include list. The old
 `otel.instrumentation.servlet.experimental.capture-request-parameters` include-only property is
-deprecated in 2.31.1 and does not support globs.
+deprecated (checked at 2.33.0) and does not support globs.
 
 Those flat properties apply to normal property-based configuration. When declarative config is
 active, flat instrumentation properties are not an overlay; use the corresponding YAML paths:
@@ -99,7 +99,7 @@ config, or
 variable. Per-instrumentation toggles can take precedence. Older property spellings
 (`otel.instrumentation.common.db-statement-sanitizer.enabled` and per-instrumentation
 `*-statement-sanitizer.enabled` variants) are deprecated and, when
-`instrumentation/development.java.common.v3_preview: true` in Javaagent/Starter 2.30.0, ignored.
+`instrumentation/development.java.common.v3_preview: true` in Javaagent/Starter 2.33.0, ignored.
 Use the `db.query_sanitization.enabled` forms above. Do not turn sanitization off on request paths.
 
 JDBC's parameter-capture switch shown above is a separate opt-in. It emits raw values as

@@ -42,9 +42,9 @@ configuration in an initializer; in Rack/Sinatra or a worker, run it during boot
 Use `OTEL_*` environment variables and `OpenTelemetry::SDK.configure`. The separate experimental
 `opentelemetry-config` gem (first released `0.1.0`, 2026-09-29) reads an `OTEL_CONFIG_FILE` YAML
 file, but only when the application calls `OpenTelemetry::Config.configure` (or
-`configure_from_file`); it covers the tracer provider, resource, samplers, and propagators only, and
-per its README does not yet give the file precedence over environment variables. For the YAML schema
-see the `otel-declarative-config` skill; check the locked gem's README before relying on it.
+`configure_from_file`). For what each release applies, see the Ruby row of the
+`otel-declarative-config` skill's [runtime table](../../otel-declarative-config/SKILL.md); check the
+locked gem's README before relying on it.
 Requiring the metrics and logs SDKs before
 `configure` installs their configurator hooks; their default exporter is OTLP when the matching
 exporter gem is loaded.
@@ -133,6 +133,6 @@ phase. For short jobs, call `force_flush` before the process exits if the provid
 4. Confirm the expected resource, parent/child relationship, and shutdown export.
 
 Sources: [core SDK 1.13.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.1/sdk),
-[`opentelemetry-config` 0.1.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-config/v0.1.0/config),
+[`opentelemetry-config` 0.2.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-config/v0.2.0/config),
 [Ruby getting started](https://opentelemetry.io/docs/languages/ruby/getting-started/), and
-[contrib instrumentation catalog at the `all` 0.97.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.97.0/instrumentation).
+[contrib instrumentation catalog at the `all` 0.99.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.99.0/instrumentation).

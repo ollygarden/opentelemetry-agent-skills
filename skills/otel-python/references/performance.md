@@ -16,7 +16,7 @@ Performance tuning reference for the OpenTelemetry Python SDK. Covers sampling, 
 
 ## Default Configuration Values
 
-The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.0/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
+The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.1/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
 
 | Parameter | Environment Variable | Note |
 |-----------|---------------------|------|
@@ -121,7 +121,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` as of SDK 1.45.0 |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` as of SDK 1.45.1 |
 
 ### Tuning for Throughput
 
@@ -363,7 +363,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport by default; 1.45.0 alone defaulted to `urllib3`, which ignored `HTTPS_PROXY`; 1.45.1 restored `requests`; verified 2026-10-19, [1.45.1 CHANGELOG](https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md)) |
+| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport, except 1.45.0, which used `urllib3` and ignored `HTTPS_PROXY`; verified 2026-10-25, [1.45.1 CHANGELOG](https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md)) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 
@@ -402,7 +402,7 @@ exporter = OTLPSpanExporter(compression=Compression.Gzip)
 
 ### Retry and Timeout
 
-The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.45.0/exporter) — do not assume specific backoff intervals.
+The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.45.1/exporter) — do not assume specific backoff intervals.
 
 Configure timeout via environment variable or constructor:
 

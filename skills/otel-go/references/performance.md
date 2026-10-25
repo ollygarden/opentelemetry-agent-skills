@@ -132,7 +132,7 @@ bsp := sdktrace.NewBatchSpanProcessor(exporter,
 
 When the queue fills, new spans are dropped silently by default. Telemetry loss is preferable to application slowdown in this design.
 
-`WithBlockOnQueueFull()` changes this behavior to backpressure the application goroutine, blocking on `span.End()` until queue space is available.
+`sdktrace.WithBlocking()` changes this behavior to backpressure the application goroutine, blocking on `span.End()` until queue space is available.
 
 With experimental SDK self-observability enabled via `OTEL_GO_X_OBSERVABILITY=true`, the SDK
 exposes queue size/capacity and processed-span metrics. This feature may change incompatibly.
@@ -464,7 +464,7 @@ The OpenTelemetry SDK is designed so that telemetry failures do not crash or blo
 - **Span creation never returns an error** -- it returns a noop span on failure
 - **Metric recording never returns an error** -- measurements are silently dropped on failure
 - **Export failures are retried** -- then dropped after max elapsed time
-- **Queue overflow drops spans** -- the application is not blocked (unless `WithBlockOnQueueFull` is used)
+- **Queue overflow drops spans** -- the application is not blocked (unless `sdktrace.WithBlocking()` is used)
 
 ---
 
