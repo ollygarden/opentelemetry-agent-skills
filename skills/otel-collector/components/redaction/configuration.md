@@ -69,4 +69,4 @@ When `summary` is `debug` or `info`, the processor records what it did as attrib
 | `redaction.allowed.count` | info | Count of allowed attributes |
 | `redaction.ignored.count` | info | Count of ignored attributes |
 
-For map-formatted log bodies, the same metrics are recorded under a `redaction.body.*` prefix. Key allow-listing and value masking apply to the body too.
+For map-formatted log bodies, the same metrics are recorded under a `redaction.body.*` prefix, written to the record's attributes (not into the body). Key allow-listing and value masking apply to the body too. For how these attributes behave across chained `redaction` processors, see [quirks](quirks.md#chained-redaction-processors-and-the-audit-summary).

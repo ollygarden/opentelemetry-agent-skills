@@ -6,11 +6,11 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 # OpenTelemetry Transformation Language (OTTL)
 
 OTTL transforms or selects telemetry inside Collector components. This skill is pinned to
-collector-contrib **v0.162.0**. Function, path, default, and feature-gate availability varies by
+collector-contrib **v0.163.0**. Function, path, default, and feature-gate availability varies by
 release; when the user's version differs, verify against the matching upstream tag.
 
 Dated OTTL feature-gate status for v0.162.0 and v0.163.0 is in
-[references/functions.md](references/functions.md#feature-gates-verified-2026-10-15).
+[references/functions.md](references/functions.md#feature-gates-verified-2026-10-25).
 
 ## Workflow
 
@@ -32,8 +32,8 @@ Dated OTTL feature-gate status for v0.162.0 and v0.163.0 is in
    transform quirks), and the filter gate is stable and cannot be disabled. Routing also
    defaults to `ignore` while its beta default-error feature gate is enabled. For routing, `ignore`
    sends an errored payload to `default_pipelines`; configure that fallback or the payload is dropped.
-5. **Verify end to end.** Validate the exact Collector version, then send known telemetry and inspect
-   file-exporter output. Use the
+5. **Verify end to end.** Validate the exact Collector version (since v0.163, `validate` also parses
+   routing connector conditions), then send known telemetry and inspect file-exporter output. Use the
    [telemetrygen recipe](../otel-telemetrygen/SKILL.md#verify-collector-behavior).
 
 ```ottl
@@ -58,7 +58,7 @@ For a single path or function, read only the relevant section instead of loading
   flag admits pretty-printed objects containing newlines. Checking `IsMap` after
   parsing does not prevent arrays or scalar JSON from being parsed.
 - On a version-pinned request, confirm every chosen path and function against that release tag;
-  do not assume a function listed for this skill's v0.162 anchor exists in an older release.
+  do not assume a function listed for this skill's v0.163 anchor exists in an older release.
   For v0.156 JSON-object parsing, `ParseJSON`, `IsString`, and `IsMatch` are available without the
   v0.157 alpha lambda feature gate.
 - Request metadata is read-only and may contain credentials. Copy only explicitly allowlisted,
@@ -93,7 +93,7 @@ For a single path or function, read only the relevant section instead of loading
 
 ## Upstream sources
 
-- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.162.0/pkg/ottl)
-- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.162.0/processor/transformprocessor)
-- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.162.0/processor/filterprocessor)
-- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.162.0/connector/routingconnector)
+- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/pkg/ottl)
+- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/processor/transformprocessor)
+- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/processor/filterprocessor)
+- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/connector/routingconnector)

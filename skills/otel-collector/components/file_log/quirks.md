@@ -34,7 +34,7 @@ When reviewing an existing config, `filelog:` is **not** broken — it's the leg
 Some keys do nothing (or error) unless a feature gate is enabled at startup
 (`--feature-gates=<gate>`):
 
-| Option | Required gate | State (v0.162.0) |
+| Option | Required gate | State (v0.163.0) |
 |--------|---------------|-------|
 | `delete_after_read` | `filelog.allowFileDeletion` | Beta (on by default) |
 | `header` parsing | `filelog.allowHeaderMetadataParsing` | Beta (on by default) — no flag needed |
@@ -42,6 +42,10 @@ Some keys do nothing (or error) unless a feature gate is enabled at startup
 | require explicit `ordering_criteria.top_n` when sorting | `filelog.requireExplicitTopN` | Alpha (off by default); unset keeps the legacy default `1`, explicit `0` matches all files |
 | include/exclude case-insensitive globbing (Windows) | `filelog.windows.caseInsensitive` | Beta (on by default) |
 | protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Beta (**on by default** since v0.156.0; Alpha off in v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
+
+## Default instrumentation scope (v0.163.0+)
+
+Records that no operator assigned a scope name (via `scope_name_parser`) now carry the receiver's scope — name `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver` and the Collector build version — instead of an empty scope. This is controlled by the `pkg.stanza.addDefaultScopeName` gate (Beta, on by default); disable it with `--feature-gates=-pkg.stanza.addDefaultScopeName` if downstream routing or dashboards expect an empty scope.
 
 ## `delete_after_read` conflicts with `start_at: end`
 

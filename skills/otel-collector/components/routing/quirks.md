@@ -35,6 +35,7 @@ The `request` context is **deprecated as of v0.156.0** (a warning is logged when
 | `invalid Action string: <value>` (inside a `cannot unmarshal the configuration` error) | `action` set to something other than `move`/`copy` | Use `move` or `copy` (or omit for the `move` default). |
 | `"request" context requires a 'condition'` | `request` route used a `statement` | Use `condition` for `request` context (or migrate to `otelcol.*` paths). |
 | `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request` (and one valid for the signal). |
+| `table[<i>]: <OTTL parse error>` | the route's `condition`/`statement` does not parse (bad syntax, unknown path or function) | Fix the expression at that index. Since v0.163.0 OTTL is parsed during config validation, so `otelcol validate` catches it instead of only component creation. |
 
 ## `match_once` was removed in v0.120.0
 

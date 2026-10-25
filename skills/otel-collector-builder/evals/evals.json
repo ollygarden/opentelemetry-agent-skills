@@ -9,7 +9,7 @@
         "Uses OCB v0.163.0 and pins the core components and tailsamplingprocessor at v0.163.0.",
         "Pins the file and env providers at v1.69.0.",
         "Pins k8sattributesprocessor at v1.2.0, not v0.163.0.",
-        "Says the prebuilt v0.163.0 ocb release binary or builder image was not yet published at the recorded date, and offers go install of cmd/builder@v0.163.0 or the published v0.162.0 binary instead.",
+        "Says a prebuilt ocb release binary and builder image for the v0.163 line were published as of the recorded date (0.163.0, with 0.163.1/0.163.2 rebuilding the same cmd/builder v0.163.0 source), and also offers go install of cmd/builder@v0.163.0.",
         "Frames the versions as verified on the recorded date rather than as currently latest, and suggests confirming against the release's builder default.yaml or contrib versions.yaml before deploying.",
         "Does not perform any web search, web fetch, or network command."
       ]

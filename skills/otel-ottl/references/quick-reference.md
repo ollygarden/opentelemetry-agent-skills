@@ -189,7 +189,7 @@ processors:
 
 Set `shared_cache: true` only on advanced statement groups that must share context cache state
 across separate iterations. Sharing occurs only among groups in the same transform processor
-instance that opt in; the option is experimental and defaults to `false`.
+instance that opt in; the option defaults to `false` (v0.163 dropped its experimental label).
 
 ### `filter`
 
@@ -366,9 +366,10 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 | `Bool("yes")` errors | String inputs use Go boolean parsing; arbitrary non-empty strings are not truthy | Use `IsMatch` with an explicit pattern, or check with `where` |
 | Unknown function `Base64Decode` | Removed in v0.161 (deprecated since v0.141) | Use `Decode(value, "base64")` |
 
-Since v0.160, parser diagnostics identify the input kind, line and column, nearby source, and the
-expected token when available, for example
-`statement has invalid syntax at 1:5: (expected ")" Key*)`. Odd-length byte literals instead report
+Parser diagnostics identify the input kind, line and column, nearby source, and the expected token
+when available. Since v0.163 the position is a prefix, for example
+`1:5: statement has invalid syntax: (expected ")" Key*)` (v0.160-v0.162:
+`statement has invalid syntax at 1:5: ...`); some aggregated errors carry no position. Odd-length byte literals instead report
 `byte literals must have an even number of hexadecimal digits` within the wrapped expression error.
 
 ### Checklist before shipping

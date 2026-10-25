@@ -39,4 +39,4 @@ When batching is enabled and the sizers match, `sending_queue.batch.min_size` (d
 
 ## Stability is per signal
 
-Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile export as experimental and subject to breaking change, even though the same exporter serves it.
+Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile export as experimental and subject to breaking change, even though the same exporter serves it. Since v0.163.0 the exporter sends the Profiles development version of its compiled-in schema (not configurable), so sender and receiver Collectors must run compatible Profiles schemas.

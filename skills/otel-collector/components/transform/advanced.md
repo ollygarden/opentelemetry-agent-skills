@@ -20,7 +20,7 @@ processors:
 ```
 
 Set `shared_cache: true` on groups that intentionally exchange values through the OTTL cache. This
-experimental v0.160.0 option keeps one cache for groups of the same signal; by default each group
+option (added in v0.160.0) keeps one cache for groups of the same signal; by default each group
 gets a fresh cache.
 
 ## Scoping statements with conditions

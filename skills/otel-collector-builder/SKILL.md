@@ -21,12 +21,12 @@ This skill covers building the distribution. For configuring individual componen
 
 ## Install
 
-Pick the OCB version equal to the Collector core version you're targeting; the [dated record](#verified-2026-10-15) shows which releases have a binary.
+Pick the OCB version equal to the Collector core version you're targeting; the [dated record](#verified-2026-10-25) shows which releases have a binary.
 
 ```bash
 # Release binary (named ocb): https://github.com/open-telemetry/opentelemetry-collector-releases/releases?q=cmd/builder
 # Go install (binary is named `builder`, not `ocb`):
-go install go.opentelemetry.io/collector/cmd/builder@v0.162.0
+go install go.opentelemetry.io/collector/cmd/builder@v0.163.0
 ```
 
 The commands below use `ocb`, the release-archive binary name. If you install with
@@ -45,18 +45,18 @@ dist:
   version: 1.0.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.162.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.163.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.162.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.163.0
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.162.0
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.162.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.163.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.163.0
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.68.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.68.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.69.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.69.0
 ```
 
 **`providers:` semantics.** Omitting the key entirely keeps OCB's built-in default set (env, file, http, https, yaml at the paired stable version). But setting `providers:` at all **replaces** that set. The generated Collector defaults `conf_resolver.default_uri_scheme` to `env`, so an explicit list without `envprovider` fails configuration validation unless you set another included provider as the default. Either omit the key, or include `envprovider` plus every scheme the collector's config will use.
@@ -65,7 +65,7 @@ Contrib components use the same list syntax:
 
 ```yaml
 processors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.162.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.163.0
 ```
 
 ## Version alignment
@@ -78,22 +78,22 @@ Three version streams exist and must be paired:
 | `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) |
 | contrib `v1.x` (stable) | contrib modules in contrib's `stable-base` module set (e.g. `processor/k8sattributesprocessor`) |
 
-### Verified 2026-10-15
+### Verified 2026-10-25
 
-Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. The examples in this skill pin the `v0.162.0` row. OCB, core, and `contrib-base` components use the release version; both rows need Go 1.26+.
+Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. The examples in this skill pin the `v0.163.0` row. OCB, core, and `contrib-base` components use the release version; both rows need Go 1.26+.
 
 | Release | Providers (core `stable`) | Contrib `stable-base` (`k8sattributesprocessor`) | Prebuilt OCB binary and image |
 |---|---|---|---|
-| `v0.163.0` (tagged 2026-10-14) | `v1.69.0` | `v1.2.0` | not yet; use `go install go.opentelemetry.io/collector/cmd/builder@v0.163.0` |
+| `v0.163.0` (tagged 2026-10-14) | `v1.69.0` | `v1.2.0` | published as `0.163.0`–`0.163.2` (same source) |
 | `v0.162.0` | `v1.68.0` | `v1.1.0` | published |
 
-Evidence at each tag: providers in [`cmd/builder/internal/config/default.yaml`](https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.162.0/cmd/builder/internal/config/default.yaml) (authoritative), core and contrib `versions.yaml`, `cmd/builder/go.mod`, collector-releases, Docker Hub.
+Evidence at each tag: providers in [`cmd/builder/internal/config/default.yaml`](https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.163.0/cmd/builder/internal/config/default.yaml) (authoritative), core and contrib `versions.yaml`, `cmd/builder/go.mod`, collector-releases, Docker Hub.
 
 Rules:
 
 - Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version — except contrib modules in the `stable-base` set of contrib's `versions.yaml` at the matching tag; use that set's `v1.x` version, never `v0.x.0` (no such tag exists). The `otelcol-contrib` manifest of the same release shows the pairing.
 - Take providers from the release's embedded `default.yaml`, not a guess.
-- Versions require the `v` prefix (`v0.162.0`, not `0.162.0`).
+- Versions require the `v` prefix (`v0.163.0`, not `0.163.0`).
 - `--skip-strict-versioning` defaults to `true`, so mismatches surface as Go module resolution errors, not friendly OCB errors. Align versions up front instead of debugging `go mod tidy` output.
 
 ## Build commands and flags
@@ -114,7 +114,7 @@ ocb --config=builder.yaml --skip-generate --skip-get-modules  # compile pre-gene
 | `--ldflags` / `--gcflags` | — | Extra `go build` flags |
 | `--verbose` | `false` | Log the underlying Go commands |
 
-Generated output in `output_path`: `main.go`, `components.go`, `main_others.go`, `main_windows.go`, `go.mod`, `go.sum`, and the compiled binary named `dist.name`. By default binaries are stripped (`-s -w`); set `dist.debug_compilation: true` for Delve-friendly builds.
+Generated output in `output_path`: `main.go`, `components.go`, `main_others.go`, `main_windows.go`, `go.mod`, `go.sum`, and the compiled binary named `dist.name` (`.exe` appended for Windows targets). By default binaries are stripped (`-s -w`); set `dist.debug_compilation: true` for Delve-friendly builds.
 
 ## Reference files
 
