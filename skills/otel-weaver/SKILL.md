@@ -21,7 +21,7 @@ If a companion skill is unavailable:
 
 Three moving parts:
 
-1. **Registry** — directory of YAML files. `manifest.yaml` is required; its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also require `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`semconv_version` and `schema_base_url` are deprecated in favor of `schema_url`; top-level `name` is not a v0.26.1 manifest field.)
+1. **Registry** — directory of YAML files. `manifest.yaml` is required; it declares `file_format: definition_manifest/2.0` (version support: [dated record](references/ci-integration.md#verified-2026-10-25)), and its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also require `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`semconv_version` and `schema_base_url` are deprecated in favor of `schema_url`; top-level `name` is not a v0.28.0 manifest field.)
 2. **Templates** — directory of MiniJinja files (Jinja2-compatible, not full Jinja2 — auto-escaping is off by default since v0.22.0 and loop `break`/`continue` are supported) plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
 3. **Policies** — Rego rules evaluated by the Regorus (OPA-compatible) engine, in four packages: `before_resolution` (raw parsed groups; unsupported and skipped with `--v2`), `after_resolution` (resolved registry), `comparison_after_resolution` (only when `--baseline-registry` is passed), and `live_check_advice` (per-sample during `live-check`). Built-in OTel policies are the floor; custom policies layer on org rules.
 
@@ -31,7 +31,7 @@ These three replace a hand-rolled `const.go` (or equivalent): const blocks becom
 
 - Install Weaver via one of the methods documented at <https://github.com/open-telemetry/weaver#install> (release binary, `otel/weaver:vX.Y.Z` Docker image, or the `setup-weaver` GitHub Action). Never `brew install weaver` — that resolves to an unrelated Scribd tool.
 - Reference upstream semconv attributes by `ref` rather than redeclaring them. Boundary domains (`http`, `db`, `messaging`, `rpc`, `network`, `gen-ai`, ...) belong in upstream OTel semconv, not in a local registry. Use the language SDK's semconv package for those at runtime.
-- Every attribute and signal definition needs `stability`; include it on enum members too, as required by the v2 syntax guide. Weaver v0.26.1 rejects missing definition stability but reports missing enum-member stability only as a non-fatal warning in normal mode.
+- Every attribute and signal definition needs `stability`; include it on enum members too — `weaver registry check` does not catch a missing one (see [registry-authoring.md](references/registry-authoring.md)).
 - In v2, an attribute reference may refine fields such as `brief`, `note`, `examples`, and `annotations`, but not `stability` or `deprecated`; those always come from the attribute definition.
 - Use a domain prefix (e.g. `ecommerce.`, `acme.`) for org-local attributes, metrics, and spans.
 - Run the language formatter (`gofmt -w`, `prettier`, `ruff format`, ...) on generated output. Jinja whitespace produces multiple blank lines; without formatting, the diff check in CI will fail spuriously.
@@ -56,8 +56,8 @@ These cost time and are not obvious from the upstream docs:
 3. Jq helper defaults target the legacy schema. For `definition/2`, pass `{"v2": true}` and use the preserved v2 fields: attribute `key`, metric `name`, span `type`/`kind` and `span.name.note`, plus entity `type`/`identity`/`description`. Always generate and inspect the filtered `ctx` before writing a template.
 4. The `comment` Jinja filter takes a keyword argument: `attr.brief | comment(format="go")`. It already emits the `// ` prefix; do not add another.
 5. Attributes, metrics, spans, events, and entities all have prebuilt grouped jq filters (`semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, `semconv_grouped_entities`). For `definition/2`, use (for example) `semconv_grouped_spans({"v2": true})` as a folded YAML scalar; the bare helper defaults select the legacy schema.
-6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) for custom v2 definition files (still so in the dated record in `references/ci-integration.md`). This is normal; do not treat it as a failure.
-7. `--future` is opt-in but still elevates the `definition/2` instability warning to an error for a custom v2 registry. Leave it off until the format goes stable.
+6. `weaver registry check` emits "File format `definition/2` is not yet stable" (a warning) for custom v2 definition files (still so in the dated record in `references/ci-integration.md`). This is normal; do not treat it as a failure. A missing manifest `file_format` also warns; fix that one by adding the field.
+7. `--future` is opt-in but still elevates the `definition/2` instability warning (and a missing manifest `file_format`) to an error for a custom v2 registry. Leave it off until the format goes stable.
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
@@ -97,7 +97,7 @@ Report the final check with:
 - `[ ]` unresolved
 
 Use these items:
-- registry has `manifest.yaml` with a `schema_url` whose final path segment is the version
+- registry has `manifest.yaml` with `file_format: definition_manifest/2.0` and a `schema_url` whose final path segment is the version
 - every definition and enum member has `stability`
 - org-local attributes/metrics/spans use a domain prefix
 - no boundary-domain (http/db/messaging/rpc/network/gen-ai) entries duplicated locally

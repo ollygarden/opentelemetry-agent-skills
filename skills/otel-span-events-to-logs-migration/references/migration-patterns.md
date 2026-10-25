@@ -200,7 +200,9 @@ logger.emit({
 span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
 ```
 
-The JS log-record `exception` field is present in current `@opentelemetry/api-logs` / `@opentelemetry/sdk-logs` source and marked experimental. If the project avoids experimental fields, set `exception.type`, `exception.message`, and `exception.stacktrace` attributes manually.
+With `@opentelemetry/api` 1.10.0+ (paired with `@opentelemetry/sdk-logs` 3.x), import `logs` and `SeverityNumber` from `@opentelemetry/api`; the standalone `@opentelemetry/api-logs` package was removed in experimental 0.300.0 and only applies to projects still on the 2.x SDK line.
+
+The JS log-record `exception` field is still marked experimental in `@opentelemetry/api` 1.10.0; `@opentelemetry/sdk-logs` derives the `exception.*` attributes from it. If the project avoids experimental fields, set `exception.type`, `exception.message`, and `exception.stacktrace` attributes manually.
 
 ### General Event
 
@@ -307,10 +309,15 @@ logger.on_emit(
 )
 ```
 
-Ruby Logs API 0.5.0 and Logs SDK 0.7.0 expose `Logger#on_emit` with
+Ruby Logs API 0.7.0 and Logs SDK 0.8.1 expose `Logger#on_emit` with
 `event_name:` and use the current context by default. They do not expose an
 exception convenience parameter, so populate the applicable `exception.*`
 attributes explicitly.
+
+Since Logs API 0.6.0 / Logs SDK 0.8.0, `OpenTelemetry.logger_provider` exists
+only after `require 'opentelemetry-logs-sdk'` (applications) or
+`require 'opentelemetry/logs/global'` (libraries that depend only on
+`opentelemetry-logs-api`); otherwise it raises `NoMethodError`.
 
 ## Key Rules Across All Languages
 

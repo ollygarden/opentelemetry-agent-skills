@@ -89,12 +89,12 @@ templates:
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.26.1, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, and `semconv_grouped_entities`.
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.28.0, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, and `semconv_grouped_entities`.
 - The no-argument helpers default to the legacy schema. For a `definition/2` registry, call them with `{"v2": true}` (as shown above). Use a folded YAML scalar (`filter: >`) so the object's colon doesn't collide with YAML mapping syntax. A custom multi-clause jq expression that takes no arguments should be single-quoted instead — for the same reason.
 - `acronyms` configures the explicit `acronym` filter; case filters such as `pascal_case_const` do not consult that list automatically.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
 - A template entry may add `when: <jq-expression>` to gate the entire template before its `filter` runs. It must return exactly one boolean; empty streams and non-booleans are errors. Template parameters are exposed as `$params`.
-- v0.26.1 also lets a project-wide `.weaver.toml` `[template]` section layer `acronyms` and `text_maps` over every template package; case-insensitive acronym collisions and text-map name collisions favor the TOML values. Other `weaver.yaml` settings are not project-level overrides.
+- v0.28.0 also lets a project-wide `.weaver.toml` `[template]` section layer `acronyms`, `text_maps`, and `jq_modules` over every template package; case-insensitive acronym collisions and text-map name collisions favor the TOML values, and project `jq_modules` are appended after the package's own. Other `weaver.yaml` settings are not project-level overrides.
 
 ## Jinja2 template patterns
 

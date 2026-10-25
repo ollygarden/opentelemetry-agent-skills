@@ -80,8 +80,8 @@
       "prompt": "Without doing a web search or fetching anything online, relying only on your own knowledge and installed skills: what's the latest declarative configuration schema version I can use in a Go application with OpenTelemetry, and what file_format value should I write?",
       "files": [],
       "expectations": [
-        "Recommends the Go file_format recorded in the skill's verified table and ties it to the recorded otelconf version and schema (as of 2026-10-15: \"1.0-rc.3\", otelconf v0.27.0, schema v1.0.0-rc.3); does not recommend the schema repository's latest literal or \"1.0\" as the Go value.",
-        "Says the configuration schema repository is ahead of the Go parser (as of 2026-10-15: v1.2.0), so the latest schema is not the latest Go-supported one.",
+        "Recommends the Go file_format recorded in the skill's verified table and ties it to the recorded otelconf version and schema (as of 2026-10-25: \"1.0-rc.3\", otelconf v0.27.0, schema v1.0.0-rc.3); does not recommend the schema repository's latest literal or \"1.0\" as the Go value.",
+        "Says the configuration schema repository is ahead of the Go parser (as of 2026-10-25: v1.2.0), so the latest schema is not the latest Go-supported one.",
         "Presents the answer as last verified on the recorded date rather than claiming it is currently the latest.",
         "Recommends confirming against the otelconf release (Makefile pin or CHANGELOG) before deploying, and does not treat the testdata fixture or the language support status page as authoritative.",
         "Does not perform any web search, web fetch, or network command."
@@ -89,11 +89,11 @@
     },
     {
       "id": "offline-shared-file-java-agent-python",
-      "prompt": "No web lookups please, just your knowledge and skills. One declarative OpenTelemetry YAML file will be loaded by two services: a Java service running the OpenTelemetry Javaagent 2.32.0 and a Python service using opentelemetry-configuration 0.66b1. Which file_format value should the shared file use, and why?",
+      "prompt": "No web lookups please, just your knowledge and skills. One declarative OpenTelemetry YAML file will be loaded by two services: a Java service running the OpenTelemetry Javaagent 2.33.0 and a Python service using opentelemetry-configuration 0.66b1. Which file_format value should the shared file use, and why?",
       "files": [],
       "expectations": [
         "Recommends file_format \"1.1\".",
-        "Explains that Javaagent 2.32.0 embeds SDK 1.66.0, which prefers \"1.1\", and does not apply the SDK BOM 1.67.0 preference for \"1.2\" to the agent.",
+        "Explains that Javaagent 2.33.0 embeds SDK 1.67.0, which targets \"1.2\" and accepts \"1.1\" with a warning, so the lower literal is the one both parsers support; names the Java agent as the runtime that will warn.",
         "Explains that Python 0.66b1 targets schema 1.1 and that \"1.2\" would load with a warning there.",
         "Frames the versions as verified on the recorded date rather than as currently latest, and suggests re-verifying before deployment.",
         "Does not perform any web search, web fetch, or network command."
