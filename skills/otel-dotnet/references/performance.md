@@ -230,6 +230,9 @@ view to be ignored.
     metricStreamConfiguration: MetricStreamConfiguration.Drop)
 ```
 
+The `process.runtime.*` names apply to targets before .NET 9; on .NET 9 and later the
+runtime instrumentation forwards the built-in `System.Runtime` meter (`dotnet.gc.collections`, …).
+
 ### Wildcard / Predicate-Based Views
 
 ```csharp

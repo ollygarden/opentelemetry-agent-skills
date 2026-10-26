@@ -43,6 +43,8 @@ temporality against the receiving backend when changing the OTLP metrics prefere
 `opentelemetry-exporter-otlp-metrics` `0.15.0`,
 `OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=base2_exponential_bucket_histogram`
 switches the default histogram aggregation; an explicit `default_aggregation:` argument wins.
+Exporter `0.15.0` needs `opentelemetry-metrics-sdk` `0.22.0` or later: its gemspec allows `~> 0.5`,
+but older SDK readers reject `default_aggregation:` with `ArgumentError`.
 
 ## Attribute and payload bounds
 
