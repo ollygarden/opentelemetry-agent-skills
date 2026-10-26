@@ -45,6 +45,7 @@ excludes: []      # go.mod exclude directives
 | `cgo_enabled` | `false` | Sets `CGO_ENABLED=1` for components needing native libraries. |
 | `build_tags` | empty | Comma-separated Go build tags. |
 | `use_absolute_replace_paths` | `false` | See below. |
+| `resource.detection.detectors` | empty (all detectors compiled in) | Since v0.163.0. List of detector names from OCB's known list (`- env:`, `- system:`), which uses build-tag spellings: `aws_ec2`, `aws_eks`, `azure_aks`, `openstack_nova`, not the processor's `ec2`, `eks`, `aks`, `nova`; OCB adds an `omit_detector_<name>` build tag for every other known detector. An unknown name fails with `unknown resource detector`. |
 
 **`use_absolute_replace_paths` (v0.151.0 breaking change):** when a component uses `path:` or a `replaces` entry points at a local directory, OCB writes a `replace` directive into the generated `go.mod`. Since v0.151.0 those paths are **relative** to `output_path` by default, making the generated tree portable (committable, buildable on another machine). Set `true` to restore the pre-v0.151.0 absolute-path behavior.
 
@@ -70,14 +71,14 @@ Providers implement config URI schemes. The built binary can only load config th
 
 ```yaml
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.68.0   # file: and bare paths
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.68.0    # env: (${env:VAR})
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.68.0   # http://
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.68.0  # https://
-  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.68.0   # yaml: (inline YAML)
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.69.0   # file: and bare paths
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.69.0    # env: (${env:VAR})
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.69.0   # http://
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.69.0  # https://
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.69.0   # yaml: (inline YAML)
 ```
 
-Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.162.0` row of the dated record in SKILL.md's version-alignment section.
+Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.163.0` row of the dated record in SKILL.md's version-alignment section.
 
 **Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. With the default `conf_resolver`, `envprovider` is required even when the config has no environment references; omitting it fails with `DefaultScheme not found in providers list`. A common explicit base is `fileprovider` + `envprovider`.
 
@@ -98,7 +99,7 @@ Advanced, single module (not a list). Overrides the collector's internal-telemet
 
 ```yaml
 telemetry:
-  gomod: go.opentelemetry.io/collector/service v0.162.0
+  gomod: go.opentelemetry.io/collector/service v0.163.0
   import: go.opentelemetry.io/collector/service/telemetry/otelconftelemetry
 ```
 
@@ -141,29 +142,29 @@ dist:
   version: 2.1.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.162.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.162.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.163.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.163.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.162.0
-  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.162.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.162.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.163.0
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.163.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.163.0
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.162.0
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.162.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.163.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.163.0
 
 extensions:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.162.0
-  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.162.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.163.0
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.163.0
 
 connectors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.162.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.163.0
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.68.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.68.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.68.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.69.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.69.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.69.0
 
 replaces:
   - github.com/acme/private-exporter => ../private-exporter

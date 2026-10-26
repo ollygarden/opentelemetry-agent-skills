@@ -41,7 +41,7 @@
       "expectations": [
         "Pins telemetrygen v0.163.0 by go install of the cmd/telemetrygen module or the versioned GHCR telemetrygen image, not latest.",
         "Says telemetrygen flags are unchanged from v0.162.0 to v0.163.0.",
-        "Says plain otel/opentelemetry-collector-contrib:0.163.0 was not published on Docker Hub at the recorded date and offers the published 0.162.0 tag (or the examples' 0.161.0) instead.",
+        "Says plain otel/opentelemetry-collector-contrib:0.163.0 was not published on Docker Hub at the recorded date and offers the published 0.163.2 (or 0.163.1) patch tag instead.",
         "Frames the availability facts as verified on the recorded date rather than as current, and suggests confirming the tags before running.",
         "Does not perform any web search, web fetch, or network command."
       ]

@@ -41,4 +41,4 @@ Avoid it when:
 - [Configuration](configuration.md) — open when you need config keys, defaults, processing order/precedence, or the audit-attribute names.
 - [Verification](verification.md) — open to confirm masking works with a telemetrygen recipe.
 - [Advanced use-cases](advanced.md) — open for allowlist-as-schema, hashing for correlation, URL/DB sanitization, and audit summary usage.
-- [Known quirks](quirks.md) — open when attributes vanish unexpectedly, masking behaves differently than expected, or per-signal stability matters.
+- [Known quirks](quirks.md) — open when attributes vanish unexpectedly, masking behaves differently than expected, chained processors handle the audit summary (v0.163.0), or per-signal stability matters.

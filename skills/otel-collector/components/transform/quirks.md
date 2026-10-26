@@ -50,7 +50,7 @@ metric_statements:
 
 ## OTTL version drift
 
-`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0, `extract_avg_metric` in v0.162.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0` in v0.162 and v0.163 (verified 2026-10-15; owner: the `otel-ottl` skill's `references/functions.md`). Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
+`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0, `extract_avg_metric` in v0.162.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0` in v0.162 and v0.163 (verified 2026-10-25; owner: the `otel-ottl` skill's `references/functions.md`). Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
 
 ## Don't change identity carelessly
 

@@ -27,6 +27,13 @@ Key allow-listing is fail-closed; value matching is not. Relying only on `blocke
 
 `debug` verbosity records the redacted/masked/allowed **key names** as attributes. If a key name is itself sensitive, keep `summary: info` (counts only) in production and reserve `debug` for short-lived investigation.
 
+## Chained `redaction` processors and the audit summary
+
+Since v0.163.0, a processor whose `summary` is `debug` or `info` treats all fourteen `redaction.*` / `redaction.body.*` summary attributes as its own bookkeeping, so a later processor never deletes, masks, or counts them. Redacted and masked counts accumulate across the chain; allowed and ignored outcomes are re-derived by each processor and replace the upstream value. Two consequences for existing chains:
+
+- A downstream processor with `summary` unset (the default) or `silent` claims no ownership, so the summary attributes are subject to its ordinary allow list: with `allow_all_keys: false` they are removed unless listed in `allowed_keys`. Before v0.163.0 five of them survived unconditionally.
+- A key inside a log **body** named like a summary attribute is treated as user data and redacted like any other unknown key.
+
 ## DB sanitizer firing conditions
 
 DB sanitization only fires on spans carrying `db.system`/`db.system.name` with `CLIENT` or `SERVER` span kind. Query text on spans without those attributes — or with a different span kind — is not sanitized. Enable per-engine sanitization explicitly (`db_sanitizer.<engine>.enabled: true`) and point it at the attributes holding the query text.

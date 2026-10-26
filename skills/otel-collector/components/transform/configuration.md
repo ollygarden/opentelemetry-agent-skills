@@ -81,7 +81,7 @@ transform:
 | `context` | string | No | Explicit OTTL context (see [Context values](#context-values)). Usually inferred — only set it to override inference. |
 | `error_mode` | string | No | Overrides the top-level `error_mode` for this group only. |
 | `conditions` | list | No | Group-level OTTL booleans, OR'd together. If any is true (or the list is empty), the group's statements run. |
-| `shared_cache` | bool | No (`false`) | Experimental. Share one OTTL cache map among statement groups of the same signal instead of clearing it between groups. The cache never persists across batches (v0.162.0 fixed a bug where it could). Added in v0.160.0. |
+| `shared_cache` | bool | No (`false`) | Share one OTTL cache map among statement groups of the same signal instead of clearing it between groups. The cache never persists across batches (v0.162.0 fixed a bug where it could). Added in v0.160.0; the upstream README dropped its "experimental" label in v0.163.0. |
 | `statements` | list | Yes | The OTTL statements to execute, in order. |
 
 ## Context values

@@ -9,7 +9,7 @@ trace to one event loop; it is not coordination among Collector instances.
 
 ## Memory scales with `num_traces` and trace size
 
-`num_traces` is the in-flight trace buffer: every trace awaiting a decision is held in memory. Rough estimate `num_traces * avg_spans_per_trace * ~1KB/span` (e.g. 50,000 traces × 20 spans ≈ 1 GB). Longer `decision_wait` means more traces resident at once. When the buffer fills, the oldest traces are evicted **before** their decision (surfacing as the `sampling_trace_dropped_too_early` metric) unless `block_on_overflow` is set. Size it as `traces_per_sec * decision_wait_seconds * safety_factor`.
+`num_traces` is the in-flight trace buffer: every trace awaiting a decision is held in memory. Rough estimate `num_traces * avg_spans_per_trace * ~1KB/span` (e.g. 50,000 traces × 20 spans ≈ 1 GB). Longer `decision_wait` means more traces resident at once. When the buffer fills, the oldest traces are evicted **before** their decision (surfacing as the `sampling_trace_dropped_too_early` metric) unless `block_on_overflow` is set. Size it as `traces_per_sec * decision_wait_seconds * safety_factor`. Since v0.163.0 the processor moves incoming spans into its buffer instead of copying them and declares `MutatesData: true`, so when a receiver fans out to several pipelines the Collector clones the data before it reaches `tail_sampling`.
 
 ## `decision_wait` adds latency and a fixed window
 

@@ -49,4 +49,4 @@ Avoid when:
 - [Operators](operators.md) — the stanza operator pipeline: the available inputs/parsers/general-purpose operators, the `id`/`output` wiring rules, and embedded timestamp/severity parsing.
 - [Verification](verification.md) — a file-based recipe (write lines to a mounted file → `file_log` → `debug`), verified on contrib v0.159.0. Notes why `telemetrygen` cannot drive this receiver.
 - [Advanced use-cases](advanced.md) — multiline entries, encodings, durable offsets via `storage`, header metadata parsing, log-rotation handling (`on_truncate`), file ordering, and `compression`.
-- [Known quirks](quirks.md) — the `start_at: end` default, the rename/alias, feature-gated options, `delete_after_read` constraints, fingerprint re-ingestion, and stability.
+- [Known quirks](quirks.md) — the `start_at: end` default, the rename/alias, feature-gated options, the v0.163.0 default scope, `delete_after_read` constraints, fingerprint re-ingestion, and stability.

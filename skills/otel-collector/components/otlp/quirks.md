@@ -40,4 +40,4 @@ The HTTP config exposes `traces_url_path`, `metrics_url_path`, and `logs_url_pat
 
 ## Stability is per signal
 
-Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile ingestion as still-evolving and subject to breaking change, even though the same receiver serves it.
+Traces, metrics, and logs are **Stable**; **profiles** are **Alpha**. Treat profile ingestion as still-evolving and subject to breaking change, even though the same receiver serves it. Since v0.163.0 the receiver checks the Profiles development-version metadata (`otlp-profiles-development-version` gRPC metadata / `OTLP-Profiles-Development-Version` HTTP header): missing means the initial version, while a malformed, repeated, or unsupported value is rejected with gRPC `INVALID_ARGUMENT` / HTTP `400` before decoding. There is no negotiation between versions — see the upstream README's "Profiles Development Version" section.

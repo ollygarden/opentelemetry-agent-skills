@@ -1,6 +1,6 @@
 # Telemetrygen Flag Reference
 
-Complete flag reference for `telemetrygen` v0.162.0 (later tags: `collector-verification.md`).
+Complete flag reference for `telemetrygen` v0.163.0 (later tags: `collector-verification.md`).
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 | `--workers` | int | `1` | Concurrent worker goroutines |
 | `--rate` | float64 | `1` | Approximate configured record target per second per worker; delivered export throughput may be lower. For traces, parent and child spans count toward this target, so approximate traces/s = `workers * rate / (effective children + 1)`. `0` means no throttling and is prohibited by the safety gate |
 | `--duration` | duration | `0` | How long to generate. Use a finite Go duration (`5s`, `1m`); `inf` is recognized but prohibited by the safety gate. Overrides count flags |
-| `--interval` | duration | `1s` | Registered reporting interval; not consumed by generation code in v0.162.0 |
+| `--interval` | duration | `1s` | Registered reporting interval; not consumed by generation code in v0.163.0 |
 | `--timeout` | duration | `10s` | Maximum time to wait for the signals to reach destination |
 
 ### Batching
@@ -64,7 +64,7 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--size` | int | `0` | Minimum string-data payload size in MB per generated record; for traces, it is added to the parent span. In v0.162.0 it has no effect on `ExponentialHistogram` points |
+| `--size` | int | `0` | Minimum string-data payload size in MB per generated record; for traces, it is added to the parent span. In v0.163.0 it has no effect on `ExponentialHistogram` points |
 | `--allow-export-failures` | bool | `false` | Continue when exports fail |
 
 ### Attribute Value Format
@@ -150,7 +150,7 @@ spec:
     spec:
       containers:
       - name: telemetrygen
-        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.162.0
+        image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.163.0
         args:
         - traces
         - --otlp-endpoint=otel-collector.observability:4317

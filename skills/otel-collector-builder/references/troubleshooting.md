@@ -20,7 +20,7 @@ Fix: align every core and contrib component on the same `v0.x.0` matching the OC
 
 - One component pinned at an older `v0.x.0` than the rest — Go resolves the highest requested version and the manifest no longer matches reality.
 - Writing a stable contrib module (e.g. `k8sattributesprocessor`) at `v0.x.0` past its v1 move — no such tag exists; use its `v1.x` version.
-- Version written without the `v` prefix (`0.162.0`) — module query fails outright.
+- Version written without the `v` prefix (`0.163.0`) — module query fails outright.
 - OCB binary older than the component versions in the manifest — upgrade OCB first; the generated templates encode assumptions about the core APIs of the matching release.
 
 Strict checking is off by default; run with `--skip-strict-versioning=false` to make OCB verify resolved versions against the manifest instead of failing later in `go build`.

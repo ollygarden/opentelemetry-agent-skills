@@ -1,8 +1,8 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.162.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
+Editor and converter reference for collector-contrib **v0.163.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
 
-## Feature gates (verified 2026-10-15)
+## Feature gates (verified 2026-10-25)
 
 OTTL feature gates in `pkg/ottl/metadata.yaml`. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying.
 
@@ -29,7 +29,7 @@ v0.163.0 also rejects non-list literal slice arguments such as `Concat("a", "-")
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.162.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#supported-functions).
+[v0.163.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
@@ -52,16 +52,16 @@ The contexts and signatures below are pinned to the released
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 and v0.163 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-10-15; [v0.163.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 and v0.163 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-10-25; [v0.163.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#parsecef), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.162.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -111,6 +111,7 @@ delete_index(log.attributes["tags"], 0, 3)     # delete indices 0, 1, 2
 ### `keep_keys` / `keep_matching_keys`
 ```ottl
 keep_keys(span.attributes, ["http.method", "http.status_code", "http.route"])
+keep_keys(log.attributes, Split(log.attributes["keys"], ","))   # v0.163+, beta dynamic-slice gate
 keep_matching_keys(span.attributes, "(?i)^http\\..*")
 ```
 
@@ -396,7 +397,7 @@ SliceToMap(resource.attributes["items"], ["name"], ["value"])          # explici
 
 ```ottl
 Now()                                         # current time
-Time(s, format, location?, locale?)           # locale added v0.136
+Time(s, format, location?, locale?)           # locale added v0.136; v0.163+: a format ending in %Z with no location falls back to local time, not UTC
 FormatTime(t, format)
 Duration(s)                                   # "1h30m" -> time.Duration
 TruncateTime(t, duration)

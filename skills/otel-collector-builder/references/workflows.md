@@ -56,7 +56,7 @@ Run OCB in a container (no local Go needed):
 
 ```bash
 docker run --rm -v "$(pwd):/work" -w /work \
-  otel/opentelemetry-collector-builder:0.162.0 \
+  otel/opentelemetry-collector-builder:0.163.2 \
   --config=/work/builder.yaml
 ```
 
@@ -68,7 +68,7 @@ Typical multi-stage Dockerfile for shipping the result:
 FROM golang:1.26 AS build
 WORKDIR /build
 COPY builder.yaml .
-RUN go install go.opentelemetry.io/collector/cmd/builder@v0.162.0 \
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.163.0 \
  && builder --config=builder.yaml
 
 FROM gcr.io/distroless/static-debian12:nonroot
@@ -91,7 +91,7 @@ GOOS=linux GOARCH=arm64 ocb --config=builder.yaml
 GOOS=windows GOARCH=amd64 ocb --config=builder.yaml   # generated main_windows.go adds Windows service support
 ```
 
-Use a distinct `dist.output_path` per platform (or move the binary between builds) — the binary name doesn't encode the platform. Cross-compiling with `cgo_enabled: true` additionally needs a target-platform C toolchain.
+Use a distinct `dist.output_path` per platform (or move the binary between builds) — the binary name doesn't encode the platform (Windows targets only get `.exe` appended). Cross-compiling with `cgo_enabled: true` additionally needs a target-platform C toolchain.
 
 ## Custom build metadata (ldflags)
 

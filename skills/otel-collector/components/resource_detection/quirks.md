@@ -4,7 +4,7 @@
 
 Fatal errors from a configured detector **propagate and can prevent the Collector from starting** after the configured retry budget is exhausted. Every detector uses the global `retry` block; retries are enabled by default, with the default session bounded by `timeout: 5s`. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in.
 
-Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. The `oraclecloud` detector uses a fast probe: a failed probe returns an empty resource; if the probe succeeds but the follow-up fetch fails, it errors only when `fail_on_missing_metadata: true` and otherwise returns an empty resource.
+Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. Since v0.163.0 the flag also covers the `ec2` detector's instance identity document and hostname lookups. The `oraclecloud` detector uses a fast probe: a failed probe returns an empty resource; if the probe succeeds but the follow-up fetch fails, it errors only when `fail_on_missing_metadata: true` and otherwise returns an empty resource.
 
 ## `override: true` is the default — and it overwrites SDK-set attributes
 
@@ -42,6 +42,10 @@ The names and attribute sets may still change because all three metrics are Deve
 - Use the **`docker`** detector instead of `system` when the Collector runs as a Docker container, and mount the Docker socket (`/var/run/docker.sock`). Note the official images run as non-root since 0.40.0, so socket access needs group permissions.
 - The `docker` detector **does not work on macOS**.
 - `host.name` from the `system` detector defaults to the FQDN (`hostname_sources: ["dns", "os"]`); inside a container this is often the container ID. Set `hostname_sources: ["os"]` to use the OS-provided hostname only.
+
+## Detectors can be compiled out of custom builds
+
+Since v0.163.0 a custom build can compile detectors out (mechanism: the `otel-collector-builder` skill's `dist.resource.detection.detectors` manifest key). An omitted detector's constructor returns no detector, so such a Collector must only list compiled-in detectors under `detectors:`. If a detector fails only in a custom build, check the builder config before the processor config. Upstream distributions are unaffected.
 
 ## The `resourcedetection` type is a deprecated alias
 
