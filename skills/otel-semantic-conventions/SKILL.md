@@ -18,7 +18,7 @@ Use this skill when you need released semantic convention guidance for naming, a
 2. Choose the closest released group before inventing custom keys.
 - identify the boundary type such as `http`, `db`, `messaging`, `rpc`, or `network`
 - pick one primary group first, then add related groups only when they add needed context
-- for `gen_ai.*`, OpenAI, or MCP conventions, use [`open-telemetry/semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai); it has no tagged release as of 2026-10-19, so cite the commit and label the guidance unreleased (the lookup script does not cover it); the core repository keeps only deprecated GenAI-era stubs after v1.42.0
+- for `gen_ai.*`, OpenAI, or MCP conventions, use [`open-telemetry/semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai); it has no tagged release as of 2026-10-25, so cite the commit and label the guidance unreleased (the lookup script does not cover it); the core repository keeps only deprecated GenAI-era stubs after v1.42.0
 - see `references/semconv-selection.md`
 - to target a version a language's semconv package actually exposes (works offline, dated), see `references/sdk-semconv-packages.md`
 

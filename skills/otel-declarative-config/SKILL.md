@@ -16,16 +16,16 @@ Missing runtime identity does not defer safety triage. When supplied configurati
 first perform the bounded, non-constructing inspection below and report a sanitized diagnosis; then
 request the identity before producing a deployable correction.
 
-## Parsers verified 2026-10-15 (newer releases may exist; check the pin before deploying)
+## Parsers verified 2026-10-25 (newer releases may exist; check the pin before deploying)
 
 | Runtime | Parser | `file_format` | Check before deploying |
 |---|---|---|---|
 | Go | otelconf v0.27.0 | `"1.0-rc.3"` | Makefile schema tag |
 | Java SDK | 1.67.0 | `"1.2"` | `EXPECTED_FILE_FORMAT` |
-| Java agent / Spring starter | 2.32.0 (SDK 1.66.0) | `"1.1"` | embedded SDK version |
-| JS | configuration 0.223.0 | `"1.1"` | `CONFIG_VERSION` |
+| Java agent / Spring starter | 2.33.0 (SDK 1.67.0) | `"1.2"` | embedded SDK version |
+| JS | configuration 0.300.0 | `"1.1"` | `CONFIG_VERSION` |
 | Python | configuration 0.66b1 | `"1.1"` | vendored `schema.json` |
-| Ruby | config 0.1.1 | `"1.0"` (README) | `generated_constants.rb` |
+| Ruby | config 0.2.0 | `"1.0"` (README) | `generated_constants.rb` |
 | .NET | SDK: none; auto-instr. v1.17.0 (experimental) | `"1.0"` (docs) | - |
 
 Schema repo latest: v1.2.0. For evidence, validation behavior, or one file shared by several
@@ -137,7 +137,7 @@ For released implementations, verify the package version before using these exac
 | Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
 | JavaScript (Node.js) | Call the experimental `startNodeSDK()` from `@opentelemetry/sdk-node`; it uses `@opentelemetry/configuration`'s `createConfigFactory()`, which selects file configuration whenever `OTEL_CONFIG_FILE` is non-empty. |
 | Python | Install the experimental `opentelemetry-configuration` package alongside its matching SDK release. When `OTEL_CONFIG_FILE` is set, the SDK configurator used by `opentelemetry-instrument` calls `load_config_file()` and `configure_sdk()`; those functions are also the direct programmatic entry points. When configuration is enabled, an absent propagator section makes `configure_sdk()` install an empty `CompositePropagator`. |
-| Ruby | Experimental `opentelemetry-config` gem (0.1.0+). The app must call `OpenTelemetry::Config.configure` (reads `OTEL_CONFIG_FILE`) or `configure_from_file(path)`; nothing loads the file automatically. 0.1.0 applies only `resource`, `tracer_provider`, and `propagator` (`meter_provider` and `logger_provider` are parsed but ignored), performs no `${VAR}` substitution, does not validate `file_format`, does not give the file precedence over env vars, and returns a no-op SDK (leaving existing global state unchanged) only for an unset or missing path or a YAML syntax error; other file or model errors (e.g. a disallowed YAML tag) raise. |
+| Ruby | Experimental `opentelemetry-config` gem (0.1.0+). The app must call `OpenTelemetry::Config.configure` (reads `OTEL_CONFIG_FILE`) or `configure_from_file(path)`; nothing loads the file automatically. 0.2.0 applies `resource`, `tracer_provider`, `logger_provider` (needs `opentelemetry-logs-sdk` loaded), and `propagator`; `meter_provider` is parsed but ignored. It substitutes `${VAR}`, `${env:VAR}`, `${VAR:-default}`, and `$$` in scalar values, does not validate `file_format`, and does not inherit SDK `OTEL_*` environment-variable defaults. It returns a no-op SDK (leaving existing global state unchanged) for an unset or missing path, a YAML syntax error, an invalid substitution reference, or `disabled: true`; other file or model errors (e.g. a disallowed YAML tag or an alias) raise. |
 
 Other languages, agents, and framework starters can expose different or no bootstrap paths. Use the
 language-specific cross-reference below rather than extrapolating this table.
