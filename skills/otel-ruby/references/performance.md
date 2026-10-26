@@ -35,11 +35,16 @@ jobs, and callbacks that framework instrumentation does not already cover.
 
 ## Metrics cardinality and cost
 
-The experimental metrics SDK applies cardinality limits (default 2000 per stream in `0.19.0`) and
+The experimental metrics SDK applies cardinality limits (default 2000 per stream in `0.22.0`) and
 supports views. Prefer bounded
 dimensions; use a view to retain only useful attribute keys or drop a noisy instrument. Confirm
 the locked release's limit and overflow behavior before relying on it. Check delta/cumulative
-temporality against the receiving backend when changing the OTLP metrics preference.
+temporality against the receiving backend when changing the OTLP metrics preference. Since
+`opentelemetry-exporter-otlp-metrics` `0.15.0`,
+`OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=base2_exponential_bucket_histogram`
+switches the default histogram aggregation; an explicit `default_aggregation:` argument wins.
+Exporter `0.15.0` needs `opentelemetry-metrics-sdk` `0.22.0` or later: its gemspec allows `~> 0.5`,
+but older SDK readers reject `default_aggregation:` with `ArgumentError`.
 
 ## Attribute and payload bounds
 
@@ -60,5 +65,5 @@ An empty backend query is not proof of zero telemetry. Enable `OTEL_LOG_LEVEL=de
 warnings and processor drop signals, and compare with a disposable local receiver.
 
 Sources: [trace SDK 1.13.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.1/sdk),
-[metrics SDK 0.19.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-sdk/v0.19.0/metrics_sdk), and
+[metrics SDK 0.22.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-sdk/v0.22.0/metrics_sdk), and
 [Ruby API 1.11.1 benchmarks](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.1/api/benchmarks).

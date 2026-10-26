@@ -22,7 +22,7 @@ skill. For Go-specific facts:
 The `otelconf` repo ships two flavors of the package:
 
 - **Root** `go.opentelemetry.io/contrib/otelconf` — trails the schema repository. Verified
-  2026-10-15: `v0.27.0` targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`) while the schema
+  2026-10-25: `v0.27.0` targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`) while the schema
   repository is at `v1.2.0` (owner: the `otel-declarative-config`
   [parsers table](../../otel-declarative-config/SKILL.md)). Includes `sdk.Propagator()` for installing
   propagators from YAML.

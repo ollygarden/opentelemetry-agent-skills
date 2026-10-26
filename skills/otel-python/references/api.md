@@ -24,7 +24,7 @@ from opentelemetry.sdk.resources import Resource
 
 SDK packages ship in `opentelemetry-sdk`. The API packages ship in `opentelemetry-api`. Application code should import from the API; SDK imports belong in bootstrap/setup code.
 The trace and metrics API surfaces are stable. The Logs API remains under active
-stabilization as of 1.45.0, even though it is distributed in the stable-versioned
+stabilization as of 1.45.1, even though it is distributed in the stable-versioned
 `opentelemetry-api` package.
 
 ## Global API Access

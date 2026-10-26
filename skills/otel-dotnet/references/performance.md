@@ -226,17 +226,20 @@ view to be ignored.
 
 ```csharp
 .AddView(
-    instrumentName: "runtime.dotnet.gc.collections",
+    instrumentName: "process.runtime.dotnet.gc.collections.count",
     metricStreamConfiguration: MetricStreamConfiguration.Drop)
 ```
+
+The `process.runtime.*` names apply to targets before .NET 9; on .NET 9 and later the
+runtime instrumentation forwards the built-in `System.Runtime` meter (`dotnet.gc.collections`, …).
 
 ### Wildcard / Predicate-Based Views
 
 ```csharp
 .AddView(viewConfig: instrument =>
 {
-    // Drop all metrics whose name starts with "runtime."
-    if (instrument.Name.StartsWith("runtime.", StringComparison.OrdinalIgnoreCase))
+    // Drop all metrics whose name starts with "process.runtime."
+    if (instrument.Name.StartsWith("process.runtime.", StringComparison.OrdinalIgnoreCase))
     {
         return MetricStreamConfiguration.Drop;
     }
@@ -310,6 +313,14 @@ non-retryable failure.
 The maximum supported request limit is 256 MiB. Size is measured before compression, and
 the receiver may enforce its own request-size limit.
 
+### Redirects
+
+Since core 1.20.1 (breaking), `HttpClient` instances the OTLP exporter creates itself no longer
+follow HTTP redirects; a `3xx` response is a failed export. Point the exporter at the final
+endpoint. An `HttpClient` from the `HttpClientFactory` option or `IHttpClientFactory` uses its
+own redirect policy (follows redirects by default); see the exporter README's "Configure
+HttpClient" section at the core tag.
+
 ### Compression
 
 The OTLP exporter supports `none` and `gzip` compression. Configure it with
@@ -322,6 +333,9 @@ The OTLP exporter supports `none` and `gzip` compression. Configure it with
 The OTLP exporter supports opt-in retry behavior via the experimental feature flag `OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY`. Valid values:
 - `in_memory`: retry failed exports in memory
 - `disk`: persist failed payloads to disk and retry later (requires `OTEL_DOTNET_EXPERIMENTAL_OTLP_DISK_RETRY_DIRECTORY_PATH`)
+
+Since core 1.20.1, disk retry storage is partitioned per exporter `Protocol`/`Endpoint`/`Headers`,
+so payloads stored on disk by earlier versions are not resent after upgrading.
 
 Retry is not enabled by default. For production resilience, consider placing an OpenTelemetry Collector on localhost and delegating retry/buffering to it.
 
@@ -470,7 +484,8 @@ The OpenTelemetry .NET SDK is designed so that telemetry failures do not crash o
 - **Dropped activities avoid recording/export work** — `StartActivity` may return
   `null` or a propagation-only `Activity`, depending on the parent context
 - **Metric recording never throws** — measurements are silently dropped on failure
-- **Export failures are logged internally** — via `EventSource`; check ETW/dotnet-trace for diagnostics
+- **Export failures are logged internally** — via `EventSource`; check ETW/dotnet-trace for diagnostics.
+  Core 1.20.0+ also offers `SelfDiagnosticsOptions` file and console sinks (off by default)
 - **Queue overflow drops spans** — the application is not blocked
 
 Export retries are opt-in (see the Retry section above). For reliable delivery in production, route telemetry through a local OpenTelemetry Collector that handles buffering and retry on your behalf.

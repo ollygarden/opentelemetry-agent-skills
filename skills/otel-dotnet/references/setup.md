@@ -203,8 +203,9 @@ below).
 ## No Released Declarative Config in .NET
 
 > **Note:** .NET does not have a released implementation of the OpenTelemetry declarative
-> YAML (`file_format`) specification in the SDK. Verified 2026-10-15: `OpenTelemetry.Configuration.Declarative`
-> exists on `main`, but no NuGet package is published. The separate zero-code auto-instrumentation
+> YAML (`file_format`) specification in the SDK. Verified 2026-10-25 at `core-1.20.1`:
+> `OpenTelemetry.Configuration.Declarative` exists in source (CHANGELOG has only `Unreleased`, no
+> `declarativeconfig-*` tag), and no NuGet package is published. The separate zero-code auto-instrumentation
 > (`opentelemetry-dotnet-instrumentation` v1.17.0) has experimental file-based config behind
 > `OTEL_EXPERIMENTAL_FILE_BASED_CONFIGURATION_ENABLED=true`; see the `otel-declarative-config` skill.
 >

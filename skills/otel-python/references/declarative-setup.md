@@ -22,8 +22,8 @@ For YAML schema details, fetch the upstream sources listed in the
 | Latest `opentelemetry-configuration` | `WebFetch https://pypi.org/pypi/opentelemetry-configuration/json` |
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support (released 1.45.1; verified 2026-10-19) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst` |
-| Vendored schema (released 1.45.1; verified 2026-10-19) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
+| Declarative config support (released 1.45.1; verified 2026-10-25) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst` |
+| Vendored schema (released 1.45.1; verified 2026-10-25) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
 | SDK CHANGELOG through 1.45.1 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md` |
 
 ## Install
@@ -119,7 +119,7 @@ but spans started before setup are not retroactively recorded.
 `file_format` is required and must be a string version. The loader validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
 versions with the same major version are accepted with a warning. Verified
-2026-10-15: `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) vendors schema
+2026-10-25: `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) vendors schema
 v1.1.0 (as does 1.45.0) and its loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning
 and `"1.2"` warns (1.44.0 targeted 1.0 and warned on `"1.1"`).
 

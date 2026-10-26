@@ -80,5 +80,5 @@ For integration tests, send to a disposable local OTLP receiver and verify the w
 point a test at a production endpoint.
 
 Sources: [Ruby API 1.11.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.1/api),
-[metrics API 0.8.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-api/v0.8.0/metrics_api), and
-[logs SDK 0.7.0 examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-logs-sdk/v0.7.0/examples/logs_sdk).
+[metrics API 0.10.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-api/v0.10.0/metrics_api), and
+[logs SDK 0.8.1 examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-logs-sdk/v0.8.1/examples/logs_sdk).

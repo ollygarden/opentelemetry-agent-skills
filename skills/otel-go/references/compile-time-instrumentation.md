@@ -1,6 +1,6 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.2.0**, verified 2026-10-19) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.2.0**, verified 2026-10-25) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
@@ -68,8 +68,9 @@ straight to the Go toolchain — `otelc go build --rules …` sends `--rules` to
 
 ## Supported libraries (v1)
 
-Verified against the upstream `instrumentation/` tree. The active set is `otelc`'s embedded bundle;
-confirm against the tree when a version changes.
+Verified 2026-10-25 against the embedded bundle manifest (`tool/data/instrumentation-manifest.json`)
+of the published `otelc` v1.2.0 module. The active set is that embedded bundle; re-check the manifest
+when the `otelc` version changes.
 
 | Library | Signals |
 |---|---|
@@ -79,13 +80,17 @@ confirm against the tree when a version changes.
 | `github.com/gin-gonic/gin` | HTTP server spans |
 | `github.com/redis/go-redis/v9` | Redis DB spans |
 | `go.mongodb.org/mongo-driver` (v1/v2) | MongoDB DB spans |
+| `github.com/apache/cassandra-gocql-driver/v2` | Cassandra DB spans |
+| `github.com/olivere/elastic/v7` | Elasticsearch DB spans |
 | `k8s.io/client-go` | K8s resource spans |
 | `github.com/openai/openai-go` (v1/v2/v3) | GenAI spans |
 | `github.com/anthropics/anthropic-sdk-go` | GenAI spans |
 | `github.com/segmentio/kafka-go` (consumer & producer) | Kafka messaging spans |
+| `github.com/rabbitmq/amqp091-go` | RabbitMQ messaging spans |
 | `github.com/aws/aws-sdk-go-v2` | AWS SDK client spans |
 | `github.com/linode/linodego/v2` | HTTP client spans and metrics |
-| `log`, `log/slog`, `github.com/sirupsen/logrus` | Trace/span ID log correlation |
+| `github.com/stripe/stripe-go` (v81/v82) | HTTP client spans |
+| `log`, `log/slog`, `github.com/sirupsen/logrus`, `go.uber.org/zap` | Trace/span ID log correlation |
 | Go runtime | Runtime metrics |
 
 ## Selecting & configuring instrumentation
@@ -138,7 +143,7 @@ disables the injected SDK. `otelc` exposes these runtime controls:
 | `OTEL_GLS_MAX_SPANS` | Per-goroutine live span-stack limit; default `1000`. |
 | `OTEL_GLS_MAX_SPAN_STATES` | Shared span-lifecycle map limit; default `100000`, evicting the oldest state when full. |
 | `OTEL_LOG_LEVEL` | `debug`, `info` (default), `warn`, or `error` for `otelc` runtime logs. |
-| `OTEL_GO_SIMPLE_SPAN_PROCESSOR` | Exactly lowercase `true` selects `SimpleSpanProcessor`; other spellings are ignored. |
+| `OTEL_GO_SIMPLE_SPAN_PROCESSOR` | Case-insensitive `true` selects `SimpleSpanProcessor` (default: batch processor). |
 
 The enable/disable lists only gate instrumentation already compiled into the binary; build-time
 selection still comes from the rule sources above.
