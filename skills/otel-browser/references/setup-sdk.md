@@ -13,20 +13,19 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Verified 2026-10-15** (npm, release notes, and the published `.d.ts`): the latest releases were
-> `@opentelemetry/browser-sdk` 0.5.0, which adds an `instrumentations` start option and validates
-> export URLs before starting (its other options match the 0.4.0 examples below);
-> `@opentelemetry/browser-instrumentation` 0.8.2, which only fixes dependencies, fetch header writes,
-> and user-action selectors; and `@opentelemetry/sdk-trace-web` 2.12.0. Offline, cite this date,
-> never call a value currently latest, and confirm it against the evidence before deploying.
-> Evidence: [browser-sdk-v0.5.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.5.0),
-> [browser-instrumentation-v0.8.2](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.8.2),
+> **Verified 2026-10-25** (npm, release notes, and the published `.d.ts`): the latest releases were
+> `@opentelemetry/browser-sdk` 0.6.0 (start options unchanged since 0.5.0; `browserDetector` moved
+> from `@opentelemetry/opentelemetry-browser-detector` to its `./browser-detector` subpath);
+> `@opentelemetry/browser-instrumentation` 0.9.0; and `@opentelemetry/sdk-trace-web` 2.12.0 (final, npm-deprecated). Offline, cite this date, never call
+> a value currently latest, and confirm it against the evidence before deploying.
+> Evidence: [browser-sdk-v0.6.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.6.0),
+> [browser-instrumentation-v0.9.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.9.0),
 > [opentelemetry-js v2.12.0](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.12.0) (sdk-trace-web).
 >
 > The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
-> for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
-> still on the 0.x line) for events. Both approaches are shown below. The opentelemetry-js 2.x
+> for spans, plus the Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`; experimental
+> 0.x on the 2.x line, stable from 3.0.0) for events. Both approaches are shown below. The opentelemetry-js 2.x
 > line also ships `@opentelemetry/sdk-trace` (since 2.9.0), which its CHANGELOG says will eventually
 > replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 and later build on it. Its processors take an
 > options object (`new BatchSpanProcessor({ exporter })`), unlike the positional `sdk-trace-web`
@@ -55,8 +54,8 @@ geo) possible. See [performance.md](performance.md#the-collector-is-your-cost-an
 
 ## Approach A — direct providers
 
-Spans use the **stable** tracing SDK; events use the **experimental** Logs SDK (0.x). There is no
-stable browser events path yet — the Logs SDK is the current mechanism.
+Spans use the **stable** tracing SDK; events use the Logs SDK (experimental 0.x on this 2.x line), and
+the browser event instrumentations are experimental.
 
 ### Dependencies
 
@@ -66,6 +65,17 @@ stable browser events path yet — the Logs SDK is the current mechanism.
 > lines, so this example pins the last 2.x / 0.223.x releases. For 3.x, follow the
 > [3.x migration guide](https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md), section "`@opentelemetry/sdk-trace-web` (package removed)"
 > (`TracerProvider` from `@opentelemetry/sdk-trace`, logs API from `@opentelemetry/api`).
+>
+> **Verified 2026-10-25** (npm metadata): `@opentelemetry/browser-sdk` 0.6.0 and
+> `@opentelemetry/browser-instrumentation` 0.9.0 still depend on `@opentelemetry/instrumentation`
+> and `api-logs` ^0.223.0 (2.x line). The js-contrib browser releases of 2026-10-20 moved to SDK 3.0 /
+> `instrumentation` ^0.300.0: `auto-instrumentations-web` and `instrumentation-document-load` 0.69.0,
+> `instrumentation-user-interaction` and `instrumentation-long-task` 0.68.0,
+> `instrumentation-browser-navigation` and `instrumentation-web-exception` 0.17.0. On the 2.x line pin
+> their previous releases (0.68.0, 0.67.0, 0.16.0 respectively). opentelemetry-js 0.300.0 also
+> soft-deprecated `instrumentation-fetch` / `instrumentation-xml-http-request` in favor of the
+> `browser-instrumentation` Fetch/XHR subpaths, whose telemetry differs; see the
+> [browser migration guide](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-sdk-v0.6.0/docs/migration-guide.md).
 
 ```bash
 # Tracing (stable 2.x line)
@@ -73,6 +83,7 @@ npm install @opentelemetry/api@1.9 \
   @opentelemetry/sdk-trace-web@2 \
   @opentelemetry/context-zone@2 \
   @opentelemetry/exporter-trace-otlp-http@0.223 \
+  @opentelemetry/instrumentation-fetch@0.223 \
   @opentelemetry/resources@2 \
   @opentelemetry/semantic-conventions
 
@@ -80,7 +91,8 @@ npm install @opentelemetry/api@1.9 \
 npm install @opentelemetry/api-logs@0.223 \
   @opentelemetry/sdk-logs@0.223 \
   @opentelemetry/exporter-logs-otlp-http@0.223 \
-  @opentelemetry/instrumentation@0.223
+  @opentelemetry/instrumentation@0.223 \
+  @opentelemetry/browser-instrumentation@0.9
 ```
 
 ### Tracer provider (spans)
