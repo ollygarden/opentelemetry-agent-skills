@@ -45,7 +45,7 @@ excludes: []      # go.mod exclude directives
 | `cgo_enabled` | `false` | Sets `CGO_ENABLED=1` for components needing native libraries. |
 | `build_tags` | empty | Comma-separated Go build tags. |
 | `use_absolute_replace_paths` | `false` | See below. |
-| `resource.detection.detectors` | empty (all detectors compiled in) | Since v0.163.0. List of `resourcedetectionprocessor` detector names (`- env:`, `- system:`); OCB adds an `omit_detector_<name>` build tag for every other known detector. An unknown name fails with `unknown resource detector`. |
+| `resource.detection.detectors` | empty (all detectors compiled in) | Since v0.163.0. List of detector names from OCB's known list (`- env:`, `- system:`), which uses build-tag spellings: `aws_ec2`, `aws_eks`, `azure_aks`, `openstack_nova`, not the processor's `ec2`, `eks`, `aks`, `nova`; OCB adds an `omit_detector_<name>` build tag for every other known detector. An unknown name fails with `unknown resource detector`. |
 
 **`use_absolute_replace_paths` (v0.151.0 breaking change):** when a component uses `path:` or a `replaces` entry points at a local directory, OCB writes a `replace` directive into the generated `go.mod`. Since v0.151.0 those paths are **relative** to `output_path` by default, making the generated tree portable (committable, buildable on another machine). Set `true` to restore the pre-v0.151.0 absolute-path behavior.
 

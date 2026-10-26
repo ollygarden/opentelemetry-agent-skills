@@ -45,7 +45,7 @@ The names and attribute sets may still change because all three metrics are Deve
 
 ## Detectors can be compiled out of custom builds
 
-Since v0.163.0 a custom build can compile detectors out (mechanism: the `otel-collector-builder` skill's `dist.resource.detection.detectors` manifest key). An omitted detector's constructor returns no detector, so such a Collector must only list compiled-in detectors under `detectors:`. If a detector "does nothing" or misbehaves only in a custom build, check the builder config before the processor config. Upstream distributions are unaffected.
+Since v0.163.0 a custom build can compile detectors out (mechanism: the `otel-collector-builder` skill's `dist.resource.detection.detectors` manifest key). An omitted detector's constructor returns no detector, so such a Collector must only list compiled-in detectors under `detectors:`. If a detector fails only in a custom build, check the builder config before the processor config. Upstream distributions are unaffected.
 
 ## The `resourcedetection` type is a deprecated alias
 
