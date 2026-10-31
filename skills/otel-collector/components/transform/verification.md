@@ -2,7 +2,7 @@
 
 See [Verification harness](../../SKILL.md#verification-harness) for how to run this end-to-end.
 
-`transform` ships in the `contrib` and `k8s` distributions, so a stock contrib collector can run this.
+`transform` ships in the `contrib` and `k8s` distributions (and `core` since v0.164.0), so a stock contrib collector can run this.
 
 Verified on `otel/opentelemetry-collector-contrib:0.159.0` with
 `ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0`

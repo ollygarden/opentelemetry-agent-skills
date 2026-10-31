@@ -6,7 +6,7 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 > `file_log` receiver reads files from disk. There is no `telemetrygen` flag that writes a log
 > file. The input here is a **file you write yourself** and mount into the collector container.
 
-The `file_log` receiver ships in the `contrib` and `k8s` distributions. This recipe runs **one**
+The `file_log` receiver ships in the `contrib` and `k8s` distributions (and `core` since v0.164.0). This recipe runs **one**
 collector — `file_log` tailing a mounted directory, feeding a `debug` exporter — and proves the
 pipeline by writing three pre-formatted lines and reading them back parsed.
 

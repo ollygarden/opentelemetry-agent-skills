@@ -5,7 +5,7 @@
 | Kind | processor |
 | Type | `resource_detection` (renamed from `resourcedetection` in v0.153.0; the old name remains as a deprecated alias) |
 | Signals | traces (Beta), metrics (Beta), logs (Beta), profiles (Development) |
-| Distributions | contrib, k8s |
+| Distributions | core (since v0.164.0), contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/resourcedetectionprocessor> |
 

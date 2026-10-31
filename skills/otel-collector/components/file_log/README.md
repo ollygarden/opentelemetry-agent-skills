@@ -5,7 +5,7 @@
 | Kind | receiver |
 | Type | `file_log` (formerly `filelog`) |
 | Signals | logs (Beta) |
-| Distributions | contrib, k8s |
+| Distributions | core (since v0.164.0), contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver> |
 | Rename | `filelog` → `file_log` in **v0.149.0**; `filelog` kept as a deprecated alias (runtime warns `"filelog" alias is deprecated; use "file_log" instead`). |
