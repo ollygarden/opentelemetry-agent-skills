@@ -34,7 +34,7 @@ When reviewing an existing config, `filelog:` is **not** broken — it's the leg
 Some keys do nothing (or error) unless a feature gate is enabled at startup
 (`--feature-gates=<gate>`):
 
-| Option | Required gate | State (v0.163.0) |
+| Option | Required gate | State (v0.163.0; later changes noted inline) |
 |--------|---------------|-------|
 | `delete_after_read` | `filelog.allowFileDeletion` | Beta (on by default) |
 | `header` parsing | `filelog.allowHeaderMetadataParsing` | Beta (on by default) — no flag needed |

@@ -25,6 +25,8 @@ Coverage is intentionally selective. If a component is not indexed here, fall ba
 
 Verified 2026-10-25: Stability cells here and in component README headers match `metadata.yaml` at core and contrib `v0.163.0`; rename and "since" versions match `metadata.yaml` at the named tag and the one before. Offline, cite that release and date, not current stability.
 
+Verified 2026-10-31: the v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) match the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
+
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
 | `log_dedup` | `components/log_dedup/README.md` | processor | logs | Alpha | Deduplicates identical log records over a time window; emits one aggregated log with a count. Renamed from `logdedup` in v0.151.0; alias preserved. |

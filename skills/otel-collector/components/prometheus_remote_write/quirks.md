@@ -58,7 +58,7 @@ The exporter's `wal` block is its **own** on-disk write-ahead log, written under
 
 ## Name and label normalization mutates data
 
-The exporter normalizes OTLP metric names and attributes to Prometheus naming rules (so `MutatesData` is effectively true). Details of the normalization are in the [`pkg/translator/prometheus`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/translator/prometheus) module. The shared `pkg.translator.prometheus.PermissiveLabelSanitization` gate is Stable since v0.164.0 (Beta, on by default, in v0.162.0–v0.163.0), so labels with a leading underscore (e.g. `_foo`) are always kept instead of being rewritten to `key_foo`; disabling it now fails startup.
+The exporter normalizes OTLP metric names and attributes to Prometheus naming rules (so `MutatesData` is effectively true). Details of the normalization are in the [`pkg/translator/prometheus`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/translator/prometheus) module. The shared `pkg.translator.prometheus.PermissiveLabelSanitization` gate is Stable since v0.164.0 (Beta, on by default, in v0.162.0–v0.163.0), so labels with a leading underscore (e.g. `_foo`) are always kept instead of being rewritten to `key_foo`; disabling it now fails startup (dated v0.164.0 record in the skill's `SKILL.md`).
 
 ## Stability is per signal
 

@@ -1,6 +1,6 @@
 # `prometheus` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.160.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
+All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.160.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`); rows naming a later version follow the dated v0.164.0 record in the skill's `SKILL.md`.
 
 ## Top-level keys
 
