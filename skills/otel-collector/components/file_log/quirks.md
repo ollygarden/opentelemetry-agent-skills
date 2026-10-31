@@ -34,14 +34,14 @@ When reviewing an existing config, `filelog:` is **not** broken — it's the leg
 Some keys do nothing (or error) unless a feature gate is enabled at startup
 (`--feature-gates=<gate>`):
 
-| Option | Required gate | State (v0.163.0) |
+| Option | Required gate | State (v0.163.0; later changes noted inline) |
 |--------|---------------|-------|
 | `delete_after_read` | `filelog.allowFileDeletion` | Beta (on by default) |
 | `header` parsing | `filelog.allowHeaderMetadataParsing` | Beta (on by default) — no flag needed |
 | `ordering_criteria.sort_by.sort_type: mtime` | `filelog.mtimeSortType` | Beta (**on by default** since v0.161.0; Alpha off before) |
 | require explicit `ordering_criteria.top_n` when sorting | `filelog.requireExplicitTopN` | Alpha (off by default); unset keeps the legacy default `1`, explicit `0` matches all files |
 | include/exclude case-insensitive globbing (Windows) | `filelog.windows.caseInsensitive` | Beta (on by default) |
-| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Beta (**on by default** since v0.156.0; Alpha off in v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
+| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Stable since v0.164.0, always on (Beta on by default v0.156.0–v0.163.0; Alpha off v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
 
 ## Default instrumentation scope (v0.163.0+)
 
@@ -82,5 +82,5 @@ supported on Windows.
 
 ## Stability
 
-`logs` is **Beta** (production-viable; breaking config changes rare). Distributed in `contrib` and
-`k8s` — **not** in the `core` or `otlp` distributions, so a minimal/core collector won't have it.
+`logs` is **Beta** (production-viable; breaking config changes rare). Distributed in `contrib`, `k8s`
+and, since v0.164.0, `core` (`otelcol`); **not** in the `otlp` distribution.
