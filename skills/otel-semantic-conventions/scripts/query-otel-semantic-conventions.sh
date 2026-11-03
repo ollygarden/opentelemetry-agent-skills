@@ -156,10 +156,12 @@ model_records() {
       kind = kind_for_file(file)
       if (kind != "") {
         printf "%s\t%s\t%s\t%s\n", parts[2], kind, path, parts[count]
-      } else if (count == 3 && parts[1] == "model" && parts[2] == "messaging") {
-        # v1.44 definition/2 provider files can contain both span definitions
-        # and cross-signal attribute groups, despite neutral filenames.
+      } else if (count == 3 && parts[1] == "model") {
+        # definition/2 provider files (messaging/kafka.yaml since v1.44;
+        # rpc/grpc.yaml, db/redis.yaml, android/resources.yaml since v1.45)
+        # mix span/metric refinements and attribute groups under neutral names.
         printf "%s\tspans\t%s\t%s\n", parts[2], path, parts[count]
+        printf "%s\tmetrics\t%s\t%s\n", parts[2], path, parts[count]
         printf "%s\tcommon\t%s\t%s\n", parts[2], path, parts[count]
       }
     }

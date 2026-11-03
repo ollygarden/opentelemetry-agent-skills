@@ -19,7 +19,7 @@ Rules:
 - pass a listed kind as the second argument to list the released entries of that kind
 - pass an exact entry id as the second argument to return its upstream definition block
 - the script resolves the latest released semantic conventions version and reads released YAML model files under `model/<group>/` from that tag
-- definition/2 registry attributes, signal definitions, and refinements introduced in v1.44 are parsed by their schema entry keys; messaging provider files are included under their signal kind even when their filenames do not contain `spans`, `metrics`, or `events`
+- definition/2 registry attributes, signal definitions, and refinements introduced in v1.44 are parsed by their schema entry keys; provider files with neutral filenames (messaging since v1.44; rpc, db and android since v1.45) are included under the spans, metrics, and common kinds
 - deprecated model files and directories are excluded from lookup results
 - the core semantic-conventions repository added `model/manifest.yaml` in v1.43.0; use it as release metadata, not as a convention group
 - `gen_ai.*`, OpenAI, and MCP conventions moved to [`open-telemetry/semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai) in v1.42.0; do not treat deprecated stubs under the core repository as current guidance

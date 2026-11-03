@@ -39,3 +39,14 @@ grep -q '^span[.]http[.]client' <<<"$legacy_http"
 
 legacy_messaging=$(env OTEL_SEMCONV_REPO="$repo" OTEL_SEMCONV_TAG=v1.43.0 "$script_dir/query-otel-semantic-conventions.sh" messaging spans)
 grep -q '^messaging[.]kafka' <<<"$legacy_messaging"
+
+query_v145=(env OTEL_SEMCONV_REPO="$repo" OTEL_SEMCONV_TAG=v1.45.0 "$script_dir/query-otel-semantic-conventions.sh")
+
+rpc_spans=$("${query_v145[@]}" rpc spans)
+grep -q '^span[.]rpc[.]grpc[.]call[.]client' <<<"$rpc_spans"
+
+rpc_metrics=$("${query_v145[@]}" rpc metrics)
+grep -q '^metric[.]rpc[.]grpc[.]client[.]call[.]duration' <<<"$rpc_metrics"
+
+redis_exact=$("${query_v145[@]}" db span.db.redis.client)
+grep -q '^source: .*semantic-conventions/blob/v1[.]45[.]0/model/db/redis[.]yaml#L' <<<"$redis_exact"
