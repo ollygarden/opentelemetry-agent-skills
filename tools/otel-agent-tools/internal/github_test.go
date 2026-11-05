@@ -58,12 +58,38 @@ func TestLatestGitHubReleaseKeepsBothErrors(t *testing.T) {
 
 func TestLatestGitHubReleaseFallsBackToTags(t *testing.T) {
 	useGitHubServer(t, map[string]string{
-		"/repos/o/r/releases": `[]`,
-		"/repos/o/r/tags":     `[{"name":"v1.9.0"},{"name":"v1.10.0"},{"name":"other"}]`,
+		"/repos/o/r/releases":                `[]`,
+		"/repos/o/r/git/matching-refs/tags/": `[{"ref":"refs/tags/v1.9.0"},{"ref":"refs/tags/v1.10.0"},{"ref":"refs/tags/other"}]`,
 	})
 	release, err := LatestGitHubRelease(context.Background(), "o/r", "")
 	if err != nil || release.Tag != "v1.10.0" {
 		t.Fatalf("got %+v, %v; want tag v1.10.0", release, err)
+	}
+}
+
+// A failed or crowded releases list must still find a prefixed tag: the
+// opentelemetry-collector-releases tags list puts hundreds of v* tags first.
+func TestLatestGitHubReleaseFallsBackToPrefixedTags(t *testing.T) {
+	useGitHubServer(t, map[string]string{
+		"/repos/o/r/git/matching-refs/tags/cmd/builder/": `[
+			{"ref":"refs/tags/cmd/builder/v0.163.2"},
+			{"ref":"refs/tags/cmd/builder/v0.164.0"},
+			{"ref":"refs/tags/cmd/builder/v0.165.0-nightly.202611050211"}
+		]`,
+	})
+	release, err := LatestGitHubRelease(context.Background(), "o/r", "cmd/builder/")
+	if err != nil || release.Tag != "cmd/builder/v0.164.0" {
+		t.Fatalf("got %+v, %v; want tag cmd/builder/v0.164.0", release, err)
+	}
+}
+
+func TestLatestGitHubReleaseReportsReleasesErrorWhenNoTagMatches(t *testing.T) {
+	useGitHubServer(t, map[string]string{
+		"/repos/o/r/git/matching-refs/tags/cmd/builder/": `[]`,
+	})
+	_, err := LatestGitHubRelease(context.Background(), "o/r", "cmd/builder/")
+	if err == nil || !strings.Contains(err.Error(), "/releases") || !strings.Contains(err.Error(), "no release or version tag") {
+		t.Fatalf("want the releases error kept, got %v", err)
 	}
 }
 

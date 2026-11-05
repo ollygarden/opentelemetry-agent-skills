@@ -326,22 +326,26 @@ func LatestGitHubRelease(ctx context.Context, repo, tagPrefix string) (GitHubRel
 		return *latest, nil
 	}
 
-	var tags []struct {
-		Name string `json:"name"`
+	// matching-refs returns every tag under tagPrefix in one response. The tags
+	// list is paginated and sorted by name, so a prefixed tag can sit past its
+	// first page behind hundreds of unprefixed ones.
+	var refs []struct {
+		Ref string `json:"ref"`
 	}
-	tagsURL := fmt.Sprintf("%s/repos/%s/tags?per_page=100", githubAPIBase, repo)
-	if err := fetchJSON(ctx, tagsURL, &tags); err != nil {
+	refsURL := fmt.Sprintf("%s/repos/%s/git/matching-refs/tags/%s", githubAPIBase, repo, tagPrefix)
+	if err := fetchJSON(ctx, refsURL, &refs); err != nil {
 		return GitHubRelease{}, errors.Join(releasesErr, err)
 	}
 
 	var versions []string
-	for _, tag := range tags {
-		if isVersionTag(tag.Name) {
-			versions = append(versions, strings.TrimPrefix(tag.Name, tagPrefix))
+	for _, ref := range refs {
+		tag := strings.TrimPrefix(ref.Ref, "refs/tags/")
+		if isVersionTag(tag) {
+			versions = append(versions, strings.TrimPrefix(tag, tagPrefix))
 		}
 	}
 	if len(versions) == 0 {
-		return GitHubRelease{}, fmt.Errorf("github: no release or version tag with prefix %q found for %s", tagPrefix, repo)
+		return GitHubRelease{}, errors.Join(releasesErr, fmt.Errorf("github: no release or version tag with prefix %q found for %s", tagPrefix, repo))
 	}
 
 	return GitHubRelease{Tag: tagPrefix + slices.MaxFunc(versions, compareVersions)}, nil
