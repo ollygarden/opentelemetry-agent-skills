@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-11-01 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-11-06 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
@@ -11,9 +11,9 @@ Versions last changed: 2026-11-01 (UTC). Each version below was the latest relea
 | Erlang/Elixir | `opentelemetry` | `1.7.0` | [Hex.pm](https://hex.pm/packages/opentelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/erlang/instrumentation.md) | - |
 | Go | `go.opentelemetry.io/otel/sdk` | `1.47.0` | [Go proxy](https://pkg.go.dev/go.opentelemetry.io/otel/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/go/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples) |
 | Java | `io.opentelemetry:opentelemetry-sdk` | `1.67.0` | [Maven Central](https://search.maven.org/artifact/io.opentelemetry/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/java/sdk.md) | [Examples](https://github.com/open-telemetry/opentelemetry-java-examples#java-opentelemetry-examples) |
-| JavaScript | `@opentelemetry/sdk-node` | `0.300.0` | [npm](https://www.npmjs.com/package/@opentelemetry/sdk-node) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/js/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples) |
-| Kotlin | `open-telemetry/opentelemetry-kotlin` | `0.9.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-kotlin/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry-kotlin/refs/heads/main/README.md) | [Examples](https://github.com/open-telemetry/opentelemetry-kotlin/tree/main/examples) |
-| PHP | `open-telemetry/sdk` | `1.15.0` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
+| JavaScript | `@opentelemetry/sdk-node` | `0.301.0` | [npm](https://www.npmjs.com/package/@opentelemetry/sdk-node) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/js/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples) |
+| Kotlin | `open-telemetry/opentelemetry-kotlin` | `0.10.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-kotlin/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry-kotlin/refs/heads/main/README.md) | [Examples](https://github.com/open-telemetry/opentelemetry-kotlin/tree/main/examples) |
+| PHP | `open-telemetry/sdk` | `1.16.1` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
 | Python | `opentelemetry-sdk` | `1.45.2` | [PyPI](https://pypi.org/project/opentelemetry-sdk/) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/python/instrumentation.md) | - |
 | Ruby | `opentelemetry-sdk` | `1.13.1` | [RubyGems](https://rubygems.org/gems/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/ruby/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples) |
 | Rust | `opentelemetry_sdk` | `0.33.1` | [crates.io](https://crates.io/crates/opentelemetry_sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/rust/getting-started.md) | [Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples) |
@@ -27,10 +27,10 @@ Versions last changed: 2026-11-01 (UTC). Each version below was the latest relea
 | Collector contrib | `1.3.1` / `0.164.1` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.164.1) | Stable `1.x` modules / other `0.x` modules |
 | Collector distributions | `0.164.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.164.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
 | Collector builder (OCB) | `0.164.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.164.0) | `ocb` binary; can trail core |
-| Collector Helm chart | `0.178.1` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.178.1) | `opentelemetry-collector` chart; chart version is independent of the Collector |
+| Collector Helm chart | `0.178.2` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.178.2) | `opentelemetry-collector` chart; chart version is independent of the Collector |
 | Operator | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.162.0) | Kubernetes Operator; version is independent of the Collector |
 | Java agent | `2.33.1` | [Notes](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.33.1) | `opentelemetry-javaagent` 2.x; embeds its own SDK version |
 | Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
-| Semantic conventions | `1.44.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.44.0) | Specification release; language semconv packages may lag |
+| Semantic conventions | `1.45.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.45.0) | Specification release; language semconv packages may lag |
 | Specification | `1.62.0` | [Notes](https://github.com/open-telemetry/opentelemetry-specification/releases/tag/v1.62.0) | OpenTelemetry specification release |
 | Weaver | `0.28.0` | [Notes](https://github.com/open-telemetry/weaver/releases/tag/v0.28.0) | Semantic-convention registry CLI |
