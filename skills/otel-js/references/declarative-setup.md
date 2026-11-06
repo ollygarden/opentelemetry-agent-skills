@@ -1,8 +1,8 @@
 # JavaScript/Node.js SDK Setup with Declarative Configuration
 
 Configure the OpenTelemetry SDK in Node.js via declarative YAML. The
-`@opentelemetry/configuration` package parses YAML or environment-derived SDK settings;
-`@opentelemetry/sdk-node` applies them during startup.
+`@opentelemetry/configuration` package parses and validates the YAML file;
+`@opentelemetry/sdk-node` applies it during startup.
 
 For the YAML configuration schema, load the `otel-declarative-config` skill.
 
@@ -35,10 +35,10 @@ before application code:
 
 ```typescript
 // instrumentation.ts
-import { startNodeSDK } from '@opentelemetry/sdk-node';
+import { startNodeSdk } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
-startNodeSDK({
+startNodeSdk({
   instrumentations: [getNodeAutoInstrumentations()],
 });
 ```
@@ -48,11 +48,15 @@ export OTEL_CONFIG_FILE=configs/otel.yaml
 node --import ./dist/instrumentation.js ./dist/index.js
 ```
 
-When `OTEL_CONFIG_FILE` is set, `@opentelemetry/configuration` reads that path as YAML.
-`@opentelemetry/sdk-node`'s experimental `startNodeSDK()` helper uses the resulting model
-to configure providers. If `OTEL_CONFIG_FILE` is unset, `createConfigFactory()` falls back
-to environment variables. If it is set but unreadable or invalid, `startNodeSDK()` logs a
-diagnostic error and returns a no-op SDK rather than falling back to env vars.
+When `OTEL_CONFIG_FILE` is set, `@opentelemetry/sdk-node`'s experimental `startNodeSdk()`
+helper parses that path with `@opentelemetry/configuration`'s `parseConfigFile()` and uses
+the model to configure providers. If `OTEL_CONFIG_FILE` is unset, `startNodeSdk()` builds the
+SDK from environment variables itself. If it is set but unreadable or invalid, it logs a
+diagnostic error and returns a no-op SDK rather than falling back to env vars. Verified
+2026-11-06 against [`start.ts` at 0.301.0](https://github.com/open-telemetry/opentelemetry-js/blob/v3.1.0/experimental/packages/opentelemetry-sdk-node/src/start.ts):
+0.301.0 renamed `startNodeSDK()` to `startNodeSdk()` (the old name is a deprecated alias) and
+replaced `createConfigFactory()` with `parseConfigFile()`, which no longer builds a model from
+environment variables.
 
 Use `.yaml` or `.yml` filenames in examples and docs; verify extension enforcement against
 the current `FileConfigFactory.ts` source before claiming the parser rejects other suffixes.
@@ -114,13 +118,13 @@ node --experimental-loader=@opentelemetry/instrumentation/hook.mjs --import ./di
 ```
 
 The zero-code `@opentelemetry/auto-instrumentations-node/register` entry point starts
-`NodeSDK` from environment variables; use `startNodeSDK()` when the task specifically needs
+`NodeSDK` from environment variables; use `startNodeSdk()` when the task specifically needs
 declarative YAML via `OTEL_CONFIG_FILE`.
 
 ## Key API Facts
 
 - **Import order matters**: Telemetry setup must be imported and started before any other application imports. Auto-instrumentation patches modules at require/import time.
-- **`@opentelemetry/sdk-node` is experimental**. `new NodeSDK()` is its currently recommended startup mechanism; the declarative `startNodeSDK()` helper is also experimental. Both handle context manager, propagator, and provider registration automatically.
+- **`@opentelemetry/sdk-node` is experimental**. `new NodeSDK()` is its currently recommended startup mechanism; the declarative `startNodeSdk()` helper is also experimental. Both handle context manager, propagator, and provider registration automatically.
 - **v2.0 migration**: `Resource` class is no longer exported. Use `resourceFromAttributes()`, `defaultResource()`, `emptyResource()` instead.
 - **2.9.0 / 0.220.0 migration note**: `@opentelemetry/sdk-node` now uses `@opentelemetry/sdk-trace`; the `node` and `tracing` namespace re-exports were deprecated and are removed in 0.300.0. Import trace SDK types/classes directly from their packages.
 - **2.10.0 / 0.221.0 propagator note**: Selecting `jaeger` through `OTEL_PROPAGATORS` or declarative config emits a deprecation warning. Use `tracecontext`; 0.300.0 removed `jaeger` entirely.
