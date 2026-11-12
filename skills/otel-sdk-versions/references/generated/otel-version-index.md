@@ -1,12 +1,12 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-11-11 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-11-12 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
 | Language | Package/Repo | Latest | Release Source | Setup Docs | Examples |
 |---|---|---|---|---|---|
-| .NET | `OpenTelemetry` | `1.20.1` | [NuGet](https://www.nuget.org/packages/OpenTelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples) |
+| .NET | `OpenTelemetry` | `1.21.0` | [NuGet](https://www.nuget.org/packages/OpenTelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples) |
 | C++ | `open-telemetry/opentelemetry-cpp` | `1.30.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-cpp/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/cpp/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples) |
 | Erlang/Elixir | `opentelemetry` | `1.7.0` | [Hex.pm](https://hex.pm/packages/opentelemetry) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/erlang/instrumentation.md) | - |
 | Go | `go.opentelemetry.io/otel/sdk` | `1.47.0` | [Go proxy](https://pkg.go.dev/go.opentelemetry.io/otel/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/go/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples) |
@@ -28,7 +28,7 @@ Versions last changed: 2026-11-11 (UTC). Each version below was the latest relea
 | Collector distributions | `0.165.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.165.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
 | Collector builder (OCB) | `0.165.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.165.0) | `ocb` binary; can trail core |
 | Collector Helm chart | `0.178.3` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.178.3) | `opentelemetry-collector` chart; chart version is independent of the Collector |
-| Operator | `0.162.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.162.0) | Kubernetes Operator; version is independent of the Collector |
+| Operator | `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.163.0) | Kubernetes Operator; version is independent of the Collector |
 | Java agent | `2.33.1` | [Notes](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.33.1) | `opentelemetry-javaagent` 2.x; embeds its own SDK version |
 | Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
 | Semantic conventions | `1.45.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.45.0) | Specification release; language semconv packages may lag |
