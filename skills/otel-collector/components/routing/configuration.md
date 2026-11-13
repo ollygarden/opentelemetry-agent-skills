@@ -36,7 +36,7 @@ service:
 |-----|------|---------|----------|---------|
 | `table` | array of RoutingTableItem | — | **yes** (≥1 route) | The routing table. Routes are evaluated in order; under the default `action: move` each piece of telemetry matches at most one route. |
 | `default_pipelines` | array of pipeline IDs | none | no | Pipelines for telemetry that matches no route. **If unset, unmatched telemetry is dropped.** |
-| `error_mode` | string | `ignore` | no | How OTTL evaluation errors are handled: `propagate`, `ignore`, or `silent` (see below). The `connector.routing.defaultErrorModeIgnore` gate is Beta and enabled by default in v0.157.0; disabling it restores `propagate`. |
+| `error_mode` | string | `ignore` | no | How OTTL evaluation errors are handled: `propagate`, `ignore`, or `silent` (see below). The `connector.routing.defaultErrorModeIgnore` gate is Stable since v0.165.0 and cannot be disabled (Beta, on by default, v0.157.0–v0.164.x). |
 
 ## RoutingTableItem reference
 
@@ -130,7 +130,7 @@ Controls what happens when an OTTL expression fails to evaluate (missing attribu
 | `ignore` | The error is logged and the payload is sent to `default_pipelines`. |
 | `silent` | Same as `ignore`, but the error is not logged. |
 
-Prefer `ignore` in production so a transient OTTL error doesn't drop data. It is the default in v0.157.0 because `connector.routing.defaultErrorModeIgnore` is Beta and enabled by default. Set `error_mode` explicitly in reusable configs that also target v0.156.0 or earlier, or deployments that disable the gate.
+Prefer `ignore` in production so a transient OTTL error doesn't drop data. It is the default since v0.157.0, and permanent since v0.165.0, when `connector.routing.defaultErrorModeIgnore` became Stable. Set `error_mode` explicitly in reusable configs that also target v0.156.0 or earlier.
 
 ## Pipeline wiring
 
