@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-11-19 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-11-20 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
@@ -13,7 +13,7 @@ Versions last changed: 2026-11-19 (UTC). Each version below was the latest relea
 | Java | `io.opentelemetry:opentelemetry-sdk` | `1.68.0` | [Maven Central](https://search.maven.org/artifact/io.opentelemetry/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/java/sdk.md) | [Examples](https://github.com/open-telemetry/opentelemetry-java-examples#java-opentelemetry-examples) |
 | JavaScript | `@opentelemetry/sdk-node` | `0.301.2` | [npm](https://www.npmjs.com/package/@opentelemetry/sdk-node) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/js/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples) |
 | Kotlin | `open-telemetry/opentelemetry-kotlin` | `0.10.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-kotlin/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry-kotlin/refs/heads/main/README.md) | [Examples](https://github.com/open-telemetry/opentelemetry-kotlin/tree/main/examples) |
-| PHP | `open-telemetry/sdk` | `1.16.1` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
+| PHP | `open-telemetry/sdk` | `1.17.0` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
 | Python | `opentelemetry-sdk` | `1.45.2` | [PyPI](https://pypi.org/project/opentelemetry-sdk/) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/python/instrumentation.md) | - |
 | Ruby | `opentelemetry-sdk` | `1.13.1` | [RubyGems](https://rubygems.org/gems/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/ruby/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples) |
 | Rust | `opentelemetry_sdk` | `0.33.1` | [crates.io](https://crates.io/crates/opentelemetry_sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/rust/getting-started.md) | [Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples) |
