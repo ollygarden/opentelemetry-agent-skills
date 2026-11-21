@@ -41,7 +41,7 @@ Some keys do nothing (or error) unless a feature gate is enabled at startup
 | `ordering_criteria.sort_by.sort_type: mtime` | `filelog.mtimeSortType` | Beta (**on by default** since v0.161.0; Alpha off before) |
 | require explicit `ordering_criteria.top_n` when sorting | `filelog.requireExplicitTopN` | Alpha (off by default); unset keeps the legacy default `1`, explicit `0` matches all files |
 | include/exclude case-insensitive globbing (Windows) | `filelog.windows.caseInsensitive` | Beta (on by default) |
-| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Stable since v0.164.0, always on (Beta on by default v0.156.0–v0.163.0; Alpha off v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
+| protobuf checkpoint encoding | `filelog.protobufCheckpointEncoding` | Removed in v0.165.0, always on; naming it in `--feature-gates` fails startup (Stable v0.164.x; Beta on by default v0.156.0–v0.163.0; Alpha off v0.148.0–v0.155.0) — ~7× faster decode, ~31% smaller; reads both formats either way |
 
 ## Default instrumentation scope (v0.163.0+)
 

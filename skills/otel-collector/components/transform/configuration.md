@@ -29,7 +29,7 @@ service:
 
 > The default `error_mode` is `ignore`. The `processor.transform.defaultErrorModeIgnore` gate was removed in v0.162.0, so naming it in `--feature-gates` fails startup; see [quirks](quirks.md#error_mode-propagate-drops-the-whole-batch-on-error).
 >
-> A `flatten_data` boolean (default `false`, behind the `transform.flatten.logs` alpha feature gate) gives each log record a distinct copy of its resource and scope before transformation, then regroups afterwards — useful when log-level data drives resource/scope edits. It copies and hashes every record, so enable only when needed.
+> `flatten: {log: true}` (default `false`, behind the `transform.flatten.logs` alpha feature gate) gives each log record a distinct copy of its resource and scope before transformation, then regroups afterwards — useful when log-level data drives resource/scope edits. It copies and hashes every record, so enable only when needed. It replaced `flatten_data` in v0.164.0; `flatten_data` was removed in v0.165.0.
 
 ## Error mode
 

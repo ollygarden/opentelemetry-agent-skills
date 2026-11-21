@@ -67,7 +67,7 @@ For a single path or function, read only the relevant section instead of loading
   gRPC metadata keys are lowercase (`otelcol.grpc.metadata["x-tenant"][0]`).
 - The routing `request` context is deprecated as of v0.156; use `otelcol.client.metadata` or
   `otelcol.grpc.metadata`.
-- Log-record-specific rewrites of shared resource or scope data require `flatten_data: true` and the
+- Log-record-specific rewrites of shared resource or scope data require `flatten: {log: true}` and the
   alpha `transform.flatten.logs` gate. This copies and regroups data; do not enable it accidentally.
 - Since v0.161, `set(target, nil)` is no longer a no-op: the `ottl.set.allowNil` gate became beta in
   v0.161 and stable (cannot be disabled) in v0.162. A nil value empties a map, slice, or

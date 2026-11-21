@@ -16,7 +16,7 @@ Statements run top-to-bottom and later ones see earlier effects. A classic bug i
 
 ## Mutating shared resource/scope affects everything under it
 
-A `resource`-context statement runs once per resource and changes are seen by **all** spans/metrics/logs sharing that resource. Setting a resource attribute from per-item data (e.g. a single log's attribute) leaks that value across the whole group. When per-item resource edits are genuinely needed for logs, enable `flatten_data` (behind the `transform.flatten.logs` feature gate) so each record gets its own resource copy — at the cost of copying and hashing every record.
+A `resource`-context statement runs once per resource and changes are seen by **all** spans/metrics/logs sharing that resource. Setting a resource attribute from per-item data (e.g. a single log's attribute) leaks that value across the whole group. When per-item resource edits are genuinely needed for logs, enable `flatten.log` (behind the `transform.flatten.logs` feature gate) so each record gets its own resource copy — at the cost of copying and hashing every record.
 
 ## `error_mode: propagate` drops the whole batch on error
 
