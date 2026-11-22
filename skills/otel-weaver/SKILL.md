@@ -21,9 +21,9 @@ If a companion skill is unavailable:
 
 Three moving parts:
 
-1. **Registry** — directory of YAML files. `manifest.yaml` is required; it declares `file_format: definition_manifest/2.0` (version support: [dated record](references/ci-integration.md#verified-2026-10-25)), and its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also require `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes. (`semconv_version` and `schema_base_url` are deprecated in favor of `schema_url`; top-level `name` is not a v0.28.0 manifest field.)
+1. **Registry** — directory of YAML files. `manifest.yaml` is required; it declares `file_format: definition_manifest/2.0` (version support and legacy fields: [version compatibility](references/ci-integration.md#version-compatibility)), and its `schema_url` (OTel schema URL format, `http[s]://host/path/<version>`) both names the registry and carries its version in the final path segment. Dependency entries also require `schema_url` plus optional `registry_path`. The rest declare `attributes`, `metrics`, `spans`, `events`, `entities`. The version segment of `schema_url` is yours to manage; bump it on changes.
 2. **Templates** — directory of MiniJinja files (Jinja2-compatible, not full Jinja2 — auto-escaping is off by default since v0.22.0 and loop `break`/`continue` are supported) plus a `weaver.yaml` per target language describing which templates to run, with what filter, in what `application_mode`, and with what output filename.
-3. **Policies** — Rego rules evaluated by the Regorus (OPA-compatible) engine, in four packages: `before_resolution` (raw parsed groups; unsupported and skipped with `--v2`), `after_resolution` (resolved registry), `comparison_after_resolution` (only when `--baseline-registry` is passed), and `live_check_advice` (per-sample during `live-check`). Built-in OTel policies are the floor; custom policies layer on org rules.
+3. **Policies** — Rego rules evaluated by the Regorus (OPA-compatible) engine, in four packages: `before_resolution` (raw parsed groups; unsupported and skipped with `--v2`), `after_resolution` (resolved registry), `comparison_after_resolution` (only when `--baseline-registry` is passed), and `live_check_advice` (per-sample during `live-check`). Weaver bundles no `check` rules; write your own Rego policies ([loading](references/ci-integration.md#notes)).
 
 These three replace a hand-rolled `const.go` (or equivalent): const blocks become the registry, the act of writing them becomes codegen, and tribal knowledge becomes policies.
 
@@ -61,8 +61,9 @@ These cost time and are not obvious from the upstream docs:
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
-11. Counter and UpDownCounter names should not append `_total`; this is the semconv v1.44.0 naming rule.
-12. Duration instruments should use seconds (`s`) under the semconv v1.44.0 unit guidance.
+11. Counter and UpDownCounter names should not append `_total` (semconv `docs/general/naming.md`).
+12. Duration instruments should use seconds (`s`) (semconv `docs/general/metrics.md`).
+13. With v0.28.0, never pass `--registry .` or `--registry ..`: `check` then passes vacuously ([dated record](references/ci-integration.md#version-compatibility)). Use `./` or a named path.
 
 ## References To Load On Demand
 
@@ -71,7 +72,7 @@ These cost time and are not obvious from the upstream docs:
 - ready-to-lift GitHub Actions example and the dated version-compatibility record: `references/ci-integration.md`
 - hand-maintained-constants → registry walkthrough: `references/migration-playbook.md`
 - semantic conventions skill: `otel-semantic-conventions`
-- manual instrumentation skill: `manual-instrumentation`
+- manual instrumentation: the language skill for your SDK (`otel-go`, `otel-java`, `otel-python`, `otel-js`, `otel-dotnet`, `otel-ruby`)
 
 ## Out Of Scope
 
@@ -80,7 +81,7 @@ These are natural follow-ups but not part of this skill:
 - declaring upstream semantic-conventions as a manifest dependency
 - `weaver registry live-check`/`emit`/`infer` against live OTLP telemetry
 - `weaver registry mcp` / `weaver serve`
-- custom Rego policies beyond the built-ins
+- custom Rego policies
 - helper-function codegen (`MyMetricName(meter)` wrappers)
 
 ## Verification Contract

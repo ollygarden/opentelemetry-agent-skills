@@ -43,7 +43,7 @@ logger_provider:
             endpoint: "http://collector:4318"
 ```
 
-A schema key does not imply SDK support. As of 2026-10-25, Java 1.67.0 declarative config maps this key to its incubator bridge. Python 1.45.1 includes the key in its configuration schema/models, but no SDK bridge processor exists. The JavaScript Node SDK (experimental 0.300.0) accepts the key when parsing, but processor construction fails (`unknown LogRecordProcessor name`), so `startNodeSDK()` logs the error and returns a no-op SDK for that declarative initialization (programmatic setups such as `new NodeSDK()` are unaffected). Check the target SDK's processor-construction path, not just its parser, before relying on it.
+A schema key does not imply SDK support. Verified 2026-11-22: Java 1.68.0 declarative config maps this key to its incubator bridge. Python 1.45.2 (`opentelemetry-configuration` 0.66b2) parses the key, but `configure_sdk` raises `ConfigurationError` because only `batch` and `simple` log record processors are supported. The JavaScript Node SDK (0.301.2, and the 2.x line through 0.223.2) parses the key but fails to construct the processor (`unknown LogRecordProcessor name`), so `startNodeSdk()` / `startNodeSDK()` logs the error and returns a no-op SDK; `new NodeSDK()` is unaffected. Check the target SDK's processor-construction path, not just its parser, before relying on it.
 
 ### Via Code
 
@@ -52,7 +52,7 @@ the target language SDK to the LoggerProvider alongside any export processors.
 Do not infer support from the specification alone: the specification says SDKs
 SHOULD provide the processor, and implementation availability varies by language.
 
-For example, OpenTelemetry Java 1.67.0 provides the bridge in the incubator SDK
+For example, OpenTelemetry Java 1.68.0 provides the bridge in the incubator SDK
 extension:
 
 ```java
@@ -79,4 +79,4 @@ the bridge where the SDK permits that pipeline.
 
 - Specification: [Event to span event bridge](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.62.0/specification/logs/sdk.md#event-to-span-event-bridge)
 - Java: `io.opentelemetry.sdk.extension.incubator.logs.EventToSpanEventBridge` in `opentelemetry-sdk-extension-incubator`
-- Java bridge source: [`EventToSpanEventBridge`](https://github.com/open-telemetry/opentelemetry-java/blob/v1.67.0/sdk-extensions/incubator/src/main/java/io/opentelemetry/sdk/extension/incubator/logs/EventToSpanEventBridge.java). The contrib predecessor, removed in opentelemetry-java-contrib v1.60.0, was `io.opentelemetry.contrib:opentelemetry-processors`'s `io.opentelemetry.contrib.eventbridge.EventToSpanEventBridge`; its [v1.57.0 release documentation](https://github.com/open-telemetry/opentelemetry-java-contrib/tree/v1.57.0/processors#event-to-spanevent-bridge) directs users to this SDK incubator implementation.
+- Java bridge source: [`EventToSpanEventBridge`](https://github.com/open-telemetry/opentelemetry-java/blob/v1.68.0/sdk-extensions/incubator/src/main/java/io/opentelemetry/sdk/extension/incubator/logs/EventToSpanEventBridge.java). The contrib predecessor, removed in opentelemetry-java-contrib v1.60.0, was `io.opentelemetry.contrib:opentelemetry-processors`'s `io.opentelemetry.contrib.eventbridge.EventToSpanEventBridge`; its [v1.57.0 release documentation](https://github.com/open-telemetry/opentelemetry-java-contrib/tree/v1.57.0/processors#event-to-spanevent-bridge) directs users to this SDK incubator implementation.

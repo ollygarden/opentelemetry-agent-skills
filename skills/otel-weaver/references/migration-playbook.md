@@ -72,7 +72,7 @@ Replace references one constant at a time:
 | `"ecommerce.order.process"`               | `telemetry.SpanEcommerceOrderProcessName`              |
 | `semconv.HTTPMethodKey` (already correct) | unchanged — keep using the SDK semconv package         |
 
-For instrumentation hygiene as you do this, pair with the `manual-instrumentation` skill.
+For instrumentation hygiene as you do this, pair with the language skill for your SDK (e.g. `otel-go`).
 
 ## Delete the legacy file
 
