@@ -35,4 +35,8 @@ Evidence, at each release tag or in the published artifact:
 
 For services in several languages, the shared version is the lowest "Newest semconv exposed" value
 among the languages in use (1.43.0 for Go plus JavaScript, 1.42.0 with Rust). .NET has no value, so
-it cannot join a shared version.
+it cannot join a shared version. Go selects the version by import path (`semconv/vX`). Where a
+package exposes only its newest version, code using it gets that version's names, so pin that
+package to a release exposing the shared version or translate renamed attributes: JavaScript
+1.45.0's incubating `ATTR_FAAS_INVOCATION_ID` is `faas.invocation.id`, while Go `semconv/v1.43.0`
+uses `faas.invocation_id`.
