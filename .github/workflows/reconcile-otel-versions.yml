@@ -112,8 +112,8 @@ jobs:
         with:
           go-version-file: tools/otel-agent-tools/go.mod
 
-      # Fails when a latest release pins a schema value that the dated
-      # runtime-compatibility record does not; the record must then be re-verified.
+      # Fails when a latest release pins a schema value that the
+      # runtime-compatibility record does not; update the record for that release.
       - name: Compare Pins With Runtime Compatibility Record
         env:
           GITHUB_TOKEN: ${{ github.token }}

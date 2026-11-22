@@ -13,7 +13,7 @@ go run ./tools/otel-agent-tools/cmd/otel-agent-tools reconcile versions \
 
 The index's "Versions last changed" date moves only when a row changes, so rerunning with unchanged upstream versions leaves the file untouched.
 
-Check the declarative-config schema pins in `declarative-config-pins.json` against the dated record. Each pin is read from a file at the repository's latest release and compared with the value the record states; any difference exits non-zero:
+Check the declarative-config schema pins in `declarative-config-pins.json` against the schema record in `otel-declarative-config`. Each pin is read from a file at the repository's latest release and compared with the value the record states; any difference exits non-zero:
 
 ```bash
 go run ./tools/otel-agent-tools/cmd/otel-agent-tools check pins \
