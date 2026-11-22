@@ -494,7 +494,7 @@ if err := tp.ForceFlush(ctx); err != nil {
 }
 ```
 
-Since v1.42.0, `TracerProvider.ForceFlush` iterates through all `SpanProcessor` instances and joins their errors together, instead of stopping at the first error. All processors get a chance to flush even if one fails.
+Since v1.42.0, `TracerProvider.ForceFlush` calls every `SpanProcessor` and joins their errors, so one failing processor does not skip the rest. It checks `ctx` before each processor; once `ctx` is done it returns only `ctx.Err()`, dropping errors already collected ([`sdk/trace/provider.go` at v1.47.0](https://github.com/open-telemetry/opentelemetry-go/blob/v1.47.0/sdk/trace/provider.go)).
 
 `ForceFlush` in the request hot path synchronously exports all buffered data, adding latency to that request.
 
@@ -502,7 +502,7 @@ Since v1.42.0, `TracerProvider.ForceFlush` iterates through all `SpanProcessor` 
 
 ## Synchronous Instrument Enabled()
 
-Since v1.40.0, all synchronous metric instruments (`Int64Counter`, `Float64Counter`, `Int64UpDownCounter`, `Float64UpDownCounter`, `Int64Histogram`, `Float64Histogram`, `Int64Gauge`, `Float64Gauge`) expose an `Enabled()` method. This allows skipping expensive metric value computation when the instrument is not recording:
+Since v1.40.0, all synchronous metric instruments have `Enabled(ctx) bool`. This allows skipping expensive metric value computation when the measurement would be discarded:
 
 ```go
 histogram, _ := meter.Float64Histogram("expensive.metric")
@@ -514,4 +514,4 @@ if histogram.Enabled(ctx) {
 }
 ```
 
-This is the metric equivalent of `Logger.Enabled()` for logs. When combined with Views that drop metrics, `Enabled()` returns `false` for dropped instruments.
+This is the metric equivalent of `Logger.Enabled()` for logs. In SDK v1.47.0, `Enabled` ignores `ctx`. It returns `false` when no reader aggregates the instrument (every reader drops it, or the `MeterProvider` has no reader), and for `noop` instruments and global instruments before `otel.SetMeterProvider` ([`sdk/metric/instrument.go` at v1.47.0](https://github.com/open-telemetry/opentelemetry-go/blob/v1.47.0/sdk/metric/instrument.go)).

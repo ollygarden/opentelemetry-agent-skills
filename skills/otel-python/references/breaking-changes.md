@@ -120,8 +120,8 @@ When crossing this release boundary, explicitly check for:
 - Metric `View` instrument-name matching is now case-insensitive, and
   tracer/meter/logger configurator scope-name matching is case-sensitive, on
   every platform.
-- Declarative config: an unset `${VAR}` without default resolves to null instead of raising — see
-  [declarative-setup.md](declarative-setup.md#yaml-config).
+- Declarative config: an unset `${VAR}` without default resolves to an empty value instead of
+  raising; whether that becomes null depends on quoting — see [declarative-setup.md](declarative-setup.md#yaml-config).
 - Contrib: `opentelemetry-instrumentation-kafka-python` dropped
   `kafka-python-ng`; `AsyncioInstrumentor.trace_to_thread` is renamed to
   `wrap_to_thread_func` (old name kept as an alias); the `anthropic`, `claude-agent-sdk`, `langchain`, and

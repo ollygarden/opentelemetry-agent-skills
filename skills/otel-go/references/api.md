@@ -313,7 +313,8 @@ attribute.MapValue(attribute.String("key", "value"))
 
 Logging bridges connect existing logging libraries to OpenTelemetry.
 
-> **Note (bridge v0.10.0+):** otelzap and otelslog emit `code.function` as the full package-path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) and do not emit `code.namespace`.
+> otelzap and otelslog add source (`code.*`) attributes only when configured; see
+> [instrumentation-libraries.md](instrumentation-libraries.md#logging-bridges).
 
 ```go
 import (

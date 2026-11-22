@@ -155,12 +155,17 @@ For OTLP exporters and the full schema, load the `otel-declarative-config` skill
 Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; use `$$` for a
 literal dollar sign. Since 1.45.0, `load_config_file` substitutes only scalar
 values after parsing (never keys or comments), and an unset variable with no
-default becomes an empty value (YAML null) instead of an error; a resource
-attribute that resolves to null is skipped with a warning. In 0.66b2, the
-spec's `${env:VAR}` form and malformed references such as
+default becomes an empty value instead of an error. In YAML, an unquoted
+standalone `${VAR}` is re-typed (empty becomes null); a quoted (`"${VAR}"`) or
+embedded (`x-${VAR}`) reference, and any JSON string, stays a string. A resource
+attribute that resolves to null is skipped with a warning.
+
+In 0.66b2, the spec's `${env:VAR}` form and malformed references such as
 `${1API_KEY}` are left as literal text, and `${VAR:-default}` falls back only
-when `VAR` is unset, not when it is set to an empty string.
-Evidence: [`_env_substitution.py` at v1.45.2](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/opentelemetry-configuration/src/opentelemetry/configuration/file/_env_substitution.py).
+when `VAR` is unset, not when it is empty.
+
+Evidence at v1.45.2: [`_env_substitution.py`](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/opentelemetry-configuration/src/opentelemetry/configuration/file/_env_substitution.py),
+[`_loader.py`](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/opentelemetry-configuration/src/opentelemetry/configuration/file/_loader.py).
 
 ## Instrumentor Activation
 

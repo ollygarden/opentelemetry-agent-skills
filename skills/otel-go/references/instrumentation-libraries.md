@@ -161,7 +161,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 
 | Library | Package |
 |---------|---------|
-| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (deprecated in v0.72.0 as unsupported; no contrib replacement) |
+| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (deprecated; see [breaking-changes.md](breaking-changes.md#api-deprecations)) |
 | Lambda | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda` |
 
 ### Logging Bridges
@@ -173,7 +173,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 | logrus | `go.opentelemetry.io/contrib/bridges/otellogrus` |
 | logr | `go.opentelemetry.io/contrib/bridges/otellogr` |
 
-> **Logging bridges (v0.10.0+):** otelzap and otelslog emit `code.function` as the full package-path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) and do not emit `code.namespace`.
+> **Source attributes (otelzap, otelslog v0.21.0):** both bridges add `code.function.name` (full package-path-qualified, e.g., `github.com/user/pkg.MyFunc`), `code.file.path`, and `code.line.number` only when source capture is on: `otelslog.WithSource(true)` for otelslog, `zap.AddCaller()` for otelzap. Neither emits `code.namespace`. Sources: [otelslog](https://github.com/open-telemetry/opentelemetry-go-contrib/blob/bridges/otelslog/v0.21.0/bridges/otelslog/handler.go), [otelzap](https://github.com/open-telemetry/opentelemetry-go-contrib/blob/bridges/otelzap/v0.21.0/bridges/otelzap/core.go).
 
 ```go
 // zap bridge setup

@@ -17,7 +17,7 @@ the SDK migration.
 - `attribute.INVALID` deprecated (core v1.43.0) — an empty value is now valid; use `attribute.EMPTY` instead.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
 - `sdk/log.WithExportBufferSize` is deprecated and has no effect since log SDK v0.21.0 (core v1.45.0 release); the batch processor keeps no separate export-request buffer.
-- Root `otelconf` v0.23.0+ (contrib v1.43.0+) does not support `OTEL_EXPERIMENTAL_CONFIG_FILE`. Use `OTEL_CONFIG_FILE`.
+- Root `otelconf` v0.23.0+ (contrib v1.43.0+) does not support `OTEL_EXPERIMENTAL_CONFIG_FILE`. Use `OTEL_CONFIG_FILE` and unset the old variable: `NewSDK` errors whenever it is set, even when empty ([`config.go` at otelconf/v0.27.0](https://github.com/open-telemetry/opentelemetry-go-contrib/blob/otelconf/v0.27.0/otelconf/config.go)).
 - `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` was deprecated in v0.71.0 (contrib v1.46.0) and removed in v0.72.0 (contrib v1.47.0). Use `github.com/labstack/echo-opentelemetry`.
 - `go.opentelemetry.io/otel/log/global` is deprecated (core v1.47.0). Use `otel.Logger`, `otel.GetLoggerProvider`, and `otel.SetLoggerProvider` from `go.opentelemetry.io/otel`.
 - Deprecated as unsupported in contrib v1.47.0, with no contrib replacement: `instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (v0.72.0), `propagators/aws`, and `samplers/probability/consistent`.

@@ -36,8 +36,8 @@ For "latest", resolve the tag once with the `otelconf` tag command in this skill
 ## Migration notes
 
 - `go.opentelemetry.io/contrib/config` was removed in contrib v1.35.0. Use `go.opentelemetry.io/contrib/otelconf`.
-- In the root package, use `OTEL_CONFIG_FILE`; `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected by
-  current released `otelconf`.
+- In the root package, use `OTEL_CONFIG_FILE` and unset `OTEL_EXPERIMENTAL_CONFIG_FILE` (see
+  [breaking-changes.md](breaking-changes.md#api-deprecations)).
 - Starting with root `otelconf` v0.25.0 (contrib v1.45.0), the resolved resource includes the SDK's default resource attributes; account for those when comparing telemetry across this boundary.
 - If migrating from the schema-pinned `otelconf/v0.3.0` import, the YAML must also migrate to
   the new schema (fetch `examples/otel-sdk-migration-config.yaml` from the schema repo for
