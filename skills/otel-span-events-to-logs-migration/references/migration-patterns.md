@@ -202,7 +202,7 @@ span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
 
 With `@opentelemetry/api` 1.10.0+ (paired with `@opentelemetry/sdk-logs` 3.x), import `logs` and `SeverityNumber` from `@opentelemetry/api`; the standalone `@opentelemetry/api-logs` package was removed in experimental 0.300.0 and only applies to projects still on the 2.x SDK line.
 
-The JS log-record `exception` field is marked experimental in `@opentelemetry/api` 1.10.0; `@opentelemetry/sdk-logs` derives the `exception.*` attributes from it. If the project avoids experimental fields, set `exception.type`, `exception.message`, and `exception.stacktrace` attributes manually.
+The JS log-record `exception` field is marked experimental in `@opentelemetry/api` 1.10.0 ([language status](deprecation-plan.md#language-status)); `@opentelemetry/sdk-logs` derives the `exception.*` attributes from it. If the project avoids experimental fields, set `exception.type`, `exception.message`, and `exception.stacktrace` attributes manually.
 
 ### General Event
 

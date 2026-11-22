@@ -39,3 +39,5 @@ For a file shared by several runtimes, use the lowest of the selected parsers' t
 newer literal may load with a warning in an older parser but is not supported there), keep to
 fields every selected runtime supports (its schema, or for .NET auto-instrumentation its documented
 model), and name the runtimes that will warn.
+
+Values hold for the named releases; check the current release before relying on them.
