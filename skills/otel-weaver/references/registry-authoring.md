@@ -27,7 +27,7 @@ description: "Telemetry conventions for the ecommerce monolith"
 stability: development
 ```
 
-`file_format: definition_manifest/2.0` is required (version support: [dated record](ci-integration.md#verified-2026-10-25)). `schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location; a legacy v1 manifest may instead identify a dependency by `name` plus `registry_path`. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.28.0 v2 manifest field.
+`file_format: definition_manifest/2.0` is required (version support and legacy fields: [version compatibility](ci-integration.md#version-compatibility)). `schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location; a legacy v1 manifest may instead identify a dependency by `name` plus `registry_path`. Weaver v0.28.0 does not fail without a manifest (`check` only logs `No registry manifest found`; `diff` reports both versions as `unknown`), so treat that log line as an error.
 
 ## Attributes
 
@@ -77,7 +77,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.28.0 does not diagnose a missing one, so add it yourself.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the `allow_custom_values` flag is removed). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.28.0 does not diagnose a missing one, so add it yourself.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -167,7 +167,7 @@ entities:
       - ref: ecommerce.warehouse.id
 ```
 
-Entities describe resource-like things your telemetry is *about* (was called `resource` before v0.15.0 — use `entity` now). An entity uses `type`, not `id`, and must have a non-empty `identity` list; optional non-identifying attributes go under `description`. The same attribute cannot appear in both lists. Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
+Entities describe resource-like things your telemetry is *about* (named `resource` before v0.15.0; use `entity`). An entity uses `type`, not `id`, and must have a non-empty `identity` list; optional non-identifying attributes go under `description`. The same attribute cannot appear in both lists. Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
 
 ## What does NOT belong in your local registry
 
@@ -184,4 +184,4 @@ Fast feedback loop:
 weaver registry check --v2 -r ./telemetry/registry/
 ```
 
-Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal; its status by Weaver version is in the dated record in `ci-integration.md`. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.
+Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal; its status by Weaver version is in [version compatibility](ci-integration.md#version-compatibility). `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.

@@ -7,10 +7,10 @@
       "files": [],
       "expectations": [
         "Says the newest Go package in otel v1.47.0 is go.opentelemetry.io/otel/semconv/v1.43.0 and that there is no v1.44.0 package.",
-        "Says @opentelemetry/semantic-conventions 1.43.0 exposes semconv 1.43.0.",
-        "Says Java opentelemetry-semconv 1.44.0 and Python opentelemetry-semantic-conventions 0.66b1 expose semconv 1.44.0.",
-        "Recommends 1.43.0, the lowest version all four packages expose, as the shared version.",
-        "Frames the versions as verified on the recorded date rather than as currently latest, and suggests re-checking the package registries before pinning.",
+        "Says @opentelemetry/semantic-conventions 1.45.0 and Java opentelemetry-semconv 1.45.0 expose semconv 1.45.0.",
+        "Says Python opentelemetry-semantic-conventions 0.66b2 exposes semconv 1.44.0.",
+        "Recommends 1.43.0, the lowest newest-exposed version, as the shared version, and says a language whose package exposes a newer version needs a package release exposing 1.43.0 or translation of every change between the versions (attribute and metric renames and instrument-type changes), not attribute names alone.",
+        "Frames the versions as holding for the named releases rather than as currently latest, and suggests re-checking the package registries before pinning.",
         "Does not perform any web search, web fetch, or network command."
       ]
     }

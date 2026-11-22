@@ -16,20 +16,22 @@ Missing runtime identity does not defer safety triage. When supplied configurati
 first perform the bounded, non-constructing inspection below and report a sanitized diagnosis; then
 request the identity before producing a deployable correction.
 
-## Parsers verified 2026-10-25 (newer releases may exist; check the pin before deploying)
+## Parsers
+
+Values hold for the named releases; check the current release before relying on them.
 
 | Runtime | Parser | `file_format` | Check before deploying |
 |---|---|---|---|
 | Go | otelconf v0.27.0 | `"1.0-rc.3"` | Makefile schema tag |
-| Java SDK | 1.67.0 | `"1.2"` | `EXPECTED_FILE_FORMAT` |
-| Java agent / Spring starter | 2.33.0 (SDK 1.67.0) | `"1.2"` | embedded SDK version |
-| JS | configuration 0.300.0 | `"1.1"` | `CONFIG_VERSION` |
-| Python | configuration 0.66b1 | `"1.1"` | vendored `schema.json` |
+| Java SDK | 1.68.0 | `"1.2"` | `EXPECTED_FILE_FORMAT` |
+| Java agent / Spring starter | 2.34.0 (SDK 1.68.0) | `"1.2"` | embedded SDK version |
+| JS | configuration 0.301.2 | `"1.1"` | `CONFIG_VERSION` |
+| Python | configuration 0.66b2 | `"1.1"` | vendored `schema.json` |
 | Ruby | config 0.2.0 | `"1.0"` (README) | `generated_constants.rb` |
-| .NET | SDK: none; auto-instr. v1.17.0 (experimental) | `"1.0"` (docs) | - |
+| .NET | SDK: none; auto-instr. v1.20.0 (experimental) | `"1.0"` (docs) | - |
 
-Schema repo latest: v1.2.0. For evidence, validation behavior, or one file shared by several
-runtimes, read [`references/runtime-compatibility.md`](references/runtime-compatibility.md).
+Newest schema release covered: v1.2.0. For evidence, validation behavior, or one file shared by
+several runtimes, read [`references/runtime-compatibility.md`](references/runtime-compatibility.md).
 
 ## Evidence precedence
 
@@ -134,8 +136,8 @@ For released implementations, verify the package version before using these exac
 | Runtime | Bootstrap / activation |
 |---|---|
 | Go | `go.opentelemetry.io/contrib/otelconf.NewSDK`; it reads `OTEL_CONFIG_FILE`. The old `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected, not accepted as an alias. The experimental-types package `otelconf/x` still reads only `OTEL_EXPERIMENTAL_CONFIG_FILE`. |
-| Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
-| JavaScript (Node.js) | Call the experimental `startNodeSdk()` from `@opentelemetry/sdk-node` (named `startNodeSDK()` before 0.301.0, now a deprecated alias); it selects file configuration whenever `OTEL_CONFIG_FILE` is non-empty and parses it with `@opentelemetry/configuration`'s `parseConfigFile()`, which replaced `createConfigFactory()` in 0.301.0. |
+| Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property, and autoconfigure throws `ConfigurationException` when it is set without that artifact on the classpath. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
+| JavaScript (Node.js) | Call the experimental `startNodeSdk()` from `@opentelemetry/sdk-node` (0.301.0+; earlier releases use `startNodeSDK()`, which 0.301.0+ keeps as a deprecated alias and which before 0.218.0 needs an options object, e.g. `startNodeSDK({})`); it selects file configuration whenever `OTEL_CONFIG_FILE` is non-empty and parses it with `@opentelemetry/configuration`'s `parseConfigFile()` (`createConfigFactory()` before 0.301.0). |
 | Python | Install the experimental `opentelemetry-configuration` package alongside its matching SDK release. When `OTEL_CONFIG_FILE` is set, the SDK configurator used by `opentelemetry-instrument` calls `load_config_file()` and `configure_sdk()`; those functions are also the direct programmatic entry points. When configuration is enabled, an absent propagator section makes `configure_sdk()` install an empty `CompositePropagator`. |
 | Ruby | Experimental `opentelemetry-config` gem (0.1.0+). The app must call `OpenTelemetry::Config.configure` (reads `OTEL_CONFIG_FILE`) or `configure_from_file(path)`; nothing loads the file automatically. 0.2.0 applies `resource`, `tracer_provider`, `logger_provider` (needs `opentelemetry-logs-sdk` loaded), and `propagator`; `meter_provider` is parsed but ignored. It substitutes `${VAR}`, `${env:VAR}`, `${VAR:-default}`, and `$$` in scalar values, does not validate `file_format`, and does not inherit SDK `OTEL_*` environment-variable defaults. It returns a no-op SDK (leaving existing global state unchanged) for an unset or missing path, a YAML syntax error, an invalid substitution reference, or `disabled: true`; other file or model errors (e.g. a disallowed YAML tag or an alias) raise. |
 
@@ -169,8 +171,11 @@ Rules:
 - Malformed references (e.g. `${1API_KEY}`, `${API_$KEY}`) are invalid and produce a parse error; a well-formed `${VAR}` that is merely unset is not invalid and becomes an empty value
 
 Do not rely on mapping-key, sequence-item, invalid-reference, or type-coercion behavior without a
-target-parser test. For runtime-specific exceptions, load the matching language reference below and
-inspect release-matched parser tests. Keep substitutions in scalar values and prefer `${VAR}` for
+target-parser test. The Python parser (`opentelemetry-configuration` 0.66b2)
+leaves `${env:VAR}` and malformed references literal and skips the default for a set-but-empty
+variable; see [otel-python declarative setup](../otel-python/references/declarative-setup.md#yaml-config). For
+runtime-specific exceptions, load the matching language reference below and inspect release-matched
+parser tests. Keep substitutions in scalar values and prefer `${VAR}` for
 portable files; schema validation does not prove substitution behavior.
 
 ## Cross-References
@@ -187,5 +192,5 @@ behaviors were or were not verified; and the separate status of schema, selected
 validation. When compatibility evidence is cached, also state its reuse or invalidation decision and
 record the complete runtime, package or agent, version, selected schema tag, and source-revision
 identity. Omit only categories that do not apply to the request.
-For an answer from the dated table, state the date, that newer releases may exist, and the pin to
-check before deploying.
+For an answer from the parsers table, name the release it holds for and the pin to check before
+deploying.
