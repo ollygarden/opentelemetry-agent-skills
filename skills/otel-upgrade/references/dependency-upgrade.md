@@ -15,7 +15,7 @@ Use this workflow for OpenTelemetry APIs, SDKs, instrumentation libraries, expor
 
 ## Resolve versions and package families
 
-Use the ecosystem's registry as the source for a published package version and the tagged upstream source for its contents and release notes. Prefer machine-readable registry commands such as `go list -m -versions <module>`, `mvn dependency:get -Dartifact=<group>:<artifact>:<version>`, `npm view <package> versions --json`, `python -m pip index versions <distribution>`, `dotnet package search <package> --exact-match`, and `gem list --remote --all --exact <gem>`. Apply the repository's normal resolver afterward; a registry listing does not establish compatibility.
+Use the ecosystem's registry as the source for a published package version and the tagged upstream source for its contents and release notes. Prefer machine-readable registry commands such as `go list -m -versions <module>`, `mvn dependency:get -Dartifact=<group>:<artifact>:<version>`, `npm view <package> versions --json`, `python -m pip index versions --pre <distribution>`, `dotnet package search <package> --exact-match --prerelease`, and `gem list --remote --all --exact --prerelease <gem>`. Keep the prerelease flags on those three: without them, a package line that publishes only prerelease identifiers (for example Python contrib `b` releases) looks unpublished. Apply the repository's normal resolver afterward; a registry listing does not establish compatibility.
 
 Determine coordination from the release's actual package set and dependency constraints:
 

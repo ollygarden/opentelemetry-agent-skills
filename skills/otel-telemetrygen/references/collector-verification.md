@@ -12,14 +12,17 @@ fixture execution, and live execution; report only the levels actually completed
 - Pick a unique container name and a newly created empty output directory. Never reuse `./out` or
   a prior `result.json`; stale output can create a false positive.
 - Pin Collector and telemetrygen to compatible reviewed versions. The examples use Collector
-  `0.163.2` and telemetrygen `v0.163.0`, the versions they were run with. Verified 2026-10-25:
-  telemetrygen `v0.163.0` (Go module and GHCR image) exists with flags unchanged from `v0.162.0`;
-  Docker Hub has plain `otel/opentelemetry-collector-contrib:0.163.1` and `0.163.2` (Go and CA-bundle
-  rebuilds of 0.163.0) but no `0.163.0`.
-  Evidence: [Go module](https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.163.0),
+  `0.165.0` and telemetrygen `v0.165.1`, the versions they were run with. Verified 2026-11-22:
+  telemetrygen `v0.165.1` (Go module and GHCR image) exists with flags unchanged from `v0.163.0`;
+  under `cmd/telemetrygen` only `go.mod`/`go.sum` and the semconv import (`v1.40.0` to `v1.43.0`)
+  changed since then, moving the emitted schema URL to `https://opentelemetry.io/schemas/1.43.0`.
+  Docker Hub has plain `otel/opentelemetry-collector-contrib:0.165.0` but no `0.165.1`: contrib
+  `v0.165.1` was a module-only patch. For release pairing, see the `otel-sdk-versions`
+  [version index](../../otel-sdk-versions/references/generated/otel-version-index.md).
+  Evidence: [Go module](https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.165.1),
   [GHCR image](https://github.com/open-telemetry/opentelemetry-collector-contrib/pkgs/container/opentelemetry-collector-contrib%2Ftelemetrygen),
-  [source comparison](https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.162.0...v0.163.0) (only `go.mod`/`go.sum` under `cmd/telemetrygen`),
-  [Collector release v0.163.2](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.163.2),
+  [source comparison](https://github.com/open-telemetry/opentelemetry-collector-contrib/compare/v0.163.0...v0.165.1),
+  [Collector release v0.165.0](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.165.0),
   [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-contrib/tags).
 
 ## Minimal local pipeline
@@ -128,7 +131,7 @@ started_container_id=$(docker run -d --name "$container_name" \
   --user "$(id -u):$(id -g)" \
   -v "$config_path:/etc/otelcol-contrib/config.yaml:ro" \
   -v "$output_dir:/output" \
-  otel/opentelemetry-collector-contrib:0.163.2 \
+  otel/opentelemetry-collector-contrib:0.165.0 \
   --config=/etc/otelcol-contrib/config.yaml)
 docker_run_status=$?
 [ "$docker_run_status" -eq 0 ] || exit "$docker_run_status"
@@ -160,7 +163,7 @@ fi
 
 set +e
 docker run --rm --network "container:$container_id" \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.163.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.165.1 \
   logs --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --logs 1 --severity-text Info
 telemetrygen_status=$?

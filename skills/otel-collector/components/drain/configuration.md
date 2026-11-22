@@ -42,6 +42,7 @@ service:
 
 - `tree_depth` must be `>= 3`.
 - `merge_threshold` must be in `[0.0, 1.0]`.
+- Since v0.164.0: `max_node_children` must be `> 0`, `max_clusters` must be `>= 0`, and `template_attribute` must be non-empty; `wildcards_attribute` must be non-empty when `emit_wildcards: true`, and `parameter_key_prefix` must be non-empty when `masking_rules` is set.
 - `warmup_min_clusters` must be `>= 0`.
 - `save_interval` must be `>= 0`.
 - `save_interval > 0` requires `storage` to be set.

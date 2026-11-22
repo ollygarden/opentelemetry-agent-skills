@@ -71,14 +71,14 @@ Providers implement config URI schemes. The built binary can only load config th
 
 ```yaml
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.69.0   # file: and bare paths
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.69.0    # env: (${env:VAR})
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.69.0   # http://
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.69.0  # https://
-  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.69.0   # yaml: (inline YAML)
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.71.0   # file: and bare paths
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.71.0    # env: (${env:VAR})
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.71.0   # http://
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.71.0  # https://
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.71.0   # yaml: (inline YAML)
 ```
 
-Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.163.0` row of the dated record in SKILL.md's version-alignment section.
+Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.165.0` row of the dated record in SKILL.md's version-alignment section.
 
 **Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. With the default `conf_resolver`, `envprovider` is required even when the config has no environment references; omitting it fails with `DefaultScheme not found in providers list`. A common explicit base is `fileprovider` + `envprovider`.
 
@@ -99,7 +99,7 @@ Advanced, single module (not a list). Overrides the collector's internal-telemet
 
 ```yaml
 telemetry:
-  gomod: go.opentelemetry.io/collector/service v0.163.0
+  gomod: go.opentelemetry.io/collector/service v0.165.0
   import: go.opentelemetry.io/collector/service/telemetry/otelconftelemetry
 ```
 
@@ -142,29 +142,29 @@ dist:
   version: 2.1.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.163.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.163.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.165.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.165.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.163.0
-  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.163.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.163.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.165.0
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.165.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.165.0
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.163.0
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.163.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.165.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.165.0
 
 extensions:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.163.0
-  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.163.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.165.0
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.165.0
 
 connectors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.163.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.165.0
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.69.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.69.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.69.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.71.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.71.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.71.0
 
 replaces:
   - github.com/acme/private-exporter => ../private-exporter

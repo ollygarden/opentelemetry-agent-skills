@@ -1,26 +1,25 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.163.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
+Editor and converter reference for collector-contrib **v0.165.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source; since v0.162 the lambda and other experimental converters are documented in `pkg/ottl/xottl/ottlfuncs/README.md` and `ProfileID` in `pkg/ottl/contexts/xprofile/README.md`.
 
-## Feature gates (verified 2026-10-25)
+## Feature gates
 
-OTTL feature gates in `pkg/ottl/metadata.yaml`. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying.
+Verified 2026-11-22: OTTL feature gates in `pkg/ottl/metadata.yaml` at each tag from v0.162.0 to v0.165.x; v0.165.0 behavior also checked with `otelcol-contrib validate`. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. Component gates (`transform`, `filter`, `routing`) live on the `otel-collector` component pages.
 
-| Gate | v0.162.0 | v0.163.0 |
-|---|---|---|
-| `ottl.functions.enableLambda` (lambda converters) | alpha | alpha |
-| `ottl.set.allowNil` | stable | stable |
-| `pkg.ottl.functions.enableDynamicSliceArguments` (path/converter slice args of `Concat`, `keep_keys`) | none; `Concat` ungated since v0.161 | beta (on) |
-| `pkg.ottl.functions.enableExperimental` (new experimental `xottl` functions) | - | alpha |
-
-v0.163.0 also rejects non-list literal slice arguments such as `Concat("a", "-")` at parse time (CHANGELOG). Component gates (`transform`, `filter`, `routing`) live on the `otel-collector` component pages.
+| Gate | Status by release |
+|---|---|
+| `ottl.functions.enableLambda` (lambda converters) | alpha throughout v0.162.0–v0.165.x |
+| `ottl.set.allowNil` | beta (on) in v0.161; stable v0.162.0–v0.163.0; removed in v0.164.0, so naming it in `--feature-gates` fails startup |
+| `pkg.ottl.functions.enableDynamicSliceArguments` (path/converter slice args of `Concat`, `keep_keys`) | none in v0.162.0 (`Concat` ungated since v0.161); beta (on) since v0.163.0, which also rejects non-list literal slice arguments such as `Concat("a", "-")` at parse time (CHANGELOG) |
+| `pkg.ottl.functions.enableExperimental` (new experimental `xottl` functions, such as `ToValidUTF8`) | alpha since v0.163.0 |
+| `pkg.ottl.enableDynamicMapKeys` (path/converter map-literal keys, such as `{ToUpperCase("k"): "v"}`) | alpha since v0.165.0 (CHANGELOG); upstream metadata gives `from_version: v0.164.0`, but the gate is absent from v0.164.x |
 
 ## Contents
 
 - [Transform-only functions](#transform-processor-only-functions)
 - [Editors](#editors-data-manipulation)
 - [String](#string-converters), [type conversion](#type-conversion), and [type checking](#type-checking)
-- [Lambda converters](#lambda-converters-v0157-alpha), [patterns](#pattern-matching), and [parsing](#data-parsing)
+- [Lambda converters](#lambda-converters-v0157-alpha), [experimental converters](#experimental-converters-v0165-alpha), [patterns](#pattern-matching), and [parsing](#data-parsing)
 - [Collections](#collections), [date/time](#datetime), [encoding](#hashing--encoding), and [OpenTelemetry-specific](#opentelemetry-specific)
 - [Safe function patterns](#function-patterns)
 
@@ -29,7 +28,7 @@ v0.163.0 also rejects non-list literal slice arguments such as `Concat("a", "-")
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.163.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#supported-functions).
+[v0.165.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
@@ -52,16 +51,16 @@ The contexts and signatures below are pinned to the released
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 and v0.163 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-10-25; [v0.163.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 through v0.165 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-11-22; [v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#parsecef), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -76,9 +75,9 @@ set(log.body, Concat([log.severity_text, ": ", log.body.string], ""))
 
 `set` passes `nil` directly to the target: a map or slice path is cleared, a `pcommon.Value` (for
 example a missing attribute key) is set to an empty value, and scalar or struct-typed targets return
-an error. This is the `ottl.set.allowNil` behavior, beta (on by default) in v0.161 and stable in
-v0.162; through v0.160 a nil value was a no-op. Guard missing sources with `where source != nil`
-when the target must stay unchanged.
+an error. This is the `ottl.set.allowNil` behavior ([gate lifecycle](#feature-gates)); through v0.160 a
+nil value was a no-op.
+Guard missing sources with `where source != nil` when the target must stay unchanged.
 
 ### `clear` (v0.160+)
 ```ottl
@@ -300,6 +299,18 @@ When(() => condition, true_value, false_value)    # select one value
 Map iteration order is not stable, so order-dependent `Reduce` expressions are
 not deterministic for maps. If `MapKeys` creates duplicate keys, which value is
 retained is unspecified.
+
+---
+
+## Experimental converters (v0.165+, alpha)
+
+These require the alpha `pkg.ottl.functions.enableExperimental` feature gate; inside a lambda,
+also enable `ottl.functions.enableLambda`.
+
+```ottl
+ToValidUTF8(target, replacement?)   # replaces each invalid UTF-8 run; default U+FFFD, "" removes it
+set(log.body, ToValidUTF8(log.body)) where IsString(log.body)
+```
 
 ---
 

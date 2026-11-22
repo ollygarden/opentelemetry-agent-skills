@@ -56,7 +56,7 @@ Run OCB in a container (no local Go needed):
 
 ```bash
 docker run --rm -v "$(pwd):/work" -w /work \
-  otel/opentelemetry-collector-builder:0.163.2 \
+  otel/opentelemetry-collector-builder:0.165.0 \
   --config=/work/builder.yaml
 ```
 
@@ -68,7 +68,7 @@ Typical multi-stage Dockerfile for shipping the result:
 FROM golang:1.26 AS build
 WORKDIR /build
 COPY builder.yaml .
-RUN go install go.opentelemetry.io/collector/cmd/builder@v0.163.0 \
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.165.0 \
  && builder --config=builder.yaml
 
 FROM gcr.io/distroless/static-debian12:nonroot

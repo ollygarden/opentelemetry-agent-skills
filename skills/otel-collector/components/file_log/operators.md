@@ -34,6 +34,7 @@ upstream in [`pkg/stanza/docs/operators`](https://github.com/open-telemetry/open
 | `time_parser` | A field's value into the record timestamp. |
 | `trace_parser` | Trace/span IDs and flags into the record's trace context. |
 | `scope_name_parser` | A field into the instrumentation scope name. |
+| `otelcol` | The Collector's own zap self-log lines (`json` or `console` encoding): `ts` → timestamp, `level` → severity, `msg` → body, `resource` → Resource, other fields → attributes. Fixed schema, no `parse_from`/`parse_to`. Added in v0.165.0. |
 
 ### Embedded timestamp / severity / trace parsing
 

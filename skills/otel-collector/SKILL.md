@@ -23,7 +23,9 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 
 Coverage is intentionally selective. If a component is not indexed here, fall back to the upstream component README for the user's Collector version.
 
-Verified 2026-10-25: Stability cells here and in component README headers match `metadata.yaml` at core and contrib `v0.163.0`; rename and "since" versions match `metadata.yaml` at the named tag and the one before. Offline, cite that release and date, not current stability.
+Verified 2026-11-22: stability cells here and in component README headers, README distribution cells, the v0.165.0 notes here and in component pages, and the v0.164.0 removals of `processor.filter.defaultErrorModeIgnore` and `receiver.prometheusreceiver.IgnoreScopeInfoMetric` match `metadata.yaml` and source at core `v0.165.0` and contrib `v0.165.1`, the `v0.165.0` release manifests, the [core v0.165.0](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/CHANGELOG.md) and [contrib v0.165.1](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/CHANGELOG.md) changelogs, and `featuregate` / `validate` output of the `otelcol-contrib` 0.165.0 release binary. Offline, cite that release and date, not current stability.
+
+Verified 2026-10-25: rename and "since" versions match `metadata.yaml` at the named tag and the one before.
 
 Verified 2026-10-31: the v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) match the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
 
@@ -99,7 +101,11 @@ Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmet
 Two rules of thumb that apply across components:
 
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
-- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors.
+- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
+
+### Feature gates
+
+A Stable gate cannot be disabled (`is stable, can not be disabled`), and naming a removed gate in `--feature-gates` fails startup with `no such feature gate`. Component pages give only each gate's stage and the version it changed.
 
 ### Verification harness
 

@@ -11,16 +11,17 @@ Maturity: the signal entered [public Alpha](https://opentelemetry.io/blog/2026/p
 
 Collector-side component facts (OTLP receiver/exporter profile support, the fixed `/v1development/profiles` HTTP path, `k8s_attributes`, `memory_limiter`, `filter` `profile_conditions`) live in the `otel-collector` skill's component pages; OTTL `profile`/`profilesample` contexts live in `otel-ottl`.
 
-`otelcol-ebpf-profiler` `0.164.0` bundles only: receivers `profiling`, `nop`; processors `memory_limiter`, `k8s_attributes`, `resource_detection`, `resource`, `transform` (plus `batch`, which does not support profiles); exporters `otlp_grpc`, `otlp_http`, `debug`, `file`, `nop`; extensions `health_check`, `pprof`, `opamp`, `offcpu`. For anything else (`filter`, the `basicauth` extension, vendor exporters), relay to a regular Collector or build a distribution (`otel-collector-builder` skill).
+`otelcol-ebpf-profiler` `0.165.0` bundles only: receivers `profiling`, `nop`; processors `memory_limiter`, `k8s_attributes`, `resource_detection`, `resource`, `transform`, `queue_batch` (Alpha for profiles), plus `batch`, which does not support profiles; exporters `otlp_grpc`, `otlp_http`, `debug`, `file`, `nop`; extensions `health_check`, `pprof`, `opamp`, `offcpu`. For anything else (`filter`, the `basicauth` extension, vendor exporters), relay to a regular Collector or build a distribution (`otel-collector-builder` skill).
 
-## Version matrix (Verified 2026-11-05)
+## Version matrix (Verified 2026-11-22)
 
 | Artifact | Version | What it means |
 |---|---|---|
-| `otel/opentelemetry-collector-ebpf-profiler` | `0.163.0` to `0.163.2`, and `0.164.0` (newest release at verification, 2026-10-26) | Pins ebpf-profiler `v0.0.202640`: `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)); bundles the `offcpu` extension. Components unchanged from `0.163.0`; `0.164.0` only bumps module versions. |
+| `otel/opentelemetry-collector-ebpf-profiler` | `0.165.0` (newest release at verification, 2026-11-07) | Pins ebpf-profiler `v0.0.202645`: receiver keys and defaults unchanged from `v0.0.202640`; adds the `queue_batch` processor. |
+| Same image, `0.163.0` to `0.163.2`, and `0.164.0` | first releases with the mode key | Pins ebpf-profiler `v0.0.202640`: `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)); bundles the `offcpu` extension. Components unchanged from `0.163.0`; `0.164.0` only bumps module versions. |
 | Same image, `0.162.0` | last release before the change | Pins ebpf-profiler `v0.0.202636`: boolean `pid_namespace_translation`; does not bundle `offcpu`. |
 
-Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), the [`v0.163.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.0/distributions/otelcol-ebpf-profiler/manifest.yaml), [`v0.163.1`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.1/distributions/otelcol-ebpf-profiler/manifest.yaml), [`v0.163.2`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.163.2/distributions/otelcol-ebpf-profiler/manifest.yaml), and [`v0.164.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol-ebpf-profiler/manifest.yaml) distribution manifests; the [`v0.164.0` changelog](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/CHANGELOG.md).
+Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), `distributions/otelcol-ebpf-profiler/manifest.yaml` at each collector-releases tag (e.g. [`v0.165.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/distributions/otelcol-ebpf-profiler/manifest.yaml)); the [`v0.165.0` changelog](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/CHANGELOG.md); `validate` of this skill's configs with the `0.165.0` release binary.
 
 Read [references/receiver.md](references/receiver.md) when setting keys beyond `samples_per_second`, enabling off-CPU or OBI correlation, or pinning a release not in this table (keys follow the pinned ebpf-profiler, not the Collector version).
 
@@ -43,7 +44,7 @@ The profiler needs root or `CAP_SYS_ADMIN`/`CAP_BPF`/`CAP_PERFMON`, the host PID
 docker run -d --name otel-ebpf-profiler --privileged --pid=host \
   -v /sys/kernel/tracing:/sys/kernel/tracing \
   -v "$PWD/config.yaml:/etc/otelcol/config.yaml:ro" \
-  otel/opentelemetry-collector-ebpf-profiler:0.164.0 \
+  otel/opentelemetry-collector-ebpf-profiler:0.165.0 \
   --config=/etc/otelcol/config.yaml --feature-gates=+service.profilesSupport
 ```
 
@@ -77,4 +78,4 @@ The image is built `FROM scratch`: no shell, so debug from logs, not `exec`. Exp
 
 - The receiver profiles every process; it has no process, container, or namespace selection, and upstream declined to add one ([#358](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/issues/358)). To keep a subset, filter on enrichment attributes with `filter` `profile_conditions`; see "Keep only some workloads" in [references/kubernetes.md](references/kubernetes.md). Sampling cost on the node stays the same; only exported volume drops.
 - Linux `amd64`/`arm64`, kernel 5.10+ (checked at config validation; `no_kernel_version_check` bypasses it). Backends may lag the proto; check which OTLP profiles version they accept.
-- Trace-to-profile correlation is partial: OTLP profiles can link samples to `trace_id`/`span_id`, but the profiler fills them only from a context producer (OBI via `obi_process_ctx`; the [thread-context OTEP](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.62.0/oteps/profiles/4947-thread-ctx.md) is accepted, but the receiver's `thread_context` support in `v0.0.202640` is a stub). Go pprof labels are read as custom labels.
+- Trace-to-profile correlation is partial: OTLP profiles can link samples to `trace_id`/`span_id`, but the profiler fills them only from a context producer (OBI via `obi_process_ctx`; the [thread-context OTEP](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.62.0/oteps/profiles/4947-thread-ctx.md) is accepted, but the receiver's `thread_context` support is still a stub through `v0.0.202645`). Go pprof labels are read as custom labels.

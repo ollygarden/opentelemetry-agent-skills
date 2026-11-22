@@ -39,6 +39,7 @@ service:
 | `wait_for_metadata_timeout` | duration | `10s` | Max wait for the initial sync when `wait_for_metadata: true`; on timeout the collector fails to start. |
 | `watch_sync_period` | duration | `5m` | Informer cache resync period (v0.152.0). Set `0s` to disable resync — recommended for very large clusters, where periodic resyncs cause CPU spikes and memory churn. |
 | `pod_delete_grace_period` | duration | `120s` | How long a deleted pod's metadata is kept in the cache before eviction (v0.154.0), so late-arriving records for that pod can still be enriched. |
+| `kubelet` | object | disabled; `poll_interval: 10s`, `request_timeout: 10s` | Experimental (v0.164.0+): with `enabled: true`, poll the kubelet `/pods` endpoint as the pod metadata source. Requires the alpha `processor.k8sattributes.EnableKubeletPodSource` gate and one of `filter.node`, `filter.node_from_env_var`, or `kubelet.endpoint`; see the upstream README for the remaining keys. |
 
 ## `extract`
 

@@ -1,13 +1,13 @@
 # Troubleshooting the eBPF profiler
 
-Match the exact log or error text. Strings are from Collector `0.162.0` / ebpf-profiler `v0.0.202636` and `v0.0.202640` unless noted.
+Match the exact log or error text. Strings are from Collector `0.162.0` / ebpf-profiler `v0.0.202636` and `v0.0.202640` unless noted; those still emitted by current code are unchanged in `0.165.0` / `v0.0.202645`.
 
 | Error or symptom | Cause | Fix |
 |---|---|---|
 | `pipeline "profiles": profiling signal support is at alpha level, gated under the "service.profilesSupport" feature gate` | Gate not enabled. | Add `--feature-gates=+service.profilesSupport` (also on any relay Collector with a profiles pipeline). |
 | `'config.Config' has invalid keys: pid_namespace_translation_mode` | Key from ebpf-profiler `v0.0.202640`+ on an older pin (for example `0.162.0`). | Use `pid_namespace_translation: true` there, or move to a `v0.0.202640`+ image. |
 | `'config.Config' has invalid keys: pid_namespace_translation` | Boolean key removed in `v0.0.202640`. | Use `pid_namespace_translation_mode`. |
-| `failed to create "batch" processor, in pipeline "profiles": telemetry type is not supported` | `batch` has no profiles support. | Remove it from the profiles pipeline. |
+| `failed to create "batch" processor, in pipeline "profiles": telemetry type is not supported` | `batch` has no profiles support. | Remove it from the profiles pipeline, or use `queue_batch` (Alpha for profiles; images that bundle it: SKILL.md version matrix). |
 | `'processors' unknown type: "filter"` | `otelcol-ebpf-profiler` does not bundle `filter`. | Build the distribution with `filterprocessor`, or filter in a downstream Collector; see "Keep only some workloads" in `kubernetes.md`. |
 | `'extensions' unknown type: "offcpu"` | Distribution does not bundle the off-CPU probe (`0.162.0`). | Use an image that bundles it (SKILL.md version matrix), or an OCB build importing `go.opentelemetry.io/ebpf-profiler/probes/offcpu`. |
 | `failed to attach scheduler monitor: failed to configure tracepoint on tracer.hookPoint{group:"sched", name:"sched_process_free"}: neither debugfs nor tracefs are mounted` | tracefs absent in the container's `/sys`. | Mount `/sys/kernel/tracing` from the host. If the host path is empty (kind/k3d nodes), mount tracefs on the node first: `nested-containers.md`. |

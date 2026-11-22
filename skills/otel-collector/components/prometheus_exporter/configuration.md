@@ -28,9 +28,9 @@ The exporter also accepts all standard HTTP **server** options from the embedded
 | `keepalive.idle_timeout` | `1m` |
 | `keepalive.enabled` | `true` |
 
-The former flat `idle_timeout` and `keep_alives_enabled` fields are deprecated in core v0.160.0.
-Nonzero `idle_timeout` and `keep_alives_enabled: false` cannot be set with the new `keepalive` block;
-the no-op values `idle_timeout: 0` and `keep_alives_enabled: true` may coexist with it.
+The former flat `idle_timeout` and `keep_alives_enabled` fields, deprecated in core v0.160.0, were
+removed in core v0.165.0; setting either now fails with `'prometheusexporter.Config' has invalid keys`.
+Use the `keepalive` block.
 
 ## `translation_strategy`
 
@@ -66,3 +66,5 @@ An empty `endpoint` is not caught by `Config.Validate()`; `endpoint` has no defa
 | `exporter.prometheusexporter.DisableAddMetricSuffixes` | `beta` | v0.132.0 | When enabled, the deprecated `add_metric_suffixes` is ignored and `translation_strategy` is always used. (Spec PR 4533.) |
 | `exporter.prometheus.DisableResourceToTelemetryConversion` | `alpha` | v0.160.0 | Rejects deprecated `resource_to_telemetry_conversion`; use `resource_constant_labels`. |
 | `pkg.translator.prometheus.PermissiveLabelSanitization` | `stable` (since v0.164.0; beta v0.162.0–v0.163.0) | v0.55.0 | Shared with `prometheus_remote_write`. Always on: labels with a leading underscore (`_foo`) are kept instead of being rewritten to `key_foo`. Disabling it fails startup. |
+| `pkg.prometheus.KeepIdentifyingResourceAttributes` | `alpha` | v0.165.0 | Shared with `prometheus_remote_write`. Also keeps `service.name`, `service.namespace`, and `service.instance.id` as `target_info` labels; they still populate `job` and `instance`. |
+| `pkg.translator.prometheus.CorrectUCUMUnits` | `alpha` | v0.165.0 | Shared with `prometheus_remote_write`. Uses spec-compliant UCUM time and byte unit mappings for unit suffixes. |

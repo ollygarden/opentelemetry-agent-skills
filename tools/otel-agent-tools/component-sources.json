@@ -31,7 +31,7 @@
   {
     "component": "Operator",
     "repo": "open-telemetry/opentelemetry-operator",
-    "notes": "Kubernetes Operator; version is independent of the Collector"
+    "notes": "Kubernetes Operator; minor version tracks the Collector, patch is the Operator's own"
   },
   {
     "component": "Java agent",
