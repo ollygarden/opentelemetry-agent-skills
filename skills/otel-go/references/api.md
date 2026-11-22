@@ -161,7 +161,7 @@ gauge.Record(ctx, 75.5)
 
 // Observable (async) gauge with callback
 _, _ = meter.Int64ObservableGauge("memory.usage",
-    metric.WithCallback(func(ctx context.Context, o metric.Int64Observer) error {
+    metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
         o.Observe(getCurrentMemory())
         return nil
     }),

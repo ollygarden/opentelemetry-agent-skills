@@ -67,6 +67,9 @@ span?.SetStatus(ActivityStatusCode.Ok);
 span?.SetStatus(ActivityStatusCode.Error, "something went wrong");
 ```
 
+Since core 1.21.0 (breaking), the OTLP exporter truncates the status description to the span
+attribute value length limit (for example `OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT`).
+
 ### Adding events
 
 ```csharp
@@ -118,6 +121,9 @@ The SDK collects spans only from sources you name at startup:
 ```
 
 Spans from un-subscribed sources are silently dropped — this is intentional, not a bug.
+On `net11.0` targets (core 1.21.0+), sources enabled through the `Microsoft.Extensions.Diagnostics`
+tracing APIs (for example `services.AddTracing(b => b.AddConfiguration(section))`) are also
+processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()`.
 
 ---
 
@@ -268,7 +274,7 @@ Both `Activity.SetTag` (traces) and metric instrument `.Add(...)` / `.Record(...
 key-value attributes. Use semantic-convention names for interoperability:
 
 - Traces: `http.request.method`, `db.system.name`, `server.address`, `error.type`, etc.
-- Metrics: `http.route`, `rpc.method`, `messaging.system`, etc.
+- Metrics: `http.route`, `rpc.method`, `messaging.system.name`, etc.
 
 For the authoritative attribute registry, consult the `otel-semantic-conventions` skill.
 

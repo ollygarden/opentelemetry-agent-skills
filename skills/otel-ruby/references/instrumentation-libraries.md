@@ -34,7 +34,7 @@ or `{ enabled: false }` for exclusions. Do not mix `use` with `use_all`.
 ## Find the maintained library
 
 The source of truth is the contrib repository's
-[`instrumentation/`](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.99.0/instrumentation)
+[`instrumentation/`](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.102.0/instrumentation)
 directory. It currently includes categories such as:
 
 | Area | Examples |
@@ -50,9 +50,11 @@ This table is a routing aid, not a package/version inventory. Before recommendin
 README and gemspec in the locked release to confirm its target-library range, Ruby requirement,
 registered constant, options, and emitted semantic-convention mode.
 
-As of 2026-10-25, the latest relevant releases are Rails `0.42.0` (Ruby >= 3.3, Rails >= 7.1),
-Rack `0.31.2`, Sinatra `0.30.1`, Sidekiq `0.29.0`, Logger `0.5.0`, and the `all` bundle `0.99.0`.
+Verified 2026-11-22, the latest relevant releases are Rails `0.42.0` (Ruby >= 3.3, Rails >= 7.1),
+Rack `0.32.0`, Sinatra `0.31.0`, Sidekiq `0.29.0`, Logger `0.5.0`, and the `all` bundle `0.102.0`.
 The latter five also require Ruby >= 3.3. Do not transfer these constraints to an older lockfile.
+Anthropic `0.6.0` only propagates context and skips installation for `anthropic` newer than
+`1.78.0` (native OpenTelemetry support from `1.79.0`); see its README.
 
 ## Framework ordering
 
@@ -66,12 +68,21 @@ For database and HTTP instrumentation, verify that sensitive statements, URLs, a
 captured unintentionally. Use the relevant library's filtering and sanitization options rather
 than post-processing data blindly.
 
+Review client IPs too: since Rack `0.32.0` (which also produces Sinatra's server spans), server
+spans carry `client.address` from `Rack::Request#ip` in the stable and `http/dup` modes, and since
+Action Pack `0.19.0` Rails overwrites it on the Rack span with `remote_ip` in every mode; both
+follow trusted-proxy forwarding headers.
+
 ## Semantic-convention changes
 
 Instrumentation gems can change emitted span names and attributes independently of core SDK gems.
 During an upgrade, compare the affected gem's changelog and tests, then audit dashboards, alerts,
 sampling rules, and processors that depend on legacy names. Use `otel-semantic-conventions` for the
 released convention, but use the instrumentation release itself to prove what Ruby actually emits.
+
+Since Net::HTTP `0.30.0`, stable mode records the `http.client.request.duration` histogram when a
+metrics SDK is configured; see [performance.md](performance.md#metrics-cardinality-and-cost) to
+change its buckets.
 
 ## Verification
 

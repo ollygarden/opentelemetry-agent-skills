@@ -59,7 +59,9 @@ and [logs](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemet
 In contrib, `opentelemetry-instrumentation-base` `0.27.0` adds meter and logger accessors and depends
 on metrics API `~> 0.9` and logs API `~> 0.6`, so any instrumentation upgrade can pull those
 experimental API gems into the lockfile; Logger instrumentation `0.5.0` (`BREAKING CHANGE`) emits
-through that base logger and requires base `~> 0.27`.
+through that base logger and requires base `~> 0.27`. Net::HTTP `0.30.0` calls that meter accessor
+in its default stable mode but still allows base `~> 0.25`; with an older locked base it fails to
+install (logged error, no Net::HTTP spans), so update base with it.
 
 For contrib, inspect the released gem's README, gemspec, and tests when the changelog does not fully
 describe emitted telemetry.

@@ -29,7 +29,7 @@ pip install opentelemetry-distro opentelemetry-exporter-otlp
 opentelemetry-bootstrap -a install   # detects installed libs; installs matching instrumentors
 ```
 
-`opentelemetry-bootstrap` reads `pip list`, maps installed packages to known instrumentors, and installs them. Re-run after adding new dependencies.
+`opentelemetry-bootstrap` checks installed distributions (via `importlib.metadata`) against its known library-to-instrumentor map, adds a fixed set of default instrumentors, and installs the result with `python -m pip`, so pip must be available in the environment. `-a requirements` prints the list instead of installing. Re-run after adding new dependencies.
 
 ### Run
 

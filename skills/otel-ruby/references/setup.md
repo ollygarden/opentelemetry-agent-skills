@@ -135,4 +135,4 @@ phase. For short jobs, call `force_flush` before the process exits if the provid
 Sources: [core SDK 1.13.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.1/sdk),
 [`opentelemetry-config` 0.2.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-config/v0.2.0/config),
 [Ruby getting started](https://opentelemetry.io/docs/languages/ruby/getting-started/), and
-[contrib instrumentation catalog at the `all` 0.99.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.99.0/instrumentation).
+[contrib instrumentation catalog at the `all` 0.102.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.102.0/instrumentation).

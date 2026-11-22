@@ -7,11 +7,11 @@ rots with each release.
 ## Step 1: Fetch the CHANGELOGs
 
 Fetch both released upstream sources before reviewing any code. Verified
-2026-10-25: the released ceiling is core **1.45.1** and contrib **0.66b1**:
+2026-11-22: the released ceiling is core **1.45.2** and contrib **0.66b2**:
 
 ```
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b1/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.2/CHANGELOG.md
+WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python-contrib/v0.66b2/CHANGELOG.md
 ```
 
 Scan for entries marked **Deprecated**, **Removed**, or **Breaking** in the version range you are
@@ -127,7 +127,21 @@ When crossing this release boundary, explicitly check for:
   `wrap_to_thread_func` (old name kept as an alias); the `anthropic`, `claude-agent-sdk`, `langchain`, and
   `weaviate` instrumentations moved to the
   [opentelemetry-python-genai](https://github.com/open-telemetry/opentelemetry-python-genai)
-  repository.
+  repository, which publishes them as `opentelemetry-instrumentation-genai-<name>`
+  (e.g. `-genai-anthropic`, `-genai-langchain`). The unprefixed
+  `opentelemetry-instrumentation-anthropic` / `-langchain` / `-weaviate` names
+  on PyPI belong to a different project; check a package's repository URL
+  before swapping it in.
+
+### Released 1.45.2 / 0.66b2 audit points
+
+Contrib 0.66b2 has no changes. In core, check for:
+
+- Metric streams above 2000 attribute sets per collection cycle; they now
+  overflow — see [performance.md](performance.md#cardinality-limits).
+- Oversized trace-context headers: `TraceContextTextMapPropagator` ignores a
+  `traceparent` over 512 characters (1.45.2) and discards a `tracestate` over
+  8192 characters (1.45.1).
 
 ## Step 4: Audit Semantic Convention Renames
 
@@ -157,13 +171,9 @@ In 1.44.0 / 0.65b0, declarative configuration moved from the private
 `opentelemetry-configuration` package and public `opentelemetry.configuration`
 namespace. The new package remains experimental, so audit it on each upgrade.
 
-Before upgrading, fetch the README/schema for the release you are upgrading to. As of the
-latest released SDK (1.45.1, verified 2026-10-25), the declarative configuration README and schema are:
-
-```text
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst
-WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json
-```
+Before upgrading, fetch the declarative configuration README and vendored schema at the tag you
+are upgrading to; for the [Step 1](#step-1-fetch-the-changelogs) ceiling, use the tag-pinned rows
+in [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth).
 
 Install `opentelemetry-configuration` directly. The old
 `opentelemetry-sdk[file-configuration]` extra is a deprecated alias that still

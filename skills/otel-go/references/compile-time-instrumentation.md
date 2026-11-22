@@ -1,11 +1,13 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.2.0**, verified 2026-10-25) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`, latest stable release **v1.2.2**, verified 2026-11-22) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
 dependencies and stdlib packages you don't own. v1.0.0 is retracted because `otelc pin` generated
-the pre-v1 module paths in consumer `go.mod` files; use v1.0.1 or later.
+the pre-v1 module paths in consumer `go.mod` files. Use v1.2.2 or later: earlier builds can write
+part of a MySQL (before v1.2.1) or Oracle (before v1.2.2) DSN password into `server.address` on
+`database/sql` spans, and builds before v1.2.1 allow file-rule path traversal.
 
 ## When to use it (vs. the rest of this skill)
 
@@ -68,9 +70,9 @@ straight to the Go toolchain — `otelc go build --rules …` sends `--rules` to
 
 ## Supported libraries (v1)
 
-Verified 2026-10-25 against the embedded bundle manifest (`tool/data/instrumentation-manifest.json`)
-of the published `otelc` v1.2.0 module. The active set is that embedded bundle; re-check the manifest
-when the `otelc` version changes.
+Verified 2026-11-22 against the embedded bundle manifest (`tool/data/instrumentation-manifest.json`)
+of the published `otelc` v1.2.2 module. The active set is that embedded
+bundle; re-check the manifest when the `otelc` version changes.
 
 | Library | Signals |
 |---|---|
@@ -172,6 +174,7 @@ dot. Use `{{ .FuncName }}`, `{{ .FuncArgument 0 }}`, and corresponding dotted fo
 | Fact / task | Fetch |
 |---|---|
 | Latest `otelc` release tag | `gh api repos/open-telemetry/opentelemetry-go-compile-instrumentation/releases/latest -q '.tag_name'` |
+| Security advisories and patched versions | `gh api repos/open-telemetry/opentelemetry-go-compile-instrumentation/security-advisories -q 'map([.ghsa_id, .summary, .vulnerabilities[].patched_versions])'` |
 | Install, usage modes, managing instrumentations | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/getting-started.md` |
 | Full rule schema, glob grammar, and predicates | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/rules.md` |
 | Scope, filtering, precedence, runtime tuning, verification | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/configuration.md` |

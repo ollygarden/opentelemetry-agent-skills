@@ -34,6 +34,7 @@ Exact numeric defaults can shift between releases. For authoritative values, che
 | Batch log exporter timeout | `OTEL_BLRP_EXPORT_TIMEOUT` |
 | Metric export interval | `OTEL_METRIC_EXPORT_INTERVAL` |
 | Metric export timeout | `OTEL_METRIC_EXPORT_TIMEOUT` |
+| Metric export batch size (core 1.21.0+) | `OTEL_METRIC_EXPORT_MAX_BATCH_SIZE` |
 | OTLP export timeout | `OTEL_EXPORTER_OTLP_TIMEOUT` |
 | OTLP compression | `OTEL_EXPORTER_OTLP_COMPRESSION` |
 | OTLP metrics default histogram aggregation | `OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION` |
@@ -176,6 +177,17 @@ using var meterProvider = Sdk.CreateMeterProviderBuilder()
 
 Check `PeriodicExportingMetricReader.cs` for the current defaults (`DefaultExportIntervalMilliseconds`, `DefaultExportTimeoutMilliseconds`).
 
+By default a collection is exported in one request. `MaxExportBatchSize` (core 1.21.0+; also the
+`maxExportBatchSize` constructor parameter and the env var above) splits a collection into
+serially exported batches of at most that many points; the export timeout applies per batch:
+
+```csharp
+.AddOtlpExporter((exporterOptions, readerOptions) =>
+{
+    readerOptions.PeriodicExportingMetricReaderOptions.MaxExportBatchSize = 1_000;
+})
+```
+
 Interval tradeoffs:
 - Default: standard for dashboards and alerting
 - Shorter intervals: near-real-time visibility, higher export overhead
@@ -269,11 +281,11 @@ Metric attribute cardinality is the product of unique values across all recorded
 | Aspect | gRPC (`OtlpExportProtocol.Grpc`) | HTTP/Protobuf (`OtlpExportProtocol.HttpProtobuf`) |
 |--------|----------------------------------|---------------------------------------------------|
 | Default port | 4317 | 4318 |
-| .NET target | .NET only (deprecated for .NET Framework / .NET Standard) | All targets |
+| .NET target | .NET and .NET Standard 2.1 (deprecated for .NET Framework / .NET Standard 2.0) | All targets |
 | Connection | Single long-lived connection | HTTP/1.1 or HTTP/2 |
 | Best for | Persistent connections, high throughput | Firewalls, load balancers, .NET Framework |
 
-> **Note**: `OtlpExportProtocol.Grpc` is marked `[Obsolete]` for .NET Framework / .NET Standard targets. For cross-target libraries, prefer `HttpProtobuf`. The default protocol on .NET is `Grpc`; on .NET Framework / .NET Standard it is `HttpProtobuf`. See `OtlpExporterOptions.cs` source for the compile-time conditional.
+> **Note**: `OtlpExportProtocol.Grpc` is marked `[Obsolete]` for .NET Framework / .NET Standard 2.0 targets. For cross-target libraries, prefer `HttpProtobuf`. The default protocol on .NET and .NET Standard 2.1 is `Grpc`; on .NET Framework / .NET Standard 2.0 it is `HttpProtobuf`. See `OtlpExporterOptions.cs` source for the compile-time conditional (`NETFRAMEWORK || NETSTANDARD2_0`).
 
 ```csharp
 .AddOtlpExporter(options =>
@@ -286,6 +298,10 @@ Metric attribute cardinality is the product of unique values across all recorded
 ### Timeout
 
 The OTLP exporter's `TimeoutMilliseconds` property controls how long an individual export attempt waits before being cancelled. Route the default value to `OtlpExporterOptions.cs` source rather than asserting it here; it is controlled by `OTEL_EXPORTER_OTLP_TIMEOUT` (milliseconds).
+
+Since core 1.21.0, an export is cancelled at the shorter of `TimeoutMilliseconds` and the
+caller's timeout (batch processor, metric reader, or `MeterProvider.ForceFlush`); serialization
+counts toward it.
 
 ```csharp
 .AddOtlpExporter(options =>
@@ -336,6 +352,12 @@ The OTLP exporter supports opt-in retry behavior via the experimental feature fl
 
 Since core 1.20.1, disk retry storage is partitioned per exporter `Protocol`/`Endpoint`/`Headers`,
 so payloads stored on disk by earlier versions are not resent after upgrading.
+
+Since core 1.21.0 (breaking), on non-Windows .NET, creating the exporter with disk retry throws
+`UnauthorizedAccessException` when another user could modify the retry directory or a parent
+(sticky dirs such as `/tmp` are allowed).
+`OTEL_DOTNET_EXPERIMENTAL_OTLP_DISK_RETRY_CHECK_PERMISSIONS=false` disables the check; see the
+exporter README's "Experimental features" for the exact rule and trade-off.
 
 Retry is not enabled by default. For production resilience, consider placing an OpenTelemetry Collector on localhost and delegating retry/buffering to it.
 
@@ -485,7 +507,10 @@ The OpenTelemetry .NET SDK is designed so that telemetry failures do not crash o
   `null` or a propagation-only `Activity`, depending on the parent context
 - **Metric recording never throws** — measurements are silently dropped on failure
 - **Export failures are logged internally** — via `EventSource`; check ETW/dotnet-trace for diagnostics.
-  Core 1.20.0+ also offers `SelfDiagnosticsOptions` file and console sinks (off by default)
+  Core 1.20.0+ also offers `SelfDiagnosticsOptions` file and console sinks (off by default;
+  bound from the `OpenTelemetry:SelfDiagnostics` configuration section since 1.21.0). Since
+  1.21.0 (breaking), `OTEL_DIAGNOSTICS.json` writes rolling `otel-dotnet-*.log` files through
+  the same pipeline instead of a circular `{executable}.{pid}.log`
 - **Queue overflow drops spans** — the application is not blocked
 
 Export retries are opt-in (see the Retry section above). For reliable delivery in production, route telemetry through a local OpenTelemetry Collector that handles buffering and retry on your behalf.

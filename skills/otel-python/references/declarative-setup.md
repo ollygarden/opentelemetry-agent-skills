@@ -22,9 +22,7 @@ For YAML schema details, fetch the upstream sources listed in the
 | Latest `opentelemetry-configuration` | `WebFetch https://pypi.org/pypi/opentelemetry-configuration/json` |
 | Latest `opentelemetry-distro` | `WebFetch https://pypi.org/pypi/opentelemetry-distro/json` |
 | Latest OTLP exporter | `WebFetch https://pypi.org/pypi/opentelemetry-exporter-otlp/json` |
-| Declarative config support (released 1.45.1; verified 2026-10-25) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/README.rst` |
-| Vendored schema (released 1.45.1; verified 2026-10-25) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/opentelemetry-configuration/src/opentelemetry/configuration/schema.json` |
-| SDK CHANGELOG through 1.45.1 | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md` |
+| Tag-pinned README, vendored schema, and CHANGELOG | [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth) |
 
 ## Install
 
@@ -119,9 +117,10 @@ but spans started before setup are not retroactively recorded.
 `file_format` is required and must be a string version. The loader validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
 versions with the same major version are accepted with a warning. Verified
-2026-10-25: `opentelemetry-configuration` 0.66b1 (SDK 1.45.1) vendors schema
-v1.1.0 (as does 1.45.0) and its loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning
-and `"1.2"` warns (1.44.0 targeted 1.0 and warned on `"1.1"`).
+2026-11-22: `opentelemetry-configuration` 0.66b2 (SDK 1.45.2) vendors schema
+v1.1.0 and its loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning
+and `"1.2"` warns (1.44.0 targeted 1.0 and warned on `"1.1"`); per-runtime record:
+[`otel-declarative-config` runtime compatibility](../../otel-declarative-config/references/runtime-compatibility.md).
 
 Minimal verified skeleton (all three signals, console exporters):
 
@@ -157,7 +156,10 @@ Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; use `$$` for a
 literal dollar sign. Since 1.45.0, `load_config_file` substitutes only scalar
 values after parsing (never keys or comments), and an unset variable with no
 default becomes an empty value (YAML null) instead of an error; a resource
-attribute that resolves to null is skipped with a warning.
+attribute that resolves to null is skipped with a warning. Verified 2026-11-22
+(0.66b2): the spec's `${env:VAR}` form and malformed references such as
+`${1API_KEY}` are left as literal text, and `${VAR:-default}` falls back only
+when `VAR` is unset, not when it is set to an empty string.
 
 ## Instrumentor Activation
 
@@ -207,6 +209,12 @@ the remaining entries.
   per-scope `enabled` overrides are applied (earlier releases parsed and
   discarded them). Logger-configurator `minimum_severity` / `trace_based` are
   ignored with a warning.
+
+- **Cardinality limits wired in 1.45.2.** Reader `cardinality_limits`
+  (per-instrument keys falling back to `default`) and view
+  `stream.aggregation_cardinality_limit` are applied. Pull-exporter plugins other than `prometheus/development` still ignore
+  reader limits with a warning. For SDK semantics see
+  [performance.md](performance.md#cardinality-limits).
 
 - **`LoggingHandler` import.** The deprecated
   `opentelemetry.sdk._logs.LoggingHandler` (deprecated in 1.40.0/0.61b0) should be
