@@ -83,13 +83,11 @@ jobs:
 
 ## Version compatibility
 
-### Verified 2026-11-22
-
-Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying.
+Values hold for the named releases; check the current release before relying on them.
 
 | Fact | Value |
 |---|---|
-| This skill's examples | `check`, `generate`, and `diff` run clean (warnings only) on `v0.28.0` (released 2026-10-14); `otel/weaver:v0.28.0` image exists |
+| This skill's examples | `check`, `generate`, and `diff` pass (warnings only) on `v0.28.0`; `otel/weaver:v0.28.0` image exists |
 | Manifest `file_format: definition_manifest/2.0` | accepted from `v0.27.0`; `v0.26.1` rejects it; missing it warns on `v0.27.0`+ and errors with `--future` |
 | Manifest fields and presence (`v0.28.0`) | `manifest.yaml` rejects the legacy top-level `semconv_version`/`schema_base_url` (a legacy-named `registry_manifest.yaml` still accepts them with a deprecation warning); top-level `name` is not a v2 manifest field; a missing manifest only logs `No registry manifest found` |
 | `definition/2` status | not stable through `v0.28.0`: each file warns `File format definition/2 is not yet stable`; `--future` turns that warning into an error |
@@ -99,7 +97,7 @@ Offline, cite this date, never call a value currently latest, and confirm it aga
 
 Changelog-marked breaking changes after `v0.26.1` are in `registry live-check`, `registry infer`, and `registry mcp` (`v0.27.0`); `v0.28.0` warns when an entity `identity` reference sets `requirement_level`. When moving a pin up from `v0.26.x`, add the manifest `file_format` in the same change, not before (`v0.26.x` rejects it).
 
-Evidence: Weaver source at `v0.26.1` and `v0.28.0`, `CHANGELOG.md`, and `schemas/definition-manifest.v2.json` at `v0.28.0`; `dependencies.Dockerfile` at each semantic-conventions tag; `otel/weaver` `v0.26.0`, `v0.27.0`, and `v0.28.0` runs on this skill's examples; `v0.28.0` binary runs on the semconv `v1.44.0` and `v1.45.0` models.
+Evidence: Weaver source at `v0.26.1` and `v0.28.0`, `CHANGELOG.md`, and `schemas/definition-manifest.v2.json` at `v0.28.0`; `dependencies.Dockerfile` at each semantic-conventions tag.
 
 ## Local equivalent
 

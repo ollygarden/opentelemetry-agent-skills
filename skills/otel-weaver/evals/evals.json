@@ -7,8 +7,8 @@
       "files": [],
       "expectations": [
         "Says semantic-conventions v1.44.0 pinned Weaver v0.25.1.",
-        "Names v0.28.0 as the newest Weaver release known, as of the recorded date rather than as currently latest.",
-        "Says definition/2 is still not stable through v0.28.0 and each definition/2 file produces a warning.",
+        "Names v0.28.0 as the newest Weaver release the skill records, not as currently latest.",
+        "Says definition/2 is not stable through v0.28.0 and each definition/2 file produces a warning.",
         "Advises against enabling --future because it turns the definition/2 warning into an error.",
         "Suggests confirming against the Weaver release notes or changelog before upgrading the CI pin.",
         "Does not perform any web search, web fetch, or network command."

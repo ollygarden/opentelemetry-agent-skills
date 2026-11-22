@@ -3,9 +3,9 @@
 Which semantic-conventions release each language's semconv package exposes. Packages trail the
 spec, so pick the version your SDK can emit, not the newest spec release.
 
-## Verified 2026-11-22
+## Package versions
 
-Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. Online, re-check the package registry first.
+Values hold for the named releases; check the current release before relying on them.
 
 Latest spec release: the `otel-sdk-versions` index if it lists semantic-conventions, else the GitHub releases.
 

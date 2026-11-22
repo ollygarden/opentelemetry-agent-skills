@@ -77,7 +77,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.28.0 does not diagnose a missing one, so add it yourself.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the `allow_custom_values` flag is removed). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.28.0 does not diagnose a missing one, so add it yourself.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -167,7 +167,7 @@ entities:
       - ref: ecommerce.warehouse.id
 ```
 
-Entities describe resource-like things your telemetry is *about* (was called `resource` before v0.15.0 — use `entity` now). An entity uses `type`, not `id`, and must have a non-empty `identity` list; optional non-identifying attributes go under `description`. The same attribute cannot appear in both lists. Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
+Entities describe resource-like things your telemetry is *about* (named `resource` before v0.15.0; use `entity`). An entity uses `type`, not `id`, and must have a non-empty `identity` list; optional non-identifying attributes go under `description`. The same attribute cannot appear in both lists. Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
 
 ## What does NOT belong in your local registry
 
@@ -184,4 +184,4 @@ Fast feedback loop:
 weaver registry check --v2 -r ./telemetry/registry/
 ```
 
-Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal; its status by Weaver version is in the dated record in `ci-integration.md`. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.
+Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal; its status by Weaver version is in [version compatibility](ci-integration.md#version-compatibility). `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.

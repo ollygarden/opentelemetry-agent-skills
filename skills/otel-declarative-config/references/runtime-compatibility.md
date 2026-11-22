@@ -1,8 +1,8 @@
 # Runtime compatibility
 
-Evidence and parser validation behind the SKILL.md "Parsers verified" table.
+Evidence and parser validation behind the SKILL.md parsers table.
 
-## Verified 2026-11-22
+## Parsers
 
 | Runtime | Full package | Schema | Validation |
 |---|---|---|---|
@@ -17,15 +17,15 @@ Evidence and parser validation behind the SKILL.md "Parsers verified" table.
 
 Evidence, at each release tag or in the published artifact:
 
-- Go: `Makefile` `genjsonschema` downloads the `v1.0.0-rc.3` schema; CHANGELOG moved to rc.3 in
-  contrib 1.41.0 (#8505) with no later bump. The fixture `testdata/v1.0.0.yaml` says `"1.0-rc.2"`.
+- Go: `Makefile` `genjsonschema` downloads the `v1.0.0-rc.3` schema, the pin since contrib
+  1.41.0 (CHANGELOG #8505). The fixture `testdata/v1.0.0.yaml` says `"1.0-rc.2"`.
 - Java SDK: `build.gradle.kts` `configurationTag = "1.2.0"`;
   `OpenTelemetryConfigurationFactory` `EXPECTED_FILE_FORMAT = "1.2"`. With a config file set but
   that artifact missing, the 1.68.0 autoconfigure jar throws `ConfigurationException`:
   `Cannot autoconfigure from config file without opentelemetry-sdk-extension-declarative-config on the classpath`.
 - Java agent: `dependencyManagement/build.gradle.kts` `otelSdkVersion = "1.68.0"`, so the embedded
   SDK parser above applies; the published 2.34.0 agent loads `"1.2"` silently, warns on `1.1`, and
-  rejects `2.0`. The agent `smoke-tests` fixture still uses `1.1`, while the
+  rejects `2.0`. The agent `smoke-tests` fixture uses `1.1`, while the
   `smoke-tests-otel-starter` fixtures use `"1.2"`.
 - JavaScript: `scripts/generate-config.js` `CONFIG_VERSION = 'v1.1.0'`, also on the 2.x-compatible
   0.223.x line (0.223.2).

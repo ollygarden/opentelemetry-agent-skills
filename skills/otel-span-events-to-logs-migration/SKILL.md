@@ -11,7 +11,7 @@ Use this skill to migrate instrumentation from the Span Event API (`AddEvent`, `
 
 The OpenTelemetry project accepted a plan to deprecate `Span.AddEvent` and `Span.RecordException` in favor of emitting events and exceptions through the Logs API. Span Events as a concept remain valid -- they can be emitted via logs that correlate to the active span, and optionally bridged back into the span proto.
 
-Status verified 2026-11-22 (specification v1.62.0): OTEP 4430 is accepted, but `AddEvent`/`RecordException` are not yet marked Deprecated ([current status](references/deprecation-plan.md#current-status)). Treat existing span-event calls as migration candidates, not invalid code, and check each SDK's own status.
+In specification v1.62.0, OTEP 4430 is accepted and `AddEvent`/`RecordException` are not marked Deprecated ([current status](references/deprecation-plan.md#current-status)). Treat existing span-event calls as migration candidates, not invalid code, and check each SDK's own status.
 
 See `references/deprecation-plan.md` for the full context.
 
