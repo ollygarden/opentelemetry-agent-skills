@@ -94,7 +94,7 @@ The in-process alternative to the zero-code agent: add NuGet packages and regist
 the OTel builder. These run inside the application process and give the most control over
 which instrumentation is active.
 
-The snippet below is the verified baseline from the spike (all three signals confirmed):
+The snippet below is a baseline that exports all three signals:
 
 ```csharp
 builder.Services.AddOpenTelemetry()

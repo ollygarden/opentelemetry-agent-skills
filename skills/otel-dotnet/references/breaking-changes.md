@@ -2,7 +2,7 @@
 
 Use this reference to audit existing .NET OpenTelemetry code for deprecated or renamed APIs,
 semconv renames, and experimental feature flags. This is a **workflow document** — fetch the
-upstream CHANGELOGs rather than relying on any embedded snapshot here.
+upstream CHANGELOGs rather than relying on version facts embedded here.
 
 ---
 
@@ -33,7 +33,7 @@ WebFetch https://www.nuget.org/packages/<PackageId>
 Always fetch the latest `core-*` tag and per-package NuGet version as described in the Sources of
 Truth table in `SKILL.md` — do not rely on version numbers embedded in any skill file.
 
-**Target frameworks — verified 2026-11-22**
+**Target frameworks (`core-1.21.0`)**
 ([`core-1.21.0` RELEASENOTES](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/RELEASENOTES.md)):
 core 1.21.0 and most contrib 1.21.x packages target `net11.0`, `net10.0` and .NET Standard (some
 also .NET Framework), not `net8.0`/`net9.0`; `Instrumentation.AspNet` and `Instrumentation.Owin`

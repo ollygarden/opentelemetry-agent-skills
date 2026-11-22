@@ -53,7 +53,7 @@ OTLP exporter `0.37.0` changes its default compression (see [setup.md](setup.md#
 metrics API `0.9.0` and logs API `0.6.0` drop `OpenTelemetry.meter_provider` / `logger_provider`, so
 API-only code raises `NoMethodError` unless it requires the SDK (metrics SDK `0.20.0`+, logs SDK
 `0.8.0`+) or `opentelemetry/metrics/global` / `opentelemetry/logs/global` (older SDKs work through a
-deprecation shim); logs API `0.7.0` swaps the `DEBUG2` and `DEBUG3` severity values (verified 2026-10-25 against the
+deprecation shim); logs API `0.7.0` swaps the `DEBUG2` and `DEBUG3` severity values (sources: the
 [metrics](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemetry-metrics-api/v0.10.0/metrics_api/README.md#upgrading-to-090)
 and [logs](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemetry-logs-api/v0.7.0/logs_api/README.md#upgrading-to-060) API READMEs).
 In contrib, `opentelemetry-instrumentation-base` `0.27.0` adds meter and logger accessors and depends
@@ -63,7 +63,7 @@ through that base logger and requires base `~> 0.27`. Net::HTTP `0.30.0` calls t
 in its default stable mode but still allows base `~> 0.25`; with an older locked base it fails to
 install (logged error, no Net::HTTP spans), so update base with it.
 
-Verified 2026-11-22: Net::HTTP `v0.30.0`
+Evidence: Net::HTTP `v0.30.0`
 [gemspec](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-net_http/v0.30.0/instrumentation/net_http/opentelemetry-instrumentation-net_http.gemspec)
 and [`instrumentation.rb`](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-net_http/v0.30.0/instrumentation/net_http/lib/opentelemetry/instrumentation/net/http/instrumentation.rb);
 base `v0.27.0` [CHANGELOG](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-base/v0.27.0/instrumentation/base/CHANGELOG.md).

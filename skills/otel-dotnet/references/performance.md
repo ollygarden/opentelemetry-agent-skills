@@ -331,7 +331,7 @@ the receiver may enforce its own request-size limit.
 
 ### Redirects
 
-Since core 1.20.1 (breaking), `HttpClient` instances the OTLP exporter creates itself no longer
+Since core 1.20.1 (breaking), `HttpClient` instances the OTLP exporter creates itself do not
 follow HTTP redirects; a `3xx` response is a failed export. Point the exporter at the final
 endpoint. An `HttpClient` from the `HttpClientFactory` option or `IHttpClientFactory` uses its
 own redirect policy (follows redirects by default); see the exporter README's "Configure
@@ -519,8 +519,8 @@ Export retries are opt-in (see the Retry section above). For reliable delivery i
 
 ## Sources of Truth
 
-Inspect these paths at the exact `core-*` release tag being audited, not at `main` (verified
-2026-11-22 at `core-1.21.0`):
+Inspect these paths at the exact `core-*` release tag being audited, not at `main` (paths hold
+for `core-1.21.0`):
 
 - Core changes (1.21.0 metric batching, self-diagnostics): `src/OpenTelemetry/CHANGELOG.md`
 - OTLP exporter changes (1.21.0 export timeout, disk-retry permissions): `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/CHANGELOG.md`

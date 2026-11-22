@@ -40,7 +40,7 @@ review the lockfile and each changed gem's changelog.
 Require the selected exporter and instrumentation gems before configuration. In Rails, place the
 configuration in an initializer; in Rack/Sinatra or a worker, run it during bootstrap.
 Use `OTEL_*` environment variables and `OpenTelemetry::SDK.configure`. The separate experimental
-`opentelemetry-config` gem (first released `0.1.0`, 2026-09-29) reads an `OTEL_CONFIG_FILE` YAML
+`opentelemetry-config` gem reads an `OTEL_CONFIG_FILE` YAML
 file, but only when the application calls `OpenTelemetry::Config.configure` (or
 `configure_from_file`). For what each release applies, see the Ruby row of the
 `otel-declarative-config` skill's [runtime table](../../otel-declarative-config/SKILL.md); check the

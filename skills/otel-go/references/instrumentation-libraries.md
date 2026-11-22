@@ -161,7 +161,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 
 | Library | Package |
 |---------|---------|
-| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (deprecated in v0.72.0 as no longer supported; no contrib replacement) |
+| AWS SDK v2 | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (deprecated in v0.72.0 as unsupported; no contrib replacement) |
 | Lambda | `go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda` |
 
 ### Logging Bridges
@@ -173,7 +173,7 @@ func setupGRPCServerWithSpanKind() *grpc.Server {
 | logrus | `go.opentelemetry.io/contrib/bridges/otellogrus` |
 | logr | `go.opentelemetry.io/contrib/bridges/otellogr` |
 
-> **Logging bridge change (bridge v0.10.0):** otelzap and otelslog now emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) instead of just the function name. The `code.namespace` attribute is no longer emitted.
+> **Logging bridges (v0.10.0+):** otelzap and otelslog emit `code.function` as the full package-path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) and do not emit `code.namespace`.
 
 ```go
 // zap bridge setup

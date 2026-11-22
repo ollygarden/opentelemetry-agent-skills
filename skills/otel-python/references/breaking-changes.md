@@ -6,8 +6,8 @@ rots with each release.
 
 ## Step 1: Fetch the CHANGELOGs
 
-Fetch both released upstream sources before reviewing any code. Verified
-2026-11-22: the released ceiling is core **1.45.2** and contrib **0.66b2**:
+Fetch both released upstream sources before reviewing any code. This file covers releases
+through core **1.45.2** and contrib **0.66b2**:
 
 ```
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.2/CHANGELOG.md
@@ -94,7 +94,7 @@ When crossing this release boundary, explicitly check for:
   the child, and the regenerated `service.instance.id` overrides the configured
   value there.
 - In-place mutation of `opentelemetry.context.Context`; inherited `dict`
-  mutation methods no longer modify it. Use the context API to create updated
+  mutation methods do not modify it. Use the context API to create updated
   contexts.
 - Histogram configurations with non-finite or non-increasing explicit bucket
   boundaries; creating the metric stream's aggregation now raises `ValueError`.
@@ -116,20 +116,20 @@ When crossing this release boundary, explicitly check for:
   limit (default 64 MiB; larger requests are dropped; `0` disables) — see [performance.md](performance.md#exporter-configuration).
 - `SimpleSpanProcessor` now drops spans ended after `shutdown()`; SDK
   self-metrics `otel.sdk.processor.{span,log}.processed` now count at
-  submission and no longer carry exporter failures as `error.type`.
+  submission and do not carry exporter failures as `error.type`.
 - Metric `View` instrument-name matching is now case-insensitive, and
   tracer/meter/logger configurator scope-name matching is case-sensitive, on
   every platform.
-- Declarative config: an unset `${VAR}` without default no longer raises — see
+- Declarative config: an unset `${VAR}` without default resolves to null instead of raising — see
   [declarative-setup.md](declarative-setup.md#yaml-config).
 - Contrib: `opentelemetry-instrumentation-kafka-python` dropped
   `kafka-python-ng`; `AsyncioInstrumentor.trace_to_thread` is renamed to
   `wrap_to_thread_func` (old name kept as an alias); the `anthropic`, `claude-agent-sdk`, `langchain`, and
   `weaviate` instrumentations moved to the
   [opentelemetry-python-genai](https://github.com/open-telemetry/opentelemetry-python-genai)
-  repository as `opentelemetry-instrumentation-genai-<name>`. Verified 2026-11-22 on PyPI:
-  `-genai-anthropic` and `-genai-langchain` are released; `-genai-claude-agent-sdk` and
-  `-genai-weaviate-client` are unreleased skeletons. The unprefixed
+  repository as `opentelemetry-instrumentation-genai-<name>`. On PyPI,
+  `-genai-anthropic` and `-genai-langchain` have releases; `-genai-claude-agent-sdk` and
+  `-genai-weaviate-client` are unreleased skeletons (check PyPI before installing). The unprefixed
   `opentelemetry-instrumentation-anthropic` / `-langchain` / `-weaviate` names
   on PyPI belong to a different project; check a package's repository URL
   before swapping it in.

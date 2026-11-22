@@ -16,12 +16,12 @@ the SDK migration.
 - otelgrpc's deprecated client/server interceptors were removed in v0.60.0. Use stats handlers (`NewServerHandler` / `NewClientHandler`).
 - `attribute.INVALID` deprecated (core v1.43.0) — an empty value is now valid; use `attribute.EMPTY` instead.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
-- `sdk/log.WithExportBufferSize` is deprecated and has no effect as of log SDK v0.21.0 (core v1.45.0 release); the batch processor no longer keeps a separate export-request buffer.
-- `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
+- `sdk/log.WithExportBufferSize` is deprecated and has no effect since log SDK v0.21.0 (core v1.45.0 release); the batch processor keeps no separate export-request buffer.
+- Root `otelconf` v0.23.0+ (contrib v1.43.0+) does not support `OTEL_EXPERIMENTAL_CONFIG_FILE`. Use `OTEL_CONFIG_FILE`.
 - `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` was deprecated in v0.71.0 (contrib v1.46.0) and removed in v0.72.0 (contrib v1.47.0). Use `github.com/labstack/echo-opentelemetry`.
 - `go.opentelemetry.io/otel/log/global` is deprecated (core v1.47.0). Use `otel.Logger`, `otel.GetLoggerProvider`, and `otel.SetLoggerProvider` from `go.opentelemetry.io/otel`.
-- Deprecated as no longer supported in contrib v1.47.0, with no contrib replacement: `instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (v0.72.0), `propagators/aws`, and `samplers/probability/consistent`.
-- otelhttp v0.72.0 deprecates `ReadBytesKey`, `ReadErrorKey`, `WroteBytesKey`, and `WriteErrorKey`; `WithMessageEvents` no longer emits `http.read_bytes` / `http.wrote_bytes`. Total body sizes remain on the server span as `http.request.body.size` / `http.response.body.size`.
+- Deprecated as unsupported in contrib v1.47.0, with no contrib replacement: `instrumentation/github.com/aws/aws-sdk-go-v2/otelaws` (v0.72.0), `propagators/aws`, and `samplers/probability/consistent`.
+- otelhttp v0.72.0 deprecates `ReadBytesKey`, `ReadErrorKey`, `WroteBytesKey`, and `WriteErrorKey`; `WithMessageEvents` stops emitting `http.read_bytes` / `http.wrote_bytes`. Total body sizes remain on the server span as `http.request.body.size` / `http.response.body.size`.
 
 ## Removed APIs (instrumentation v0.65.0; contrib v1.40.0 release)
 
@@ -56,11 +56,11 @@ RPC attribute changes:
 ## Log value API replacement (log API/SDK v0.21.0; core v1.45.0 release)
 
 - Log bodies and record attributes now use `go.opentelemetry.io/otel/attribute.Value` and `attribute.KeyValue`. The former `log.Kind`, `log.Value`, `log.KeyValue`, their constructors, and conversion helpers were removed. Replace `log.StringValue(...)` / `log.String(...)` with `attribute.StringValue(...)` / `attribute.String(...)` (and the corresponding typed constructors).
-- `sdk/log/logtest.RecordFactory` no longer has `AttributeValueLengthLimit` or `AttributeCountLimit`; test records now keep attribute limits disabled.
+- `sdk/log/logtest.RecordFactory` drops `AttributeValueLengthLimit` and `AttributeCountLimit`; test records keep attribute limits disabled.
 
 ## OTLP HTTP endpoint URLs (core v1.45.0)
 
-- `otlptracehttp.WithEndpointURL` and `otlpmetrichttp.WithEndpointURL` no longer append `/v1/traces` or `/v1/metrics` when the URL has no path. They now use `/`, matching signal-specific endpoint environment variables and the log exporter. Join the signal path explicitly to preserve the old behavior.
+- `otlptracehttp.WithEndpointURL` and `otlpmetrichttp.WithEndpointURL` do not append `/v1/traces` or `/v1/metrics` when the URL has no path. They use `/`, matching signal-specific endpoint environment variables and the log exporter. Join the signal path explicitly to send to `/v1/traces` or `/v1/metrics`.
 
 ## Core v1.47.0 (logs API/SDK v1.47.0; log exporters v0.23.0)
 
@@ -73,7 +73,7 @@ RPC attribute changes:
 
 ## otelhttp client metrics labeler (instrumentation v0.72.0; contrib v1.47.0 release)
 
-- Client metrics no longer include attributes from the server-side `Labeler`. Code that used `ContextWithLabeler` to add custom *client* metric attributes must switch to `ContextWithClientLabeler` (read back with `ClientLabelerFromContext`). Server-side `ContextWithLabeler` / `LabelerFromContext` is unchanged.
+- Client metrics exclude attributes from the server-side `Labeler`. Code that used `ContextWithLabeler` to add custom *client* metric attributes must switch to `ContextWithClientLabeler` (read back with `ClientLabelerFromContext`). Server-side `ContextWithLabeler` / `LabelerFromContext` is unchanged.
 
 ## Log exporter shutdown (log SDK v0.22.0; core v1.46.0 release)
 
@@ -89,7 +89,7 @@ In otelhttp v0.70.0 (contrib v1.45.0), client spans and request metrics derive `
 ## Removed / renamed contrib APIs (v1.43.0–v1.44.0 release lines)
 
 - otelgrpc removed the deprecated `WithSpanOptions` option in v0.69.0.
-- `otelconf`: experimental config types moved from `otelconf` to the `otelconf/x` subpackage in v0.23.0. The `host` resource detector no longer sets `host.id` in v0.23.0.
+- `otelconf`: experimental config types moved from `otelconf` to the `otelconf/x` subpackage in v0.23.0. In v0.23.0, the `host` resource detector stops setting `host.id`.
 - otelgrpc added `OTEL_SEMCONV_STABILITY_OPT_IN` (values `rpc` default, `rpc/dup`, `rpc/old`) in v0.68.0 to stage RPC semconv migration.
 - Contrib v1.45.0 updates instrumentation and detectors to semconv v1.43.0; use the exact versioned semconv package and its generated migration file rather than mixing helpers from older versions.
 
@@ -103,6 +103,6 @@ In otelhttp v0.70.0 (contrib v1.45.0), client spans and request metrics derive `
 - `span.RecordError()` and `span.AddEvent()` are still present in the released tracing API; do not remove existing uses as deprecated APIs.
 - `log.Record.SetErr(err)` (`otel/log` v0.18.0; released with core v1.42.0) — the SDK automatically sets `exception.type` and `exception.message` attributes.
 
-## Resolved Gotchas (historical reference)
+## Propagator installation with `otelconf`
 
-- **Propagator not installed by `otelconf`** ([open-telemetry/opentelemetry-go-contrib#6712](https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712)) — fixed in `otelconf v0.20.0` (released 2026-02-02). The root `otelconf` package now exposes `sdk.Propagator()`; install via `otel.SetTextMapPropagator(sdk.Propagator())`. The schema-pinned `otelconf/v0.3.0` subpackage still requires manual installation: `otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))`.
+- **Root `otelconf` v0.20.0+** ([open-telemetry/opentelemetry-go-contrib#6712](https://github.com/open-telemetry/opentelemetry-go-contrib/issues/6712)) exposes `sdk.Propagator()`; install via `otel.SetTextMapPropagator(sdk.Propagator())`. The schema-pinned `otelconf/v0.3.0` subpackage requires manual installation: `otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))`.

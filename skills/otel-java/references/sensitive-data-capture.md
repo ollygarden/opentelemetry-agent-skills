@@ -5,7 +5,7 @@ knob that changes it. Applies to both distribution channels — they share the s
 instrumentation config properties (env-var form: upper-case, dots/dashes → underscores). Exception:
 servlet request-parameter capture is Javaagent-only; the Starter does not implement it.
 
-Checked against Javaagent/Spring Boot Starter 2.34.0, verified 2026-11-22.
+Applies to Javaagent/Spring Boot Starter 2.34.0.
 
 ## What is captured by default
 

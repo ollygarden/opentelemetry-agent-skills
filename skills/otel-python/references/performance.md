@@ -121,7 +121,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` as of SDK 1.45.2 |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` in SDK 1.45.2 |
 
 ### Tuning for Throughput
 
@@ -384,7 +384,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 via `requests` (1.45.0 alone used `urllib3` and ignored `HTTPS_PROXY`; verified 2026-11-22) |
+| Connection model | Persistent, multiplexed | HTTP/1.1 via `requests` (1.45.0 alone uses `urllib3` and ignores `HTTPS_PROXY`) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 

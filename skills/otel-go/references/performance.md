@@ -494,7 +494,7 @@ if err := tp.ForceFlush(ctx); err != nil {
 }
 ```
 
-As of v1.42.0, `TracerProvider.ForceFlush` iterates through all `SpanProcessor` instances and joins their errors together, instead of stopping at the first error. All processors get a chance to flush even if one fails.
+Since v1.42.0, `TracerProvider.ForceFlush` iterates through all `SpanProcessor` instances and joins their errors together, instead of stopping at the first error. All processors get a chance to flush even if one fails.
 
 `ForceFlush` in the request hot path synchronously exports all buffered data, adding latency to that request.
 
@@ -502,7 +502,7 @@ As of v1.42.0, `TracerProvider.ForceFlush` iterates through all `SpanProcessor` 
 
 ## Synchronous Instrument Enabled()
 
-As of v1.40.0, all synchronous metric instruments (`Int64Counter`, `Float64Counter`, `Int64UpDownCounter`, `Float64UpDownCounter`, `Int64Histogram`, `Float64Histogram`, `Int64Gauge`, `Float64Gauge`) expose an `Enabled()` method. This allows skipping expensive metric value computation when the instrument is not recording:
+Since v1.40.0, all synchronous metric instruments (`Int64Counter`, `Float64Counter`, `Int64UpDownCounter`, `Float64UpDownCounter`, `Int64Histogram`, `Float64Histogram`, `Int64Gauge`, `Float64Gauge`) expose an `Enabled()` method. This allows skipping expensive metric value computation when the instrument is not recording:
 
 ```go
 histogram, _ := meter.Float64Histogram("expensive.metric")

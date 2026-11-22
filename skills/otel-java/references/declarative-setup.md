@@ -48,10 +48,10 @@ Declarative config works in Javaagent 2.9.0+ (agent docs still call it experimen
 `otel.config.file`; the `otel.experimental.config.file` alias is gone since Javaagent 2.29.0 (SDK
 1.63.0). Newer agents track newer schemas, so check the accepted range and use the `file_format`
 the embedded SDK's tag-matched parser prefers (avoids compatibility warnings); release fixtures can lag it.
-Verified 2026-11-22: SDK BOM 1.68.0 and Javaagent/Spring Boot Starter 2.34.0 (embedding SDK
-1.68.0) accept `0.4`/`1.*` and prefer `"1.2"` (evidence and the per-runtime table:
+SDK BOM 1.68.0 and Javaagent/Spring Boot Starter 2.34.0 (embedding SDK 1.68.0) accept `0.4`/`1.*`
+and prefer `"1.2"` (evidence and the per-runtime table:
 [`otel-declarative-config` runtime compatibility](../../otel-declarative-config/references/runtime-compatibility.md)).
-Other notes in this file were checked against 2.34.0. Keep the embedded SDK distinct from the
+Other notes in this file apply to 2.34.0. Keep the embedded SDK distinct from the
 independently released BOM, and infer neither from `main` or the support matrix.
 
 When `otel.config.file` / `OTEL_CONFIG_FILE` is set, all other SDK autoconfigure properties are
@@ -60,7 +60,7 @@ ignored except agent-only properties (see Key API Facts).
 Without the Javaagent, the same forms work for SDK autoconfigure only with the `-alpha` artifact
 `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` (managed by
 `opentelemetry-bom-alpha`, not `opentelemetry-bom`) on the classpath; otherwise setting the file
-throws `ConfigurationException` (verified 2026-11-22 at 1.68.0;
+throws `ConfigurationException` (SDK 1.68.0;
 [record](../../otel-declarative-config/references/runtime-compatibility.md)).
 
 ## YAML Config
@@ -115,8 +115,8 @@ AutoConfiguredOpenTelemetrySdk sdk =
   selected release's parser and fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
-- **Zipkin exporter removal**: SDK/BOM 1.65.0 no longer publishes
-  `opentelemetry-exporter-zipkin`. It was previously deprecated; migrate direct Zipkin export to
+- **Zipkin exporter removal**: SDK/BOM 1.65.0 stops publishing the deprecated
+  `opentelemetry-exporter-zipkin`; migrate direct Zipkin export to
   OTLP or send OTLP to a Collector with a Zipkin-compatible exporter before upgrading. The
   Javaagent still accepts `otel.traces.exporter=zipkin` and `otel.exporter.zipkin.endpoint`, but both
   are deprecated in favor of OTLP configuration and rejected when the v3 preview is enabled.

@@ -43,9 +43,8 @@ using var span = activitySource.StartActivity(
     ActivityKind.Server);
 ```
 
-> **Verified spike:** `activitySource.StartActivity("manual-work")` produced the
-> `manual-work` span in console output with `Activity.Kind: Internal` and correct
-> `TraceId`/`SpanId`.
+> **Console output:** `activitySource.StartActivity("manual-work")` produces the
+> `manual-work` span with `Activity.Kind: Internal` and valid `TraceId`/`SpanId`.
 
 ### Setting tags (attributes)
 
@@ -123,8 +122,8 @@ The SDK collects spans only from sources you name at startup:
 Spans from un-subscribed sources are silently dropped — this is intentional, not a bug.
 On `net11.0` targets (core 1.21.0+), sources enabled through the `Microsoft.Extensions.Diagnostics`
 tracing APIs (for example `services.AddTracing(b => b.AddConfiguration(section))`) are also
-processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()`. Verified 2026-11-22 in
-the [`core-1.21.0` CHANGELOG](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/src/OpenTelemetry/CHANGELOG.md).
+processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()` (evidence: the
+[`core-1.21.0` CHANGELOG](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/src/OpenTelemetry/CHANGELOG.md)).
 
 ---
 
@@ -151,8 +150,8 @@ var hits = meter.CreateCounter<long>("validation.hits");
 hits.Add(1, new KeyValuePair<string, object?>("route", "/work"));
 ```
 
-> **Verified spike:** `meter.CreateCounter<long>("validation.hits")` + `.Add(1, ...)` was
-> confirmed in console output as `Metric Name: validation.hits, Metric Type: LongSum`.
+> **Console output:** `meter.CreateCounter<long>("validation.hits")` + `.Add(1, ...)` appears
+> as `Metric Name: validation.hits, Metric Type: LongSum`.
 
 ### Histogram
 
@@ -239,9 +238,9 @@ public class OrderService(ILogger<OrderService> logger)
 
 Structured log parameters (`{OrderId}`) are captured as log attributes.
 
-> **Verified spike:** `logger.LogInformation("handled /work")` appeared in console output
-> with `LogRecord.TraceId` and `LogRecord.SpanId` matching the active `manual-work` span,
-> confirming automatic trace-log correlation.
+> **Console output:** `logger.LogInformation("handled /work")` appears with
+> `LogRecord.TraceId` and `LogRecord.SpanId` matching the active `manual-work` span
+> (automatic trace-log correlation).
 
 ### How OTel captures logs
 

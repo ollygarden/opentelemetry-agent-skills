@@ -20,8 +20,7 @@ For ASP.NET Core or any service using the .NET generic host, install
 `OpenTelemetry.Extensions.Hosting` plus the exporter package you use (for example
 `OpenTelemetry.Exporter.OpenTelemetryProtocol` for `AddOtlpExporter()`), and call
 `AddOpenTelemetry()` on `builder.Services`.
-The snippet below is the verified baseline from the spike (all three signals produced
-working output):
+The snippet below is a baseline that exports all three signals:
 
 ```csharp
 using System.Diagnostics;
@@ -54,8 +53,7 @@ var app = builder.Build();
 ```
 
 Replace `AddOtlpExporter()` with `AddConsoleExporter()` during local development
-(requires `OpenTelemetry.Exporter.Console`). The console exporter was used in the spike to
-confirm all three signals.
+(requires `OpenTelemetry.Exporter.Console`), which prints all three signals.
 
 **OTLP shortcut:** If the process exports all enabled signals through the same OTLP
 destination, `OpenTelemetry.Exporter.OpenTelemetryProtocol` also exposes
@@ -205,7 +203,7 @@ below).
 ## No Released Declarative Config in .NET
 
 > **Note:** .NET does not have a released implementation of the OpenTelemetry declarative
-> YAML (`file_format`) specification in the SDK. Verified 2026-11-22 at `core-1.21.0`:
+> YAML (`file_format`) specification in the SDK. At `core-1.21.0`,
 > `OpenTelemetry.Configuration.Declarative` exists in source (CHANGELOG has only `Unreleased`, no
 > `declarativeconfig-*` tag), and no NuGet package is published. The separate zero-code auto-instrumentation
 > (`opentelemetry-dotnet-instrumentation` v1.20.0) has experimental file-based config behind

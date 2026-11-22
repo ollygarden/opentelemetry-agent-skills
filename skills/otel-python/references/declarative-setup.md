@@ -48,7 +48,7 @@ pip install opentelemetry-exporter-otlp opentelemetry-distro \
 
 ## Activation
 
-As of SDK **1.45.0 / 0.66b0** there are two supported activation paths.
+Since SDK **1.45.0 / 0.66b0** there are two supported activation paths.
 
 ### Zero-code: `OTEL_CONFIG_FILE`
 
@@ -116,13 +116,13 @@ but spans started before setup are not retroactively recorded.
 
 `file_format` is required and must be a string version. The loader validates it
 per the configuration spec: unsupported major versions are rejected; newer minor
-versions with the same major version are accepted with a warning. Verified
-2026-11-22: `opentelemetry-configuration` 0.66b2 (SDK 1.45.2) vendors schema
-v1.1.0 and its loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning
-and `"1.2"` warns (1.44.0 targeted 1.0 and warned on `"1.1"`); per-runtime record:
+versions with the same major version are accepted with a warning.
+`opentelemetry-configuration` 0.66b2 (SDK 1.45.2) vendors schema v1.1.0 and its
+loader targets 1.1, so `"1.0"` and `"1.1"` load without a warning and `"1.2"`
+warns (in 1.44.0 the loader targets 1.0 and warns on `"1.1"`); per-runtime record:
 [`otel-declarative-config` runtime compatibility](../../otel-declarative-config/references/runtime-compatibility.md).
 
-Minimal verified skeleton (all three signals, console exporters):
+Minimal skeleton (all three signals, console exporters):
 
 ```yaml
 file_format: "1.0"
@@ -156,8 +156,8 @@ Env-var substitution uses `${VAR}` and `${VAR:-default}` syntax; use `$$` for a
 literal dollar sign. Since 1.45.0, `load_config_file` substitutes only scalar
 values after parsing (never keys or comments), and an unset variable with no
 default becomes an empty value (YAML null) instead of an error; a resource
-attribute that resolves to null is skipped with a warning. Verified 2026-11-22
-(0.66b2): the spec's `${env:VAR}` form and malformed references such as
+attribute that resolves to null is skipped with a warning. In 0.66b2, the
+spec's `${env:VAR}` form and malformed references such as
 `${1API_KEY}` are left as literal text, and `${VAR:-default}` falls back only
 when `VAR` is unset, not when it is set to an empty string.
 Evidence: [`_env_substitution.py` at v1.45.2](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/opentelemetry-configuration/src/opentelemetry/configuration/file/_env_substitution.py).

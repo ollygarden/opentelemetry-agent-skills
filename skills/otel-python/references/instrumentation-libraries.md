@@ -61,7 +61,7 @@ same CLI can activate declarative YAML through `OTEL_CONFIG_FILE`; see
 
 In contrib 0.65b0, the aiopg, asyncpg, Cassandra, pymemcache, pymongo, and
 Tortoise ORM instrumentors added database semantic-convention migration
-support. Their behavior now follows `OTEL_SEMCONV_STABILITY_OPT_IN`; audit
+support. Their behavior follows `OTEL_SEMCONV_STABILITY_OPT_IN`; audit
 attributes and downstream queries before enabling `database` or
 `database/dup`.
 
@@ -69,7 +69,7 @@ attributes and downstream queries before enabling `database` or
 
 Use this form when you need fine-grained control, or when the CLI wrapper is not suitable (e.g., serverless, custom startup code, or the declarative config path).
 
-### FastAPI (verified)
+### FastAPI
 
 ```python
 from fastapi import FastAPI

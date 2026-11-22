@@ -1,6 +1,6 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, latest stable release **v1.2.2**, verified 2026-11-22) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`; this reference applies to release **v1.2.2**) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
@@ -71,9 +71,8 @@ straight to the Go toolchain — `otelc go build --rules …` sends `--rules` to
 
 ## Supported libraries (v1)
 
-Verified 2026-11-22 against the embedded bundle manifest (`tool/data/instrumentation-manifest.json`)
-of the published `otelc` v1.2.2 module. The active set is that embedded
-bundle; re-check the manifest when the `otelc` version changes.
+The embedded bundle manifest (`tool/data/instrumentation-manifest.json`) of the published `otelc`
+v1.2.2 module defines this active set; re-check the manifest when the `otelc` version changes.
 
 | Library | Signals |
 |---|---|
@@ -164,12 +163,12 @@ eight rule types: `inject_hooks` (function hook), `add_struct_fields`, `inject_c
 fetch table for the full grammar.
 
 **v1.1.0 custom-rule migration:** function template variables are fields on Go's `text/template`
-dot. Use `{{ .FuncName }}`, `{{ .FuncArgument 0 }}`, and corresponding dotted forms; the pre-v1.1
-`{{ FuncName }}` spelling is no longer valid.
+dot. Use `{{ .FuncName }}`, `{{ .FuncArgument 0 }}`, and corresponding dotted forms; v1.1.0+
+rejects the pre-v1.1 `{{ FuncName }}` spelling.
 
 ## Sources of truth
 
-`otelc` ships stable and evolves; fetch upstream docs rather than trusting a snapshot. Repo:
+`otelc` ships stable and evolves; fetch upstream docs rather than relying on the values here. Repo:
 `open-telemetry/opentelemetry-go-compile-instrumentation` (module `go.opentelemetry.io/otelc`).
 
 | Fact / task | Fetch |

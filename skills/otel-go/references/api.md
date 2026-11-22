@@ -235,7 +235,7 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 
 ## Logs API
 
-As of core v1.47.0 (2026-10-02), `otel/log` and `otel/sdk/log` are **stable** and share the
+Since core v1.47.0, `otel/log` and `otel/sdk/log` are **stable** and share the
 v1.x line with traces and metrics. The OTLP/stdout log exporters and the `logtest` helpers
 remain on a separate v0.x line (see the module-versioning table in SKILL.md). The Logs API
 primarily provides a bridge for existing logging libraries.
@@ -313,7 +313,7 @@ attribute.MapValue(attribute.String("key", "value"))
 
 Logging bridges connect existing logging libraries to OpenTelemetry.
 
-> **Note (bridge v0.10.0):** otelzap and otelslog emit `code.function` with the full package path-qualified function name (e.g., `github.com/user/pkg.MyFunc`). The `code.namespace` attribute is no longer emitted.
+> **Note (bridge v0.10.0+):** otelzap and otelslog emit `code.function` as the full package-path-qualified function name (e.g., `github.com/user/pkg.MyFunc`) and do not emit `code.namespace`.
 
 ```go
 import (
