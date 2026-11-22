@@ -4,7 +4,7 @@
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `detectors` | `[]string` | `[env]` | Ordered list of detectors to run. Valid values: `env`, `system`, `docker`, `heroku`, `gcp`, `ec2`, `ecs`, `elastic_beanstalk`, `eks`, `lambda`, `azure`, `aks`, `azureappservice`, `azurecontainerapps`, `consul`, `kubeadm`, `oraclecloud`, `k8s_api`, `k8snode` (deprecated → `k8s_api`), `openshift`, `dynatrace`, `hetzner`, `akamai`, `scaleway`, `upcloud`, `vultr`, `digitalocean`, `nova`, `alibaba_ecs`, `tencent_cvm`, `ibmcloud_vpc`, `ibmcloud_classic`. |
+| `detectors` | `[]string` | `[env]` | Ordered list of detectors to run: any detector in the [Detector catalog](#detector-catalog) below. |
 | `override` | `bool` | `true` | Whether detected attributes overwrite resource attributes already present on incoming telemetry. `true` overwrites; `false` keeps existing values and only adds missing ones. |
 | `refresh_interval` | `duration` | `0` | If `> 0`, re-runs all detectors on this interval. `0` (default) means detect once at startup and cache. |
 | `fail_on_missing_metadata` | `bool` | `false` | For supported network metadata detectors, make an unreachable metadata service a hard error that participates in processor retry instead of producing an empty resource. Added in v0.158.0. |
@@ -13,7 +13,7 @@
 
 The component embeds the standard `confighttp.ClientConfig`, so other HTTP client knobs (proxy, TLS, headers) are available for the metadata-service detectors; `timeout` is the one you will usually touch.
 
-> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.160.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, `FailOnMissingMetadata: false`, client `Timeout: 5s`, and retry enabled with the values below.
+> Defaults in contrib v0.160.0 `factory.go` (`createDefaultConfig`) and `config.go`: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, `FailOnMissingMetadata: false`, client `Timeout: 5s`, and retry enabled with the values below.
 
 ## Global retry
 
@@ -73,7 +73,7 @@ Every detector reports `cloud.provider`/`cloud.platform` plus a platform-specifi
 
 | Detector | Source | Key attributes |
 |----------|--------|----------------|
-| `env` | `OTEL_RESOURCE_ATTRIBUTES` env var (falls back to deprecated `OTEL_RESOURCE`), `k=v,k=v` format | whatever you put in the variable |
+| `env` | `OTEL_RESOURCE_ATTRIBUTES` env var (falls back to deprecated `OTEL_RESOURCE`), `k=v,k=v` format | whatever you put in the variable. Since v0.164.0, `env.attributes.included` / `excluded` (wildcards `*`, `?`; `excluded` applied after `included`; a set but empty list fails validation) filter which keys are emitted |
 | `system` | host machine | `host.name`, `os.type` (default); `host.id`, `host.arch`, `host.cpu.*`, `os.description`, … (opt-in). `hostname_sources` (`["dns","os"]` default; also `cname`, `lookup`) controls how `host.name` is resolved |
 | `docker` | Docker daemon (mount the socket) | `host.name`, `os.type`. Use instead of `system` when the Collector runs as a container; **does not work on macOS** |
 | `ec2` | EC2 IMDS | `cloud.*`, `host.id`, `host.name`, `host.type`. Optional `tags` (regex list; needs `ec2:DescribeTags` IAM, or `tags_from_imds: true`). Deprecated per-detector `fail_on_missing_metadata` (use the top-level key), plus `max_attempts`, `max_backoff` |
@@ -86,7 +86,7 @@ Every detector reports `cloud.provider`/`cloud.platform` plus a platform-specifi
 | `azureappservice` | Azure App Service environment variables | `azure.app_service.instance.id`, `azure.resource_group.name`, `cloud.*`, `deployment.environment.name`, `service.name` |
 | `azurefunctions` | Azure Functions environment variables (`FUNCTIONS_WORKER_RUNTIME` / `FUNCTIONS_EXTENSION_VERSION`); v0.162.0+ | `azure.resource_group.name`, `cloud.*` (incl. `cloud.resource_id`), `faas.instance`, `service.name`; `deployment.environment.name` opt-in. Flex Consumption plans lack `azure.resource_group.name` / `cloud.resource_id` |
 | `azurecontainerapps` | Azure Container Apps environment variables | `azure.container_app.instance.id`, `cloud.platform`, `cloud.provider`, `service.name` |
-| `k8s_api` | k8s API server | node/cluster attrs; requires `node_from_env_var` (default `K8S_NODE_NAME`) and `nodes` RBAC. `auth_type` (`serviceAccount` default / `none` / `kubeConfig`). `k8snode` is the deprecated alias |
+| `k8s_api` | k8s API server | node/cluster attrs; `host.id` (the node's `machineID`) opt-in since v0.165.0. Requires `node_from_env_var` (default `K8S_NODE_NAME`) and `nodes` RBAC. `auth_type` (`serviceAccount` default / `none` / `kubeConfig`). `k8snode` is the deprecated alias |
 | `kubeadm` | k8s API (`kubeadm-config` ConfigMap) | `k8s.cluster.name`, `k8s.cluster.uid`. `auth_type` |
 | `openshift` | OpenShift/k8s API | `cloud.*`, `k8s.cluster.name`. `address`, `token`, `tls` |
 | `heroku` | Heroku dyno metadata env vars | `service.name`, `service.version`, `service.instance.id`, `heroku.*` |
@@ -106,3 +106,9 @@ For the exact attribute list any detector emits, read its `internal/<detector>/d
   unless the emit-v1 gate is also enabled.
 - `processor.resourcedetection.consul.prefixMetaAttributes` (Alpha, off by default) emits Consul
   node metadata as `consul.meta.<key>` instead of unprefixed `<key>`.
+- `processor.azuredetector.RenameResourceGroupAttribute` (Alpha, off by default, v0.165.0+) makes
+  the `azure` detector emit `azure.resource_group.name` instead of the deprecated
+  `azure.resourcegroup.name`.
+- `processor.resourcedetection.openshift.removeCloudNameRegion` (Alpha, off by default, v0.165.0+)
+  stops the `openshift` detector reporting `cloud.region` on Azure and OpenStack clusters, where the
+  value was a cloud environment or `clouds.yaml` entry name rather than a region.

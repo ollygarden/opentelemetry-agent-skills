@@ -32,6 +32,7 @@ Hard limit 4000 MiB, soft limit 3200 MiB, checked every second. `memory_limiter`
 | `min_gc_interval_when_hard_limited` | duration | `0s` | Minimum (floor) time between forced GCs while above the hard limit (`0s` = GC on every over-limit check). Should be `<=` the soft-limited interval. |
 | `max_gc_interval_when_soft_limited` | duration | `30s` | Caps the exponential backoff between forced GCs on the soft-limit path. When a forced GC reclaims `< 5%` of heap the interval doubles (from the min floor, or 95% of `check_interval`, whichever is larger) up to this cap, then resets once a GC is effective or heap drops. `0` disables backoff (GC stays at the min). Must be `>= min_gc_interval_when_soft_limited` unless `0`; and `>= max_gc_interval_when_hard_limited` when both caps are set. |
 | `max_gc_interval_when_hard_limited` | duration | `30s` | Same backoff mechanism for the hard-limit path. Must be `>= min_gc_interval_when_hard_limited` unless `0`. |
+| `garbage_collector` | optional section | enabled | `garbage_collector: {enabled: false}` turns off forced GC on both paths; data is still refused above the limits. Added in v0.165.0. |
 
 One of `limit_mib` or `limit_percentage` is mandatory; `check_interval` is always mandatory.
 

@@ -6,11 +6,11 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 # OpenTelemetry Transformation Language (OTTL)
 
 OTTL transforms or selects telemetry inside Collector components. This skill is pinned to
-collector-contrib **v0.163.0**. Function, path, default, and feature-gate availability varies by
+collector-contrib **v0.165.0**. Function, path, default, and feature-gate availability varies by
 release; when the user's version differs, verify against the matching upstream tag.
 
-Dated OTTL feature-gate status for v0.162.0 and v0.163.0 is in
-[references/functions.md](references/functions.md#feature-gates-verified-2026-10-25).
+OTTL feature-gate status for v0.162.0 through v0.165.x is in
+[references/functions.md](references/functions.md#feature-gates).
 
 ## Workflow
 
@@ -27,13 +27,15 @@ Dated OTTL feature-gate status for v0.162.0 and v0.163.0 is in
    such as `ParseJSON` and `IsMatch` return values; they do not mutate.
 4. **Set error behavior deliberately.** `ignore` logs statement errors and continues; `silent`
    continues without logging; `propagate` returns the error and can cause the component to drop the
-   payload. Transform and filter default to `ignore`; the transform default-error gate was removed in
-   v0.162.0, so naming it in `--feature-gates` fails startup (history: the `otel-collector` skill's
-   transform quirks), and the filter gate is stable and cannot be disabled. Routing also
-   defaults to `ignore` while its beta default-error feature gate is enabled. For routing, `ignore`
-   sends an errored payload to `default_pipelines`; configure that fallback or the payload is dropped.
+   payload. Transform, filter, and routing default to `ignore`, and their default-error gates cannot
+   change it; naming a removed gate in `--feature-gates` fails startup. Per-component gate
+   history is on the `otel-collector` [transform](../otel-collector/components/transform/quirks.md),
+   [filter](../otel-collector/components/filter/quirks.md), and
+   [routing](../otel-collector/components/routing/quirks.md) pages. For routing, `ignore` sends an
+   errored payload to `default_pipelines`; configure that fallback or the payload is dropped.
 5. **Verify end to end.** Validate the exact Collector version (since v0.163, `validate` also parses
-   routing connector conditions), then send known telemetry and inspect file-exporter output. Use the
+   routing connector conditions; `tail_sampling` OTTL policies are parsed only at startup), then send
+   known telemetry and inspect file-exporter output. Use the
    [telemetrygen recipe](../otel-telemetrygen/SKILL.md#verify-collector-behavior).
 
 ```ottl
@@ -58,19 +60,19 @@ For a single path or function, read only the relevant section instead of loading
   flag admits pretty-printed objects containing newlines. Checking `IsMap` after
   parsing does not prevent arrays or scalar JSON from being parsed.
 - On a version-pinned request, confirm every chosen path and function against that release tag;
-  do not assume a function listed for this skill's v0.163 anchor exists in an older release.
+  do not assume a function listed for this skill's v0.165 anchor exists in an older release.
   For v0.156 JSON-object parsing, `ParseJSON`, `IsString`, and `IsMatch` are available without the
   v0.157 alpha lambda feature gate.
 - Request metadata is read-only and may contain credentials. Copy only explicitly allowlisted,
   non-sensitive keys. OTLP metadata routing requires `include_metadata: true` on the receiver.
   HTTP/client header spelling may retain its form (`otelcol.client.metadata["X-Tenant"][0]`);
   gRPC metadata keys are lowercase (`otelcol.grpc.metadata["x-tenant"][0]`).
-- The routing `request` context is deprecated as of v0.156; use `otelcol.client.metadata` or
+- The routing `request` context is deprecated since v0.156; use `otelcol.client.metadata` or
   `otelcol.grpc.metadata`.
-- Log-record-specific rewrites of shared resource or scope data require `flatten_data: true` and the
+- Log-record-specific rewrites of shared resource or scope data require `flatten: {log: true}` and the
   alpha `transform.flatten.logs` gate. This copies and regroups data; do not enable it accidentally.
-- Since v0.161, `set(target, nil)` is no longer a no-op: the `ottl.set.allowNil` gate became beta in
-  v0.161 and stable (cannot be disabled) in v0.162. A nil value empties a map, slice, or
+- Through v0.160 `set(target, nil)` is a no-op; since v0.161 it is not (`ottl.set.allowNil` lifecycle:
+  [gate table](references/functions.md#feature-gates)). A nil value empties a map, slice, or
   `pcommon.Value` target (an attribute key is created with an empty value) and errors on scalar
   targets. Use a `where source != nil` guard when the destination must remain unchanged for missing input.
 - Hashing an identifier does not necessarily anonymize it. Apply the organization's data-handling
@@ -93,7 +95,7 @@ For a single path or function, read only the relevant section instead of loading
 
 ## Upstream sources
 
-- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/pkg/ottl)
-- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/processor/transformprocessor)
-- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/processor/filterprocessor)
-- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.163.0/connector/routingconnector)
+- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.165.0/pkg/ottl)
+- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.165.0/processor/transformprocessor)
+- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.165.0/processor/filterprocessor)
+- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.165.0/connector/routingconnector)

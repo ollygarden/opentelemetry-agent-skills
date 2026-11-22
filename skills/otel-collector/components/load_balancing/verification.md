@@ -4,7 +4,7 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 `load_balancing` ships in the `contrib` and `k8s` distributions. This recipe needs **three** collectors — one front-end running the exporter and **two** backends — so they can talk over a shared network. The idea: route by `service`, send four distinct `service.name`s, and confirm each service's spans always land on **exactly one** backend (affinity), with the services spread across both.
 
-> Use **v0.153.0 or newer** — the type is `loadbalancing` (one word) in v0.152.0 and earlier; it was renamed to `load_balancing` in v0.153.0. Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).
+> Use **v0.153.0 or newer** — the type is `loadbalancing` (one word) in v0.152.0 and earlier; it was renamed to `load_balancing` in v0.153.0. This recipe targets `otel/opentelemetry-collector-contrib:0.159.0`.
 
 Front-end config (`front.yaml`) — the exporter under test, with a `static` resolver listing the two backends:
 
@@ -76,7 +76,7 @@ go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetryge
   --traces 30 --workers 1 --service delta
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-endpoint` (string), `--otlp-insecure` (bool), `--traces` (int, **per worker**; ignored if `--duration` is set, so no `--duration` here and `--workers 1` makes the per-service count exact), and `--service` (string, default `telemetrygen`; sets the `service.name` resource attribute — the exact attribute `routing_key: service` hashes on). No flag invents a value.
+Flags (from the `otel-telemetrygen` skill's `references/flags.md`): `--otlp-endpoint` (string), `--otlp-insecure` (bool), `--traces` (int, **per worker**; ignored if `--duration` is set, so no `--duration` here and `--workers 1` makes the per-service count exact), and `--service` (string, default `telemetrygen`; sets the `service.name` resource attribute — the exact attribute `routing_key: service` hashes on). No flag invents a value.
 
 **What proves it worked:** count which `service.name`s appear in each backend's debug log:
 

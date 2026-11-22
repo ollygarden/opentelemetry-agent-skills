@@ -8,15 +8,15 @@ The exporter overwrites `endpoint` with each resolved backend address — the fa
 
 The code is stricter than the upstream README's prose, and logs changed behavior across releases:
 
-- **Logs gained `routing_key` in v0.154.0** (contrib PR #46241), accepting `service` (default), `traceID`, `resource`, `attributes`. At **v0.152.0–v0.153.0** the log exporter **ignored** `routing_key` — it always routed by trace ID and did **not** validate the value, so a `routing_key` set on a logs pipeline was silently inert. If you run an older build, don't assume `service`/`resource` log routing works.
+- **Logs gained `routing_key` in v0.154.0** (contrib PR #46241), accepting `service` (default), `traceID`, `resource`, `attributes`. At **v0.152.0–v0.153.0** the log exporter **ignored** `routing_key` — it always routed by trace ID and did **not** validate the value, so a `routing_key` set on a logs pipeline was silently inert. If you run an older build, don't assume `service`/`resource` log routing works. Through v0.164.x, `service` routing sent every log resource lacking `service.name` to one backend; on upgrade to v0.165.0 they are keyed by their resource attributes ([current keying](configuration.md#routing_key-support-per-signal)), a one-time rebalance for stateful processing behind the exporter.
 - **Traces** accept only `traceID` (default), `service`, `attributes`, and `randomness` (v0.162.0+). `resource`, `metric`, `streamID` fail startup with `unsupported routing_key: <value>`.
 - **Metrics** accept `service` (default), `resource`, `metric`, `streamID`, `attributes`, and are **Alpha** stability (traces/logs are Beta) — config can still change between releases.
 
-Always confirm support against the exact contrib version you run; this surface has been changing.
+Always confirm support against the exact contrib version you run; this surface changes between releases.
 
 ## Exactly one resolver
 
-`resolver` must contain **one** of `static` / `dns` / `k8s` / `aws_cloud_map`. Zero → `no resolvers specified for the exporter`; two or more → `only one resolver should be specified`. Both are exporter-build errors rather than `Config.Validate()` errors, but `validate` builds the pipeline, so it does surface them (verified on v0.156.0).
+`resolver` must contain **one** of `static` / `dns` / `k8s` / `aws_cloud_map`. Zero → `no resolvers specified for the exporter`; two or more → `only one resolver should be specified`. Both are exporter-build errors rather than `Config.Validate()` errors, but `validate` builds the pipeline, so in v0.156.0 it does surface them.
 
 ## `routing_attributes` is coupled to `routing_key: attributes`
 

@@ -3,7 +3,7 @@
 | | |
 |-|-|
 | Kind | receiver |
-| Type | `file_log` (formerly `filelog`) |
+| Type | `file_log` (deprecated alias `filelog`) |
 | Signals | logs (Beta) |
 | Distributions | core (since v0.164.0), contrib, k8s |
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/receiver/filelogreceiver` |
@@ -47,6 +47,6 @@ Avoid when:
 
 - [Configuration](configuration.md) — every top-level config key (include/exclude, `start_at`, fingerprinting, sizing, rotation, `storage`, `header`, `ordering_criteria`) with defaults and validation, including `top_n: 0` semantics.
 - [Operators](operators.md) — the stanza operator pipeline: the available inputs/parsers/general-purpose operators, the `id`/`output` wiring rules, and embedded timestamp/severity parsing.
-- [Verification](verification.md) — a file-based recipe (write lines to a mounted file → `file_log` → `debug`), verified on contrib v0.159.0. Notes why `telemetrygen` cannot drive this receiver.
+- [Verification](verification.md) — a file-based recipe (write lines to a mounted file → `file_log` → `debug`), for contrib v0.159.0. Notes why `telemetrygen` cannot drive this receiver.
 - [Advanced use-cases](advanced.md) — multiline entries, encodings, durable offsets via `storage`, header metadata parsing, log-rotation handling (`on_truncate`), file ordering, and `compression`.
 - [Known quirks](quirks.md) — the `start_at: end` default, the rename/alias, feature-gated options, the v0.163.0 default scope, `delete_after_read` constraints, fingerprint re-ingestion, and stability.

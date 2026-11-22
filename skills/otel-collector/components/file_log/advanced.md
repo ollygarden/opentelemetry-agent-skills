@@ -44,8 +44,12 @@ service:
 ```
 
 Stored per tracked file: the fingerprint (first bytes), the byte offset, and the file attributes.
-Note this guarantees the *file* is read accurately; records can still be lost further downstream —
-for full durability also configure exporter persistent queues. With `polls_to_archive` (>0,
+Note this guarantees the *file* is read accurately, not delivery: offsets are saved after each
+poll, so records still held in memory downstream are lost on a crash
+([pipeline placement](../../SKILL.md#pipeline-placement)). Since v0.165.0, with the alpha
+`stanza.synchronousLogEmitter` gate enabled, records interrupted by a graceful shutdown under back
+pressure are re-read after restart (at-least-once, so expect some duplicates); with the default
+batching emitter, buffered records can still be lost on shutdown. With `polls_to_archive` (>0,
 experimental) plus `storage`, offsets of readers older than three poll cycles are archived to disk
 rather than purged, which helps avoid re-ingestion when used with `exclude_older_than`.
 

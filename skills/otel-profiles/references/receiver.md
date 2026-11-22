@@ -7,9 +7,9 @@ gh api 'repos/open-telemetry/opentelemetry-collector-releases/contents/distribut
 # then: https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/<pin>/collector/config/config_linux.go
 ```
 
-## Keys (ebpf-profiler `v0.0.202640`; identical on `v0.0.202636` except the translation key)
+## Keys (ebpf-profiler `v0.0.202640` and `v0.0.202645`; identical on `v0.0.202636` except the translation key)
 
-Source of truth: [`collector/config/config_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202640/collector/config/config_linux.go) and defaults in [`collector/factory_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202640/collector/factory_linux.go).
+Source of truth: [`collector/config/config_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202645/collector/config/config_linux.go) and defaults in [`collector/factory_linux.go`](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/blob/v0.0.202645/collector/factory_linux.go).
 
 | Key | Default | Notes |
 |---|---|---|

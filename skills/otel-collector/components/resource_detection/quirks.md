@@ -2,13 +2,13 @@
 
 ## Fatal detector errors can stop startup
 
-Fatal errors from a configured detector **propagate and can prevent the Collector from starting** after the configured retry budget is exhausted. Every detector uses the global `retry` block; retries are enabled by default, with the default session bounded by `timeout: 5s`. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in.
+Fatal errors from a configured detector **propagate and can prevent the Collector from starting** after the configured retry budget is exhausted. Every detector uses the global `retry` block; retries are enabled by default, with the default session bounded by `timeout: 5s`. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in. Since v0.165.0 the `eks`, `k8s_api`, and `kubeadm` detectors do not stop startup outside Kubernetes, which they detect from the `KUBERNETES_SERVICE_*` environment variables: they build their Kubernetes client at detection time and return no attributes, or fail detection when `fail_on_missing_metadata: true`. With `auth_type: kubeConfig`, `k8s_api` and `kubeadm` still connect; `eks` never connects outside Kubernetes, whatever its `auth_type`.
 
 Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. Since v0.163.0 the flag also covers the `ec2` detector's instance identity document and hostname lookups. The `oraclecloud` detector uses a fast probe: a failed probe returns an empty resource; if the probe succeeds but the follow-up fetch fails, it errors only when `fail_on_missing_metadata: true` and otherwise returns an empty resource.
 
 ## `override: true` is the default — and it overwrites SDK-set attributes
 
-By default detected attributes **overwrite** resource attributes already on incoming telemetry. If your SDKs already set `service.name`/`host.name` and the Collector then detects different values for its own host, you can silently replace good per-service identity with the Collector's host identity. For Collectors that receive pre-enriched telemetry (gateway/aggregation tier), prefer `override: false`. The `dynatrace` detector documentation explicitly recommends `override: false` for exactly this reason. (Verified on contrib 0.159.0: with a colliding `service.name`, `override: true` took the detected value and `override: false` kept the incoming one.)
+By default detected attributes **overwrite** resource attributes already on incoming telemetry. If your SDKs already set `service.name`/`host.name` and the Collector then detects different values for its own host, you can silently replace good per-service identity with the Collector's host identity. For Collectors that receive pre-enriched telemetry (gateway/aggregation tier), prefer `override: false`. The `dynatrace` detector documentation explicitly recommends `override: false` for exactly this reason. (In contrib 0.159.0, with a colliding `service.name`, `override: true` takes the detected value and `override: false` keeps the incoming one.)
 
 ## It describes the Collector's host — not the workload that emitted the telemetry
 
@@ -27,7 +27,7 @@ Changing a resource attribute creates a **new metric time series**. With `refres
 
 ## Internal telemetry added in v0.157.0
 
-The processor now emits three enabled-by-default, **Development**-stability metrics:
+The processor emits three enabled-by-default, **Development**-stability metrics:
 
 | Metric | Type / unit | Attributes | Meaning |
 |--------|-------------|------------|---------|

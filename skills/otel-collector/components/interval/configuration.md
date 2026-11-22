@@ -38,7 +38,7 @@ Validation: `interval` must be greater than `0`. A zero or negative value fails 
 | Delta monotonic sum, delta histogram, delta exponential histogram | Accumulated: the interval's points are **added** per series and emitted once, with the earliest start and latest timestamp | — |
 | Non-monotonic sum (any temporality) | Passed through unchanged, immediately | — (always pass-through) |
 
-> **Doc drift, upstream:** as of v0.162.0 the upstream README still says all delta metrics pass through unchanged; the code (`processor.go`, PR #50922) aggregates them as above.
+> **Doc drift, upstream:** in v0.162.0 the upstream README says all delta metrics pass through unchanged; the code (`processor.go`, PR #50922) aggregates them as above.
 
 ## What "lossy" means here
 

@@ -43,7 +43,7 @@
         "Says set_semconv_span_name accepts only 1.37.0 through 1.43.0 in v0.163.0, so \"1.44.0\" is rejected and \"1.43.0\" should be used.",
         "Says Concat over Split works on v0.163.0 because pkg.ottl.functions.enableDynamicSliceArguments is beta and enabled by default.",
         "Names the new alpha pkg.ottl.functions.enableExperimental gate for experimental functions, and keeps lambda converters on ottl.functions.enableLambda.",
-        "Frames the answer as verified on the recorded date and suggests confirming against the v0.163.0 tag.",
+        "Frames the answer as holding for the named release (v0.163.0) rather than as currently latest, and suggests confirming against the v0.163.0 tag.",
         "Does not perform any web search, web fetch, or network command."
       ]
     }

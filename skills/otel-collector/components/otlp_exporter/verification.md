@@ -2,7 +2,7 @@
 
 See [Verification harness](../../SKILL.md#verification-harness) for how to run this end-to-end.
 
-The exporter ships in every distribution (`core`, `contrib`, `k8s`, `otlp`). The cleanest proof is a **two-collector chain**: collector **A** receives OTLP and exports it to collector **B**; collector **B** receives it and prints it with `debug`. If spans sent to A appear in B's log, the export hop worked. Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).
+The exporter ships in every distribution (`core`, `contrib`, `k8s`, `otlp`). The cleanest proof is a **two-collector chain**: collector **A** receives OTLP and exports it to collector **B**; collector **B** receives it and prints it with `debug`. If spans sent to A appear in B's log, the export hop worked. This recipe targets `otel/opentelemetry-collector-contrib:0.159.0`.
 
 > The config uses the deprecated alias `otlp` for the exporter (still the most common form). The canonical `otlp_grpc` name is identical in behavior. This recipe is a **minimal repro** — it omits `memory_limiter` and other production scaffolding on purpose, to isolate the export hop.
 
@@ -62,7 +62,7 @@ go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetryge
   traces --otlp-endpoint localhost:4317 --otlp-insecure --traces 5 --workers 1
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-endpoint` (string), `--otlp-insecure` (bool, plaintext to A's TLS-less receiver), `--traces` (int, **per worker**; ignored when `--duration` is set, so no `--duration` and `--workers 1` makes the count exact). No flag invents a value.
+Flags (from the `otel-telemetrygen` skill's `references/flags.md`): `--otlp-endpoint` (string), `--otlp-insecure` (bool, plaintext to A's TLS-less receiver), `--traces` (int, **per worker**; ignored when `--duration` is set, so no `--duration` and `--workers 1` makes the count exact). No flag invents a value.
 
 **What proves it worked:** the spans must appear in **B's** debug log, having traversed A's `otlp` exporter:
 

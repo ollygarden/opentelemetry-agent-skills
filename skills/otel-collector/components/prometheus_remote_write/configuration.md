@@ -25,8 +25,8 @@ All keys live under the exporter instance — `exporters: { prometheus_remote_wr
 | `resource_to_telemetry_conversion` | object | see below | **Deprecated** in v0.160.0; use `resource_constant_labels`. |
 | `wal` | object | off unless `directory` set | Write-ahead log. See [wal](#wal). |
 | `target_info` | object | `enabled: true` | Emit a `target_info` metric per resource for resource-attribute joins. |
-| `retry_on_failure` | object | `configretry.BackOffConfig` | Standard retry block; the factory overrides `InitialInterval` to `50ms`. Cross-reference the [exporterhelper retry docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md). |
-| `timeout` | duration | per exporterhelper | From the embedded `exporterhelper.TimeoutConfig` (squashed). Cross-reference exporterhelper. |
+| `retry_on_failure` | object | `configretry.BackOffConfig` | Standard retry block; the factory overrides `InitialInterval` to `50ms`. Cross-reference the [exporterhelper retry docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md). Transport errors and 5xx retry until `max_elapsed_time`, as does `429` with the [`RetryOn429` gate](advanced.md#retrying-on-http-429); other non-2xx responses fail on the first attempt. |
+| `timeout` | duration | per exporterhelper | From the embedded `exporterhelper.TimeoutConfig` (squashed). Since v0.164.0 the exporter applies it to each send attempt, not the whole retry loop. |
 
 The `http` block accepts the standard HTTP **client** options from `confighttp.ClientConfig`, such
 as `endpoint`, `headers`, `tls`, `compression`, and `auth`. Deprecated flat HTTP settings still

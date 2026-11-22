@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: known quirks
 
-## The type is now `otlp_grpc` — and there's a separate `otlphttp`
+## The type is `otlp_grpc` — and there's a separate `otlphttp`
 
 The canonical type was renamed from `otlp` to **`otlp_grpc`** in core **v1.50.0** (≈ contrib v0.144.0). The old name **`otlp` still works** as a deprecated alias (it emits a deprecation warning) and is what most existing configs use, so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this same gRPC exporter. The rename disambiguates it from the **`otlphttp`** exporter, which is a *different* component speaking OTLP over **HTTP**. If your backend has no gRPC endpoint, you want `otlphttp`, not this one — they are not interchangeable.
 

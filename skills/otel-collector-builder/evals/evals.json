@@ -2,15 +2,16 @@
   "skill": "otel-collector-builder",
   "cases": [
     {
-      "id": "offline-ocb-contrib-v0163-pairing",
-      "prompt": "No web lookups please, just your knowledge and skills. I'm building a custom Collector with OCB to match collector-contrib v0.163.0. The manifest needs the otlp receiver, the k8sattributes and tail_sampling processors, the otlp exporter, and the file and env config providers. Which OCB version and which exact module versions go in builder.yaml, and can I download a prebuilt ocb binary for that release? Also, is k8sattributes stable?",
+      "id": "offline-ocb-contrib-v0165-pairing",
+      "prompt": "No web lookups please, just your knowledge and skills. I'm building a custom Collector with OCB to match collector-contrib v0.165.1. The manifest needs the otlp receiver, the k8sattributes and tail_sampling processors, the otlp exporter, and the file and env config providers. Which OCB version and which exact module versions go in builder.yaml, and can I download a prebuilt ocb binary for that release? Also, is k8sattributes stable?",
       "files": [],
       "expectations": [
-        "Uses OCB v0.163.0 and pins the core components and tailsamplingprocessor at v0.163.0.",
-        "Pins the file and env providers at v1.69.0.",
-        "Pins k8sattributesprocessor at v1.2.0, not v0.163.0.",
-        "Says a prebuilt ocb release binary and builder image for the v0.163 line were published as of the recorded date (0.163.0, with 0.163.1/0.163.2 rebuilding the same cmd/builder v0.163.0 source), and also offers go install of cmd/builder@v0.163.0.",
-        "Frames the versions as verified on the recorded date rather than as currently latest, and suggests confirming against the release's builder default.yaml or contrib versions.yaml before deploying.",
+        "Uses OCB v0.165.0 (no v0.165.1 OCB or core release exists) and pins the core otlp receiver and otlp exporter at v0.165.0.",
+        "Pins tailsamplingprocessor at the contrib patch v0.165.1.",
+        "Pins the file and env providers at v1.71.0.",
+        "Pins k8sattributesprocessor at v1.4.1 (the stable-base version tagged with contrib v0.165.1), not v0.165.1 or v0.165.0.",
+        "Says a prebuilt ocb release binary and builder image are published as 0.165.0 for that release, and also offers go install of cmd/builder@v0.165.0.",
+        "Frames the versions as holding for the named release rather than as currently latest, and suggests confirming against the release's builder default.yaml, contrib's module tags, or the collector-releases otelcol-contrib manifest before deploying.",
         "Does not perform any web search, web fetch, or network command."
       ]
     }

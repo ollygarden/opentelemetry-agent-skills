@@ -113,7 +113,7 @@ spec:
         - operator: Exists
       containers:
         - name: profiler
-          image: otel/opentelemetry-collector-ebpf-profiler:0.164.0
+          image: otel/opentelemetry-collector-ebpf-profiler:0.165.0
           args:
             - --config=/conf/config.yaml
             - --feature-gates=+service.profilesSupport

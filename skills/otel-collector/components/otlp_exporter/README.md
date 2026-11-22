@@ -12,7 +12,7 @@
 
 ## Description
 
-Sends telemetry in **OTLP over gRPC** to a downstream OTLP endpoint — another Collector's `otlp` receiver, or any OTLP/gRPC backend. It is the standard egress for a pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Alpha**). The canonical type is now **`otlp_grpc`**, renamed from `otlp` in core v1.50.0 to disambiguate it from the separate `otlphttp` exporter (OTLP over HTTP). The old name **`otlp` still works** as a deprecated alias — and is what the vast majority of existing configs use — so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this component. Only `endpoint` is required; gRPC requests are **gzip-compressed by default**.
+Sends telemetry in **OTLP over gRPC** to a downstream OTLP endpoint — another Collector's `otlp` receiver, or any OTLP/gRPC backend. It is the standard egress for a pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Alpha**). The canonical type is **`otlp_grpc`**, renamed from `otlp` in core v1.50.0 to disambiguate it from the separate `otlphttp` exporter (OTLP over HTTP). The old name **`otlp` still works** as a deprecated alias — and is what the vast majority of existing configs use — so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this component. Only `endpoint` is required; gRPC requests are **gzip-compressed by default**.
 
 The exporter's `sending_queue` and `retry_on_failure` are enabled by default. Queue **batching is
 opt-in**: add a `sending_queue.batch` block, or enable the alpha

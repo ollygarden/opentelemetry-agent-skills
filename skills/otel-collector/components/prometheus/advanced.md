@@ -51,9 +51,9 @@ replicas — it shards targets across the collectors rather than every replica s
 ## Native histograms
 
 The receiver auto-converts scraped Prometheus native histograms to OTel exponential histograms.
-This is now unconditional — the old `receiver.prometheusreceiver.EnableNativeHistograms` gate
-graduated to stable and has been removed, so there is no gate to toggle. You still need **two**
-things in the Prometheus scrape config:
+This is unconditional — the `receiver.prometheusreceiver.EnableNativeHistograms` gate
+is removed, so there is no gate to toggle. You still need **two** things in the Prometheus
+scrape config:
 
 1. `scrape_native_histograms: true` (globally under `global`, or per-job)
 2. `PrometheusProto` included in `scrape_protocols` (required until Prometheus supports native histograms over text formats)
@@ -139,4 +139,5 @@ receivers:
 ## Feature gates
 
 - `receiver.prometheusreceiver.EnableCreatedTimestampZeroIngestion` (from v0.113.0) — **alpha, off by default**. Injects created-timestamps as 0-valued samples. Off by default due to higher CPU cost at high metric volume.
-- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — **stable since v0.162.0** (beta and on by default v0.156.0–v0.161.0). `otel_scope_info` is no longer used for scope-attribute extraction and is converted like any other metric; scope attributes come from `otel_scope_<name>` labels. The gate can no longer be disabled and is slated for removal in v0.164.0, after which referencing it in `--feature-gates` fails startup.
+- `receiver.prometheus.UseTargetUrlForServerAddress` (from v0.165.0) — **alpha, off by default**. Populates `server.address`, `server.port`, and `url.scheme` from the target's post-relabeling `__address__` and `__scheme__` labels instead of parsing `instance` and pre-relabeling service-discovery labels.
+- `receiver.prometheusreceiver.IgnoreScopeInfoMetric` (from v0.148.0) — **removed in v0.164.0** (stable v0.162.0–v0.163.0; beta and on by default v0.156.0–v0.161.0). `otel_scope_info` is not used for scope-attribute extraction and is converted like any other metric; scope attributes come from `otel_scope_<name>` labels. Referencing a removed gate fails startup ([feature gates](../../SKILL.md#feature-gates)).

@@ -18,6 +18,8 @@ exporters:
 
 When the WAL is enabled, `max_batch_size_bytes` is **ignored** — the WAL `buffer_size` / `truncate_frequency` govern how much is read and how often it is truncated.
 
+A failed send keeps the batch in the WAL: the reader restarts at the WAL head and sends it again at the next `truncate_frequency` flush (or as soon as `buffer_size` entries are read), with no backoff between rounds, until the endpoint accepts it or the exporter stops. This includes `429` with or without the [`RetryOn429` gate](#retrying-on-http-429), 5xx and transport errors once `retry_on_failure` gives up, and statuses such as `401`. Since v0.165.0 the exception is a flush in which every failed request is a content rejection (`400`, `409`, `413`, `422`). That flush is dropped so the WAL keeps draining. Each rejected request in it (not each flush) increments `otelcol_exporter_prometheusremotewrite_wal_send_failed_batches`; a flush with any other failure is kept whole.
+
 This WAL is the **exporter's own** on-disk buffer (backed by a `wal` library, stored under `<directory>/prom_remotewrite`). It is **not** the [`file_storage`](../file_storage/README.md) extension and does not reference a `storage` ID — don't confuse the two.
 
 ## RW2 / `protobuf_message` and the feature gate
@@ -99,7 +101,7 @@ exporters:
 
 ## Retrying on HTTP 429
 
-By default the exporter does **not** retry on `429 Too Many Requests` — RW backends (Mimir, Cortex, …) return it under rate limiting, and it is treated as a non-retryable error. The feature gate `exporter.prometheusremotewritexporter.RetryOn429` (alpha, since v0.101.0) makes the exporter retry `429` responses using the standard `retry_on_failure` backoff. Enable it if your backend rate-limits with `429` and you want the exporter to back off and retry rather than drop.
+By default the exporter does **not** retry on `429 Too Many Requests` — RW backends (Mimir, Cortex, …) return it under rate limiting, and it is treated as a non-retryable error. The feature gate `exporter.prometheusremotewritexporter.RetryOn429` (alpha, since v0.101.0) makes the exporter retry `429` responses using the standard `retry_on_failure` backoff. Enable it if your backend rate-limits with `429` and you want the exporter to back off and retry rather than drop. With the WAL enabled, a `429` batch is resent rather than dropped; see [Write-Ahead Log](#write-ahead-log-wal).
 
 ## Choosing a `translation_strategy`
 

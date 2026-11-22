@@ -20,7 +20,8 @@ service:
 |-----|------|---------|-------|
 | `interval` | duration | `10s` | Aggregation window. Must be `> 0`. Counter resets after each emission. |
 | `log_count_attribute` | string | `log_count` | Attribute name for the duplicate count. Must be non-empty. |
-| `timezone` | string | `UTC` | IANA timezone for `first_observed_timestamp`/`last_observed_timestamp` (e.g., `America/New_York`). |
+| `timezone` | string | `UTC` | IANA timezone for the `*_observed_timestamp` and `*_event_timestamp` attributes (e.g., `America/New_York`). |
+| `timestamp_mode` | string | `aggregated` | `aggregated` (default) or `preserved`; sets the emitted record's `Timestamp` (see [What gets emitted](#what-gets-emitted)). Any other value fails validation. Added in v0.165.0. |
 | `conditions` | []string | `[]` | OTTL log-context expressions. Empty = deduplicate all logs. Non-empty = only deduplicate logs matching at least one condition; non-matching logs pass through unchanged. Prefix paths with their context name (`log.attributes["x"]`, `resource.attributes["y"]`, `log.severity_number`). |
 | `include_fields` | []string | `[]` | Whitelist of fields used to compute log identity. Mutually exclusive with `exclude_fields`. |
 | `exclude_fields` | []string | `[]` | Fields removed before hashing **and** stripped from emitted logs. Mutually exclusive with `include_fields`. |
@@ -51,8 +52,11 @@ Two log records are considered identical when **all** of these match exactly: re
 At the end of each `interval`, one log per unique hash is emitted with:
 - The original body, attributes, severity, resource.
 - `log_count` (or the configured name) — duplicate count, int.
-- `first_observed_timestamp` — RFC3339 string in the configured timezone.
-- `last_observed_timestamp` — RFC3339 string in the configured timezone.
-- `Timestamp` and `ObservedTimestamp` set to **emission time** (not original log time).
+- `first_observed_timestamp` / `last_observed_timestamp` — when the processor received the first/last record of the window; RFC3339 strings in the configured timezone.
+- Since v0.165.0, `first_event_timestamp` (only with `timestamp_mode: aggregated`) and `last_event_timestamp` — the `Timestamp` of the first/last record received; omitted when that record has no `Timestamp`. Same format.
+- `ObservedTimestamp` — when the first record of the window was received.
+- `Timestamp` — emission time with `timestamp_mode: aggregated` (the default); with `preserved`, the first record's own `Timestamp`, or emission time if it has none.
+
+"First" and "last" follow arrival order, not event-time order.
 
 Counter resets after emission.

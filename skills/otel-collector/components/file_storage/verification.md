@@ -2,7 +2,7 @@
 
 See [Verification harness](../../SKILL.md#verification-harness) for how to run this end-to-end.
 
-`file_storage` is an **extension**, so it does not sit in a pipeline and there is no "telemetrygen → component → debug" path to exercise it directly. The behavior worth proving is **state durability across a Collector restart**. This recipe drives the extension through a [`file_log`](../file_log/README.md) receiver and shows that the receiver's read offset survives a restart: after a restart, already-read lines are **not** re-read even with `start_at: beginning`. No `telemetrygen` is involved — the input is a file on disk (like the `file_log` page). Verified end-to-end on `otel/opentelemetry-collector-contrib:0.154.0`.
+`file_storage` is an **extension**, so it does not sit in a pipeline and there is no "telemetrygen → component → debug" path to exercise it directly. The behavior worth proving is **state durability across a Collector restart**. This recipe drives the extension through a [`file_log`](../file_log/README.md) receiver and shows that the receiver's read offset survives a restart: after a restart, already-read lines are **not** re-read even with `start_at: beginning`. No `telemetrygen` is involved — the input is a file on disk (like the `file_log` page). This end-to-end recipe targets `otel/opentelemetry-collector-contrib:0.154.0`.
 
 ## Setup
 
@@ -53,7 +53,7 @@ ls /tmp/fsverify/storage                                # => receiver_filelog_  
 docker rm -f fsrun1
 ```
 
-**Verified result:** 3 records (`line one`, `line two`, `line three`), and a bbolt file **`receiver_filelog_`** (32768 bytes) appears in the storage dir. Note the on-disk name is `receiver_filelog_` (the deprecated `filelog` type spelling, trailing `_` for the empty instance name) even though the config uses `file_log` — see [quirks.md](quirks.md).
+**Expected result:** 3 records (`line one`, `line two`, `line three`), and a bbolt file **`receiver_filelog_`** (32768 bytes) appears in the storage dir. Note the on-disk name is `receiver_filelog_` (the deprecated `filelog` type spelling, trailing `_` for the empty instance name) even though the config uses `file_log` — see [quirks.md](quirks.md).
 
 ## Run 2 — restart resumes from the persisted offset
 
@@ -70,7 +70,7 @@ docker logs fsrun2 2>&1 | grep 'Body: Str(line'         # => line four/line five
 docker rm -f fsrun2
 ```
 
-**Verified result:** only **2** records (`line four`, `line five`). The persisted offset means the first 3 lines are **not** re-read, even though `start_at: beginning`.
+**Expected result:** only **2** records (`line four`, `line five`). The persisted offset means the first 3 lines are **not** re-read, even though `start_at: beginning`.
 
 ## Control — without `storage`, everything is re-read
 
@@ -86,7 +86,7 @@ docker logs fsctl 2>&1 | grep -c '^LogRecord #'         # => 5  (re-reads everyt
 docker rm -f fsctl
 ```
 
-**Verified result:** **5** records — without `storage`, the restart re-reads all 5 lines (no offset memory). This contrast proves the `file_storage` extension is what preserved the offset.
+**Expected result:** **5** records — without `storage`, the restart re-reads all 5 lines (no offset memory). This contrast proves the `file_storage` extension is what preserved the offset.
 
 ## Tear down
 

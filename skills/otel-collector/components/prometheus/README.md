@@ -40,6 +40,6 @@ Avoid when:
 ## Details
 
 - [Configuration](configuration.md) — every top-level key (`config`, `trim_metric_suffixes`, `target_allocator`, `api_server`, plus the v0.155.0 `scrape_on_shutdown` / `discovery_reload_on_startup` / `initial_scrape_offset` knobs), every validation rule, scrape protocols, and representative `scrape_config` examples.
-- [Verification](verification.md) — a self-scrape recipe (the collector scrapes its own `:8888` telemetry endpoint → `debug`), verified on contrib v0.154.0. Notes why `telemetrygen` cannot drive this receiver.
+- [Verification](verification.md) — a self-scrape recipe (the collector scrapes its own `:8888` telemetry endpoint → `debug`), for contrib v0.154.0. Notes why `telemetrygen` cannot drive this receiver.
 - [Advanced use-cases](advanced.md) — named instances, the Target Allocator, native histograms, the `api_server`, relabeling, and `scrape_config_files`.
 - [Known quirks](quirks.md) — the no-auto-shard/duplicate-scrape warning, `$$` escaping, the `collector_id` `${...}` trap, removed `use_start_time_metric`, rejected server features, and stability.

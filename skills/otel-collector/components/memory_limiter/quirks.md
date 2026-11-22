@@ -27,7 +27,7 @@ If both are set, `limit_mib` is used and `limit_percentage` is ignored — silen
 
 ## GC backs off when it stops helping
 
-Since v0.156.0, forced GC no longer fires unconditionally on every over-limit check. When a GC reclaims `< 5%` of heap — typically because the memory is pinned by live references such as exporter sending queues during a downstream outage — the processor treats it as ineffective and **doubles** the interval before the next forced GC, up to `max_gc_interval_when_soft_limited` / `max_gc_interval_when_hard_limited` (both default `30s`). This prevents a CPU-burning GC loop that would starve recovery. The interval resets the moment a GC frees memory or heap drops. Set the relevant `max_gc_interval_*` to `0` to opt out and keep GC pinned at the `min` interval.
+Since v0.156.0, forced GC does not fire unconditionally on every over-limit check. When a GC reclaims `< 5%` of heap — typically because the memory is pinned by live references such as exporter sending queues during a downstream outage — the processor treats it as ineffective and **doubles** the interval before the next forced GC, up to `max_gc_interval_when_soft_limited` / `max_gc_interval_when_hard_limited` (both default `30s`). This prevents a CPU-burning GC loop that would starve recovery. The interval resets the moment a GC frees memory or heap drops. Set the relevant `max_gc_interval_*` to `0` to opt out and keep GC pinned at the `min` interval.
 
 ## It reports component health
 

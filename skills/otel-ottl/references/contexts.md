@@ -1,13 +1,15 @@
 # OTTL Contexts Reference
 
-Context paths and enums for collector-contrib **v0.163.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
+Context paths and enums for collector-contrib **v0.165.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
+
+OTTL's traces, metrics, and logs signals are stable since v0.164.0 (beta before), and profiles are in development in v0.165.0 ([v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/pkg/ottl/README.md)).
 
 ## Contents
 
 - [Context hierarchy](#context-hierarchy)
-- [Resource](#resource-context), [scope](#scope-instrumentation-scope-context), [span](#span-context-beta), and [span event](#span-event-context-beta)
-- [Metric](#metric-context-beta), [data point](#datapoint-context), and [exemplar](#exemplar-context-v0156)
-- [Log](#log-context-beta), [profile](#profile-context-development-v0124), and [profile sample](#profile-sample-context-development-v0132)
+- [Resource](#resource-context), [scope](#scope-instrumentation-scope-context), [span](#span-context), and [span event](#span-event-context)
+- [Metric](#metric-context), [data point](#datapoint-context), and [exemplar](#exemplar-context-v0156)
+- [Log](#log-context), [profile](#profile-context-development-v0124), and [profile sample](#profile-sample-context-development-v0132)
 - [Collector request metadata](#otelcol-context-v0147-always-available-since-v0161)
 - [Enums](#enums)
 
@@ -65,7 +67,7 @@ set(scope.attributes["quality"], "manual")
 
 > Older configs may use `instrumentation_scope.*`. The current canonical prefix is `scope.*`.
 
-## Span context (Beta)
+## Span context
 
 ### Identity & relationships
 ```ottl
@@ -132,7 +134,7 @@ set(span.attributes["sampled"], true)
            or (span.end_time_unix_nano - span.start_time_unix_nano) > 1000000000)
 ```
 
-## Span Event context (Beta)
+## Span Event context
 
 ```ottl
 spanevent.name
@@ -157,7 +159,7 @@ set(spanevent.attributes["error.message"], "REDACTED")
 
 > Older configs may use `span_event.*`. The current path prefix is `spanevent.*`.
 
-## Metric context (Beta)
+## Metric context
 
 ```ottl
 metric.name
@@ -230,7 +232,7 @@ exemplar.cache["key"]
 delete_matching_keys(exemplar.filtered_attributes, "(?i).*(token|secret).*")
 ```
 
-## Log context (Beta)
+## Log context
 
 ```ottl
 log.time_unix_nano
@@ -252,7 +254,7 @@ log.span_id  / log.span_id.string
 log.event_name                       # for event-shaped logs
 ```
 
-As of v0.159, OTTL compares `pcommon.Value` paths such as `log.body` by their underlying type.
+Since v0.159, OTTL compares `pcommon.Value` paths such as `log.body` by their underlying type.
 Primitive values support the normal comparison operators, including numeric comparison between
 integer and double values. Maps and slices support equality and inequality only; incompatible
 types compare unequal.

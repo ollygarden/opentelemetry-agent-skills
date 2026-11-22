@@ -36,7 +36,7 @@ telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 \
   --workers 1 --traces 5 --telemetry-attributes 'env="staging"'
 ```
 
-Flags used, all confirmed against the `otel-telemetrygen` skill (`references/flags.md`):
+Flags used (from the `otel-telemetrygen` skill's `references/flags.md`):
 
 - `--otlp-insecure` — disable transport security (common flag).
 - `--otlp-endpoint` — destination, defaults to `localhost:4317` for gRPC (common flag).

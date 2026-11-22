@@ -39,9 +39,9 @@ Wait ~5s for the first memory check, then send a few traces (see the `otel-telem
 telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 10 --workers 1
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, `--traces` (int, traces **per worker**; ignored if `--duration` is set, so no `--duration` here), and `--workers` (default 1). The exact count does not matter here — every export is refused regardless.
+Flags (from the `otel-telemetrygen` skill's `references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, `--traces` (int, traces **per worker**; ignored if `--duration` is set, so no `--duration` here), and `--workers` (default 1). The exact count does not matter here — every export is refused regardless.
 
-**What proves it worked** (verified run, contrib 0.152.0, idle heap ~17–20 MiB > the 15 MiB soft limit):
+**What proves it worked** (contrib 0.152.0, idle heap ~17–20 MiB > the 15 MiB soft limit):
 
 1. The collector logs the limit being breached:
    ```

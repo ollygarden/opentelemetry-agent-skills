@@ -79,10 +79,10 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `keepalive.enabled` | bool | `true` | Whether to allow HTTP keep-alives. |
 | `middlewares` | list | — | HTTP server middleware extensions. |
 
-Core v0.160.0 deprecates the flat HTTP `idle_timeout` and `keep_alives_enabled` keys. Non-no-op
-legacy values cannot be configured with the new `keepalive` block: `idle_timeout` conflicts when
-nonzero, and `keep_alives_enabled` conflicts when `false`. The no-op legacy values
-`idle_timeout: 0` and `keep_alives_enabled: true` may coexist with `keepalive`.
+The flat HTTP `idle_timeout` and `keep_alives_enabled` keys, deprecated in core v0.160.0, were
+removed in core v0.165.0: any value fails config decoding with
+`'otlpreceiver.HTTPConfig' has invalid keys: idle_timeout` (or `keep_alives_enabled`). Use the
+`keepalive` block.
 
 There is **no profiles URL-path field** — the HTTP config exposes only traces/metrics/logs override keys. Profiles (Alpha) are still served over HTTP, but on a fixed, non-configurable path: `/v1development/profiles`.
 

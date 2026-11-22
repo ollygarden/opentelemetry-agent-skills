@@ -20,7 +20,7 @@ If the body is a map, the full serialized form is templated by default, which yi
 
 ## Alpha stability and provisional attribute name
 
-The processor is **Alpha** — keys and behavior may change. This happened in v0.158.0: the v0.157.0-only `extract_parameters` / `params_attribute` keys became `emit_wildcards` / `wildcards_attribute`. The default `log.record.template` tracks a *proposed* (not yet adopted) semantic convention ([semantic-conventions#1283](https://github.com/open-telemetry/semantic-conventions/issues/1283), [#2064](https://github.com/open-telemetry/semantic-conventions/issues/2064)); pin output keys explicitly if you depend on them. The internal `otelcol_processor_drain_*` metrics are Development stability and may change or be removed.
+The processor is **Alpha** — keys and behavior may change. For example, v0.158.0 replaces the v0.157.0-only `extract_parameters` / `params_attribute` keys with `emit_wildcards` / `wildcards_attribute`. The default `log.record.template` tracks a *proposed* (not yet adopted) semantic convention ([semantic-conventions#1283](https://github.com/open-telemetry/semantic-conventions/issues/1283), [#2064](https://github.com/open-telemetry/semantic-conventions/issues/2064)); pin output keys explicitly if you depend on them. The internal `otelcol_processor_drain_*` metrics are Development stability and may change or be removed.
 
 ## Drain does not reduce volume
 

@@ -9,7 +9,7 @@
 | Go module | `github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter` |
 | Upstream README | <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusremotewriteexporter> |
 
-> **Renamed in v0.154.0.** The type string was `prometheusremotewrite` (no underscores); it is now `prometheus_remote_write`. The old `prometheusremotewrite` still works as a deprecated alias and logs a deprecation warning — migrate to the snake_case type.
+> **Renamed in v0.154.0** from `prometheusremotewrite` (no underscores) to `prometheus_remote_write`. The old name works as a deprecated alias that logs a warning — migrate to the snake_case type.
 
 ## Description
 
@@ -40,6 +40,6 @@ Avoid when:
 ## Details
 
 - [Configuration](configuration.md) — `http.endpoint`, naming/metadata options, histogram conversion, `remote_write_queue`, resource conversion, WAL, RW version, HTTP/TLS/retry options, and validation rules.
-- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Verified end-to-end on contrib v0.159.0.
+- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels` (contrib v0.159.0).
 - [Advanced use-cases](advanced.md) — the WAL, RW2, `resource_constant_labels` vs `target_info`, external labels, worker/retry feature gates, and translation choices.
 - [Known quirks](quirks.md) — push-not-pull, the type rename, `http.endpoint`, nested-vs-flat HTTP migration, TLS-on-by-default, snappy-only, dropped metric types, the `remote_write_queue` (not `sending_queue`) distinction, the `add_metric_suffixes` deprecation discrepancy, RW2 readiness, and per-signal stability.

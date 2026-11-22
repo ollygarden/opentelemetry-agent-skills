@@ -9,7 +9,7 @@
 
 ## Telemetry
 
-The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with the count of logs aggregated per emission. Useful for tuning. The metric is currently **Development** stability — the name or shape can change between releases.
+The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with the count of logs aggregated per emission. Useful for tuning. The metric is **Development** stability — the name or shape can change between releases.
 
 ## Troubleshooting
 
@@ -37,6 +37,7 @@ The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with t
 | `an excludefield must start with body or attributes` | Prefix every path with `body.` or `attributes.`. |
 | `cannot exclude the entire body` | Only nested fields are exclud-able (e.g., `body.timestamp`). |
 | `duplicate metadata_key "…"` | Remove the repeated key (comparison is case-insensitive). |
+| `timestamp_mode must be one of 'aggregated' or 'preserved'` | Use one of those two values (v0.165.0+). |
 | `too many batcher metadata-value combinations` (runtime, permanent error) | `metadata_cardinality_limit` reached — raise it, or narrow `metadata_keys`. |
 
 ## Anti-patterns

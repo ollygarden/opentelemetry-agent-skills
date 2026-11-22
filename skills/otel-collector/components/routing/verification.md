@@ -52,7 +52,7 @@ telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 \
   --logs 2 --workers 1 --otlp-attributes 'tenant="other"'
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure` (bool), `--otlp-endpoint` (string), `--logs` (int, **per worker**; ignored if `--duration` is set, so no `--duration` here, and `--workers 1` makes the count exact), and `--otlp-attributes` (`key="value"`, **resource-level** — the right scope, since the route uses `context: resource` and reads `attributes["tenant"]` off the resource). No flag here invents a value.
+Flags (from the `otel-telemetrygen` skill's `references/flags.md`): `--otlp-insecure` (bool), `--otlp-endpoint` (string), `--logs` (int, **per worker**; ignored if `--duration` is set, so no `--duration` here, and `--workers 1` makes the count exact), and `--otlp-attributes` (`key="value"`, **resource-level** — the right scope, since the route uses `context: resource` and reads `attributes["tenant"]` off the resource). No flag here invents a value.
 
 **What proves it worked:** `/tmp/routed-match.json` holds the 3 records sent with `tenant="acme"` and `/tmp/routed-default.json` holds the 2 records sent with `tenant="other"`. telemetrygen sends nothing on a `tenant` attribute by default, so the split is unambiguous — records only reach `file/match` when the route condition matched, and only reach `file/default` via the unmatched fallback. The `file` exporter writes one newline-delimited JSON object per export, so count the log records inside each file (the resource-level `tenant` attribute appears once per batch, not once per record):
 
@@ -64,4 +64,4 @@ done
 # => routed-match.json: 3 records, routed-default.json: 2 records
 ```
 
-> Verified end-to-end on `otel/opentelemetry-collector-contrib:0.152.0`: the `tenant="acme"` batch landed only in `routed-match.json` (3 records) and the `tenant="other"` batch only in `routed-default.json` (2 records). Exact JSON field rendering can shift between collector versions; what matters is the matching records land in `routed-match.json` and the rest in `routed-default.json` — and that removing `default_pipelines` would make the non-matching batch vanish entirely (dropped), the behavior [quirks](quirks.md) warns about.
+> On `otel/opentelemetry-collector-contrib:0.152.0`, the `tenant="acme"` batch lands only in `routed-match.json` (3 records) and the `tenant="other"` batch only in `routed-default.json` (2 records). Exact JSON field rendering can shift between collector versions; what matters is the matching records land in `routed-match.json` and the rest in `routed-default.json` — and that removing `default_pipelines` would make the non-matching batch vanish entirely (dropped), the behavior [quirks](quirks.md) warns about.

@@ -6,7 +6,7 @@ If a piece of telemetry matches no route and `default_pipelines` is not set, it 
 
 ## `error_mode: propagate` drops the payload on OTTL errors
 
-With `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In v0.157.0 the default is `ignore`: the `connector.routing.defaultErrorModeIgnore` gate is Beta and enabled by default. `ignore` logs the error and sends the payload to `default_pipelines` instead — so it only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Disabling the gate restores the old `propagate` default. Guard fragile conditions with nil checks (`resource.attributes["k"] != nil and resource.attributes["k"] == "v"`) so a missing key doesn't error in the first place.
+With `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. The default is `ignore` (since v0.157.0). The `connector.routing.defaultErrorModeIgnore` gate is Stable since v0.165.0 and cannot be disabled; on v0.157.0–v0.164.x, disabling it restores `propagate`. `ignore` logs the error and sends the payload to `default_pipelines`, so it rescues data only when `default_pipelines` is set. Guard fragile conditions with nil checks (`resource.attributes["k"] != nil and resource.attributes["k"] == "v"`) so a missing key doesn't error in the first place.
 
 ## `action` defaults to `move`, so matched data skips `default_pipelines`
 
@@ -18,7 +18,7 @@ Each route needs **exactly one** of `statement` or `condition`. Setting both, or
 
 ## `request` context is deprecated and has a limited grammar
 
-The `request` context is **deprecated as of v0.156.0** (a warning is logged when it is used) — prefer the `otelcol.client.metadata["key"][0]` (HTTP) / `otelcol.grpc.metadata["key"][0]` (gRPC) paths, which are valid in every signal context and support the full OTTL grammar. The legacy `request` context supports only a single `==` or `!=` comparison — no `and`/`or`, and a `statement` is rejected (it must be `condition`). gRPC metadata keys are lowercased, so use lowercase keys (`request["x-tenant"]` / `otelcol.grpc.metadata["x-tenant"][0]`) for gRPC traffic. The receiver must actually propagate request metadata (the `otlp` receiver does; file-based receivers don't).
+The `request` context is **deprecated since v0.156.0** (a warning is logged when it is used) — prefer the `otelcol.client.metadata["key"][0]` (HTTP) / `otelcol.grpc.metadata["key"][0]` (gRPC) paths, which are valid in every signal context and support the full OTTL grammar. The legacy `request` context supports only a single `==` or `!=` comparison — no `and`/`or`, and a `statement` is rejected (it must be `condition`). gRPC metadata keys are lowercased, so use lowercase keys (`request["x-tenant"]` / `otelcol.grpc.metadata["x-tenant"][0]`) for gRPC traffic. The receiver must actually propagate request metadata (the `otlp` receiver does; file-based receivers don't).
 
 ## Item-level contexts can split a Resource bundle across pipelines
 
@@ -37,10 +37,10 @@ The `request` context is **deprecated as of v0.156.0** (a warning is logged when
 | `invalid context: <name>` | unsupported/typo context | Use `resource`, `span`, `metric`, `datapoint`, `log`, `otelcol`, or the deprecated `request` (and one valid for the signal). |
 | `table[<i>]: <OTTL parse error>` | the route's `condition`/`statement` does not parse (bad syntax, unknown path or function) | Fix the expression at that index. Since v0.163.0 OTTL is parsed during config validation, so `otelcol validate` catches it instead of only component creation. |
 
-## `match_once` was removed in v0.120.0
+## `match_once` is not supported
 
-`match_once` (deprecated v0.116.0, removed v0.120.0) is gone — each item now matches **at most one route**. Configs using `match_once: false` no longer load. To fan out, list multiple pipelines in one route; to route on independent dimensions, use parallel named instances (see [advanced](advanced.md#migrating-from-match_once)).
+`match_once` (deprecated v0.116.0, removed v0.120.0) is not supported: each item matches at most one route, and configs that set `match_once: false` fail to load. To fan out, list multiple pipelines in one route; for independent dimensions, use parallel named instances (see [advanced](advanced.md#migrating-from-match_once)).
 
 ## Stability caveats
 
-All three signal pairs (traces, metrics, logs) are **Alpha**. Config surface and behavior can shift between releases — confirm against the upstream README for your exact collector version. The connector replaces the `routingprocessor`, which has been removed from contrib (v0.156.0 rejects it as an unknown type); existing configs must migrate to the connector form.
+All three signal pairs (traces, metrics, logs) are **Alpha**. Config surface and behavior can shift between releases — confirm against the upstream README for your exact collector version. The connector replaces the `routingprocessor`, which is removed from contrib (v0.156.0 rejects it as an unknown type); existing configs must migrate to the connector form.

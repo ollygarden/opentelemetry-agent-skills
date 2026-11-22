@@ -34,7 +34,8 @@ service:
 | `blocked_values` | []string | `[]` | Regex patterns matched against attribute **values**; matches are masked or hashed. |
 | `allowed_values` | []string | `[]` | Regex patterns for values considered safe. **Takes precedence** over `blocked_values` when both match. |
 | `redact_all_types` | bool | `false` | When `true`, non-string values are checked via their `AsString()` form against `blocked_values`. When `false`, only string values are checked. |
-| `hash_function` | string | `""` | Replace masked values with a hash instead of asterisks. One of `md5`, `sha1`, `sha3`, `hmac-sha256`, `hmac-sha512`. Empty = asterisk masking. |
+| `hash_function` | string | `""` | Replace masked values with a hash instead of asterisks. One of `md5`, `sha1`, `sha3`, `hmac-sha256`, `hmac-sha512`. Empty = asterisk masking. Since v0.165.0, `md5` and `sha1` fail validation when the Collector runs in FIPS 140-3 mode (`GODEBUG=fips140=on` or `only`). |
+| `masking_string` | string | `""` (masks with `****`) | Replacement string for masked values. Must not be set together with `hash_function`. Added in v0.165.0. |
 | `hmac_key` | string | `""` | Secret key for `hmac-sha256` / `hmac-sha512`. Required and length-validated: ≥ 32 bytes for `hmac-sha256`, ≥ 64 bytes for `hmac-sha512`. Supports env expansion (`${env:REDACTION_HMAC_KEY}`). |
 | `summary` | string | `""` | Audit verbosity. Empty (the default) emits **no** audit attributes, same as `silent`. `debug` = key names + counts, `info` = counts only, `silent` = none. |
 | `url_sanitizer.enabled` | bool | `false` | Enable URL sanitization. |

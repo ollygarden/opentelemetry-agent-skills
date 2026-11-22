@@ -23,9 +23,11 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 
 Coverage is intentionally selective. If a component is not indexed here, fall back to the upstream component README for the user's Collector version.
 
-Verified 2026-10-25: Stability cells here and in component README headers match `metadata.yaml` at core and contrib `v0.163.0`; rename and "since" versions match `metadata.yaml` at the named tag and the one before. Offline, cite that release and date, not current stability.
+Stability cells here and in component README headers, README distribution cells, and the v0.164.0 and v0.165.0 notes here and in component pages come from core `v0.165.0`, contrib `v0.165.1` and the `v0.165.0` release manifests; see the [core v0.165.0](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/CHANGELOG.md) and [contrib v0.165.1](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/CHANGELOG.md) changelogs. Values hold for the named releases; check the current release before relying on them.
 
-Verified 2026-10-31: the v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) match the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
+Rename and "since" versions name the first tag whose `metadata.yaml` carries the change.
+
+The v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) come from the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
 
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
@@ -86,7 +88,7 @@ Components publish a stability level per signal. Treat these as load-bearing whe
 | Beta | Production viable — breaking changes rare. |
 | Stable | Production — backward compatibility guaranteed. |
 
-Stability now varies per component — and per signal for multi-signal components (e.g. `redaction` is Beta for traces but Alpha for logs/metrics). Don't assume a single level for the indexed set: check each component's README header metadata table for the authoritative stability and surface it when the user asks about production readiness.
+Stability varies per component — and per signal for multi-signal components (e.g. `redaction` is Beta for traces but Alpha for logs/metrics). Don't assume a single level for the indexed set: check each component's README header metadata table for the authoritative stability and surface it when the user asks about production readiness.
 
 ### Recent renames
 
@@ -99,7 +101,12 @@ Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmet
 Two rules of thumb that apply across components:
 
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
-- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors.
+- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
+- Data a processor such as `batch` holds in memory is lost on a crash; an exporter persistent queue ([file_storage](components/file_storage/advanced.md)) protects only data that has reached it.
+
+### Feature gates
+
+A Stable gate cannot be disabled (`is stable, can not be disabled`), and naming a removed gate in `--feature-gates` fails startup with `no such feature gate`. Component pages give only each gate's stage and the version it changed.
 
 ### Verification harness
 
