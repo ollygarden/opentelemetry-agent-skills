@@ -28,7 +28,7 @@ service:
 | `profile_conditions` | list | — | Profile conditions (contexts: `resource`, `scope`, `profile`). **Development** stability. |
 | `traces` / `metrics` / `logs` / `profiles` | block | — | **Deprecated** per-signal blocks and legacy `include`/`exclude` matchers. See [Legacy configuration](#legacy-configuration). |
 
-> **Default `error_mode` is permanently `ignore` as of v0.157.0.** Feature-gate history is in [quirks](quirks.md#error_mode-behavior).
+> **Default `error_mode` is permanently `ignore` since v0.157.0.** Feature-gate history is in [quirks](quirks.md#error_mode-behavior).
 
 ## The `*_conditions` fields
 

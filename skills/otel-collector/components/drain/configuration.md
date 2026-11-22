@@ -70,4 +70,4 @@ processors:
 
 For body `user alice logged in from 10.0.0.1`, masking can produce template `user <*> logged in from <ip>`, attribute `log.record.template.parameter.ip: 10.0.0.1`, and wildcard slice `["alice"]`. If a name matches multiple template positions, the first value wins and `otelcol_processor_drain_masks_duplicates` increments once per record and duplicated name. Wildcard emission uses the same tokenization as the tree and writes no slice when no `<*>` remains. During warmup suppression none of these output attributes is written.
 
-The v0.157.0-only keys `extract_parameters` and `params_attribute` were removed in v0.158.0. Replace them with `emit_wildcards` and `wildcards_attribute`; the default output key changed from `log.record.template.params` to `log.record.template.wildcards`.
+The v0.157.0-only keys `extract_parameters` and `params_attribute` were removed in v0.158.0. Replace them with `emit_wildcards` and `wildcards_attribute`; the default output key is `log.record.template.params` in v0.157.0 and `log.record.template.wildcards` from v0.158.0.

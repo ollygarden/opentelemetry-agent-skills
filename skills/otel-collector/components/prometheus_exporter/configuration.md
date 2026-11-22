@@ -1,6 +1,6 @@
 # `prometheus` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.160.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`); rows naming a later version follow the dated v0.164.0 record in the skill's `SKILL.md`.
+All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.160.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`); rows naming a later version follow the v0.164.0 record in the skill's `SKILL.md`.
 
 ## Top-level keys
 
@@ -28,8 +28,8 @@ The exporter also accepts all standard HTTP **server** options from the embedded
 | `keepalive.idle_timeout` | `1m` |
 | `keepalive.enabled` | `true` |
 
-The former flat `idle_timeout` and `keep_alives_enabled` fields, deprecated in core v0.160.0, were
-removed in core v0.165.0; setting either now fails with `'prometheusexporter.Config' has invalid keys`.
+The flat `idle_timeout` and `keep_alives_enabled` fields, deprecated in core v0.160.0, were
+removed in core v0.165.0; setting either fails with `'prometheusexporter.Config' has invalid keys`.
 Use the `keepalive` block.
 
 ## `translation_strategy`

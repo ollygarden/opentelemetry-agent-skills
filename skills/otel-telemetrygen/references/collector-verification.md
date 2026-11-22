@@ -12,12 +12,13 @@ fixture execution, and live execution; report only the levels actually completed
 - Pick a unique container name and a newly created empty output directory. Never reuse `./out` or
   a prior `result.json`; stale output can create a false positive.
 - Pin Collector and telemetrygen to compatible reviewed versions. The examples use Collector
-  `0.165.0` and telemetrygen `v0.165.1`, the versions they were run with. Verified 2026-11-22:
-  telemetrygen `v0.165.1` (Go module and GHCR image) exists with flags unchanged from `v0.163.0`;
-  under `cmd/telemetrygen` only `go.mod`/`go.sum` and the semconv import (`v1.40.0` to `v1.43.0`)
-  changed since then, moving the emitted schema URL to `https://opentelemetry.io/schemas/1.43.0`.
-  Docker Hub has plain `otel/opentelemetry-collector-contrib:0.165.0` but no `0.165.1`: contrib
-  `v0.165.1` was a module-only patch. For release pairing, see the `otel-sdk-versions`
+  `0.165.0` and telemetrygen `v0.165.1`. Telemetrygen `v0.165.1` (Go module and GHCR image) has
+  the same flags as `v0.163.0`; between those tags `cmd/telemetrygen` changes only `go.mod`/`go.sum`
+  and the semconv import (`v1.40.0` to `v1.43.0`), which moves the emitted schema URL to
+  `https://opentelemetry.io/schemas/1.43.0`. Docker Hub has plain
+  `otel/opentelemetry-collector-contrib:0.165.0` but no `0.165.1`: contrib `v0.165.1` is a
+  module-only patch. Values hold for the named releases; check the current release before relying
+  on them. For release pairing, see the `otel-sdk-versions`
   [version index](../../otel-sdk-versions/references/generated/otel-version-index.md).
   Evidence: [Go module](https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.165.1),
   [GHCR image](https://github.com/open-telemetry/opentelemetry-collector-contrib/pkgs/container/opentelemetry-collector-contrib%2Ftelemetrygen),

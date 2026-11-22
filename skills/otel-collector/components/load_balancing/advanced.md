@@ -39,7 +39,7 @@ Flow: sub-exporter exhausts → data returns to the LB → LB queue/retry (if en
 
 ## Multiple deterministic front-ends
 
-The hash ring is a pure function of the routing key and the **resolved backend set**. As of v0.157.0, endpoint ordering no longer biases ring construction: two LB Collectors on the same release with the same backend set and `routing_key` compute the **identical** key→backend mapping even if their resolvers return the endpoints in a different order. So you can run several LB front-ends behind a plain round-robin L4 load balancer for HA, and a given trace still always reaches the same sampling backend regardless of which front-end handled it — no shared state or coordinator needed. Keep their configs and versions identical, or the rings can diverge.
+The hash ring is a pure function of the routing key and the **resolved backend set**. Since v0.157.0, endpoint ordering does not bias ring construction: two LB Collectors on the same release with the same backend set and `routing_key` compute the **identical** key→backend mapping even if their resolvers return the endpoints in a different order. So you can run several LB front-ends behind a plain round-robin L4 load balancer for HA, and a given trace still always reaches the same sampling backend regardless of which front-end handled it — no shared state or coordinator needed. Keep their configs and versions identical, or the rings can diverge.
 
 ## Named instances
 

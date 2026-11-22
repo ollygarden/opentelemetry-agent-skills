@@ -2,7 +2,7 @@
 
 ## Data is permanently dropped
 
-`filter` removes data from the pipeline; there is no recovery downstream. Test conditions with `error_mode: propagate` (explicitly — the default is now `ignore`) and `debug` logging before rolling out.
+`filter` removes data from the pipeline; there is no recovery downstream. Test conditions with `error_mode: propagate` (explicitly — the default is `ignore`) and `debug` logging before rolling out.
 
 ## Dropping a metric's only datapoint removes the metric
 

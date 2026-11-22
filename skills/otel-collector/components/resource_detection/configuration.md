@@ -13,7 +13,7 @@
 
 The component embeds the standard `confighttp.ClientConfig`, so other HTTP client knobs (proxy, TLS, headers) are available for the metadata-service detectors; `timeout` is the one you will usually touch.
 
-> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.160.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, `FailOnMissingMetadata: false`, client `Timeout: 5s`, and retry enabled with the values below.
+> Defaults in contrib v0.160.0 `factory.go` (`createDefaultConfig`) and `config.go`: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, `FailOnMissingMetadata: false`, client `Timeout: 5s`, and retry enabled with the values below.
 
 ## Global retry
 

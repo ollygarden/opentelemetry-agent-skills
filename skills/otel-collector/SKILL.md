@@ -23,11 +23,11 @@ Each component is a directory under `components/<type>/`. The `File` column poin
 
 Coverage is intentionally selective. If a component is not indexed here, fall back to the upstream component README for the user's Collector version.
 
-Verified 2026-11-22: stability cells here and in component README headers, README distribution cells, the v0.164.0 and v0.165.0 notes here and in component pages match `metadata.yaml` and source at core `v0.165.0` and contrib `v0.165.1`, the `v0.165.0` release manifests, the [core v0.165.0](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/CHANGELOG.md) and [contrib v0.165.1](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/CHANGELOG.md) changelogs, and `featuregate` / `validate` output of the `otelcol-contrib` 0.165.0 release binary. Offline, cite that release and date, not current stability.
+Stability cells here and in component README headers, README distribution cells, and the v0.164.0 and v0.165.0 notes here and in component pages come from core `v0.165.0`, contrib `v0.165.1` and the `v0.165.0` release manifests; see the [core v0.165.0](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/CHANGELOG.md) and [contrib v0.165.1](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/CHANGELOG.md) changelogs. Values hold for the named releases; check the current release before relying on them.
 
-Verified 2026-10-25: rename and "since" versions match `metadata.yaml` at the named tag and the one before.
+Rename and "since" versions name the first tag whose `metadata.yaml` carries the change.
 
-Verified 2026-10-31: the v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) match the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
+The v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelog.protobufCheckpointEncoding` Stable; `file_log`, `transform` and `resource_detection` in the `core` distribution) come from the [contrib v0.164.1 changelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/CHANGELOG.md), [`pkg/translator/prometheus/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/translator/prometheus/metadata.yaml), [`pkg/stanza/fileconsumer/metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.164.1/pkg/stanza/fileconsumer/metadata.yaml) and the [`otelcol` manifest at v0.164.0](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.164.0/distributions/otelcol/manifest.yaml).
 
 | Type | File | Kind | Signals | Stability | Summary |
 |------|------|------|---------|-----------|---------|
@@ -88,7 +88,7 @@ Components publish a stability level per signal. Treat these as load-bearing whe
 | Beta | Production viable — breaking changes rare. |
 | Stable | Production — backward compatibility guaranteed. |
 
-Stability now varies per component — and per signal for multi-signal components (e.g. `redaction` is Beta for traces but Alpha for logs/metrics). Don't assume a single level for the indexed set: check each component's README header metadata table for the authoritative stability and surface it when the user asks about production readiness.
+Stability varies per component — and per signal for multi-signal components (e.g. `redaction` is Beta for traces but Alpha for logs/metrics). Don't assume a single level for the indexed set: check each component's README header metadata table for the authoritative stability and surface it when the user asks about production readiness.
 
 ### Recent renames
 

@@ -4,7 +4,7 @@ Editor and converter reference for collector-contrib **v0.165.0**. Editors mutat
 
 ## Feature gates
 
-Verified 2026-11-22: OTTL feature gates in `pkg/ottl/metadata.yaml` at each tag from v0.162.0 to v0.165.x; v0.165.0 behavior also checked with `otelcol-contrib validate`. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. Component gates (`transform`, `filter`, `routing`) live on the `otel-collector` component pages.
+OTTL feature gates in `pkg/ottl/metadata.yaml` at each tag from v0.162.0 to v0.165.x. Values hold for the named releases; check the current release before relying on them. Component gates (`transform`, `filter`, `routing`) live on the `otel-collector` component pages.
 
 | Gate | Status by release |
 |---|---|
@@ -51,7 +51,7 @@ The contexts and signatures below are pinned to the released
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 through v0.165 accept semantic-convention versions 1.37.0 through 1.43.0 (verified 2026-11-22; [v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.162 through v0.165 accept semantic-convention versions 1.37.0 through 1.43.0 ([v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#set_semconv_span_name)); unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
 [metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/processor/transformprocessor/README.md#convert_sum_to_gauge),

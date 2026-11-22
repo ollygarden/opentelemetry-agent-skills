@@ -97,7 +97,7 @@ telemetrygen traces --otlp-insecure --otlp-endpoint localhost:14317 \
   --otlp-attributes "k8s.pod.ip=\"$DEMO_IP\""
 ```
 
-Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, `--traces` (int, **per worker**; no `--duration`, or the count is ignored), `--workers`, and `--otlp-attributes` (**resource-level** — the right scope, since pod association and the added `k8s.*` attributes all live on the resource; `--telemetry-attributes` would put it at span level where association can't see it). The `k8s.pod.ip` value must be a real pod IP from the cluster so it matches a cached pod.
+Flags (from the `otel-telemetrygen` skill's `references/flags.md`): `--otlp-insecure`, `--otlp-endpoint`, `--traces` (int, **per worker**; no `--duration`, or the count is ignored), `--workers`, and `--otlp-attributes` (**resource-level** — the right scope, since pod association and the added `k8s.*` attributes all live on the resource; `--telemetry-attributes` would put it at span level where association can't see it). The `k8s.pod.ip` value must be a real pod IP from the cluster so it matches a cached pod.
 
 ## What proves it worked
 

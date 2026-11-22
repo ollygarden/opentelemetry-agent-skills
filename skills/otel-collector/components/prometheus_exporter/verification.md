@@ -2,7 +2,7 @@
 
 See [Verification harness](../../SKILL.md#verification-harness) for how to run this end-to-end.
 
-Unlike most exporters, you observe the result by **scraping the exporter's own `/metrics` endpoint with `curl`** — there is no downstream backend to watch, because this exporter exposes rather than pushes (the `debug` exporter below is included only to confirm what entered the pipeline). The recipe drives an OTLP pipeline with `telemetrygen` and reads the exposed series back. This is a **minimal repro** — it omits `memory_limiter` and other production scaffolding on purpose, to isolate the exporter's behavior. Verified on `otel/opentelemetry-collector-contrib:0.154.0`.
+Unlike most exporters, you observe the result by **scraping the exporter's own `/metrics` endpoint with `curl`** — there is no downstream backend to watch, because this exporter exposes rather than pushes (the `debug` exporter below is included only to confirm what entered the pipeline). The recipe drives an OTLP pipeline with `telemetrygen` and reads the exposed series back. This is a **minimal repro** — it omits `memory_limiter` and other production scaffolding on purpose, to isolate the exporter's behavior. This recipe targets `otel/opentelemetry-collector-contrib:0.154.0`.
 
 Config (`config.yaml`) — a `metrics` pipeline from the `otlp` receiver into both `prometheus` and `debug`:
 
@@ -37,7 +37,7 @@ docker run -d --name prom-exp \
   otel/opentelemetry-collector-contrib:0.154.0
 ```
 
-Drive it with `telemetrygen` — see the `otel-telemetrygen` skill. This emits one cumulative Sum metric named `gen` with **3 datapoints, values 0, 1, 2** (confirmed in the `debug` exporter's output as three `Metric #0 Name: gen` lines with `Value: 0/1/2`):
+Drive it with `telemetrygen` — see the `otel-telemetrygen` skill. This emits one cumulative Sum metric named `gen` with **3 datapoints, values 0, 1, 2** (the `debug` exporter's output shows three `Metric #0 Name: gen` lines with `Value: 0/1/2`):
 
 ```bash
 telemetrygen metrics --otlp-insecure --otlp-endpoint localhost:14317 \

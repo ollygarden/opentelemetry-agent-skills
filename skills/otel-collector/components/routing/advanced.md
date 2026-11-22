@@ -53,7 +53,7 @@ connectors:
         pipelines: [logs/ecorp]
 ```
 
-For gRPC traffic use lowercase keys: `otelcol.grpc.metadata["x-tenant"][0]`. The older `request["X-Tenant"]` / `context: request` form still works but is **deprecated as of v0.156.0** (see [quirks](quirks.md)).
+For gRPC traffic use lowercase keys: `otelcol.grpc.metadata["x-tenant"][0]`. The older `request["X-Tenant"]` / `context: request` form still works but is **deprecated since v0.156.0** (see [quirks](quirks.md)).
 
 ## Severity and environment routing
 
@@ -95,7 +95,7 @@ Because `move` is already the default, you rarely set it explicitly; reach for `
 
 ## Migrating from `routingprocessor`
 
-The connector replaces the `routingprocessor`, which has since been removed from contrib entirely — the OLD config below no longer loads on current releases. The processor sat inside one pipeline and routed to **exporters** via a `from_attribute` + `value` table; the connector bridges pipelines and routes to **pipelines** via OTTL.
+The connector replaces the `routingprocessor`, which is removed from contrib, so the OLD config below does not load. The processor sat inside one pipeline and routed to **exporters** via a `from_attribute` + `value` table; the connector bridges pipelines and routes to **pipelines** via OTTL.
 
 ```yaml
 # OLD (routingprocessor)
@@ -130,7 +130,7 @@ service:
 
 ## Migrating from `match_once`
 
-`match_once` was removed in v0.120.0; each item now matches at most one route (under the default `move`). To reproduce the old `match_once: false` (multi-match) behavior:
+`match_once` was removed in v0.120.0; each item matches at most one route (under the default `move`). To reproduce the old `match_once: false` (multi-match) behavior:
 
 - **Parallel routers** — split independent dimensions into separate named instances (see above). Each gets its own copy, so an item can match in both. Simplest when no `default_pipelines` is needed.
 - **Enumerate combinations** — for a small fixed set, write one route per combination and list all target pipelines in it (e.g. `condition: resource.attributes["env"] == "prod" and resource.attributes["region"] == "east"` → `pipelines: [logs/prod, logs/east]`). Practical only for a handful of dimensions.

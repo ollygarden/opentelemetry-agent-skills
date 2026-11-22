@@ -1,6 +1,6 @@
 # Troubleshooting the eBPF profiler
 
-Match the exact log or error text. Strings are from Collector `0.162.0` / ebpf-profiler `v0.0.202636` and `v0.0.202640` unless noted; those still emitted by current code are unchanged in `0.165.0` / `v0.0.202645`.
+Match the exact log or error text. Strings are from Collector `0.162.0` / ebpf-profiler `v0.0.202636` and `v0.0.202640` unless noted; the strings that `0.165.0` / `v0.0.202645` emit have the same text.
 
 | Error or symptom | Cause | Fix |
 |---|---|---|
@@ -16,7 +16,7 @@ Match the exact log or error text. Strings are from Collector `0.162.0` / ebpf-p
 | Only node processes (kubelet/k3s, containerd, shims) appear; no pods. Log: `only processes traces within the profiler namespace will be collected` | Boolean translation (`v0.0.202636`) only covers the profiler's own PID namespace. | `pid_namespace_translation_mode: auto` on ebpf-profiler `v0.0.202640`+. |
 | `recursive PID namespace translation requires readable kernel BTF ...` | `recursive` mode without kernel BTF. | Use `auto` or `exact`, or a kernel with `/sys/kernel/btf/vmlinux`. |
 | `host Agent requires kernel version 5.10 or newer but got X.Y.Z` | Old kernel, or a distro kernel with backported eBPF. | Upgrade the kernel, or set `no_kernel_version_check: true` only if the distro backports the needed features. |
-| `failed to load eBPF tracer: failed to read kernel symbols: unable to read kallsyms addresses - check capabilities` (or other eBPF load or permission errors) | Not privileged (observed with `docker run` without `--privileged`). | Run privileged or with `CAP_SYS_ADMIN`, `CAP_BPF`, `CAP_PERFMON`, and the host PID namespace. |
+| `failed to load eBPF tracer: failed to read kernel symbols: unable to read kallsyms addresses - check capabilities` (or other eBPF load or permission errors) | Not privileged (e.g. `docker run` without `--privileged`). | Run privileged or with `CAP_SYS_ADMIN`, `CAP_BPF`, `CAP_PERFMON`, and the host PID namespace. |
 | `memory_limiter` logs `total_memory_mib` equal to node memory | Percentage limits resolved against the node, not the container. | Use `limit_mib` and `spike_limit_mib`. |
 | Profiles arrive without `k8s.*` attributes | No `container.id` pod association, RBAC gap, or the process is not in a pod. | `pod_association` on `container.id`; RBAC for pods and namespaces; see `otel-collector` `components/k8s_attributes/quirks.md`. |
 | Many `containerd-shim-*` or `unknown_service:*` services in the backend | Host processes with no pod and no `service.name`. | Expected. Fallback `service.name` via `resource` `action: insert` (`kubernetes.md`), or drop downstream with `filter` `profile_conditions` on `process.executable.name` (`filter` is not in `otelcol-ebpf-profiler`). |

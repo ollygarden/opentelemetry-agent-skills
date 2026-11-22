@@ -35,10 +35,10 @@ is rejected, plain `${HOSTNAME}` is not. An empty `collector_id` is also rejecte
 
 ## `use_start_time_metric` / `start_time_metric_regex` were removed
 
-These two keys used to live on this receiver but were **removed in v0.143.0** and are gone from the
-current config. To adjust metric start times from `process_start_time_seconds`, use the
-**`metric_start_time`** processor (renamed from `metricstarttime` in v0.148.0; the old name is kept
-as a deprecated alias). Putting `use_start_time_metric` in the receiver config now is an unknown-key error.
+These two keys were **removed from this receiver in v0.143.0**. To adjust metric start times
+from `process_start_time_seconds`, use the **`metric_start_time`** processor (renamed from
+`metricstarttime` in v0.148.0; the old name is kept as a deprecated alias). Putting
+`use_start_time_metric` in the receiver config is an unknown-key error.
 
 ## Prometheus server features are rejected
 

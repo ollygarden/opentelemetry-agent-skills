@@ -16,7 +16,7 @@ Statements run top-to-bottom and later ones see earlier effects. A classic bug i
 
 ## Mutating shared resource/scope affects everything under it
 
-A `resource`-context statement runs once per resource and changes are seen by **all** spans/metrics/logs sharing that resource. Setting a resource attribute from per-item data (e.g. a single log's attribute) leaks that value across the whole group. When per-item resource edits are genuinely needed for logs, enable `flatten_data` (behind the `transform.flatten.logs` feature gate) so each record gets its own resource copy — at the cost of copying and hashing every record.
+A `resource`-context statement runs once per resource and changes are seen by **all** spans/metrics/logs sharing that resource. Setting a resource attribute from per-item data (e.g. a single log's attribute) leaks that value across the whole group. When per-item resource edits are genuinely needed for logs, enable `flatten.log` (behind the `transform.flatten.logs` feature gate) so each record gets its own resource copy — at the cost of copying and hashing every record.
 
 ## `error_mode: propagate` drops the whole batch on error
 
@@ -26,7 +26,7 @@ Under `propagate`, the first statement that errors (a type mismatch, a nil deref
 - set(log.attributes["uid"], log.cache["user"]["id"]) where log.cache["user"] != nil
 ```
 
-`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default flipped from `propagate` to `ignore` in v0.153.0 and became permanent when `processor.transform.defaultErrorModeIgnore` reached Stable in v0.157.0. Disabling the gate failed startup on v0.157.0–v0.161.0; the gate was removed in v0.162.0, so any remaining `--feature-gates` reference to it now fails startup as an unknown gate. Pre-v0.153.0 collectors still default to `propagate`; on v0.153.0–v0.156.0 the Beta gate could be disabled to restore it.
+`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default is `ignore` since v0.153.0 (`propagate` before). On v0.153.0–v0.156.0 (Beta), disabling `processor.transform.defaultErrorModeIgnore` restores `propagate`; v0.157.0–v0.161.0 (Stable) reject disabling it at startup; from v0.162.0 the gate does not exist, so naming it in `--feature-gates` fails startup.
 
 ## Context performance
 
@@ -50,7 +50,7 @@ metric_statements:
 
 ## OTTL version drift
 
-`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0, `extract_avg_metric` in v0.162.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0` in v0.162 through v0.165 (verified 2026-11-22; owner: the `otel-ottl` skill's [`references/functions.md`](../../../otel-ottl/references/functions.md)). Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
+`transform` is a thin shell around OTTL, which evolves quickly: function names, signatures, path syntax, and enums change between collector releases (e.g. the path-prefix style `log.body` vs older bare `body`; `extract_percentile_metric` added in v0.151.0, `extract_avg_metric` in v0.162.0). `set_semconv_span_name` accepts semantic-convention versions `1.37.0` through `1.43.0` in v0.162 through v0.165 (owner: the `otel-ottl` skill's [`references/functions.md`](../../../otel-ottl/references/functions.md)). Validate statements against the running version — see the `otel-ottl` skill — rather than assuming a snippet from another release still parses.
 
 Since v0.165.0 the processor's own listed functions are frozen; new processor functions start as experimental and parse only with the alpha `processor.transform.enableExperimentalFunctions` gate (v0.165.x ships none). See the upstream README's "Function stability" section.
 

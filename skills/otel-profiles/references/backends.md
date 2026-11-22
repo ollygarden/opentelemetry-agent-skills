@@ -2,15 +2,15 @@
 
 Profiles leave the Collector over OTLP: `otlp_grpc`, or `otlp_http`, which posts to `<endpoint>/v1development/profiles` unless `profiles_endpoint` overrides it. To relay through a regular Collector, its `otlp` receiver needs the same feature gate; see the `otel-collector` skill's `components/otlp/` pages.
 
-Backend support moves fast. Status below was checked on 2026-10-07; re-check the linked docs before relying on it.
+Backend support moves fast; check the linked docs before relying on the status below.
 
 | Backend | OTLP profiles ingestion | Status and source |
 |---|---|---|
-| Grafana Pyroscope (OSS) | gRPC and HTTP on the HTTP port `4040` | Pyroscope docs call it suitable for development and testing ([docs](https://grafana.com/docs/pyroscope/latest/configure-client/opentelemetry/ebpf-profiler/)). Routes verified in `v2.3.1` source. |
+| Grafana Pyroscope (OSS) | gRPC and HTTP on the HTTP port `4040` | Pyroscope docs call it suitable for development and testing ([docs](https://grafana.com/docs/pyroscope/latest/configure-client/opentelemetry/ebpf-profiler/)). Pyroscope `v2.3.1` serves both routes. |
 | Elastic (EDOT Collector) | `profiling` receiver plus the `elasticsearch` exporter | Preview from Elastic Stack 9.2, behind `service.profilesSupport` ([docs](https://www.elastic.co/docs/reference/edot-collector/config/configure-profiles-collection)). |
 | devfiler | OTLP | Desktop app for development only, not a production backend ([repo](https://github.com/elastic/devfiler)). |
 | Datadog Full-Host Profiler | Not documented as accepting upstream OTLP profiles | Preview; a standalone executable built on the OpenTelemetry eBPF profiler that sends through the Datadog Agent ([docs](https://docs.datadoghq.com/profiler/enabling/full_host/)). |
-| Grafana Cloud Profiles | gRPC on the stack's Profiles host, port `443` | Verified 2026-10-08 with the `0.162.0` image. OTLP/HTTP authenticates but rejects the profiler's data; see [Grafana Cloud Profiles](#grafana-cloud-profiles). Not in Grafana Cloud's OTLP gateway docs, which list traces, metrics, and logs only. |
+| Grafana Cloud Profiles | gRPC on the stack's Profiles host, port `443` | Works with the `0.162.0` image. OTLP/HTTP authenticates but rejects the profiler's data; see [Grafana Cloud Profiles](#grafana-cloud-profiles). Not in Grafana Cloud's OTLP gateway docs, which list traces, metrics, and logs only. |
 
 ## Pyroscope
 
@@ -59,5 +59,5 @@ exporters:
 
 - Stacks symbolize and resource attributes are kept.
 - OTLP/HTTP (`https://profiles-prod-NNN.grafana.net/v1development/profiles`) authenticates, but with Collector `0.162.0` every batch fails with HTTP 400 `invalid labels '{="<pid>", ...}' with error: invalid label name ''`. Grafana Cloud's HTTP decoder turns the integer resource attribute `process.pid` into an empty-named label and drops string resource attributes. Deleting `process.pid` gets a 200, but all resource attributes are lost (`service_name="unknown_service"`), so it is not a fix.
-- Only `service.name`, `service.namespace`, `service.version`, and `deployment.environment.name` become underscore labels (`service_namespace`, `deployment_environment_name`, ...); every other attribute (`k8s.*`, `container.id`, `process.*`, `thread.name`) keeps its dotted name and is queried quoted, as in self-hosted Pyroscope. Self-hosted Pyroscope `v2.3.1` keeps all four dotted too. Observed 2026-10-10.
+- Only `service.name`, `service.namespace`, `service.version`, and `deployment.environment.name` become underscore labels (`service_namespace`, `deployment_environment_name`, ...); every other attribute (`k8s.*`, `container.id`, `process.*`, `thread.name`) keeps its dotted name and is queried quoted, as in self-hosted Pyroscope. Self-hosted Pyroscope `v2.3.1` keeps all four dotted too.
 - Without `service.name`, `service_name` is `unknown_service:<process.executable.name>`, as in Pyroscope.

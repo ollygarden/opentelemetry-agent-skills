@@ -4,12 +4,11 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 Unlike the pull-based [`prometheus`](../prometheus_exporter/verification.md) exporter (where you scrape the exporter's own `/metrics`), here you **push** to a real backend and query the series back from it. The recipe runs two containers on a shared Docker network: a Prometheus server with the remote-write receiver enabled, and a collector that pushes into it. This is a **minimal repro** — it omits `memory_limiter` and `batch` on purpose, to isolate the exporter's behavior.
 
-**Verified end-to-end on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).** A
+**End-to-end recipe for `otel/opentelemetry-collector-contrib:0.159.0`.** A
 `telemetrygen` v0.159.0 cumulative Sum named `gen` (datapoints 0/1/2) pushed through the nested
-`http` configuration via RW1 and landed in Prometheus as
+`http` configuration via RW1 lands in Prometheus as
 `testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2`.
-This recipe's schema is unchanged through v0.160.0; it does not exercise
-`resource_constant_labels`.
+The same config works on v0.160.0; it does not exercise `resource_constant_labels`.
 
 Create a network:
 

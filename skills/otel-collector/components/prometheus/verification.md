@@ -7,7 +7,7 @@ OTLP endpoint to push into; the receiver pulls from a Prometheus-format HTTP tar
 self-contained way to test it is to have the collector **scrape its own internal telemetry
 endpoint**: `service.telemetry.metrics` can expose a Prometheus `/metrics` endpoint, and the
 `prometheus` receiver scrapes that, proving the full scrape → parse → OTLP → `debug` path with no
-external target. Verified on `otel/opentelemetry-collector-contrib:0.154.0`.
+external target. This recipe targets `otel/opentelemetry-collector-contrib:0.154.0`.
 
 This is a deliberately minimal repro: no `memory_limiter`, single pipeline. Do not copy it verbatim
 into production — a real metrics pipeline should front the receiver with `memory_limiter`.
@@ -61,8 +61,8 @@ docker logs prom-recv 2>&1 | grep '"otelcol.component.id": "debug"'
 
 **What proves it worked:** each line is one completed scrape → parse → OTLP → `debug` cycle. Once
 warmed up, every 5s scrape of the collector's own `/metrics` endpoint delivers a steady batch.
-Verified on `otel/opentelemetry-collector-contrib:0.154.0` — the first (warm-up) scrape reported
-`metrics: 12`, then each subsequent scrape was stable:
+On `otel/opentelemetry-collector-contrib:0.154.0`, the first (warm-up) scrape reports
+`metrics: 12`, then each subsequent scrape is stable:
 
 ```
 ... "otelcol.component.id": "debug", ... "resource metrics": 1, "metrics": 17, "data points": 18}

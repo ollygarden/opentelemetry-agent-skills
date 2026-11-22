@@ -9,7 +9,7 @@ OTTL transforms or selects telemetry inside Collector components. This skill is 
 collector-contrib **v0.165.0**. Function, path, default, and feature-gate availability varies by
 release; when the user's version differs, verify against the matching upstream tag.
 
-Dated OTTL feature-gate status for v0.162.0 through v0.165.x is in
+OTTL feature-gate status for v0.162.0 through v0.165.x is in
 [references/functions.md](references/functions.md#feature-gates).
 
 ## Workflow
@@ -27,8 +27,8 @@ Dated OTTL feature-gate status for v0.162.0 through v0.165.x is in
    such as `ParseJSON` and `IsMatch` return values; they do not mutate.
 4. **Set error behavior deliberately.** `ignore` logs statement errors and continues; `silent`
    continues without logging; `propagate` returns the error and can cause the component to drop the
-   payload. Transform, filter, and routing default to `ignore`, and their default-error gates can
-   no longer change it; naming a removed gate in `--feature-gates` fails startup. Per-component gate
+   payload. Transform, filter, and routing default to `ignore`, and their default-error gates cannot
+   change it; naming a removed gate in `--feature-gates` fails startup. Per-component gate
    history is on the `otel-collector` [transform](../otel-collector/components/transform/quirks.md),
    [filter](../otel-collector/components/filter/quirks.md), and
    [routing](../otel-collector/components/routing/quirks.md) pages. For routing, `ignore` sends an
@@ -67,11 +67,11 @@ For a single path or function, read only the relevant section instead of loading
   non-sensitive keys. OTLP metadata routing requires `include_metadata: true` on the receiver.
   HTTP/client header spelling may retain its form (`otelcol.client.metadata["X-Tenant"][0]`);
   gRPC metadata keys are lowercase (`otelcol.grpc.metadata["x-tenant"][0]`).
-- The routing `request` context is deprecated as of v0.156; use `otelcol.client.metadata` or
+- The routing `request` context is deprecated since v0.156; use `otelcol.client.metadata` or
   `otelcol.grpc.metadata`.
-- Log-record-specific rewrites of shared resource or scope data require `flatten_data: true` and the
+- Log-record-specific rewrites of shared resource or scope data require `flatten: {log: true}` and the
   alpha `transform.flatten.logs` gate. This copies and regroups data; do not enable it accidentally.
-- Since v0.161, `set(target, nil)` is no longer a no-op (`ottl.set.allowNil` lifecycle:
+- Through v0.160 `set(target, nil)` is a no-op; since v0.161 it is not (`ottl.set.allowNil` lifecycle:
   [gate table](references/functions.md#feature-gates)). A nil value empties a map, slice, or
   `pcommon.Value` target (an attribute key is created with an empty value) and errors on scalar
   targets. Use a `where source != nil` guard when the destination must remain unchanged for missing input.

@@ -21,7 +21,7 @@ This skill covers building the distribution. For configuring individual componen
 
 ## Install
 
-Pick the OCB version equal to the Collector core version you're targeting; the [dated record](#verified-release-pairings) shows which releases have a binary.
+Pick the OCB version equal to the Collector core version you're targeting; the [release pairings](#release-pairings) show which releases have a binary.
 
 ```bash
 # Release binary (named ocb): https://github.com/open-telemetry/opentelemetry-collector-releases/releases?q=cmd/builder
@@ -78,14 +78,14 @@ Three version streams exist and must be paired:
 | `v1.y.0` (stable) | confmap providers (`confmap/provider/...`), other 1.x modules (pdata, etc.) |
 | contrib `v1.x` (stable) | contrib modules in contrib's `stable-base` module set (e.g. `processor/k8sattributesprocessor`) |
 
-### Verified release pairings
+### Release pairings
 
-Verified 2026-11-22. Offline, cite this date, never call a value currently latest, and confirm it against the evidence before deploying. The examples in this skill pin the `v0.165.0` row. The Go version a build needs is the highest `go` directive among the manifest's modules at that tag: OCB and core need Go 1.26.0+, but some contrib `v0.165.x` modules (`resourcedetectionprocessor`, the Datadog components) declare `go 1.26.9`.
+Values hold for the named releases; check the current release before relying on them. The examples in this skill pin the `v0.165.0` row. The Go version a build needs is the highest `go` directive among the manifest's modules at that tag: OCB and core need Go 1.26.0+, but some contrib `v0.165.x` modules (`resourcedetectionprocessor`, the Datadog components) declare `go 1.26.9`.
 
 | Release (OCB, core) | Providers (core `stable`) | Contrib `contrib-base` → `stable-base` (`k8sattributesprocessor`) | Prebuilt OCB binary and image |
 |---|---|---|---|
-| `v0.165.0` (tagged 2026-11-06) | `v1.71.0` | `v0.165.0` → `v1.4.0`; patch `v0.165.1` → `v1.4.1` | published as `0.165.0` |
-| `v0.164.0` (tagged 2026-10-26) | `v1.70.0` | `v0.164.1` → `v1.3.1` (not `v0.164.0`; see [troubleshooting](references/troubleshooting.md#version-mismatches)) | published as `0.164.0` |
+| `v0.165.0` | `v1.71.0` | `v0.165.0` → `v1.4.0`; patch `v0.165.1` → `v1.4.1` | published as `0.165.0` |
+| `v0.164.0` | `v1.70.0` | `v0.164.1` → `v1.3.1` (not `v0.164.0`; see [troubleshooting](references/troubleshooting.md#version-mismatches)) | published as `0.164.0` |
 
 Evidence at each tag: providers in [`cmd/builder/internal/config/default.yaml`](https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.165.0/cmd/builder/internal/config/default.yaml) (authoritative); `stable-base` is the `processor/k8sattributesprocessor/v1.x` tag on the contrib release commit (contrib `versions.yaml` can lag); collector-releases manifests; `cmd/builder/go.mod`; Docker Hub.
 

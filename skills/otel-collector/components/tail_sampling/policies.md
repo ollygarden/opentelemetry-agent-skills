@@ -75,7 +75,7 @@ The latency interval is **`threshold_ms < duration <= upper_threshold_ms`**. Wit
 
 All policies are evaluated (unless `sample_on_first_match: true`), then a single decision is chosen: a `drop` decision wins over everything; otherwise any `sample` decision keeps the trace; if no policy matches, the trace is **not** sampled.
 
-> **`invert_match` note:** the legacy "inverted decisions" behavior is gone — the `disableinvertdecisions` feature gate was stabilized and then removed, so as of v0.156.0 `invert_match: true` always yields a plain sample/not-sample on the negated condition and no longer vetoes other policies. `invert_match` still exists on the `numeric_attribute`, `string_attribute`, and `boolean_attribute` policies. To explicitly suppress traces, use a `drop` policy; to sample on the opposite of a wrapped policy's decision, use a `not` policy instead.
+> **`invert_match` note:** since v0.156.0 (the `disableinvertdecisions` gate is removed), `invert_match: true` always yields a plain sample/not-sample on the negated condition and does not veto other policies. `invert_match` still exists on the `numeric_attribute`, `string_attribute`, and `boolean_attribute` policies. To explicitly suppress traces, use a `drop` policy; to sample on the opposite of a wrapped policy's decision, use a `not` policy instead.
 
 ## Tracestate probability sampling
 

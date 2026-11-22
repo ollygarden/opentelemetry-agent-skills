@@ -80,7 +80,7 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `middlewares` | list | — | HTTP server middleware extensions. |
 
 The flat HTTP `idle_timeout` and `keep_alives_enabled` keys, deprecated in core v0.160.0, were
-removed in core v0.165.0: any value now fails config decoding with
+removed in core v0.165.0: any value fails config decoding with
 `'otlpreceiver.HTTPConfig' has invalid keys: idle_timeout` (or `keep_alives_enabled`). Use the
 `keepalive` block.
 

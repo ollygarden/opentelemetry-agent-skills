@@ -21,7 +21,7 @@ Fix: align core, contrib, and provider versions per the [version alignment rules
 - One component pinned at an older `v0.x.0` than the rest — Go resolves the highest requested version and the manifest no longer matches reality.
 - Writing a stable contrib module (e.g. `k8sattributesprocessor`) at `v0.x.0` past its v1 move — no such tag exists; use its `v1.x` version.
 - Version written without the `v` prefix (`0.165.0`) — module query fails outright.
-- `unknown revision pkg/ottl/v1.2.0`: contrib `v0.164.0` modules require a `stable-base` version that was never tagged; use the contrib patch instead ([dated record](../SKILL.md#verified-release-pairings)).
+- `unknown revision pkg/ottl/v1.2.0`: contrib `v0.164.0` modules require a `stable-base` version that was never tagged; use the contrib patch instead ([release pairings](../SKILL.md#release-pairings)).
 - OCB binary older than the component versions in the manifest — upgrade OCB first; the generated templates encode assumptions about the core APIs of the matching release.
 
 Strict checking is off by default; run with `--skip-strict-versioning=false` to make OCB verify resolved versions against the manifest instead of failing later in `go build`.
@@ -51,7 +51,7 @@ The manifest set `providers:` explicitly and omitted `envprovider`. The key **re
 - `cgo: C compiler "gcc" not found`: a component needs CGO. Either install a C toolchain and set `dist.cgo_enabled: true`, or drop the component. Default is CGO off.
 - `build constraints exclude all Go files`: `dist.build_tags` or `GOOS`/`GOARCH` excludes everything — clear the tags or fix the target platform.
 - OOM on small CI runners: the collector dependency graph is large. `GOMAXPROCS=2 ocb --config=builder.yaml`, or split into generate + `go build` stages.
-- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB needs the Go version in its `cmd/builder/go.mod` (dated values in the SKILL.md record); selected or local modules may require newer.
+- `exec: "go": executable file not found`: install a compatible Go toolchain or set `dist.go` to its path. OCB needs the Go version in its `cmd/builder/go.mod` (values in the SKILL.md release pairings); selected or local modules may require newer.
 
 ## Runtime failures
 

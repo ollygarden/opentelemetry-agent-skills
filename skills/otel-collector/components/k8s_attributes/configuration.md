@@ -70,7 +70,7 @@ extract:
 
 `otel_annotations: true` lifts pod annotations prefixed `resource.opentelemetry.io/` straight onto the resource (`resource.opentelemetry.io/foo: bar` → attribute `foo: bar`).
 
-`deployment_name_from_replicaset` was removed in v0.160.0 and is now an unknown-key startup error.
+`deployment_name_from_replicaset` was removed in v0.160.0 and is an unknown-key startup error.
 Deployment names use the ReplicaSet-name heuristic unless `k8s.deployment.uid` or deployment /
 ReplicaSet label or annotation extraction starts the informer lookup. When configuring an explicit
 `extract.metadata` list, include `k8s.deployment.name` (or `service.name`) to emit the derived name;

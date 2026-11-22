@@ -2,7 +2,7 @@
 
 Context paths and enums for collector-contrib **v0.165.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
 
-Verified 2026-11-22: OTTL's traces, metrics, and logs signals are stable since v0.164.0 (beta before), and profiles remain in development ([v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/pkg/ottl/README.md)).
+OTTL's traces, metrics, and logs signals are stable since v0.164.0 (beta before), and profiles are in development in v0.165.0 ([v0.165.0 README](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.0/pkg/ottl/README.md)).
 
 ## Contents
 
@@ -254,7 +254,7 @@ log.span_id  / log.span_id.string
 log.event_name                       # for event-shaped logs
 ```
 
-As of v0.159, OTTL compares `pcommon.Value` paths such as `log.body` by their underlying type.
+Since v0.159, OTTL compares `pcommon.Value` paths such as `log.body` by their underlying type.
 Primitive values support the normal comparison operators, including numeric comparison between
 integer and double values. Maps and slices support equality and inequality only; incompatible
 types compare unequal.

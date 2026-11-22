@@ -116,8 +116,8 @@ Before finalizing a response, check that:
 ## Installation and container use
 
 Pin the released Go module and a versioned GHCR image; do not substitute the mutable `latest` image.
-The examples pin telemetrygen `v0.165.1` and Collector `0.165.0`, the versions they were run with;
-dated tag availability is in [references/collector-verification.md](references/collector-verification.md):
+The examples pin telemetrygen `v0.165.1` and Collector `0.165.0`; tag availability for those
+releases is in [references/collector-verification.md](references/collector-verification.md):
 
 ```bash
 go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.165.1

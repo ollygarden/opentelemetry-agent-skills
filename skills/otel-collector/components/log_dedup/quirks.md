@@ -9,7 +9,7 @@
 
 ## Telemetry
 
-The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with the count of logs aggregated per emission. Useful for tuning. The metric is currently **Development** stability — the name or shape can change between releases.
+The processor emits a histogram `otelcol_dedup_processor_aggregated_logs` with the count of logs aggregated per emission. Useful for tuning. The metric is **Development** stability — the name or shape can change between releases.
 
 ## Troubleshooting
 

@@ -7,21 +7,21 @@ description: OpenTelemetry profiles signal and the eBPF profiler (otelcol-ebpf-p
 
 The main OpenTelemetry producer is the [eBPF profiler](https://github.com/open-telemetry/opentelemetry-ebpf-profiler), shipped as the `profiling` receiver in the [`otelcol-ebpf-profiler`](https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/distributions/otelcol-ebpf-profiler) Collector distribution. It profiles every process on a Linux host with no application changes.
 
-Maturity: the signal entered [public Alpha](https://opentelemetry.io/blog/2026/profiles-alpha/) in March 2026, the OTLP profiles proto (`v1development`) is Development, the `profiling` receiver is Development, and the Collector gate `service.profilesSupport` is alpha. Expect breaking changes; pin the profiler, Collector, and backend versions together.
+Maturity: the signal is in [public Alpha](https://opentelemetry.io/blog/2026/profiles-alpha/), the OTLP profiles proto (`v1development`) is Development, the `profiling` receiver is Development, and the Collector gate `service.profilesSupport` is alpha. Expect breaking changes; pin the profiler, Collector, and backend versions together.
 
 Collector-side component facts (OTLP receiver/exporter profile support, the fixed `/v1development/profiles` HTTP path, `k8s_attributes`, `memory_limiter`, `filter` `profile_conditions`) live in the `otel-collector` skill's component pages; OTTL `profile`/`profilesample` contexts live in `otel-ottl`.
 
 `otelcol-ebpf-profiler` `0.165.0` bundles only: receivers `profiling`, `nop`; processors `memory_limiter`, `k8s_attributes`, `resource_detection`, `resource`, `transform`, `queue_batch` (Alpha for profiles), plus `batch`, which does not support profiles; exporters `otlp_grpc`, `otlp_http`, `debug`, `file`, `nop`; extensions `health_check`, `pprof`, `opamp`, `offcpu`. For anything else (`filter`, the `basicauth` extension, vendor exporters), relay to a regular Collector or build a distribution (`otel-collector-builder` skill).
 
-## Version matrix (Verified 2026-11-22)
+## Version matrix
 
 | Artifact | Version | What it means |
 |---|---|---|
-| `otel/opentelemetry-collector-ebpf-profiler` | `0.165.0` (newest release at verification, 2026-11-07) | Pins ebpf-profiler `v0.0.202645`: receiver keys and defaults unchanged from `v0.0.202640`; adds the `queue_batch` processor. |
-| Same image, `0.163.0` to `0.163.2`, and `0.164.0` | first releases with the mode key | Pins ebpf-profiler `v0.0.202640`: `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)); bundles the `offcpu` extension. Components unchanged from `0.163.0`; `0.164.0` only bumps module versions. |
+| `otel/opentelemetry-collector-ebpf-profiler` | `0.165.0` | Pins ebpf-profiler `v0.0.202645`, with the same receiver keys and defaults as `v0.0.202640`; adds the `queue_batch` processor. |
+| Same image, `0.163.0` to `0.163.2`, and `0.164.0` | first releases with the mode key | Pins ebpf-profiler `v0.0.202640`: `pid_namespace_translation_mode` ([#1801](https://github.com/open-telemetry/opentelemetry-ebpf-profiler/pull/1801)); bundles the `offcpu` extension. `0.164.0` bundles the same components as `0.163.0` and only bumps module versions. |
 | Same image, `0.162.0` | last release before the change | Pins ebpf-profiler `v0.0.202636`: boolean `pid_namespace_translation`; does not bundle `offcpu`. |
 
-Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), `distributions/otelcol-ebpf-profiler/manifest.yaml` at each collector-releases tag (e.g. [`v0.165.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/distributions/otelcol-ebpf-profiler/manifest.yaml)); the [`v0.165.0` changelog](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/CHANGELOG.md); `validate` of this skill's configs with the `0.165.0` release binary.
+Evidence: [Docker Hub tags](https://hub.docker.com/r/otel/opentelemetry-collector-ebpf-profiler/tags), `distributions/otelcol-ebpf-profiler/manifest.yaml` at each collector-releases tag (e.g. [`v0.165.0`](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/distributions/otelcol-ebpf-profiler/manifest.yaml)); the [`v0.165.0` changelog](https://github.com/open-telemetry/opentelemetry-collector-releases/blob/v0.165.0/CHANGELOG.md). Values hold for the named releases; check the current release before relying on them.
 
 Read [references/receiver.md](references/receiver.md) when setting keys beyond `samples_per_second`, enabling off-CPU or OBI correlation, or pinning a release not in this table (keys follow the pinned ebpf-profiler, not the Collector version).
 

@@ -1,6 +1,6 @@
 # Builder Manifest Reference
 
-Every key OCB accepts in `builder.yaml`, verified against the `Config` struct in [cmd/builder/internal/builder/config.go](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/builder/internal/builder/config.go).
+Every key OCB accepts in `builder.yaml`, as defined by the `Config` struct in [cmd/builder/internal/builder/config.go](https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/builder/internal/builder/config.go).
 
 ## Contents
 
@@ -24,7 +24,7 @@ exporters: []
 extensions: []
 connectors: []
 providers: []     # confmap providers (file, env, http, https, yaml)
-converters: []    # confmap converters (rarely needed; no in-tree modules currently)
+converters: []    # confmap converters (rarely needed; no in-tree modules)
 telemetry: {}     # single module (not a list): custom telemetry provider, advanced
 conf_resolver: {} # default_uri_scheme
 replaces: []      # go.mod replace directives
@@ -78,11 +78,11 @@ providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.71.0   # yaml: (inline YAML)
 ```
 
-Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.165.0` row of the dated record in SKILL.md's version-alignment section.
+Providers version on the stable `v1.y.0` stream. Examples in this file pin the `v0.165.0` row of the release pairings in SKILL.md's version-alignment section.
 
 **Default behavior:** when `providers:` is omitted, OCB includes all five providers above at its built-in stable version (the manifest is unmarshaled over a default config that pre-populates them). Setting `providers:` **replaces** the whole default set. With the default `conf_resolver`, `envprovider` is required even when the config has no environment references; omitting it fails with `DefaultScheme not found in providers list`. A common explicit base is `fileprovider` + `envprovider`.
 
-`converters:` accepts the same module spec and hooks confmap converters into config resolution. Core and contrib currently ship no standalone converter modules (`expandconverter` was removed after env-expansion moved into confmap core); the key is only useful for custom converters.
+`converters:` accepts the same module spec and hooks confmap converters into config resolution. Core and contrib ship no standalone converter modules (env expansion is part of confmap core, and `expandconverter` is removed); the key is only useful for custom converters.
 
 ## conf_resolver
 
