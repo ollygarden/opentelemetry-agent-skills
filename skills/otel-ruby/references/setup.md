@@ -40,7 +40,7 @@ review the lockfile and each changed gem's changelog.
 Require the selected exporter and instrumentation gems before configuration. In Rails, place the
 configuration in an initializer; in Rack/Sinatra or a worker, run it during bootstrap.
 Use `OTEL_*` environment variables and `OpenTelemetry::SDK.configure`. The separate experimental
-`opentelemetry-config` gem (first released `0.1.0`, 2026-09-29) reads an `OTEL_CONFIG_FILE` YAML
+`opentelemetry-config` gem reads an `OTEL_CONFIG_FILE` YAML
 file, but only when the application calls `OpenTelemetry::Config.configure` (or
 `configure_from_file`). For what each release applies, see the Ruby row of the
 `otel-declarative-config` skill's [runtime table](../../otel-declarative-config/SKILL.md); check the
@@ -135,4 +135,4 @@ phase. For short jobs, call `force_flush` before the process exits if the provid
 Sources: [core SDK 1.13.1](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.1/sdk),
 [`opentelemetry-config` 0.2.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-config/v0.2.0/config),
 [Ruby getting started](https://opentelemetry.io/docs/languages/ruby/getting-started/), and
-[contrib instrumentation catalog at the `all` 0.99.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.99.0/instrumentation).
+[contrib instrumentation catalog at the `all` 0.102.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.102.0/instrumentation).

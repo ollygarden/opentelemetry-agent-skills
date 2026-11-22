@@ -21,9 +21,9 @@ skill. For Go-specific facts:
 
 The `otelconf` repo ships two flavors of the package:
 
-- **Root** `go.opentelemetry.io/contrib/otelconf` — trails the schema repository. Verified
-  2026-10-25: `v0.27.0` targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`) while the schema
-  repository is at `v1.2.0` (owner: the `otel-declarative-config`
+- **Root** `go.opentelemetry.io/contrib/otelconf` — trails the schema repository: `v0.27.0`
+  targets schema `v1.0.0-rc.3` (`file_format: "1.0-rc.3"`), behind schema release `v1.2.0`
+  (owner: the `otel-declarative-config`
   [parsers table](../../otel-declarative-config/SKILL.md)). Includes `sdk.Propagator()` for installing
   propagators from YAML.
 - **Schema-pinned** `go.opentelemetry.io/contrib/otelconf/v0.3.0` — frozen at file_format
@@ -36,8 +36,8 @@ For "latest", resolve the tag once with the `otelconf` tag command in this skill
 ## Migration notes
 
 - `go.opentelemetry.io/contrib/config` was removed in contrib v1.35.0. Use `go.opentelemetry.io/contrib/otelconf`.
-- In the root package, use `OTEL_CONFIG_FILE`; `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected by
-  current released `otelconf`.
+- In the root package, use `OTEL_CONFIG_FILE` and unset `OTEL_EXPERIMENTAL_CONFIG_FILE` (see
+  [breaking-changes.md](breaking-changes.md#api-deprecations)).
 - Starting with root `otelconf` v0.25.0 (contrib v1.45.0), the resolved resource includes the SDK's default resource attributes; account for those when comparing telemetry across this boundary.
 - If migrating from the schema-pinned `otelconf/v0.3.0` import, the YAML must also migrate to
   the new schema (fetch `examples/otel-sdk-migration-config.yaml` from the schema repo for

@@ -23,8 +23,8 @@ from opentelemetry.sdk.resources import Resource
 ```
 
 SDK packages ship in `opentelemetry-sdk`. The API packages ship in `opentelemetry-api`. Application code should import from the API; SDK imports belong in bootstrap/setup code.
-The trace and metrics API surfaces are stable. The Logs API remains under active
-stabilization as of 1.45.1, even though it is distributed in the stable-versioned
+The trace and metrics API surfaces are stable. In 1.45.2, the Logs API is under active
+stabilization, even though it is distributed in the stable-versioned
 `opentelemetry-api` package.
 
 ## Global API Access
@@ -259,10 +259,10 @@ log.info("handled request")  # emitted as OTel log record with trace context
 ```
 
 The handler automatically injects the active span's `trace_id` and `span_id` into each log record, correlating logs to traces.
-As of contrib 0.65b0, attributes that a configured stdlib formatter adds to the
+Since contrib 0.65b0, attributes that a configured stdlib formatter adds to the
 `LogRecord` are also included in the exported OTel log attributes.
 
-> **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated as of SDK 1.40.0/0.61b0. Always import from `opentelemetry.instrumentation.logging.handler`.
+> **Deprecated path:** `opentelemetry.sdk._logs.LoggingHandler` is deprecated since SDK 1.40.0/0.61b0. Always import from `opentelemetry.instrumentation.logging.handler`.
 
 ### `LoggingInstrumentor` behavior
 

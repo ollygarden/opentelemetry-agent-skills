@@ -43,9 +43,8 @@ using var span = activitySource.StartActivity(
     ActivityKind.Server);
 ```
 
-> **Verified spike:** `activitySource.StartActivity("manual-work")` produced the
-> `manual-work` span in console output with `Activity.Kind: Internal` and correct
-> `TraceId`/`SpanId`.
+> **Console output:** `activitySource.StartActivity("manual-work")` produces the
+> `manual-work` span with `Activity.Kind: Internal` and valid `TraceId`/`SpanId`.
 
 ### Setting tags (attributes)
 
@@ -66,6 +65,9 @@ span?.SetStatus(ActivityStatusCode.Ok);
 // Error
 span?.SetStatus(ActivityStatusCode.Error, "something went wrong");
 ```
+
+Since core 1.21.0 (breaking), the OTLP exporter truncates the status description to the span
+attribute value length limit (for example `OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT`).
 
 ### Adding events
 
@@ -118,6 +120,10 @@ The SDK collects spans only from sources you name at startup:
 ```
 
 Spans from un-subscribed sources are silently dropped — this is intentional, not a bug.
+On `net11.0` targets (core 1.21.0+), sources enabled through the `Microsoft.Extensions.Diagnostics`
+tracing APIs (for example `services.AddTracing(b => b.AddConfiguration(section))`) are also
+processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()` (evidence: the
+[`core-1.21.0` CHANGELOG](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/src/OpenTelemetry/CHANGELOG.md)).
 
 ---
 
@@ -144,8 +150,8 @@ var hits = meter.CreateCounter<long>("validation.hits");
 hits.Add(1, new KeyValuePair<string, object?>("route", "/work"));
 ```
 
-> **Verified spike:** `meter.CreateCounter<long>("validation.hits")` + `.Add(1, ...)` was
-> confirmed in console output as `Metric Name: validation.hits, Metric Type: LongSum`.
+> **Console output:** `meter.CreateCounter<long>("validation.hits")` + `.Add(1, ...)` appears
+> as `Metric Name: validation.hits, Metric Type: LongSum`.
 
 ### Histogram
 
@@ -232,9 +238,9 @@ public class OrderService(ILogger<OrderService> logger)
 
 Structured log parameters (`{OrderId}`) are captured as log attributes.
 
-> **Verified spike:** `logger.LogInformation("handled /work")` appeared in console output
-> with `LogRecord.TraceId` and `LogRecord.SpanId` matching the active `manual-work` span,
-> confirming automatic trace-log correlation.
+> **Console output:** `logger.LogInformation("handled /work")` appears with
+> `LogRecord.TraceId` and `LogRecord.SpanId` matching the active `manual-work` span
+> (automatic trace-log correlation).
 
 ### How OTel captures logs
 
@@ -268,7 +274,7 @@ Both `Activity.SetTag` (traces) and metric instrument `.Add(...)` / `.Record(...
 key-value attributes. Use semantic-convention names for interoperability:
 
 - Traces: `http.request.method`, `db.system.name`, `server.address`, `error.type`, etc.
-- Metrics: `http.route`, `rpc.method`, `messaging.system`, etc.
+- Metrics: `http.route`, `rpc.method`, `messaging.system.name`, etc.
 
 For the authoritative attribute registry, consult the `otel-semantic-conventions` skill.
 

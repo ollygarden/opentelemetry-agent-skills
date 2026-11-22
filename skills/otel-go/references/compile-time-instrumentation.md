@@ -1,11 +1,14 @@
 # Compile-time instrumentation with `otelc`
 
-`otelc` (`go.opentelemetry.io/otelc`, current stable release **v1.2.0**, verified 2026-10-25) instruments Go applications
+`otelc` (`go.opentelemetry.io/otelc`; this reference applies to release **v1.2.2**) instruments Go applications
 with OpenTelemetry **at compile time**. It wraps the Go toolchain via the compiler's `-toolexec`
 hook and injects trampoline hooks (linked with `//go:linkname`) into target functions, so
 instrumentation is baked into the binary — **no source-code changes**, and it reaches third-party
 dependencies and stdlib packages you don't own. v1.0.0 is retracted because `otelc pin` generated
-the pre-v1 module paths in consumer `go.mod` files; use v1.0.1 or later.
+the pre-v1 module paths in consumer `go.mod` files. Use v1.2.2 or later: earlier builds can write
+part of a MySQL (before v1.2.1) or Oracle (before v1.2.2) DSN password into `server.address` on
+`database/sql` spans, and v1.1.0–v1.2.0 allow file-rule path traversal (the advisory range also
+lists v1.0.x, whose rule-file lookup is not traversable).
 
 ## When to use it (vs. the rest of this skill)
 
@@ -68,9 +71,8 @@ straight to the Go toolchain — `otelc go build --rules …` sends `--rules` to
 
 ## Supported libraries (v1)
 
-Verified 2026-10-25 against the embedded bundle manifest (`tool/data/instrumentation-manifest.json`)
-of the published `otelc` v1.2.0 module. The active set is that embedded bundle; re-check the manifest
-when the `otelc` version changes.
+The embedded bundle manifest (`tool/data/instrumentation-manifest.json`) of the published `otelc`
+v1.2.2 module defines this active set; re-check the manifest when the `otelc` version changes.
 
 | Library | Signals |
 |---|---|
@@ -161,17 +163,18 @@ eight rule types: `inject_hooks` (function hook), `add_struct_fields`, `inject_c
 fetch table for the full grammar.
 
 **v1.1.0 custom-rule migration:** function template variables are fields on Go's `text/template`
-dot. Use `{{ .FuncName }}`, `{{ .FuncArgument 0 }}`, and corresponding dotted forms; the pre-v1.1
-`{{ FuncName }}` spelling is no longer valid.
+dot. Use `{{ .FuncName }}`, `{{ .FuncArgument 0 }}`, and corresponding dotted forms; v1.1.0+
+rejects the pre-v1.1 `{{ FuncName }}` spelling.
 
 ## Sources of truth
 
-`otelc` ships stable and evolves; fetch upstream docs rather than trusting a snapshot. Repo:
+`otelc` ships stable and evolves; fetch upstream docs rather than relying on the values here. Repo:
 `open-telemetry/opentelemetry-go-compile-instrumentation` (module `go.opentelemetry.io/otelc`).
 
 | Fact / task | Fetch |
 |---|---|
 | Latest `otelc` release tag | `gh api repos/open-telemetry/opentelemetry-go-compile-instrumentation/releases/latest -q '.tag_name'` |
+| Security advisories and patched versions | `gh api repos/open-telemetry/opentelemetry-go-compile-instrumentation/security-advisories -q 'map([.ghsa_id, .summary, .vulnerabilities[].patched_versions])'` |
 | Install, usage modes, managing instrumentations | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/getting-started.md` |
 | Full rule schema, glob grammar, and predicates | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/rules.md` |
 | Scope, filtering, precedence, runtime tuning, verification | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-go-compile-instrumentation/main/docs/configuration.md` |

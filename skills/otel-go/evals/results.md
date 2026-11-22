@@ -1,6 +1,6 @@
 # `go-v145-upgrade-review` harness results
 
-Run on 2026-08-14 with Codex CLI 0.147.0 driving `gpt-5.6-sol` through ChatGPT
+Run with Codex CLI 0.147.0 driving `gpt-5.6-sol` through ChatGPT
 authentication. Every retained repetition used a fresh isolated `HOME` and `CODEX_HOME`,
 read-only sandbox, identical prompt and tool access, and a five-minute orchestration ceiling.
 Codex reported no marginal API billing.

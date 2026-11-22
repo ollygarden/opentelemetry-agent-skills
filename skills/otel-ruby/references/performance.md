@@ -38,9 +38,13 @@ jobs, and callbacks that framework instrumentation does not already cover.
 The experimental metrics SDK applies cardinality limits (default 2000 per stream in `0.22.0`) and
 supports views. Prefer bounded
 dimensions; use a view to retain only useful attribute keys or drop a noisy instrument. Confirm
-the locked release's limit and overflow behavior before relying on it. Check delta/cumulative
-temporality against the receiving backend when changing the OTLP metrics preference. Since
-`opentelemetry-exporter-otlp-metrics` `0.15.0`,
+the locked release's limit and overflow behavior before relying on it. In `0.22.0` a view affects
+only streams created after `add_view` (by later instruments or readers), and advisory parameters
+such as `explicit_bucket_boundaries` are ignored, so instruments created during `configure` (e.g.
+Net::HTTP `0.30.0`'s seconds-based `http.client.request.duration`) keep the default buckets on the
+reader `configure` installs. To change them, set `OTEL_METRICS_EXPORTER=none`, add the view, then
+call `add_metric_reader`. Check delta/cumulative temporality against the receiving backend when
+changing the OTLP metrics preference. Since `opentelemetry-exporter-otlp-metrics` `0.15.0`,
 `OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=base2_exponential_bucket_histogram`
 switches the default histogram aggregation; an explicit `default_aggregation:` argument wins.
 Exporter `0.15.0` needs `opentelemetry-metrics-sdk` `0.22.0` or later: its gemspec allows `~> 0.5`,

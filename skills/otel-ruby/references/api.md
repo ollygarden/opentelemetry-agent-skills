@@ -58,7 +58,8 @@ duration.record(elapsed, attributes: { 'quote.result' => 'accepted' })
 ```
 
 Keep metric attributes bounded. Use views to drop or allowlist attributes when third-party
-instrumentation would otherwise create excessive cardinality. Check the locked metrics SDK
+instrumentation would otherwise create excessive cardinality; register them before the streams they
+target ([performance.md](performance.md#metrics-cardinality-and-cost)). Check the locked metrics SDK
 README for supported instruments, views, exemplars, and temporality because the API is experimental.
 
 ## Experimental logs and the Logger bridge

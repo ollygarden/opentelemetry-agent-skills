@@ -29,7 +29,7 @@ pip install opentelemetry-distro opentelemetry-exporter-otlp
 opentelemetry-bootstrap -a install   # detects installed libs; installs matching instrumentors
 ```
 
-`opentelemetry-bootstrap` reads `pip list`, maps installed packages to known instrumentors, and installs them. Re-run after adding new dependencies.
+`opentelemetry-bootstrap` checks installed distributions (via `importlib.metadata`) against its known library-to-instrumentor map, adds a fixed set of default instrumentors, and installs the result with `python -m pip`, so pip must be available in the environment. `-a requirements` prints the list instead of installing. Re-run after adding new dependencies.
 
 ### Run
 
@@ -61,7 +61,7 @@ same CLI can activate declarative YAML through `OTEL_CONFIG_FILE`; see
 
 In contrib 0.65b0, the aiopg, asyncpg, Cassandra, pymemcache, pymongo, and
 Tortoise ORM instrumentors added database semantic-convention migration
-support. Their behavior now follows `OTEL_SEMCONV_STABILITY_OPT_IN`; audit
+support. Their behavior follows `OTEL_SEMCONV_STABILITY_OPT_IN`; audit
 attributes and downstream queries before enabling `database` or
 `database/dup`.
 
@@ -69,7 +69,7 @@ attributes and downstream queries before enabling `database` or
 
 Use this form when you need fine-grained control, or when the CLI wrapper is not suitable (e.g., serverless, custom startup code, or the declarative config path).
 
-### FastAPI (verified)
+### FastAPI
 
 ```python
 from fastapi import FastAPI

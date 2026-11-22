@@ -16,7 +16,7 @@ Performance tuning reference for the OpenTelemetry Python SDK. Covers sampling, 
 
 ## Default Configuration Values
 
-The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.1/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
+The SDK reads defaults from environment variables; check the [released OpenTelemetry Python SDK changelog](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/CHANGELOG.md) or env-var spec for current values — do not treat any number here as authoritative.
 
 | Parameter | Environment Variable | Note |
 |-----------|---------------------|------|
@@ -121,7 +121,7 @@ Application thread              Background thread
 | `max_queue_size` | `OTEL_BSP_MAX_QUEUE_SIZE` | In-memory queue capacity |
 | `max_export_batch_size` | `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` | Spans per export call |
 | `schedule_delay_millis` | `OTEL_BSP_SCHEDULE_DELAY` | Max wait before export |
-| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` as of SDK 1.45.1 |
+| `export_timeout_millis` | `OTEL_BSP_EXPORT_TIMEOUT` | Stored but not applied by `BatchSpanProcessor` in SDK 1.45.2 |
 
 ### Tuning for Throughput
 
@@ -269,6 +269,27 @@ View uses the default aggregation.
 
 Attributes like HTTP method (~10 values) or response status code (~50 values) are bounded. Attributes like `user.id`, `request.id`, or `session.id` are unbounded and should be filtered out with Views unless you specifically intend per-user metrics.
 
+### Cardinality Limits
+
+Since SDK 1.45.2 each metric stream aggregates up to a default limit of 2000
+distinct attribute sets; measurements with further attribute sets go into one
+extra point carrying `otel.metric.overflow=true`. Synchronous instruments with
+delta temporality release idle sets on collection, so the limit applies per
+collection cycle; cumulative (the default) and asynchronous streams keep their
+sets across collections, so it counts every set retained since start. A View
+limit takes precedence over the reader's per-instrument limit:
+
+```python
+from opentelemetry.sdk.metrics import Histogram
+
+reader = PeriodicExportingMetricReader(exporter, cardinality_limits={Histogram: 500})
+view = View(instrument_name="http.server.request.duration", aggregation_cardinality_limit=100)
+provider = MeterProvider(metric_readers=[reader], views=[view])
+```
+
+Keys of `cardinality_limits` are the SDK instrument classes from
+`opentelemetry.sdk.metrics`; limits must be positive integers.
+
 ---
 
 ## asyncio Context Propagation
@@ -363,7 +384,7 @@ Avoid manually calling `context.attach()` across `await` boundaries without matc
 | Aspect | gRPC (`otlp.proto.grpc`) | HTTP (`otlp.proto.http`) |
 |--------|--------------------------|--------------------------|
 | Default port | 4317 | 4318 |
-| Connection model | Persistent, multiplexed | HTTP/1.1 (`requests` transport, except 1.45.0, which used `urllib3` and ignored `HTTPS_PROXY`; verified 2026-10-25, [1.45.1 CHANGELOG](https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.45.1/CHANGELOG.md)) |
+| Connection model | Persistent, multiplexed | HTTP/1.1 via `requests` (1.45.0 alone uses `urllib3` and ignores `HTTPS_PROXY`) |
 | Compression | Optional gzip | Optional gzip |
 | Best for | High throughput, stable connections | Firewalls, load balancers, simpler setup |
 
@@ -402,7 +423,7 @@ exporter = OTLPSpanExporter(compression=Compression.Gzip)
 
 ### Retry and Timeout
 
-The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.45.1/exporter) — do not assume specific backoff intervals.
+The OTLP exporters retry on transient errors (connection refused, 5xx responses). Check the current released retry behavior in the [exporter source](https://github.com/open-telemetry/opentelemetry-python/tree/v1.45.2/exporter) — do not assume specific backoff intervals.
 
 Configure timeout via environment variable or constructor:
 
@@ -540,3 +561,4 @@ Key signals to watch:
 | `Queue full, dropping Span.` warnings | Queue overflow — increase `max_queue_size` or reduce `schedule_delay_millis` |
 | Export timeout errors | Backend/exporter too slow or batch too large — tune the exporter timeout or `max_export_batch_size` (BSP `export_timeout_millis` is [not applied](#constructor-arguments-and-env-vars)) |
 | High memory growth | Metric cardinality explosion — add Views to filter attributes |
+| Points with `otel.metric.overflow=true` | A stream hit its [cardinality limit](#cardinality-limits) (1.45.2+) |
