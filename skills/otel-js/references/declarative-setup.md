@@ -55,8 +55,12 @@ SDK from environment variables itself. If it is set but unreadable or invalid, i
 diagnostic error and returns a no-op SDK rather than falling back to env vars. Verified
 2026-11-22 ([`start.ts` at 0.301.x](https://github.com/open-telemetry/opentelemetry-js/blob/experimental/v0.301.2/experimental/packages/opentelemetry-sdk-node/src/start.ts),
 published 0.301.2): 0.301.x exports `startNodeSdk()` (`startNodeSDK()` is a deprecated alias)
-and parses with `parseConfigFile()`, which never builds a model from environment variables. For
-0.223.x, see the [2.x maintenance line](#2x-maintenance-line-0223x).
+and parses with `parseConfigFile()`, which never builds a model from environment variables. With
+`OTEL_CONFIG_FILE` set, the file path reads no other SDK environment variables (e.g.
+`OTEL_RESOURCE_ATTRIBUTES`, span-limit variables), so resource attributes beyond the SDK defaults
+come only from the YAML `resource` block; map them in YAML with `${VAR}` substitution (e.g.
+`attributes_list: ${OTEL_RESOURCE_ATTRIBUTES}`). For 0.223.x, see the
+[2.x maintenance line](#2x-maintenance-line-0223x).
 
 Use `.yaml` or `.yml` filenames in examples and docs by convention. Verified 2026-11-22:
 `parseConfigFile()` (0.301.2) does not check the extension; it parses whatever path
@@ -144,8 +148,8 @@ The zero-code `@opentelemetry/auto-instrumentations-node/register` entry point s
 - **2.11.0 / 0.222.0 declarative migration note**: `startNodeSDK()` fails fast while creating invalid resource, tracer-provider, meter-provider, or propagator configuration and returns a no-op SDK. This can also affect environment-derived configuration (for 0.223.x, see `OTEL_NODE_RESOURCE_DETECTORS=all` under the [2.x maintenance line](#2x-maintenance-line-0223x)). This does not affect `new NodeSDK()`.
 - **3.1.0 / 0.301.0** (verified 2026-11-22, [CHANGELOG](https://github.com/open-telemetry/opentelemetry-js/blob/experimental/v0.301.2/experimental/CHANGELOG.md#03010)): besides the `startNodeSdk()` / `parseConfigFile()` API under [Activation](#activation):
   - `new NodeSDK()` adds `os` and `serviceinstance` to its default resource detectors, so `os.*` and `service.instance.id` appear without `OTEL_NODE_RESOURCE_DETECTORS`.
-  - `startNodeSdk()` accepts only the spec detector names `host`, `process`, `service` (the default; `all` means these three) and warns and skips others, such as `NodeSDK`'s `os`, `serviceinstance` and `env` (`host` and `service` cover their attributes); `OTEL_RESOURCE_ATTRIBUTES` is always read. A config-file `container` detector is likewise skipped.
-  - Span limits read `OTEL_EVENT_ATTRIBUTE_COUNT_LIMIT` / `OTEL_LINK_ATTRIBUTE_COUNT_LIMIT`; the CHANGELOG lists the deprecated fallbacks.
+  - Without `OTEL_CONFIG_FILE`, `startNodeSdk()` accepts only the spec detector names `host`, `process`, `service` (the default; `all` means these three) and warns and skips others, such as `NodeSDK`'s `os`, `serviceinstance` and `env` (`host` and `service` cover their attributes); a config-file `container` detector is likewise skipped.
+  - Env-based setup (`new NodeSDK()`, or `startNodeSdk()` without `OTEL_CONFIG_FILE`) reads span limits from `OTEL_EVENT_ATTRIBUTE_COUNT_LIMIT` / `OTEL_LINK_ATTRIBUTE_COUNT_LIMIT`; the CHANGELOG lists the deprecated fallbacks. The file path uses YAML `tracer_provider.limits` and top-level `attribute_limits` instead (see [Activation](#activation)).
   - Pair with `@opentelemetry/auto-instrumentations-node` 0.83.x: 0.82.x depends on `sdk-node` `^0.300.0`, 0.83.x on `^0.301.0`.
 
 ### 2.x maintenance line (0.223.x)

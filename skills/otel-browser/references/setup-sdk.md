@@ -62,7 +62,8 @@ experimental.
 > exporters ^0.301.2. The 2.x line ends at browser-sdk 0.8.0 / browser-instrumentation 0.11.0
 > (2026-11-11; `api` ^1.9.1, `api-logs` ^0.223.0): pair them with `sdk-trace-web` 2.12.x (needs
 > `@opentelemetry/api` <1.10.0) and `api-logs`/`sdk-logs`/exporters 0.223.x. Unpinned installs mix
-> the two lines; the example below pins 3.x. The js-contrib browser packages moved to SDK 3.0 on
+> the two lines; the example below selects 3.x, and `--save-exact` writes the resolved versions to
+> `package.json` as exact pins. The js-contrib browser packages moved to SDK 3.0 on
 > 2026-10-20: check `npm view <pkg>@<ver> dependencies peerDependencies` and pick versions whose
 > `@opentelemetry/api` / `sdk-*` / `instrumentation` ranges match your line.
 > `instrumentation-fetch` / `instrumentation-xml-http-request` are deprecated in their READMEs (not
@@ -75,16 +76,16 @@ experimental.
 
 ```bash
 # Tracing (stable 3.x line)
-npm install @opentelemetry/api@1.10 \
+npm install --save-exact @opentelemetry/api@1.10 \
   @opentelemetry/sdk-trace@3 \
   @opentelemetry/core@3 \
   @opentelemetry/context-zone@3 \
   @opentelemetry/exporter-trace-otlp-http@0.301 \
   @opentelemetry/resources@3 \
-  @opentelemetry/semantic-conventions
+  @opentelemetry/semantic-conventions@1
 
 # Events (the Logs API is part of @opentelemetry/api 1.10) and browser instrumentations
-npm install @opentelemetry/sdk-logs@3 \
+npm install --save-exact @opentelemetry/sdk-logs@3 \
   @opentelemetry/exporter-logs-otlp-http@0.301 \
   @opentelemetry/browser-instrumentation@0.12
 ```
@@ -173,6 +174,7 @@ import { WebVitalsInstrumentation } from '@opentelemetry/browser-instrumentation
 // ones fall back to the globals at that call.
 const deps = { tracerProvider: provider, loggerProvider };
 for (const instrumentation of [
+  // Without sanitizeUrl, url.full is the raw request URL (see instrumentation.md).
   new FetchInstrumentation(),     // span-based → spans from deps.tracerProvider
   new WebVitalsInstrumentation(), // event-based → log records from deps.loggerProvider
 ]) {

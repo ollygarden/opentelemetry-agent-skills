@@ -148,7 +148,7 @@ web-vital fields in attributes, not the record body.
 | `applyCustomLogRecordData` | `(logRecord) => void` | — | **Deprecated (0.11.0+)**: mutate the record before emit. |
 | `reportAllChanges` | `boolean` | `false` | (0.9.0+) Passed to `web-vitals`; CLS, INP, and LCP are reported on every change (FCP/TTFB unaffected), with `delta` carrying the change since the previous report. `web-vitals` recommends it for debugging, not production; raises event volume. |
 | `reportSoftNavs` | `boolean` | `false` | (0.11.0+) Report metrics again after each SPA soft navigation (CLS/INP restart from zero; no TTFB); adds `browser.web_vital.navigation_url`. Chromium 151+ only; other browsers ignore it. |
-| `sanitizeUrl` | `(url: string) => string` | — | (0.11.0+) Applied to `browser.web_vital.navigation_url` before it is recorded. |
+| `sanitizeUrl` | `(url: string) => string` | — | (0.11.0+) Applied to `browser.web_vital.navigation_url` before it is recorded. Without it, `reportSoftNavs` records the raw URL; set one that strips credentials, tokens, and sensitive query params. |
 
 INP and CLS finalize near the end of the page lifecycle — they depend on the SDK flushing on
 `pagehide`/`visibilitychange`.
@@ -240,7 +240,8 @@ the legacy attributes (`http.method`, `http.url`, `http.status_code`, …) are g
 `instrumentation-browser-navigation` 0.19.0, `instrumentation-document-load` 0.70.1 and
 `instrumentation-user-interaction` 0.69.1 (all 2026-11-12), `url.full` redacts `user:password@` and
 the semantic-convention signed-URL query keys (e.g. `sig`, `X-Amz-Signature`), not application
-tokens.
+tokens. The browser-instrumentation Fetch/XHR (0.12.1) record the raw `url.full` unless you pass
+`sanitizeUrl`.
 
 ### fetch / XHR cross-origin propagation
 

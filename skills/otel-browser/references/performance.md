@@ -116,7 +116,7 @@ Controlling it is partly developer discipline and partly pipeline enforcement.
 
 | Vector | Risk | Mitigation |
 |---|---|---|
-| URLs (`url.full`) | tokens, emails, IDs in path/query | your own `sanitizeUrl` on the navigation and network instrumentations (`defaultSanitizeUrl` is not a public export; see [instrumentation.md](instrumentation.md#navigation-browsernavigation)); built-in redaction covers only credentials and signed-URL query keys ([details](instrumentation.md#span-based-instrumentations)) |
+| URLs (`url.full`) | tokens, emails, IDs in path/query | your own `sanitizeUrl` on the navigation and network instrumentations (`defaultSanitizeUrl` is not a public export; see [instrumentation.md](instrumentation.md#navigation-browsernavigation)); built-in redaction varies by package ([details](instrumentation.md#span-based-instrumentations)) |
 | `console.log`/`info`/`debug` | apps log user data to the console | capture only `['error', 'warn']` in prod |
 | `data-otel-*` attributes | exported verbatim | keep to non-PII business keys only |
 | Free-form custom attributes | accidental PII | review `applyCustomAttributes` / deprecated `applyCustomLogRecordData` hooks and custom `LogRecordProcessor`s |
