@@ -13,13 +13,12 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Verified 2026-11-22** (npm metadata, release notes, and the published `.d.ts`):
-> `@opentelemetry/browser-sdk` 0.9.1 and `@opentelemetry/browser-instrumentation` 0.12.1 (both
-> 2026-11-17), with the `@opentelemetry/browser-api` 0.2.1 contract package; the browser-sdk 0.7.0 /
-> 0.9.0 and browser-instrumentation 0.10.0 / 0.12.0 tags never reached npm.
-> `@opentelemetry/sdk-trace-web` 2.12.1 (2026-11-09) is the 2.x final, on dist-tag `latest-2`; npm
-> `latest` names the deprecated 2.12.0. Offline, cite this date, never call a value currently
-> latest, and confirm it against the evidence before deploying.
+> **Releases:** `@opentelemetry/browser-sdk` 0.9.1 and
+> `@opentelemetry/browser-instrumentation` 0.12.1, with the `@opentelemetry/browser-api` 0.2.1
+> contract package; the browser-sdk 0.7.0 / 0.9.0 and browser-instrumentation 0.10.0 / 0.12.0 tags
+> have no npm release. `@opentelemetry/sdk-trace-web` 2.12.1 is the 2.x final, on dist-tag
+> `latest-2`; npm `latest` names the deprecated 2.12.0. Values hold for the named releases; check
+> the current release before relying on them.
 > Evidence: [browser-sdk-v0.9.1](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.9.1),
 > [browser-instrumentation-v0.12.1](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.12.1),
 > [opentelemetry-js v2.12.1](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.12.1) (sdk-trace-web).
@@ -56,15 +55,15 @@ experimental.
 
 ### Dependencies
 
-> **Verified 2026-11-22** (npm metadata): `@opentelemetry/browser-sdk` 0.9.1 and
-> `@opentelemetry/browser-instrumentation` 0.12.1 need the opentelemetry-js 3.x line:
-> `@opentelemetry/api` `>=1.10.0 <1.11.0`, `sdk-trace`/`sdk-logs`/`resources` ^3.1.1, and OTLP
-> exporters ^0.301.2. The 2.x line ends at browser-sdk 0.8.0 / browser-instrumentation 0.11.0
-> (2026-11-11; `api` ^1.9.1, `api-logs` ^0.223.0): pair them with `sdk-trace-web` 2.12.x (needs
-> `@opentelemetry/api` <1.10.0) and `api-logs`/`sdk-logs`/exporters 0.223.x. Unpinned installs mix
-> the two lines; the example below selects 3.x, and `--save-exact` writes the resolved versions to
-> `package.json` as exact pins. The js-contrib browser packages moved to SDK 3.0 on
-> 2026-10-20: check `npm view <pkg>@<ver> dependencies peerDependencies` and pick versions whose
+> `@opentelemetry/browser-sdk` 0.9.1 and `@opentelemetry/browser-instrumentation` 0.12.1 need the
+> opentelemetry-js 3.x line: `@opentelemetry/api` `>=1.10.0 <1.11.0`,
+> `sdk-trace`/`sdk-logs`/`resources` ^3.1.1, and OTLP exporters ^0.301.2. The 2.x line ends at
+> browser-sdk 0.8.0 / browser-instrumentation 0.11.0 (`api` ^1.9.1, `api-logs` ^0.223.0): pair them
+> with `sdk-trace-web` 2.12.x (needs `@opentelemetry/api` <1.10.0) and
+> `api-logs`/`sdk-logs`/exporters 0.223.x. Unpinned installs mix the two lines; the example below
+> selects 3.x, and `--save-exact` writes the resolved versions to `package.json` as exact pins. The
+> first js-contrib version that targets SDK 3.0 differs per package: check
+> `npm view <pkg>@<ver> dependencies peerDependencies` and pick versions whose
 > `@opentelemetry/api` / `sdk-*` / `instrumentation` ranges match your line.
 > `instrumentation-fetch` / `instrumentation-xml-http-request` are deprecated in their READMEs (not
 > on npm) in favor of the `browser-instrumentation` Fetch/XHR subpaths, whose telemetry differs; see

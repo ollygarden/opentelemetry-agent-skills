@@ -1,9 +1,7 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.1 and rechecked through 0.12.1
-(verified 2026-11-22 against the release tag and published typings); later additions are marked
-inline (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports, README options, and
-release notes before relying on experimental behavior.
+Covers `@opentelemetry/browser-instrumentation` 0.8.1 through 0.12.1; later additions are marked
+inline with their version (versions in [setup-sdk.md](setup-sdk.md)).
 
 ## Contents
 
@@ -85,10 +83,10 @@ Captured attributes include `url.full`, `browser.navigation.same_document` (fals
 true = SPA route change), `browser.navigation.hash_change`, and `browser.navigation.type`
 (`push`/`replace`/`reload`/`traverse`). Without `sanitizeUrl`, `url.full` is the unmodified
 document URL. The README imports a `defaultSanitizeUrl` helper, but no public subpath export
-provides it through 0.12.1 (verified 2026-11-22: no such entry in the
+provides it through 0.12.1 (no such entry in the
 [0.12.1 `package.json` exports](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-instrumentation-v0.12.1/packages/instrumentation/package.json)
-or the published `experimental/navigation` typings); write your own sanitizer (strip `user:password@` credentials, tokens, and
-sensitive query params) rather than importing it.
+or the `experimental/navigation` typings); write your own sanitizer (strip `user:password@`
+credentials, tokens, and sensitive query params) rather than importing it.
 
 ### Navigation Timing (`browser.navigation_timing`)
 
@@ -232,13 +230,13 @@ The js-contrib `instrumentation-browser-navigation` and `instrumentation-web-exc
 are separately installed, event-based alternatives to the consolidated Navigation and Errors
 instrumentations above; they are not span instrumentations or part of the auto bundle.
 
-Verified 2026-11-22 (published npm tarballs): `instrumentation-fetch` / `instrumentation-xml-http-request`
-(0.222.0 through 0.223.2 and 0.300.0 through 0.301.2) and js-contrib `instrumentation-document-load`
-(0.67.0 through 0.70.1) emit only the stable HTTP semantic conventions. `semconvStabilityOptIn` and
-the legacy attributes (`http.method`, `http.url`, `http.status_code`, …) are gone; query
+`instrumentation-fetch` / `instrumentation-xml-http-request` (0.222.0 through 0.223.2 and 0.300.0
+through 0.301.2) and js-contrib `instrumentation-document-load` (0.67.0 through 0.70.1) emit only
+the stable HTTP semantic conventions: they have no `semconvStabilityOptIn` option and emit none of
+the legacy attributes (`http.method`, `http.url`, `http.status_code`, …); query
 `http.request.method`, `url.full`, `http.response.status_code`. From fetch/XHR 0.223.2 / 0.301.2,
 `instrumentation-browser-navigation` 0.19.0, `instrumentation-document-load` 0.70.1 and
-`instrumentation-user-interaction` 0.69.1 (all 2026-11-12), `url.full` redacts `user:password@` and
+`instrumentation-user-interaction` 0.69.1, `url.full` redacts `user:password@` and
 the semantic-convention signed-URL query keys (e.g. `sig`, `X-Amz-Signature`), not application
 tokens. The browser-instrumentation Fetch/XHR (0.12.1) record the raw `url.full` unless you pass
 `sanitizeUrl`.
