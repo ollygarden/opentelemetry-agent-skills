@@ -35,9 +35,10 @@ Truth table in `SKILL.md` — do not rely on version numbers embedded in any ski
 
 **Target frameworks — verified 2026-11-22**
 ([`core-1.21.0` RELEASENOTES](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/RELEASENOTES.md)):
-core 1.21.0 and contrib 1.21.x target `net11.0`, `net10.0` and .NET Standard (some also .NET
-Framework), not `net8.0`/`net9.0`; a `net8.0` app restores them via .NET Standard, but their
-11.0.0 `Microsoft.Extensions.*` / `System.Diagnostics.DiagnosticSource` dependencies warn it is
+core 1.21.0 and most contrib 1.21.x packages target `net11.0`, `net10.0` and .NET Standard (some
+also .NET Framework), not `net8.0`/`net9.0`; `Instrumentation.AspNet` and `Instrumentation.Owin`
+target only `net462`. A `net8.0` app restores the others via .NET Standard, but their 11.0.0
+`Microsoft.Extensions.*` / `System.Diagnostics.DiagnosticSource` dependencies warn it is
 unsupported. The zero-code agent v1.20.0 dropped .NET 8 and 9.
 
 ---

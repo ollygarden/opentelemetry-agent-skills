@@ -7,7 +7,8 @@ instrumentation is baked into the binary — **no source-code changes**, and it 
 dependencies and stdlib packages you don't own. v1.0.0 is retracted because `otelc pin` generated
 the pre-v1 module paths in consumer `go.mod` files. Use v1.2.2 or later: earlier builds can write
 part of a MySQL (before v1.2.1) or Oracle (before v1.2.2) DSN password into `server.address` on
-`database/sql` spans, and builds before v1.2.1 allow file-rule path traversal.
+`database/sql` spans, and v1.1.0–v1.2.0 allow file-rule path traversal (the advisory range also
+lists v1.0.x, whose rule-file lookup is not traversable).
 
 ## When to use it (vs. the rest of this skill)
 

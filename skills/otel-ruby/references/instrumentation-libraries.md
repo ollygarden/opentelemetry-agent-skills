@@ -70,8 +70,9 @@ than post-processing data blindly.
 
 Review client IPs too: since Rack `0.32.0` (which also produces Sinatra's server spans), server
 spans carry `client.address` from `Rack::Request#ip` in the stable and `http/dup` modes, and since
-Action Pack `0.19.0` Rails overwrites it on the Rack span with `remote_ip` in every mode; both
-follow trusted-proxy forwarding headers.
+Action Pack `0.19.0`, for requests that reach a controller action, Rails overwrites it on the Rack
+span with `remote_ip` in every mode (keeping any Rack value when `remote_ip` raises
+`IpSpoofAttackError`); both follow trusted-proxy forwarding headers.
 
 ## Semantic-convention changes
 

@@ -271,15 +271,20 @@ Attributes like HTTP method (~10 values) or response status code (~50 values) ar
 
 ### Cardinality Limits
 
-Since SDK 1.45.2 each metric stream aggregates at most 2000 distinct attribute
-sets per collection cycle; measurements with further attribute sets go into one
-extra point carrying `otel.metric.overflow=true`. A View limit takes precedence over the reader's per-instrument limit:
+Since SDK 1.45.2 each metric stream aggregates up to a default limit of 2000
+distinct attribute sets; measurements with further attribute sets go into one
+extra point carrying `otel.metric.overflow=true`. Synchronous instruments with
+delta temporality release idle sets on collection, so the limit applies per
+collection cycle; cumulative (the default) and asynchronous streams keep their
+sets across collections, so it counts every set retained since start. A View
+limit takes precedence over the reader's per-instrument limit:
 
 ```python
-from opentelemetry.sdk.metrics import Counter
+from opentelemetry.sdk.metrics import Histogram
 
-reader = PeriodicExportingMetricReader(exporter, cardinality_limits={Counter: 500})
+reader = PeriodicExportingMetricReader(exporter, cardinality_limits={Histogram: 500})
 view = View(instrument_name="http.server.request.duration", aggregation_cardinality_limit=100)
+provider = MeterProvider(metric_readers=[reader], views=[view])
 ```
 
 Keys of `cardinality_limits` are the SDK instrument classes from

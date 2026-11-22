@@ -63,6 +63,11 @@ through that base logger and requires base `~> 0.27`. Net::HTTP `0.30.0` calls t
 in its default stable mode but still allows base `~> 0.25`; with an older locked base it fails to
 install (logged error, no Net::HTTP spans), so update base with it.
 
+Verified 2026-11-22: Net::HTTP `v0.30.0`
+[gemspec](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-net_http/v0.30.0/instrumentation/net_http/opentelemetry-instrumentation-net_http.gemspec)
+and [`instrumentation.rb`](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-net_http/v0.30.0/instrumentation/net_http/lib/opentelemetry/instrumentation/net/http/instrumentation.rb);
+base `v0.27.0` [CHANGELOG](https://github.com/open-telemetry/opentelemetry-ruby-contrib/blob/opentelemetry-instrumentation-base/v0.27.0/instrumentation/base/CHANGELOG.md).
+
 For contrib, inspect the released gem's README, gemspec, and tests when the changelog does not fully
 describe emitted telemetry.
 

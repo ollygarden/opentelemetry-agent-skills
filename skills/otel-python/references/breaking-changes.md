@@ -127,8 +127,9 @@ When crossing this release boundary, explicitly check for:
   `wrap_to_thread_func` (old name kept as an alias); the `anthropic`, `claude-agent-sdk`, `langchain`, and
   `weaviate` instrumentations moved to the
   [opentelemetry-python-genai](https://github.com/open-telemetry/opentelemetry-python-genai)
-  repository, which publishes them as `opentelemetry-instrumentation-genai-<name>`
-  (e.g. `-genai-anthropic`, `-genai-langchain`). The unprefixed
+  repository as `opentelemetry-instrumentation-genai-<name>`. Verified 2026-11-22 on PyPI:
+  `-genai-anthropic` and `-genai-langchain` are released; `-genai-claude-agent-sdk` and
+  `-genai-weaviate-client` are unreleased skeletons. The unprefixed
   `opentelemetry-instrumentation-anthropic` / `-langchain` / `-weaviate` names
   on PyPI belong to a different project; check a package's repository URL
   before swapping it in.
@@ -137,8 +138,8 @@ When crossing this release boundary, explicitly check for:
 
 Contrib 0.66b2 has no changes. In core, check for:
 
-- Metric streams above 2000 attribute sets per collection cycle; they now
-  overflow — see [performance.md](performance.md#cardinality-limits).
+- Metric streams above the default 2000 attribute sets now overflow — see
+  [performance.md](performance.md#cardinality-limits).
 - Oversized trace-context headers: `TraceContextTextMapPropagator` ignores a
   `traceparent` over 512 characters (1.45.2) and discards a `tracestate` over
   8192 characters (1.45.1).

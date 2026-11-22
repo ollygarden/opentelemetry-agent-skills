@@ -133,7 +133,7 @@ AutoConfiguredOpenTelemetrySdk sdk =
   `database,code,messaging` or `<group>/dup` for dual emission. The older
   `general.semconv_stability.opt_in` field is deprecated. A per-domain
   `general.<code|db|messaging|rpc>.semconv.version` overrides the list: `0` old, `1` new
-  (messaging/rpc also need `experimental: true`); `dual_emit: true` emits both. Check
+  (messaging/rpc also need `experimental: true`); with `1`, `dual_emit: true` emits both. Check
   the tag-matched generated config and instrumentation metadata because support differs by domain
   and instrumentation.
 - **Starter thread details**: The Starter can add experimental `thread.id` and `thread.name`

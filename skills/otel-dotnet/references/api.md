@@ -123,7 +123,8 @@ The SDK collects spans only from sources you name at startup:
 Spans from un-subscribed sources are silently dropped — this is intentional, not a bug.
 On `net11.0` targets (core 1.21.0+), sources enabled through the `Microsoft.Extensions.Diagnostics`
 tracing APIs (for example `services.AddTracing(b => b.AddConfiguration(section))`) are also
-processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()`.
+processed by the `TracerProvider` from `AddOpenTelemetry().WithTracing()`. Verified 2026-11-22 in
+the [`core-1.21.0` CHANGELOG](https://github.com/open-telemetry/opentelemetry-dotnet/blob/core-1.21.0/src/OpenTelemetry/CHANGELOG.md).
 
 ---
 

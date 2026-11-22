@@ -519,11 +519,14 @@ Export retries are opt-in (see the Retry section above). For reliable delivery i
 
 ## Sources of Truth
 
-Inspect these paths at the exact `core-*` release tag being audited, not at `main`:
+Inspect these paths at the exact `core-*` release tag being audited, not at `main` (verified
+2026-11-22 at `core-1.21.0`):
 
+- Core changes (1.21.0 metric batching, self-diagnostics): `src/OpenTelemetry/CHANGELOG.md`
+- OTLP exporter changes (1.21.0 export timeout, disk-retry permissions): `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/CHANGELOG.md`
 - Batch processor defaults: `src/OpenTelemetry/BatchExportProcessor.cs` and `src/OpenTelemetry/Trace/Processor/BatchExportActivityProcessorOptions.cs`
-- Metric reader defaults: `src/OpenTelemetry/Metrics/Reader/PeriodicExportingMetricReader.cs`
-- OTLP exporter options and protocol defaults: `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/OtlpExporterOptions.cs`
+- Metric reader defaults and batching: `src/OpenTelemetry/Metrics/Reader/PeriodicExportingMetricReader.cs`
+- OTLP exporter options, protocol defaults, and gRPC target split: `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/OtlpExporterOptions.cs`
 - OTLP retry (experimental): `src/OpenTelemetry.Exporter.OpenTelemetryProtocol/Implementation/ExperimentalOptions.cs`
 - Hosting lifecycle: `src/OpenTelemetry.Extensions.Hosting/Implementation/TelemetryHostedService.cs`
 - Environment variable names: `OTEL_BSP_*`, `OTEL_METRIC_EXPORT_*`, `OTEL_EXPORTER_OTLP_*`

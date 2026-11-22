@@ -160,6 +160,7 @@ attribute that resolves to null is skipped with a warning. Verified 2026-11-22
 (0.66b2): the spec's `${env:VAR}` form and malformed references such as
 `${1API_KEY}` are left as literal text, and `${VAR:-default}` falls back only
 when `VAR` is unset, not when it is set to an empty string.
+Evidence: [`_env_substitution.py` at v1.45.2](https://github.com/open-telemetry/opentelemetry-python/blob/v1.45.2/opentelemetry-configuration/src/opentelemetry/configuration/file/_env_substitution.py).
 
 ## Instrumentor Activation
 
