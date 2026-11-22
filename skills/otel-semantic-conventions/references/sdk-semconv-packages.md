@@ -37,6 +37,9 @@ For services in several languages, the shared version is the lowest "Newest semc
 among the languages in use (1.43.0 for Go plus JavaScript, 1.42.0 with Rust). .NET has no value, so
 it cannot join a shared version. Go selects the version by import path (`semconv/vX`). Where a
 package exposes only its newest version, code using it gets that version's names, so pin that
-package to a release exposing the shared version or translate renamed attributes: JavaScript
-1.45.0's incubating `ATTR_FAAS_INVOCATION_ID` is `faas.invocation.id`, while Go `semconv/v1.43.0`
-uses `faas.invocation_id`.
+package to a release exposing the shared version, or translate every change between the two
+versions. Use the semantic-conventions CHANGELOG of each release in between as the checklist; the
+`schemas/` files record renames only, not instrument-type changes. For example, JavaScript 1.45.0's
+incubating `ATTR_FAAS_INVOCATION_ID` is `faas.invocation.id` while Go `semconv/v1.43.0` uses
+`faas.invocation_id`, and v1.44.0 renamed the `*.memory.paging.faults` metrics and made
+`*.memory.usage` an updowncounter.
