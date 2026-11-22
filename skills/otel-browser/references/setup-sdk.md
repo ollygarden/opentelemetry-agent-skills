@@ -13,23 +13,20 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Verified 2026-10-25** (npm, release notes, and the published `.d.ts`): the latest releases were
-> `@opentelemetry/browser-sdk` 0.6.0 (start options unchanged since 0.5.0; `browserDetector` moved
-> from `@opentelemetry/opentelemetry-browser-detector` to its `./browser-detector` subpath);
-> `@opentelemetry/browser-instrumentation` 0.9.0; and `@opentelemetry/sdk-trace-web` 2.12.0 (final, npm-deprecated). Offline, cite this date, never call
-> a value currently latest, and confirm it against the evidence before deploying.
-> Evidence: [browser-sdk-v0.6.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.6.0),
-> [browser-instrumentation-v0.9.0](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.9.0),
-> [opentelemetry-js v2.12.0](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.12.0) (sdk-trace-web).
+> **Verified 2026-11-22** (npm metadata, release notes, and the published `.d.ts`):
+> `@opentelemetry/browser-sdk` 0.9.1 and `@opentelemetry/browser-instrumentation` 0.12.1 (both
+> 2026-11-17), with the `@opentelemetry/browser-api` 0.2.1 contract package; the browser-sdk 0.7.0 /
+> 0.9.0 and browser-instrumentation 0.10.0 / 0.12.0 tags never reached npm.
+> `@opentelemetry/sdk-trace-web` 2.12.1 (2026-11-09) is the 2.x final, on dist-tag `latest-2`; npm
+> `latest` names the deprecated 2.12.0. Offline, cite this date, never call a value currently
+> latest, and confirm it against the evidence before deploying.
+> Evidence: [browser-sdk-v0.9.1](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-sdk-v0.9.1),
+> [browser-instrumentation-v0.12.1](https://github.com/open-telemetry/opentelemetry-browser/releases/tag/browser-instrumentation-v0.12.1),
+> [opentelemetry-js v2.12.1](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.12.1) (sdk-trace-web).
 >
-> The settled path wires providers
-> directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
-> for spans, plus the Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`; experimental
-> 0.x on the 2.x line, stable from 3.0.0) for events. Both approaches are shown below. The opentelemetry-js 2.x
-> line also ships `@opentelemetry/sdk-trace` (since 2.9.0), which its CHANGELOG says will eventually
-> replace `sdk-trace-base`/`-node`/`-web`; Browser SDK 0.4.0 and later build on it. Its processors take an
-> options object (`new BatchSpanProcessor({ exporter })`), unlike the positional `sdk-trace-web`
-> re-export used below.
+> Approach A wires the stable 3.x tracing and Logs SDKs directly
+> ([enabling instrumentations](#register-the-instrumentations)); Approach B uses the experimental
+> Browser SDK ([per-signal SDKs](#per-signal-sdks-tree-shaking)).
 
 ## Core principles
 
@@ -54,53 +51,52 @@ geo) possible. See [performance.md](performance.md#the-collector-is-your-cost-an
 
 ## Approach A — direct providers
 
-Spans use the **stable** tracing SDK; events use the Logs SDK (experimental 0.x on this 2.x line), and
-the browser event instrumentations are experimental.
+Spans and events use the **stable** 3.x tracing and Logs SDKs; the browser instrumentations are
+experimental.
 
 ### Dependencies
 
-> **Verified 2026-10-21:** opentelemetry-js 3.0.0 / 0.300.0 (published 2026-10-20) removed
-> `@opentelemetry/sdk-trace-web` and `@opentelemetry/api-logs`, and needs `@opentelemetry/api` 1.10.x,
-> while `sdk-trace-web` 2.12.0 requires `@opentelemetry/api` <1.10.0. Unpinned installs now mix the two
-> lines, so this example pins the last 2.x / 0.223.x releases. For 3.x, follow the
-> [3.x migration guide](https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md), section "`@opentelemetry/sdk-trace-web` (package removed)"
-> (`TracerProvider` from `@opentelemetry/sdk-trace`, logs API from `@opentelemetry/api`).
->
-> **Verified 2026-10-25** (npm metadata): `@opentelemetry/browser-sdk` 0.6.0 and
-> `@opentelemetry/browser-instrumentation` 0.9.0 still depend on `@opentelemetry/instrumentation`
-> and `api-logs` ^0.223.0 (2.x line). The js-contrib browser releases of 2026-10-20 moved to SDK 3.0 /
-> `instrumentation` ^0.300.0: `auto-instrumentations-web` and `instrumentation-document-load` 0.69.0,
-> `instrumentation-user-interaction` and `instrumentation-long-task` 0.68.0,
-> `instrumentation-browser-navigation` and `instrumentation-web-exception` 0.17.0. On the 2.x line pin
-> their previous releases (0.68.0, 0.67.0, 0.16.0 respectively). opentelemetry-js 0.300.0 also
-> soft-deprecated `instrumentation-fetch` / `instrumentation-xml-http-request` in favor of the
-> `browser-instrumentation` Fetch/XHR subpaths, whose telemetry differs; see the
-> [browser migration guide](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-sdk-v0.6.0/docs/migration-guide.md).
+> **Verified 2026-11-22** (npm metadata): `@opentelemetry/browser-sdk` 0.9.1 and
+> `@opentelemetry/browser-instrumentation` 0.12.1 need the opentelemetry-js 3.x line:
+> `@opentelemetry/api` `>=1.10.0 <1.11.0`, `sdk-trace`/`sdk-logs`/`resources` ^3.1.1, and OTLP
+> exporters ^0.301.2. The 2.x line ends at browser-sdk 0.8.0 / browser-instrumentation 0.11.0
+> (2026-11-11; `api` ^1.9.1, `api-logs` ^0.223.0): pair them with `sdk-trace-web` 2.12.x (needs
+> `@opentelemetry/api` <1.10.0) and `api-logs`/`sdk-logs`/exporters 0.223.x. Unpinned installs mix
+> the two lines; the example below pins 3.x. The js-contrib browser packages moved to SDK 3.0 on
+> 2026-10-20: check `npm view <pkg>@<ver> dependencies peerDependencies` and pick versions whose
+> `@opentelemetry/api` / `sdk-*` / `instrumentation` ranges match your line.
+> `instrumentation-fetch` / `instrumentation-xml-http-request` are deprecated in their READMEs (not
+> on npm) in favor of the `browser-instrumentation` Fetch/XHR subpaths, whose telemetry differs; see
+> the [browser migration guide](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-sdk-v0.9.1/docs/migration-guide.md).
+> To move from 2.x, follow the
+> [3.x migration guide](https://github.com/open-telemetry/opentelemetry-js/blob/v3.1.1/doc/3.x/migration-guide.md), section "`@opentelemetry/sdk-trace-web` (package removed)".
+> The 3.x packages resolve platform code through `#platform` subpath imports; the bundler must
+> support them (for example webpack 5.54+, Jest 29.4+, Parcel with package exports enabled).
 
 ```bash
-# Tracing (stable 2.x line)
-npm install @opentelemetry/api@1.9 \
-  @opentelemetry/sdk-trace-web@2 \
-  @opentelemetry/context-zone@2 \
-  @opentelemetry/exporter-trace-otlp-http@0.223 \
-  @opentelemetry/instrumentation-fetch@0.223 \
-  @opentelemetry/resources@2 \
+# Tracing (stable 3.x line)
+npm install @opentelemetry/api@1.10 \
+  @opentelemetry/sdk-trace@3 \
+  @opentelemetry/core@3 \
+  @opentelemetry/context-zone@3 \
+  @opentelemetry/exporter-trace-otlp-http@0.301 \
+  @opentelemetry/resources@3 \
   @opentelemetry/semantic-conventions
 
-# Events (Logs API) for event-based instrumentations
-npm install @opentelemetry/api-logs@0.223 \
-  @opentelemetry/sdk-logs@0.223 \
-  @opentelemetry/exporter-logs-otlp-http@0.223 \
-  @opentelemetry/instrumentation@0.223 \
-  @opentelemetry/browser-instrumentation@0.9
+# Events (the Logs API is part of @opentelemetry/api 1.10) and browser instrumentations
+npm install @opentelemetry/sdk-logs@3 \
+  @opentelemetry/exporter-logs-otlp-http@0.301 \
+  @opentelemetry/browser-instrumentation@0.12
 ```
 
 ### Tracer provider (spans)
 
 ```typescript
+import { context, propagation, trace } from '@opentelemetry/api';
+import { W3CTraceContextPropagator } from '@opentelemetry/core';
 import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { WebTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-web';
+import { TracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
@@ -115,20 +111,22 @@ const resource = defaultResource().merge(
   }),
 );
 
-const provider = new WebTracerProvider({
+const provider = new TracerProvider({
   resource,
   spanProcessors: [
-    new BatchSpanProcessor(
-      new OTLPTraceExporter({ url: 'https://collector.example.com/v1/traces' }),
-    ),
+    new BatchSpanProcessor({
+      exporter: new OTLPTraceExporter({ url: 'https://collector.example.com/v1/traces' }),
+    }),
   ],
 });
 
-provider.register({
-  // ZoneContextManager keeps trace context across async user interactions
-  // (setTimeout, promises, event handlers). Without it, async callbacks lose the active span.
-  contextManager: new ZoneContextManager(),
-});
+// 3.x has no WebTracerProvider.register(): set the globals explicitly.
+trace.setGlobalTracerProvider(provider);
+// ZoneContextManager keeps trace context across async user interactions
+// (setTimeout, promises, event handlers). Without it, async callbacks lose the active span.
+context.setGlobalContextManager(new ZoneContextManager().enable());
+// Add W3CBaggagePropagator via CompositePropagator only if baggage is used.
+propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 ```
 
 > `ZoneContextManager` bundles `zone.js` to propagate context across async boundaries. Account for
@@ -139,7 +137,7 @@ provider.register({
 ### Logger provider (events)
 
 ```typescript
-import { logs } from '@opentelemetry/api-logs';
+import { logs } from '@opentelemetry/api';
 import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 
@@ -157,37 +155,36 @@ logs.setGlobalLoggerProvider(loggerProvider);
 ```
 
 The event-based instrumentations (navigation, web vitals, console, errors, …) emit through this
-global `LoggerProvider`. See [instrumentation.md](instrumentation.md).
+`LoggerProvider`. See [instrumentation.md](instrumentation.md).
 
 ### Register the instrumentations
 
+Since browser-instrumentation 0.10.0, its instrumentations extend the browser-native
+`InstrumentationBase` from `@opentelemetry/browser-api`: constructing one does nothing, and each must
+be enabled with `enable()` (or passed to the Browser SDK's `instrumentations` option). Do **not**
+pass them to `registerInstrumentations()` from `@opentelemetry/instrumentation`; they lack its
+`setTracerProvider`/`getConfig` contract (a type error, or a runtime failure in plain JavaScript).
+
 ```typescript
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+import { FetchInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/fetch';
 import { WebVitalsInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/web-vitals';
 
-registerInstrumentations({
-  // Span-based instrumentations (fetch, XHR, document-load) resolve their tracer AT THIS CALL:
-  // from `tracerProvider` if given, otherwise the global tracer provider. Passing it explicitly
-  // is the robust, order-independent choice. Relying on the global instead works only if
-  // `provider.register()` ran BEFORE this call — register after, and they bind to the no-op
-  // tracer and silently emit nothing.
-  tracerProvider: provider,
-  // Registration can also bind the logger provider explicitly. Keep the global registration
-  // above as well because enabled browser instrumentations may emit during construction.
-  loggerProvider,
-  instrumentations: [
-    new FetchInstrumentation(),     // span-based → uses the tracer provider resolved here
-    new WebVitalsInstrumentation(), // event-based → rebound to loggerProvider at registration
-  ],
-});
+// deps (tracerProvider, loggerProvider, propagator) are fixed at the first enable(); omitted
+// ones fall back to the globals at that call.
+const deps = { tracerProvider: provider, loggerProvider };
+for (const instrumentation of [
+  new FetchInstrumentation(),     // span-based → spans from deps.tracerProvider
+  new WebVitalsInstrumentation(), // event-based → log records from deps.loggerProvider
+]) {
+  instrumentation.enable(deps);
+}
 ```
 
-**Order matters.** `registerInstrumentations` rebinds each instrumentation to the explicit provider
-or to the global provider visible at that call. Pass `tracerProvider` / `loggerProvider` explicitly
-as above, or register globals first. Also set the global logger before **constructing** enabled
-event instrumentations: some browser instrumentations can emit immediately, before registration has
-a chance to rebind them.
+**Order matters.** Create the providers before the first `enable()`; later calls ignore new
+`deps` (warning if they differ). `disable()` stops emission but leaves browser APIs patched, so
+never enable an instrumentation you want fully off. Classic `opentelemetry-js`/js-contrib
+instrumentations use `registerInstrumentations({ tracerProvider, ... })`, which binds them at that
+call.
 
 ### Verify it actually emits
 
@@ -203,7 +200,9 @@ does:
   span names and event names you expect (e.g. a `fetch` span, an `exception` event) actually arrive
   — exercise each path (navigate, click, fetch, throw) and look for it downstream.
 - Treat "no error in the console" as **not** proof of capture: a silently inactive instrumentation
-  produces neither errors nor telemetry.
+  produces neither errors nor telemetry. For browser-instrumentation instances, `isEnabled()` is
+  `false` after a failed init (missing browser API, unusable provider); the reason is logged only
+  through `diag`.
 
 ## Approach B — Browser SDK (experimental)
 
@@ -225,24 +224,32 @@ const sdk = quickStartBrowserSdk({
 Keep authentication at the Collector or edge; do not put backend credentials in browser-held
 `exportHeaders`.
 
+Both combined initializers accept `instrumentations` (browser-instrumentation instances only, each
+passed to one SDK; the SDK enables them with its providers and propagator and disables them on
+`shutdown()`). `enabled: false` defers that, e.g. until consent; call `sdk.enable()` /
+`sdk.disable()` later. Providers and exporters run either way.
+
 `startBrowserSdk` exposes full control (`resourceAttributes`, `exportConfig`,
-`batchProcessorConfig`, per-signal `logs` / `traces` blocks with
+`batchProcessorConfig`, `setGlobals`, per-signal `logs` / `traces` blocks with
 `spanLimits`/`logRecordLimits`, `contextManager`, `propagators`, and `sampler`), and
-`await sdk.shutdown()` flushes and stops. Since 0.3.0, traces install the SDK's synchronous default
-context manager plus W3C Trace Context and Baggage propagators when none are supplied. This default
-manager preserves context only within `context.with`; supply a context manager appropriate to the
-application when context must cross asynchronous boundaries. Keep exact compatible pins and
-re-check package metadata, release notes, and source after upgrades.
+`await sdk.shutdown()` flushes and stops. An invalid export URL makes it return a no-op SDK with
+`invalidConfig: true`. Since 0.3.0, traces install the SDK's synchronous default
+context manager plus W3C Trace Context and Baggage propagators when none are supplied (unless
+`setGlobals: false`, which leaves globals and the context manager to another SDK on the page). This
+default manager preserves context only within `context.with`; supply a context manager appropriate to
+the application when context must cross asynchronous boundaries. Its root `exportConfig.url`
+defaults to `http://localhost:4318`; that URL's path, like `quickStartBrowserSdk`'s `exportUrl`, is
+**replaced** by `/v1/logs` / `/v1/traces`, so set full per-signal URLs to keep a path prefix. Keep
+exact compatible pins and re-check package metadata, release notes, and source after upgrades.
 
 ### Per-signal SDKs (tree-shaking)
 
-If you need only one signal, import only that signal's entry point so the bundler drops the other.
-Each takes the **full** URL (the signal path is not appended automatically).
-
-| Subpath | Function | Default export URL |
-|---|---|---|
-| `@opentelemetry/browser-sdk/logs` | `startLogsSdk` | `http://localhost:4318/v1/logs` |
-| `@opentelemetry/browser-sdk/traces` | `startTracesSdk` | `http://localhost:4318/v1/traces` |
+If you need only one signal, import `startLogsSdk` from `@opentelemetry/browser-sdk/logs` or
+`startTracesSdk` from `@opentelemetry/browser-sdk/traces` so the bundler drops the other. Each needs
+a **full** `exportConfig.url` (no signal path is appended) or its own `processors` (since 0.7.0
+neither adds a default exporter); with neither, it logs an error and returns a no-op with
+`invalidConfig: true`. They take no `instrumentations`; enable instances with the returned
+`tracerProvider` / `loggerProvider`.
 
 ## Sessions
 
@@ -256,22 +263,24 @@ session is restored before telemetry is created.
 
 > **Processor ordering**: register the session processor **before** the export (batch) processor so
 > `session.id` is stamped before export. With the per-signal `startLogsSdk` / `startTracesSdk`, put
-> the session processor in `processors` and keep `exportConfig` configured. The SDK appends its
-> default batch export processor after the supplied processors, including when `processors` is
-> non-empty. Only construct and include an export processor yourself when you intentionally omit
-> `exportConfig`. With the combined `startBrowserSdk`, a signal block that sets `processors` does
-> **not** inherit the root `exportConfig`; also set that signal's own `exportConfig`, or the signal
-> exports nothing.
+> the session processor in `processors` and keep `exportConfig.url` configured. The SDK appends its
+> batch OTLP export processor after the supplied processors whenever `exportConfig.url` is set,
+> including when `processors` is non-empty. Only construct and include an export processor yourself
+> when you intentionally omit `exportConfig`. With the combined `startBrowserSdk`, a signal block
+> that sets `processors` does **not** inherit the root `exportConfig`; also set that signal's own
+> `exportConfig`, or the signal exports nothing.
 
 `session.*` follows the
-[session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/v1.44.0/docs/general/session.md).
+[session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/v1.45.0/docs/general/session.md).
 
 ## Connecting frontend to backend traces
 
 To stitch a browser trace to the backend spans it triggers, the browser must inject the W3C
 `traceparent` header on outgoing requests, and the backend must accept it.
 
-- `instrumentation-fetch` / `instrumentation-xml-http-request` inject `traceparent` automatically.
+- The Fetch/XHR span instrumentations (browser-instrumentation `experimental/fetch` / `experimental/xhr`,
+  or the deprecated `instrumentation-fetch` / `instrumentation-xml-http-request`) inject
+  `traceparent` automatically through the configured propagator.
 - Set `propagateTraceHeaderCorsUrls` so the header is sent on **cross-origin** requests — it is
   **not** sent cross-origin by default.
 - The server must list `traceparent` (and `tracestate`/`baggage` if used) in

@@ -1,8 +1,9 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.8.1 and rechecked through 0.9.0; later
-additions are marked inline (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports,
-README options, and release notes before relying on experimental behavior.
+Captured against `@opentelemetry/browser-instrumentation` 0.8.1 and rechecked through 0.12.1
+(verified 2026-11-22 against the release tag and published typings); later additions are marked
+inline (dated record in [setup-sdk.md](setup-sdk.md)). Verify current exports, README options, and
+release notes before relying on experimental behavior.
 
 ## Contents
 
@@ -16,7 +17,7 @@ knowing which is which tells you where each instrumentation lives and how to con
 | Model | Signal | Lives in | Examples |
 |---|---|---|---|
 | **Event-based** | Logs API → `LogRecord` | `@opentelemetry/browser-instrumentation` + js-contrib | navigation, navigation timing, resource timing, web vitals, console, errors, user action |
-| **Span-based** | Trace API → spans | `opentelemetry-js` + `opentelemetry-js-contrib` | fetch, XHR, document-load, long-task, user-interaction, react-load |
+| **Span-based** | Trace API → spans | `@opentelemetry/browser-instrumentation` (fetch, XHR, document-load) + classic `opentelemetry-js` / `opentelemetry-js-contrib` | fetch, XHR, document-load, long-task, user-interaction, react-load |
 
 Many browser signals are *point-in-time facts* ("LCP was 2.1s", "a navigation happened", "an error
 was thrown") rather than operations with a duration and children — modeling them as events is
@@ -27,7 +28,7 @@ with a real begin/end and parent/child relationship.
 > against the upstream READMEs and `package.json` `exports` (see
 > [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth)).
 
-### Network context correlation (captured through 0.8.1)
+### Network context correlation
 
 Release 0.6.0 added `ContextRegistry` and `NetworkContextRegistry` as a proposal for sharing
 OpenTelemetry context between instrumentations that observe the same network operation from
@@ -45,27 +46,28 @@ packages.
 
 ## Event-based instrumentations (`@opentelemetry/browser-instrumentation`)
 
-Entry points are subpath exports under `./experimental/*`. Set the global `LoggerProvider` before
-constructing them, because an enabled instrumentation can emit immediately; `registerInstrumentations`
-also accepts `loggerProvider` and rebinds each instrumentation at registration. (Span-based
-instrumentations are similarly rebound from `tracerProvider` or the then-current global provider;
-see [setup-sdk.md](setup-sdk.md#register-the-instrumentations).)
+Entry points are subpath exports under `./experimental/*`. Each instance does nothing until
+`enable()` (0.10.0+) and must not be passed to `registerInstrumentations()`; for dependency binding
+see [setup-sdk.md](setup-sdk.md#register-the-instrumentations).
 
 ```typescript
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { WebVitalsInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/web-vitals';
 import { NavigationInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/navigation';
 import { ErrorsInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/errors';
-// …also: navigation-timing, resource-timing, user-action, console
+// …also: navigation-timing, resource-timing, element-timing, long-animation-frame, user-action,
+// console (events), and fetch, xhr, document-load (spans)
 
-registerInstrumentations({
-  instrumentations: [
-    new WebVitalsInstrumentation(),
-    new NavigationInstrumentation(),
-    new ErrorsInstrumentation(),
-  ],
-});
+for (const instrumentation of [
+  new WebVitalsInstrumentation(),
+  new NavigationInstrumentation(),
+  new ErrorsInstrumentation(),
+]) {
+  instrumentation.enable({ loggerProvider });
+}
 ```
+
+Since 0.11.0 the `applyCustomLogRecordData` hooks below are deprecated in favor of a custom
+`LogRecordProcessor` registered on the `LoggerProvider` (enrich records in `onEmit`).
 
 ### Navigation (`browser.navigation`)
 
@@ -77,14 +79,14 @@ An event for the initial page load (hard navigation) and SPA route changes (soft
 |---|---|---|---|
 | `useNavigationApiIfAvailable` | `boolean` | `false` | Use the [Navigation API](https://developer.mozilla.org/docs/Web/API/Navigation_API) instead of patching `history.*` (falls back when unavailable). |
 | `sanitizeUrl` | `(url: string) => string` | — | Rewrite the URL before it is written to `url.full` — strip tokens, IDs, query params. |
-| `applyCustomLogRecordData` | `(logRecord) => void` | — | Mutate the record before emit. Thrown errors are caught + diag-logged. |
+| `applyCustomLogRecordData` | `(logRecord) => void` | — | **Deprecated (0.11.0+)**: mutate the record before emit. Thrown errors are caught + diag-logged. |
 
 Captured attributes include `url.full`, `browser.navigation.same_document` (false = full-page load,
 true = SPA route change), `browser.navigation.hash_change`, and `browser.navigation.type`
 (`push`/`replace`/`reload`/`traverse`). Without `sanitizeUrl`, `url.full` is the unmodified
 document URL. The README imports a `defaultSanitizeUrl` helper, but no public subpath export
-provides it through 0.9.0 (verified 2026-10-25: no such entry in the
-[0.9.0 `package.json` exports](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-instrumentation-v0.9.0/packages/instrumentation/package.json)
+provides it through 0.12.1 (verified 2026-11-22: no such entry in the
+[0.12.1 `package.json` exports](https://github.com/open-telemetry/opentelemetry-browser/blob/browser-instrumentation-v0.12.1/packages/instrumentation/package.json)
 or the published `experimental/navigation` typings); write your own sanitizer (strip `user:password@` credentials, tokens, and
 sensitive query params) rather than importing it.
 
@@ -127,22 +129,26 @@ aggressively (see
 conventions are **merged** (see the
 [WebVital event](https://opentelemetry.io/docs/specs/semconv/browser/browser-events/#webvital-event)).
 
-Semantic conventions v1.44.0 defines the released `browser.web_vital` event (development
-stability; verify via the
+Semantic conventions v1.45.0 defines the released
+`browser.web_vital` event (development stability; verify via the
 `otel-semantic-conventions` skill, group `browser`, entry `event.browser.web_vital`) requires the
 `browser.web_vital.name`, `.value`, `.delta`, and `.id` log attributes. The `.rating` and
 `.navigation_type` attributes are recommended.
 
-`@opentelemetry/browser-instrumentation` 0.8.1 through 0.9.0 matches that released shape. Its record body is unset
-unless `includeRawAttribution` is enabled, which adds JSON-stringified attribution details outside
-the semantic-convention fields. For hand-written reporting, put the web-vital fields in attributes,
-not the record body.
+`@opentelemetry/browser-instrumentation` 0.8.1 through 0.12.1 matches that released shape. Since
+0.11.0 it also adds `browser.web_vital.navigation_id` when the browser exposes one and, with
+`reportSoftNavs`, `browser.web_vital.navigation_url`; neither is in the released convention. Its
+record body is unset unless `includeRawAttribution` is enabled, which adds JSON-stringified
+attribution details outside the semantic-convention fields. For hand-written reporting, put the
+web-vital fields in attributes, not the record body.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `includeRawAttribution` | `boolean` | `false` | Set the record body to the JSON-stringified `web-vitals` attribution object (which element/event caused the metric). |
-| `applyCustomLogRecordData` | `(logRecord) => void` | — | Mutate the record before emit. |
-| `reportAllChanges` | `boolean` | `false` | (0.9.0+) Passed to `web-vitals`; reports metric updates, with `delta` carrying the change since the previous report. Set before listeners register; raises event volume. |
+| `applyCustomLogRecordData` | `(logRecord) => void` | — | **Deprecated (0.11.0+)**: mutate the record before emit. |
+| `reportAllChanges` | `boolean` | `false` | (0.9.0+) Passed to `web-vitals`; CLS, INP, and LCP are reported on every change (FCP/TTFB unaffected), with `delta` carrying the change since the previous report. `web-vitals` recommends it for debugging, not production; raises event volume. |
+| `reportSoftNavs` | `boolean` | `false` | (0.11.0+) Report metrics again after each SPA soft navigation (CLS/INP restart from zero; no TTFB); adds `browser.web_vital.navigation_url`. Chromium 151+ only; other browsers ignore it. |
+| `sanitizeUrl` | `(url: string) => string` | — | (0.11.0+) Applied to `browser.web_vital.navigation_url` before it is recorded. |
 
 INP and CLS finalize near the end of the page lifecycle — they depend on the SDK flushing on
 `pagehide`/`visibilitychange`.
@@ -151,9 +157,10 @@ INP and CLS finalize near the end of the page lifecycle — they depend on the S
 
 Captures console API calls (by default `log`, `warn`, `error`, `info`, `debug`); records carry
 `browser.console.method`. The `messageSerializer` option controls how console arguments become the
-record body. By default, objects are JSON-stringified when possible, other values use `String()`,
-and the results are joined with spaces. Capturing `log`/`info`/`debug` in production is typically
-noise and a PII risk — restrict it:
+record body. By default, `Error` arguments become `name: message` plus the stack (0.12.0+),
+other objects are JSON-stringified when possible, other values use `String()`, and the results are
+joined with spaces. Capturing `log`/`info`/`debug` in production is typically noise and a PII
+risk — restrict it:
 
 ```typescript
 new ConsoleInstrumentation({ logMethods: ['error', 'warn'] });
@@ -187,17 +194,21 @@ new UserActionInstrumentation({ autoCapturedActions: ['click'] }); // default
 
 > `data-otel-*` values are exported verbatim — do not put PII (emails, names) in them.
 
-User-action instrumentation also accepts `applyCustomLogRecordData`; review that hook as
-untrusted-data handling and keep any added fields bounded and non-PII.
+User-action instrumentation also accepts the deprecated `applyCustomLogRecordData`; review that
+hook, or the `LogRecordProcessor` replacing it, as untrusted-data handling and keep any added fields
+bounded and non-PII.
 
 ## Span-based instrumentations
 
-These produce **spans**. The auto bundle contains fetch, XHR, document-load, and user-interaction;
-the other packages listed below must be installed separately:
+These produce **spans**. The auto bundle contains the classic fetch, XHR, document-load, and
+user-interaction instrumentations; per the [SKILL.md gate](../SKILL.md#browser-specific-gates), do
+not also enable their browser-instrumentation replacements. The other packages below must be
+installed separately:
 
 ```typescript
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
-// Pass tracerProvider (or register the provider globally BEFORE this call); otherwise these
+// Pass tracerProvider (or set the global tracer provider BEFORE this call); otherwise these
 // span-based instrumentations resolve the no-op tracer at registration time and emit nothing.
 registerInstrumentations({
   tracerProvider: provider,
@@ -209,8 +220,9 @@ registerInstrumentations({
 |---|---|---|
 | `@opentelemetry/browser-instrumentation/experimental/fetch` | browser | Experimental consolidated Fetch spans; correlates matching Resource Timing events. |
 | `@opentelemetry/browser-instrumentation/experimental/xhr` | browser | Experimental consolidated XHR spans; correlates matching Resource Timing events. |
-| `instrumentation-fetch` | js | Spans for `fetch()`; injects `traceparent` (configure `propagateTraceHeaderCorsUrls`). Soft-deprecated; see [setup-sdk.md](setup-sdk.md#dependencies). |
-| `instrumentation-xml-http-request` | js | Spans for `XMLHttpRequest`; same propagation knobs. Soft-deprecated; see [setup-sdk.md](setup-sdk.md#dependencies). |
+| `@opentelemetry/browser-instrumentation/experimental/document-load` | browser | (0.12.0+) One `documentLoad` span (`fetchStart` → `loadEventEnd`, new trace, credentials/sensitive query values redacted in `url.full`); no child fetch/resource spans — detailed timings come from the Navigation/Resource Timing events. |
+| `instrumentation-fetch` | js | Spans for `fetch()`; injects `traceparent` (configure `propagateTraceHeaderCorsUrls`). Deprecated in its README (not on npm); see [setup-sdk.md](setup-sdk.md#dependencies). |
+| `instrumentation-xml-http-request` | js | Spans for `XMLHttpRequest`; same propagation knobs. Deprecated in its README (not on npm); see [setup-sdk.md](setup-sdk.md#dependencies). |
 | `instrumentation-document-load` | js-contrib | Spans for document load + navigation/resource timing (span flavor). |
 | `instrumentation-user-interaction` | js-contrib | Spans for user interactions (clicks) with their async causal tree. |
 | `instrumentation-long-task` | js-contrib | Spans for [Long Tasks](https://developer.mozilla.org/docs/Web/API/Long_Tasks_API) (>50 ms main-thread blocks). |
@@ -220,18 +232,21 @@ The js-contrib `instrumentation-browser-navigation` and `instrumentation-web-exc
 are separately installed, event-based alternatives to the consolidated Navigation and Errors
 instrumentations above; they are not span instrumentations or part of the auto bundle.
 
-Verified 2026-10-15 (published npm tarballs): `@opentelemetry/instrumentation-fetch` 0.222.0 and
-0.223.0, `@opentelemetry/instrumentation-xml-http-request` 0.222.0 and 0.223.0 (published 2026-10-06),
-and js-contrib `@opentelemetry/instrumentation-document-load` 0.67.0 and 0.68.0 emit only the stable
-HTTP semantic conventions; verified 2026-10-25 the same for fetch/XHR 0.300.0 and document-load
-0.69.0 (the 3.x-line releases). Their `semconvStabilityOptIn` migration option and legacy attributes
-(`http.method`, `http.url`, `http.status_code`, …) are gone; query the stable names such as
-`http.request.method`, `url.full`, and `http.response.status_code`.
+Verified 2026-11-22 (published npm tarballs): `instrumentation-fetch` / `instrumentation-xml-http-request`
+(0.222.0 through 0.223.2 and 0.300.0 through 0.301.2) and js-contrib `instrumentation-document-load`
+(0.67.0 through 0.70.1) emit only the stable HTTP semantic conventions. `semconvStabilityOptIn` and
+the legacy attributes (`http.method`, `http.url`, `http.status_code`, …) are gone; query
+`http.request.method`, `url.full`, `http.response.status_code`. From fetch/XHR 0.223.2 / 0.301.2,
+`instrumentation-browser-navigation` 0.19.0, `instrumentation-document-load` 0.70.1 and
+`instrumentation-user-interaction` 0.69.1 (all 2026-11-12), `url.full` redacts `user:password@` and
+the semantic-convention signed-URL query keys (e.g. `sig`, `X-Amz-Signature`), not application
+tokens.
 
 ### fetch / XHR cross-origin propagation
 
 ```typescript
-import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+// Same option names in the deprecated @opentelemetry/instrumentation-fetch.
+import { FetchInstrumentation } from '@opentelemetry/browser-instrumentation/experimental/fetch';
 
 new FetchInstrumentation({
   // Required for traceparent to be sent to OTHER origins.

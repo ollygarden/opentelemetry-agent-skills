@@ -5,13 +5,11 @@ description: OpenTelemetry browser/RUM mechanics for SPAs and MPAs. Use for “b
 
 # OpenTelemetry in the Browser (RUM)
 
-> **Stability (verified 2026-10-15):** the JS API and web tracing primitives
-> (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`) are stable. Verified 2026-10-21:
-> opentelemetry-js 3.0.0 removed `sdk-trace-web` (last release 2.12.0) in favor of `@opentelemetry/sdk-trace`,
-> so pin one release line; see [references/setup-sdk.md](references/setup-sdk.md#dependencies). The Browser SDK and
-> event instrumentations are experimental 0.x packages. Pin exact compatible versions and verify
-> current releases/source before relying on configuration or output shape. Dated package versions:
-> [references/setup-sdk.md](references/setup-sdk.md).
+> **Stability (verified 2026-11-22):** the JS API, `@opentelemetry/sdk-trace` (which replaced
+> `sdk-trace-web` in opentelemetry-js 3.0.0) and `@opentelemetry/context-zone` are stable. The
+> Browser SDK and browser instrumentations are experimental 0.x packages on the 3.x line. Pin one
+> release line with exact compatible versions ([dated record](references/setup-sdk.md#dependencies))
+> and verify current releases/source before relying on configuration or output shape.
 
 ## Safety and evidence gate
 
@@ -67,7 +65,7 @@ known mismatches. If no convention exists, use bounded, low-cardinality custom n
 guessing a released-looking name.
 
 The reviewed package-map snapshot is the upstream
-[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.9.0`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.9.0#browser-packages).
+[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.12.1`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.12.1#browser-packages).
 For current versions, select the matching release tag as described below.
 Use [`references/instrumentation.md`](references/instrumentation.md) for task routing instead of
 copying volatile package inventories.
@@ -78,6 +76,9 @@ copying volatile package inventories.
 - Flush on `visibilitychange`/`pagehide`; do not rely on `unload`.
 - For cross-origin correlation, narrowly scope `propagateTraceHeaderCorsUrls`. The server must
   allow `traceparent`, plus `tracestate`/`baggage` only when used.
+- Never enable a classic `opentelemetry-js`/js-contrib instrumentation and its
+  `@opentelemetry/browser-instrumentation` replacement for the same browser API: both record
+  every call.
 
 ## Sources of Truth
 
@@ -88,7 +89,7 @@ Fetch current versions and status before answering version-sensitive questions.
 | `opentelemetry-browser` package versions / status | `gh api repos/open-telemetry/opentelemetry-browser/releases -q '.[].tag_name'` |
 | Latest `@opentelemetry/browser-instrumentation` | `npm view @opentelemetry/browser-instrumentation version` |
 | Latest `@opentelemetry/browser-sdk` (0.x, published) | `npm view @opentelemetry/browser-sdk version` |
-| Latest `@opentelemetry/sdk-trace-web` (2.x only; removed in 3.0.0, npm-deprecated) | `npm view @opentelemetry/sdk-trace-web version` |
+| Latest `@opentelemetry/sdk-trace-web` (2.x only; removed in 3.0.0; npm `latest` stays on a deprecated release, read `latest-2`) | `npm view @opentelemetry/sdk-trace-web dist-tags` |
 | Latest `@opentelemetry/auto-instrumentations-web` | `npm view @opentelemetry/auto-instrumentations-web version` |
 | Authoritative browser package map | Match the release tag, then read its repository `README.md#browser-packages` |
 | `browser-instrumentation` README / config | Match the `browser-instrumentation-v*` release tag, then read `packages/instrumentation/README.md` |
