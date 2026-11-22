@@ -60,8 +60,9 @@ shutdown. Telemetry buffered in a batch processor is lost if you don't flush in 
 
 - **Flush on `visibilitychange`/`pagehide`, not `unload`/`beforeunload`** — the latter are unreliable
   (especially on mobile) and break bfcache. The browser `BatchSpanProcessor` and
-  `BatchLogRecordProcessor` install these flush handlers by default unless
-  `disableAutoFlushOnDocumentHide` is set.
+  `BatchLogRecordProcessor` flush when `visibilitychange` reports `hidden`, unless
+  `disableAutoFlushOnDocumentHide` is set; they do not listen for `pagehide` (a `window` event), so
+  add that listener yourself as below.
 - The OTLP/HTTP browser exporter uses **`fetch` with `keepalive` when browser limits allow it** (the
   modern replacement for `navigator.sendBeacon`) so in-flight exports can survive the page going
   away.
@@ -75,7 +76,7 @@ document.addEventListener('visibilitychange', () => {
     void tracerProvider.forceFlush();
   }
 });
-document.addEventListener('pagehide', () => {
+window.addEventListener('pagehide', () => {
   void loggerProvider.forceFlush();
   void tracerProvider.forceFlush();
 });
@@ -115,10 +116,10 @@ Controlling it is partly developer discipline and partly pipeline enforcement.
 
 | Vector | Risk | Mitigation |
 |---|---|---|
-| URLs (`url.full`) | tokens, emails, IDs in path/query | your own `sanitizeUrl` on the navigation and network instrumentations (`defaultSanitizeUrl` is not a public export; see [instrumentation.md](instrumentation.md#navigation-browsernavigation)) |
+| URLs (`url.full`) | tokens, emails, IDs in path/query | your own `sanitizeUrl` on the navigation and network instrumentations (`defaultSanitizeUrl` is not a public export; see [instrumentation.md](instrumentation.md#navigation-browsernavigation)); built-in redaction varies by package ([details](instrumentation.md#span-based-instrumentations)) |
 | `console.log`/`info`/`debug` | apps log user data to the console | capture only `['error', 'warn']` in prod |
 | `data-otel-*` attributes | exported verbatim | keep to non-PII business keys only |
-| Free-form custom attributes | accidental PII | review `applyCustomAttributes` / `applyCustomLogRecordData` hooks |
+| Free-form custom attributes | accidental PII | review `applyCustomAttributes` / deprecated `applyCustomLogRecordData` hooks and custom `LogRecordProcessor`s |
 | Session context | persistent user correlation or identity | use consented, pseudonymous bounded IDs; never copy account PII |
 | Anything the client sends | the client is untrusted | redact in the Collector as a backstop |
 
