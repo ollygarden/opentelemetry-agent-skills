@@ -43,7 +43,7 @@ destroy the evidence, give a summary instead and say that it replaces the transc
 ## Checklist
 
 - [ ] I read and agree to follow the [Code of Conduct](https://github.com/ollygarden/.github/blob/main/CODE_OF_CONDUCT.md)
-- [ ] `./bin/validate-skill.sh` passes ([Agent Skills spec](https://agentskills.io/specification) + the under-500-line rule)
+- [ ] `./bin/validate-skill.sh` passes ([Agent Skills spec](https://agentskills.io/specification) + house rules: under 500 lines, no verification dates)
 - [ ] `./bin/check-skill-inventory.py` passes
 - [ ] Skill registered in all four places (skill directory, `.claude-plugin/marketplace.json`, `README.md` table + tree, `skills.sh.json` grouping) — if adding/renaming a skill
 - [ ] Content is vendor-neutral, non-opinionated, DRY, and token-efficient
