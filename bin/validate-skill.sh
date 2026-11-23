@@ -106,8 +106,13 @@ for target in "${TARGETS[@]}"; do
     house_rules_ok=false
   fi
 
-  DATED="$(grep -rnE "$DATED_PATTERN" "$SKILL_DIR" --include='*.md' --include='*.json' || true)"
-  if [ -n "$DATED" ]; then
+  # grep exits 1 for no matches; anything higher means the scan itself failed.
+  DATED_STATUS=0
+  DATED="$(grep -rnE "$DATED_PATTERN" "$SKILL_DIR" --include='*.md' --include='*.json')" || DATED_STATUS=$?
+  if [ "$DATED_STATUS" -gt 1 ]; then
+    fail "could not scan $SKILL_DIR for verification dates (grep exit $DATED_STATUS)"
+    house_rules_ok=false
+  elif [ "$DATED_STATUS" -eq 0 ]; then
     fail "$SKILL_DIR has verification dates or history wording; state facts for the release they hold for (AGENTS.md):
 $DATED"
     house_rules_ok=false
