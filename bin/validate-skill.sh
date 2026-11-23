@@ -23,6 +23,8 @@
 #   - SKILL.md is under 500 lines, per AGENTS.md "Skill constraints". A skill
 #     that has outgrown that is a sign it should split detail into
 #     `references/` instead of loading it all up front.
+#   - No verification dates or "unchanged through" wording, per AGENTS.md
+#     "Version facts name their release".
 #
 # Registration across README.md and marketplace.json is a separate gate; see
 # bin/check-skill-inventory.py.
@@ -34,6 +36,8 @@
 set -euo pipefail
 
 MAX_LINES=500
+# `[^_]` skips the generated `last_verified` frontmatter key.
+DATED_PATTERN='(^|[^_])[Vv]erified:? 20[0-9]{2}-[0-9]{2}|[Aa]s of 20[0-9]{2}-[0-9]{2}|[Uu]nchanged (through|since) v?[0-9]'
 
 # Resolve arguments against the caller's directory BEFORE cd'ing to the
 # repository root, so a relative path means what the caller typed.
@@ -99,6 +103,13 @@ for target in "${TARGETS[@]}"; do
   house_rules_ok=true
   if [ "$LINE_COUNT" -ge "$MAX_LINES" ]; then
     fail "$SKILL_FILE is $LINE_COUNT lines, must be under $MAX_LINES"
+    house_rules_ok=false
+  fi
+
+  DATED="$(grep -rnE "$DATED_PATTERN" "$SKILL_DIR" --include='*.md' --include='*.json' || true)"
+  if [ -n "$DATED" ]; then
+    fail "$SKILL_DIR has verification dates or history wording; state facts for the release they hold for (AGENTS.md):
+$DATED"
     house_rules_ok=false
   fi
 
