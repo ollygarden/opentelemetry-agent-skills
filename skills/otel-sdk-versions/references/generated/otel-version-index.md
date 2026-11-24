@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-11-22 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-11-24 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
@@ -23,14 +23,14 @@ Versions last changed: 2026-11-22 (UTC). Each version below was the latest relea
 
 | Component | Latest | Release | Notes |
 |---|---|---|---|
-| Collector core | `1.71.0` / `0.165.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector/releases/tag/v0.165.0) | Stable `1.x` modules / other `0.x` modules |
+| Collector core | `1.72.0` / `0.166.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector/releases/tag/v0.166.0) | Stable `1.x` modules / other `0.x` modules |
 | Collector contrib | `1.4.1` / `0.165.1` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases/tag/v0.165.1) | Stable `1.x` modules / other `0.x` modules |
 | Collector distributions | `0.165.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.165.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
 | Collector builder (OCB) | `0.165.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.165.0) | `ocb` binary; can trail core |
-| Collector Helm chart | `0.182.0` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.182.0) | `opentelemetry-collector` chart; chart version is independent of the Collector |
+| Collector Helm chart | `0.183.1` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.183.1) | `opentelemetry-collector` chart; chart version is independent of the Collector |
 | Operator | `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.163.0) | Kubernetes Operator; minor version tracks the Collector, patch is the Operator's own |
 | Java agent | `2.34.0` | [Notes](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.34.0) | `opentelemetry-javaagent` 2.x; embeds its own SDK version |
 | Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
 | Semantic conventions | `1.45.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.45.0) | Specification release; language semconv packages may lag |
-| Specification | `1.62.0` | [Notes](https://github.com/open-telemetry/opentelemetry-specification/releases/tag/v1.62.0) | OpenTelemetry specification release |
+| Specification | `1.63.0` | [Notes](https://github.com/open-telemetry/opentelemetry-specification/releases/tag/v1.63.0) | OpenTelemetry specification release |
 | Weaver | `0.28.0` | [Notes](https://github.com/open-telemetry/weaver/releases/tag/v0.28.0) | Semantic-convention registry CLI |
