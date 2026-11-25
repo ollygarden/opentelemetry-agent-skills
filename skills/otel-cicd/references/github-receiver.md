@@ -102,7 +102,8 @@ v0.151.0):
 | Step | `sha256("{check_run_id}-{step_name}-s")`, hex characters 17-32 |
 | Queue | `sha256("{check_run_id}-q")`, hex characters 17-32 |
 
-`check_run_id` is `${{ job.check_run_id }}`. `step_name` is the step name the webhook reports, so
+`check_run_id` is `${{ job.check_run_id }}`, which GitHub Enterprise Server does not provide, so
+this helper works only on github.com. `step_name` is the step name the webhook reports, so
 give the step an explicit `name:` (an unnamed step gets a generated one) and keep names unique
 within the job, or steps share a span ID. `${{ }}` expressions are substituted only in workflow
 YAML, so pass them to the shell through `env:`:

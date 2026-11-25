@@ -9,21 +9,26 @@ check the current release before relying on them.
   run span ID must be computed up front; the receiver's scheme
   ([github-receiver.md](github-receiver.md#joining-in-job-telemetry-to-the-receivers-trace)) is one
   option and keeps IDs compatible with a later move to the receiver. The run span (kind SERVER) can
-  only end once every job has finished, which a job with `needs:` on all other jobs and
-  `if: always()` can observe.
+  only end once the other jobs have finished, which a job with `needs:` on all of them and
+  `if: always()` can observe. That job is still running when it ends the span, so its own remaining
+  steps and result fall outside the run span; only an observer outside the run, such as the
+  receiver's `workflow_run` event, sees the final conclusion.
 - **Identity.** Task spans (kind INTERNAL): `cicd.pipeline.task.run.id` is `${{ job.check_run_id }}`
   and `cicd.pipeline.task.run.url.full` is
   `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.check_run_id }}`.
   The run is `${{ github.run_id }}` and `.../actions/runs/${{ github.run_id }}`. These are string
-  attributes.
+  attributes. `job.check_run_id` is not available on GitHub Enterprise Server
+  ([contexts reference](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#job-context));
+  there, take each job's `id` from the jobs API below.
 - **Results.** `job.status` (inside a job) and `needs.<job>.result` (in a later job) map to the
   convention enum as `success` to `success`, `failure` to `failure`, `cancelled` to
   `cancellation`, `skipped` to `skip`. `error.type` on `failure` or `error` takes a low-cardinality
   class, or the conventions' fallback `_OTHER` when no class is known
   ([error registry](https://github.com/open-telemetry/semantic-conventions/blob/v1.45.0/docs/registry/attributes/error.md)).
 - **Timing.** The run's `run_started_at` comes from `GET /repos/{owner}/{repo}/actions/runs/{run_id}`,
-  and every job's `started_at`, `completed_at`, conclusion and steps from one call to
-  `GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/jobs`; both need
+  and every job's `id`, `started_at`, `completed_at`, conclusion and steps from
+  `GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt_number}/jobs`, which returns
+  30 jobs per page by default (`per_page` up to 100), so follow the pagination links. Both need
   `permissions: actions: read`. A timestamp taken in a job's first step misses runner setup and
   service containers.
 - **Resource.** The pipeline-run resource (`cicd.pipeline.name`, `cicd.pipeline.run.id`,

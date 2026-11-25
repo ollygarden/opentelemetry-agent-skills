@@ -66,8 +66,8 @@ From [cicd-metrics.md](https://github.com/open-telemetry/semantic-conventions/bl
 `cicd.pipeline.run.state` is `pending`, `executing` or `finalizing`; `cicd.worker.state` is
 `available`, `busy` or `offline`. `cicd.system.errors` excludes pipeline-run errors such as test
 failures. The ten `vcs.*` metrics all require `vcs.repository.url.full` except
-`vcs.repository.count`; the `github` receiver's scraper emits them
-([github-receiver.md](github-receiver.md#metrics-from-the-scraper)).
+`vcs.repository.count`; the `github` receiver's scraper emits them, all but `vcs.contributor.count`
+by default ([github-receiver.md](github-receiver.md#metrics-from-the-scraper)).
 
 ## Related registries
 

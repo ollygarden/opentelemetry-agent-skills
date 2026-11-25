@@ -67,8 +67,9 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
   store.
 - The `github` receiver always records the head commit's committer name and e-mail, under the
   `author` keys (`vcs.ref.head.revision.author.name`, `.email`), and the triggering user's login
-  (`cicd.pipeline.run.sender.login`, `cicd.pipeline.task.run.sender.login`). Drop them with a
-  `resource` or `attributes` processor if they must not be stored.
+  (`cicd.pipeline.run.sender.login`, `cicd.pipeline.task.run.sender.login`) as resource attributes.
+  Drop them before any exporter with a `resource` processor; the `attributes` processor does not
+  touch resource attributes.
 - Off by default: the `github` receiver's `include_span_events` copies whole event payloads, and
   the `gitlab` receiver's `include_user_attributes` adds author and actor names and e-mails.
 - Environment variables are visible to other processes and logs; keep secrets out of `BAGGAGE`.

@@ -72,7 +72,9 @@ func TestMain(m *testing.M) {
 ```
 
 `go test ./...` prints nothing from passing packages and replays cached results without running
-`TestMain`; the exit code above surfaces export failures, and `-count=1` forces traced runs.
+`TestMain`, so use `-count=1` for traced runs. The exit code above catches a failed final flush;
+a batch that fails to export during `m.Run()` is reported only to `otel.Handle`, so register
+`otel.SetErrorHandler` to fail the run on those too.
 
 ## Passing context between steps
 

@@ -13,7 +13,7 @@ conventions ([semantic-conventions.md](semantic-conventions.md)).
 | [Concourse](https://github.com/concourse/concourse/releases/tag/v8.3.4) | v8.3.4 | traces only (experimental), OTLP gRPC | own attributes | `CONCOURSE_TRACING_OTLP_ADDRESS`, `CONCOURSE_TRACING_OTLP_HEADERS`, `CONCOURSE_TRACING_OTLP_USE_TLS` | yes, in `run` commands |
 | [Dagger](https://github.com/dagger/dagger/releases/tag/v0.21.12) | v0.21.12 | traces, logs, metrics | own attributes | standard `OTEL_EXPORTER_OTLP_*` | yes; it also extracts `TRACEPARENT` from its own environment, so a Dagger call joins the calling pipeline's trace |
 | [Tekton Pipelines](https://github.com/tektoncd/pipeline/blob/v1.18.0/docs/developers/tracing.md) | v1.18.0 | traces of the PipelineRun and TaskRun reconcilers (OTLP/HTTP), OpenTelemetry metrics | `pipelinerun`, `taskrun`, `namespace` attributes | `config-tracing` ConfigMap (`enabled`, `endpoint`, `credentialsSecret`) | no; context moves between runs through `tekton.dev/*SpanContext` annotations |
-| [Maven extension](https://github.com/open-telemetry/opentelemetry-java-contrib/blob/v1.62.1/maven-extension/README.md) (java-contrib) | v1.62.1 | traces of Maven goal executions | own attributes | `OTEL_*` / `otel.*` | extracts `TRACEPARENT` from the environment, so a build joins the pipeline's trace |
+| [Maven extension](https://github.com/open-telemetry/opentelemetry-java-contrib/blob/v1.62.1/maven-extension/README.md) (java-contrib) | v1.62.1 | traces of Maven goal executions | own attributes | `OTEL_TRACES_EXPORTER=otlp` is required (the default `none` exports nothing), plus `OTEL_EXPORTER_OTLP_*` | extracts `TRACEPARENT` from the environment, so a build joins the pipeline's trace |
 
 Not OTLP to an arbitrary backend:
 
