@@ -70,6 +70,7 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
   (`cicd.pipeline.run.sender.login`, `cicd.pipeline.task.run.sender.login`) as resource attributes.
   Drop them before any exporter with a `resource` processor; the `attributes` processor does not
   touch resource attributes.
-- Off by default: the `github` receiver's `include_span_events` copies whole event payloads, and
+- Off by default: the `github` receiver's `include_span_events` copies whole event payloads, which
+  a `resource` processor does not filter, and
   the `gitlab` receiver's `include_user_attributes` adds author and actor names and e-mails.
 - Environment variables are visible to other processes and logs; keep secrets out of `BAGGAGE`.

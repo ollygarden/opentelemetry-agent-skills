@@ -63,7 +63,10 @@ The upstream README's `scraper/<name>` example keys are invalid: the only scrape
 - `required_headers` is checked before the signature. GitHub does not send custom headers, so it is
   for a proxy or WAF that adds one; it cannot override `X-GitHub-Event`, `X-GitHub-Delivery`,
   `X-GitHub-Hook-ID` or `X-Hub-Signature-256`.
-- `include_span_events: true` adds the raw event JSON as span events (typically 5-50KB each).
+- `include_span_events: true` adds the raw event JSON as span events (typically 5-50KB each). The
+  payload includes the names and e-mail addresses that `resource/drop-personal` removes from the
+  resource, and a resource processor does not filter span events, so keep it off unless that data
+  may be stored.
 - All `confighttp` server settings apply, including `tls`.
 - One receiver instance covers one organization; use `github/<name>` instances for more
   ([named instances](../../otel-collector/SKILL.md#named-instances)).
