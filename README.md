@@ -15,6 +15,7 @@ Language-agnostic skills:
 
 | Skill | Path | Use When |
 | --- | --- | --- |
+| `otel-cicd` | `skills/otel-cicd/` | Observing CI/CD pipelines with OpenTelemetry — Collector `github` and `gitlab` receivers for pipeline traces and VCS metrics, `TRACEPARENT` environment-variable propagation into build and test steps, native OTLP integrations, and the `cicd.*`/`vcs.*` semantic conventions. |
 | `otel-collector` | `skills/otel-collector/` | Configuring OpenTelemetry Collector components — config keys, defaults, validation, signal support, stability, and gotchas. Progressive disclosure via `components/<type>/README.md` plus on-demand detail files. |
 | `otel-collector-builder` | `skills/otel-collector-builder/` | Building custom OpenTelemetry Collector distributions with OCB — authoring the builder manifest, aligning core/contrib/provider versions, local component development, CI/Docker/multi-arch builds, and build troubleshooting. |
 | `otel-declarative-config` | `skills/otel-declarative-config/` | Configuring OpenTelemetry SDK providers via a single YAML file (`otelconf`, `OTEL_CONFIG_FILE`, `file_format`). Points at the upstream schema, env-var substitution rules, and configuration precedence. |
@@ -115,6 +116,9 @@ skills/
   otel-browser/
     SKILL.md
     references/        # setup-sdk, instrumentation, performance
+  otel-cicd/
+    SKILL.md
+    references/        # receivers, propagation, workflow spans, conventions, integrations
   otel-collector/
     SKILL.md
     components/        # one directory per Collector component (log_dedup, interval, …)

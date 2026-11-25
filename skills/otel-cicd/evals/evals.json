@@ -1,0 +1,78 @@
+{
+  "skill": "otel-cicd",
+  "cases": [
+    {
+      "id": "github-actions-traces-receiver",
+      "prompt": "No web lookups please, just your knowledge and skills. We use GitHub Actions across our GitHub organization and run otelcol-contrib v0.166.0 behind our own ingress. I want every workflow run, job and step to show up as traces. We do not want repository metrics. Write the Collector receiver configuration and tell me what to set up on the GitHub side.",
+      "files": [],
+      "expectations": [
+        "Uses the contrib receiver whose component type is `github` (githubreceiver), not an invented receiver such as `githubactions` or `github_actions`.",
+        "Configures a `webhook` block that binds a non-loopback address (the default endpoint `localhost:8080` is loopback only) and sets a `secret` that GitHub uses to sign deliveries.",
+        "Includes a `scrapers` entry (for example `scraper` with `github_org`) even though only traces are wanted, because the receiver's config validation requires at least one scraper.",
+        "Says GitHub must deliver `workflow_run` and `workflow_job` events, for example from a GitHub App, to a Collector endpoint that GitHub can reach.",
+        "States that the receiver ships only in the contrib distribution and that its traces signal is alpha."
+      ]
+    },
+    {
+      "id": "receiver-trace-join-from-step",
+      "prompt": "No web lookups please, just your knowledge and skills. Our GitHub Actions traces come from the Collector `github` receiver in otelcol-contrib v0.166.0, with default feature gates. One step runs integration tests that are instrumented with an OpenTelemetry SDK. How do I make the test spans appear under that step's span in the receiver's trace?",
+      "files": [],
+      "expectations": [
+        "Explains that the receiver derives trace and span IDs deterministically, so a step can compute them itself without calling the GitHub API.",
+        "Derives the trace ID from the run ID and run attempt, as the first 32 hex characters of sha256 of `{run_id}{run_attempt}t`.",
+        "Derives the step span ID from the job's `check_run_id` (available as `${{ job.check_run_id }}`) and the step's raw `name:`, as hex characters 17-32 of sha256 of `{check_run_id}-{step_name}-s`, and notes that step names must be unique within the job.",
+        "Sets `TRACEPARENT` to `00-<trace_id>-<span_id>-01` in the test process's environment so the SDK extracts it as the parent.",
+        "Names the `receiver.githubreceiver.UseCheckRunID` feature gate as what selects this check_run_id-based scheme and says it is enabled by default."
+      ]
+    },
+    {
+      "id": "env-carrier-propagation",
+      "prompt": "No web lookups please, just your knowledge and skills. Our GitHub Actions job already starts a span for the job. In a later step it runs a Go test binary and a Python script as separate processes. I want their spans to be children of the job span. How do I hand the trace context to those processes, and what exactly does the OpenTelemetry specification say about it?",
+      "files": [],
+      "expectations": [
+        "Uses environment variables as the context carrier: `TRACEPARENT`, plus `TRACESTATE` and `BAGGAGE` when present, carrying the W3C header values.",
+        "States that the variable names are uppercase (`TRACEPARENT`, not `traceparent`) because the specification normalizes carrier keys to uppercase environment variable names.",
+        "Says the specification's environment-variable carrier section is Stable and names the specification release that made it Stable (v1.63.0).",
+        "Explains that the parent injects the context into the child's environment before starting it, and the child extracts it from its own environment at startup.",
+        "Says that in GitHub Actions each step is a new process, so the value must reach the step that starts the child, for example through that step's `env:` or `$GITHUB_ENV`.",
+        "Names how each child extracts the context: the Go contrib carrier `go.opentelemetry.io/contrib/propagators/envcar` (or an equivalent map built from `os.Getenv`) and, for Python, the API's environment getter in `opentelemetry.propagators._envcarrier` (or an equivalent mapping built from `os.environ`), and does not claim the SDKs read `TRACEPARENT` automatically."
+      ]
+    },
+    {
+      "id": "cicd-semconv-custom-runner",
+      "prompt": "No web lookups please, just your knowledge and skills. We built our own pipeline runner and want to instrument it with an OpenTelemetry SDK following the released semantic conventions. What spans should a pipeline run and each of its tasks produce: span kind, span name, and required attributes? Where do the pipeline name and run ID go?",
+      "files": [],
+      "expectations": [
+        "The pipeline-run span has kind SERVER and is named `{action} {pipeline}` (for example `RUN Build and Test`), falling back to `{action}` when no low-cardinality pipeline name exists, where the action is `cicd.pipeline.action.name` (`BUILD`, `RUN` or `SYNC`).",
+        "The pipeline-run span requires `cicd.pipeline.result` (`success`, `failure`, `error`, `timeout`, `cancellation`, `skip`) and sets `error.type` when the result is `failure` or `error`.",
+        "Each task span has kind INTERNAL and requires `cicd.pipeline.task.name`, `cicd.pipeline.task.run.id`, `cicd.pipeline.task.run.url.full` and `cicd.pipeline.task.run.result`.",
+        "Puts `cicd.pipeline.name` and `cicd.pipeline.run.id` (and the run URL) on the resource rather than as span attributes, for example with a TracerProvider per pipeline run.",
+        "Names the semantic-conventions release it relies on (v1.45.0) and says the CI/CD conventions are Release Candidate there, not Stable."
+      ]
+    },
+    {
+      "id": "gitlab-traces-and-metrics",
+      "prompt": "No web lookups please, just your knowledge and skills. We are on GitLab.com and run otelcol-contrib v0.166.0. I want pipeline traces, plus metrics such as merge-request time-to-merge and branch counts. What Collector receiver configuration and GitLab webhook settings do I need?",
+      "files": [],
+      "expectations": [
+        "Uses the contrib `gitlab` receiver with a `webhook` block and a `secret` that is compared with the `X-Gitlab-Token` header.",
+        "Says to enable only pipeline events on the GitLab webhook; job events are rejected, and job spans come from the jobs listed in the pipeline event.",
+        "States that the `gitlab` receiver produces traces only, so it cannot provide merge-request or branch metrics.",
+        "Does not claim that the `github` receiver's scraper, or any other contrib receiver, collects GitLab VCS metrics, and does not invent a scraper block for the `gitlab` receiver.",
+        "States that the receiver ships only in the contrib distribution and is not stable (alpha in its metadata, development in the v0.166.0 factory; either label passes)."
+      ]
+    },
+    {
+      "id": "github-vcs-metrics-scraper",
+      "prompt": "No web lookups please, just your knowledge and skills. With otelcol-contrib v0.166.0, collect pull-request and branch metrics for our GitHub organization `acme`, which has about 40 repositories. Give me the receiver configuration, list the metrics I will get, and say how often to scrape.",
+      "files": [],
+      "expectations": [
+        "Uses the `github` receiver with `scrapers: scraper:` containing `github_org: acme`, authenticating through a `bearertokenauth` extension that is also listed under `service.extensions`.",
+        "Lists metrics from the `vcs.*` set, including `vcs.change.count`, `vcs.change.time_to_merge`, `vcs.ref.count` and `vcs.repository.count`.",
+        "Says `vcs.contributor.count` is disabled by default.",
+        "Chooses a `collection_interval` of roughly two minutes or longer (for example 300s), justified by GitHub's GraphQL rate limit (about 4 points per repository per scrape against 5,000 points per hour), rather than keeping the 1m default.",
+        "Does not configure a `webhook` block or claim that metrics require webhooks."
+      ]
+    }
+  ]
+}

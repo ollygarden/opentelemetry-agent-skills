@@ -9,6 +9,11 @@
   },
   "plugins": [
     {
+      "name": "otel-cicd",
+      "source": "./skills/otel-cicd",
+      "description": "Observing CI/CD pipelines with OpenTelemetry: Collector github and gitlab receivers for pipeline traces and VCS metrics, TRACEPARENT environment-variable propagation into build and test steps, native OTLP integrations, and the cicd/vcs semantic conventions."
+    },
+    {
       "name": "otel-collector",
       "source": "./skills/otel-collector",
       "description": "OpenTelemetry Collector component configuration: config keys, defaults, validation rules, signal support, stability, and gotchas. Progressive disclosure via components/<name>/README.md plus on-demand detail files."
