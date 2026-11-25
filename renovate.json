@@ -16,6 +16,19 @@
       "datasourceTemplate": "git-refs",
       "packageNameTemplate": "https://github.com/{{{depName}}}",
       "currentValueTemplate": "main"
+    },
+    {
+      "customType": "regex",
+      "description": "Keep the lychee release the Link Check workflow installs current. It is pinned as a release tag in an env var, which no manager enabled by config:recommended reads.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/link-check\\.yml$/"
+      ],
+      "matchStrings": [
+        "LYCHEE_VERSION: lychee-v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "lycheeverse/lychee",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^lychee-v(?<version>.+)$"
     }
   ]
 }
