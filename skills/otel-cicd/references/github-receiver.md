@@ -34,6 +34,13 @@ receivers:
     scrapers:                          # validation requires at least one scraper,
       scraper:                         # even for a traces-only receiver
         github_org: my-org
+processors:
+  resource/drop-personal:              # the receiver always emits these
+    attributes:
+      - {key: vcs.ref.head.revision.author.name, action: delete}
+      - {key: vcs.ref.head.revision.author.email, action: delete}
+      - {key: cicd.pipeline.run.sender.login, action: delete}
+      - {key: cicd.pipeline.task.run.sender.login, action: delete}
 exporters:
   debug:
     verbosity: detailed                # replace with otlp_grpc or otlp_http once verified
@@ -41,6 +48,7 @@ service:
   pipelines:
     traces:
       receivers: [github]
+      processors: [resource/drop-personal]
       exporters: [debug]
 ```
 
@@ -103,7 +111,7 @@ v0.151.0):
 | Queue | `sha256("{check_run_id}-q")`, hex characters 17-32 |
 
 `check_run_id` is `${{ job.check_run_id }}`, which GitHub Enterprise Server does not provide, so
-this helper works only on github.com. `step_name` is the step name the webhook reports, so
+this helper does not work there. `step_name` is the step name the webhook reports, so
 give the step an explicit `name:` (an unnamed step gets a generated one) and keep names unique
 within the job, or steps share a span ID. `${{ }}` expressions are substituted only in workflow
 YAML, so pass them to the shell through `env:`:
