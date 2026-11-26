@@ -86,6 +86,18 @@ npx skills add ollygarden/opentelemetry-agent-skills -a cursor
 
 See the [skills CLI documentation](https://github.com/vercel-labs/skills#supported-agents) for every supported agent.
 
+### npm
+
+Each merge to `main` that changes `skills/` publishes `@ollygarden/opentelemetry-agent-skills@1.0.<run>` to GitHub Packages, without `evals/`. Installing needs a token with `read:packages`:
+
+```bash
+echo '@ollygarden:registry=https://npm.pkg.github.com' >> .npmrc
+echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' >> .npmrc
+GITHUB_TOKEN=$(gh auth token) npm install @ollygarden/opentelemetry-agent-skills
+```
+
+`npm view @ollygarden/opentelemetry-agent-skills@<version> gitHead` shows the source commit.
+
 ## Repository Structure
 
 Each skill is a self-contained folder under `skills/`, named to match its `name:` field per
