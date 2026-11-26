@@ -32,7 +32,7 @@ Two ways to bring the attributes onto the metric labels directly instead:
         excluded: ["k8s.pod.uid"]
   ```
 
-The older `resource_to_telemetry_conversion` block is deprecated in v0.160.0.
+The older `resource_to_telemetry_conversion` block is deprecated in v0.160.0 and rejected by default in v0.166.0 (see [configuration.md](configuration.md#feature-gate)).
 
 ## OpenMetrics and exemplars
 
@@ -53,7 +53,7 @@ OTel exponential histograms are automatically converted to the Prometheus **nati
 
 ## Choosing a `translation_strategy`
 
-`translation_strategy` supersedes the deprecated `add_metric_suffixes` when set (see [configuration.md](configuration.md#translation_strategy)). Pick by what your consumer expects:
+`translation_strategy` replaces the deprecated, ignored `add_metric_suffixes` (see [configuration.md](configuration.md#translation_strategy)). Pick by what your consumer expects:
 
 ```yaml
 exporters:
@@ -66,7 +66,7 @@ exporters:
 - `NoUTF8EscapingWithSuffixes` — keep UTF-8 names, still append suffixes.
 - `NoTranslation` — pass names/labels through unaltered.
 
-Note the content-negotiation caveat: Prometheus may still apply underscore escaping on the wire even when you keep UTF-8. The `exporter.prometheusexporter.DisableAddMetricSuffixes` feature gate (beta, since v0.132.0) forces `translation_strategy` to always be used and the deprecated `add_metric_suffixes` to be ignored.
+Note the content-negotiation caveat: Prometheus may still apply underscore escaping on the wire even when you keep UTF-8. The `exporter.prometheusexporter.DisableAddMetricSuffixes` feature gate (stable in v0.166.0, so always on) forces `translation_strategy` to always be used and the deprecated `add_metric_suffixes` to be ignored.
 
 ## The `sending_queue` caveat
 

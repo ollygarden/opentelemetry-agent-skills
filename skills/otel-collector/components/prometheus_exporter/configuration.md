@@ -12,11 +12,11 @@ All keys live under the exporter instance — `exporters: { prometheus: { … } 
 | `send_timestamps` | bool | `false` | When `true`, appends the underlying sample timestamp to each exposed line. |
 | `metric_expiration` | duration | `5m` | How long a series stays exposed without an update; after this it is dropped from `/metrics`. |
 | `resource_constant_labels` | object | — | Select resource attributes to add as labels with `included` / `excluded` wildcard patterns. Added in v0.160.0. The legacy `enabled` and `exclude_service_attributes` fields are rejected in this block. |
-| `resource_to_telemetry_conversion` | object | — | **Deprecated** in v0.160.0; use `resource_constant_labels`. Its legacy `enabled` / `exclude_service_attributes` fields remain accepted unless the migration gate is enabled. |
+| `resource_to_telemetry_conversion` | object | — | **Deprecated** in v0.160.0; use `resource_constant_labels`. In v0.166.0 the `exporter.prometheus.DisableResourceToTelemetryConversion` gate is Beta (on by default), so config validation rejects this block when `enabled` or `exclude_service_attributes` is `true` or `included`/`excluded` is nonempty (a block of only `false` and empty values passes); disable the gate to keep using it while migrating. |
 | `enable_open_metrics` | bool | `false` | When `true`, exposes using OpenMetrics format. Exemplars are exported **only** in OpenMetrics format, and **only** for histograms and monotonic sums (counters). |
 | `without_scope_info` | bool | `false` | When `true`, omits instrumentation-scope labels (`otel_scope_name`, `otel_scope_version`, `otel_scope_schema_url`, and scope attributes). |
-| `add_metric_suffixes` | bool | `true` | **Deprecated** (use `translation_strategy`). When `true`, appends type/unit suffixes (e.g. counters get `_total`). **Ignored** when `translation_strategy` is explicitly set. |
-| `translation_strategy` | string (enum) | — | When set, takes precedence over `add_metric_suffixes`; controls how OTLP metric/attribute names are translated to Prometheus names. See [translation_strategy](#translation_strategy). |
+| `add_metric_suffixes` | bool | `true` | **Deprecated** (use `translation_strategy`). **Ignored** in v0.166.0: setting it to `false` no longer drops type/unit suffixes. |
+| `translation_strategy` | string (enum) | — (behaves as `UnderscoreEscapingWithSuffixes`) | Controls how OTLP metric/attribute names are translated to Prometheus names. See [translation_strategy](#translation_strategy). |
 | `sending_queue` | object | — | The standard `exporterhelper` queue block. Far less meaningful here than for a pushing exporter (see [advanced.md](advanced.md) and [quirks.md](quirks.md)). |
 
 The exporter also accepts all standard HTTP **server** options from the embedded `confighttp.ServerConfig` (`tls`, `cors`, `auth`, `response_headers`, `compression_algorithms`, `max_request_body_size`, and others — cross-reference the confighttp documentation rather than enumerating exhaustively). Server defaults from `NewDefaultServerConfig()`:
@@ -34,7 +34,7 @@ Use the `keepalive` block.
 
 ## `translation_strategy`
 
-When set, this enum takes precedence over the deprecated `add_metric_suffixes`. `Validate()` rejects any value other than the four below with `invalid translation_strategy: <v>`.
+When unset, the exporter behaves as `UnderscoreEscapingWithSuffixes`; to drop suffixes, pick a `WithoutSuffixes` value. `Validate()` rejects any value other than the four below with `invalid translation_strategy: <v>`.
 
 | Value | Meaning |
 |-------|---------|
@@ -63,8 +63,8 @@ An empty `endpoint` is not caught by `Config.Validate()`; `endpoint` has no defa
 
 | Gate | Stage | Since | Effect |
 |------|-------|-------|--------|
-| `exporter.prometheusexporter.DisableAddMetricSuffixes` | `beta` | v0.132.0 | When enabled, the deprecated `add_metric_suffixes` is ignored and `translation_strategy` is always used. (Spec PR 4533.) |
-| `exporter.prometheus.DisableResourceToTelemetryConversion` | `alpha` | v0.160.0 | Rejects deprecated `resource_to_telemetry_conversion`; use `resource_constant_labels`. |
+| `exporter.prometheusexporter.DisableAddMetricSuffixes` | `stable` (since v0.166.0) | v0.132.0 | Always on: the deprecated `add_metric_suffixes` is ignored and `translation_strategy` is always used. Disabling it fails startup. (Spec PR 4533.) |
+| `exporter.prometheus.DisableResourceToTelemetryConversion` | `beta` (since v0.166.0; on by default) | v0.160.0 | Rejects deprecated `resource_to_telemetry_conversion`; use `resource_constant_labels`. |
 | `pkg.translator.prometheus.PermissiveLabelSanitization` | `stable` (since v0.164.0; beta v0.162.0–v0.163.0) | v0.55.0 | Shared with `prometheus_remote_write`. Always on: labels with a leading underscore (`_foo`) are kept instead of being rewritten to `key_foo`. Disabling it fails startup. |
 | `pkg.prometheus.KeepIdentifyingResourceAttributes` | `alpha` | v0.165.0 | Shared with `prometheus_remote_write`. Also keeps `service.name`, `service.namespace`, and `service.instance.id` as `target_info` labels; they still populate `job` and `instance`. |
 | `pkg.translator.prometheus.CorrectUCUMUnits` | `alpha` | v0.165.0 | Shared with `prometheus_remote_write`. Uses spec-compliant UCUM time and byte unit mappings for unit suffixes. |
