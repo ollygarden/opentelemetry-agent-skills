@@ -1,6 +1,6 @@
 # OpenTelemetry Version Index
 
-Versions last changed: 2026-11-25 (UTC). Each version below was the latest release on that date; newer releases may exist.
+Versions last changed: 2026-11-26 (UTC). Each version below was the latest release on that date; newer releases may exist.
 
 ## SDKs
 
@@ -13,7 +13,7 @@ Versions last changed: 2026-11-25 (UTC). Each version below was the latest relea
 | Java | `io.opentelemetry:opentelemetry-sdk` | `1.68.0` | [Maven Central](https://search.maven.org/artifact/io.opentelemetry/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/java/sdk.md) | [Examples](https://github.com/open-telemetry/opentelemetry-java-examples#java-opentelemetry-examples) |
 | JavaScript | `@opentelemetry/sdk-node` | `0.301.2` | [npm](https://www.npmjs.com/package/@opentelemetry/sdk-node) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/js/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples) |
 | Kotlin | `open-telemetry/opentelemetry-kotlin` | `0.10.0` | [GitHub releases](https://github.com/open-telemetry/opentelemetry-kotlin/releases) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry-kotlin/refs/heads/main/README.md) | [Examples](https://github.com/open-telemetry/opentelemetry-kotlin/tree/main/examples) |
-| PHP | `open-telemetry/sdk` | `1.17.0` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
+| PHP | `open-telemetry/sdk` | `1.18.0` | [Packagist](https://packagist.org/packages/open-telemetry/sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-php/tree/main/examples) |
 | Python | `opentelemetry-sdk` | `1.45.2` | [PyPI](https://pypi.org/project/opentelemetry-sdk/) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/python/instrumentation.md) | - |
 | Ruby | `opentelemetry-sdk` | `1.13.1` | [RubyGems](https://rubygems.org/gems/opentelemetry-sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/ruby/instrumentation.md) | [Examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples) |
 | Rust | `opentelemetry_sdk` | `0.33.1` | [crates.io](https://crates.io/crates/opentelemetry_sdk) | [Docs](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/rust/getting-started.md) | [Examples](https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples) |
@@ -28,7 +28,7 @@ Versions last changed: 2026-11-25 (UTC). Each version below was the latest relea
 | Collector distributions | `0.166.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.166.0) | Binaries and images (`otelcol`, `otelcol-contrib`, `otelcol-k8s`, ...); can trail core |
 | Collector builder (OCB) | `0.166.0` | [Notes](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/cmd/builder/v0.166.0) | `ocb` binary; can trail core |
 | Collector Helm chart | `0.183.2` | [Notes](https://github.com/open-telemetry/opentelemetry-helm-charts/releases/tag/opentelemetry-collector-0.183.2) | `opentelemetry-collector` chart; chart version is independent of the Collector |
-| Operator | `0.163.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.163.0) | Kubernetes Operator; minor version tracks the Collector, patch is the Operator's own |
+| Operator | `0.164.0` | [Notes](https://github.com/open-telemetry/opentelemetry-operator/releases/tag/v0.164.0) | Kubernetes Operator; minor version tracks the Collector, patch is the Operator's own |
 | Java agent | `2.34.0` | [Notes](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/tag/v2.34.0) | `opentelemetry-javaagent` 2.x; embeds its own SDK version |
 | Configuration schema | `1.2.0` | [Notes](https://github.com/open-telemetry/opentelemetry-configuration/releases/tag/v1.2.0) | Declarative config schema; SDK parsers may target older releases |
 | Semantic conventions | `1.45.0` | [Notes](https://github.com/open-telemetry/semantic-conventions/releases/tag/v1.45.0) | Specification release; language semconv packages may lag |
