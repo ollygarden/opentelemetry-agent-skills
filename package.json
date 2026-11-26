@@ -1,0 +1,9 @@
+{
+  "name": "@ollygarden/opentelemetry-agent-skills",
+  "version": "0.0.0",
+  "description": "OllyGarden Agent Skills for OpenTelemetry",
+  "license": "Apache-2.0",
+  "repository": "github:ollygarden/opentelemetry-agent-skills",
+  "files": ["skills/", "!skills/*/evals/"],
+  "publishConfig": { "registry": "https://npm.pkg.github.com" }
+}
