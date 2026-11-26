@@ -65,9 +65,10 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
 ## Security
 
 - Webhook endpoints face the internet: set the receiver's webhook authentication (`secret`, or
-  `hmac_signature` or `required_header` for `webhook_event`), put a WAF or equivalent in front as the
-  `github` receiver README asks, and keep tokens and secrets in environment variables or a secret
-  store.
+  `hmac_signature` or `required_header` for `webhook_event`), serve them only over HTTPS (the
+  receiver's `tls` settings or a TLS-terminating proxy), because GitLab's `X-Gitlab-Token` and any
+  `required_header` value travel in the request, put a WAF or equivalent in front as the `github`
+  receiver README asks, and keep tokens and secrets in environment variables or a secret store.
 - The `github` receiver always records the head commit's committer name and e-mail, under the
   `author` keys (`vcs.ref.head.revision.author.name`, `.email`), and the triggering user's login
   (`cicd.pipeline.run.sender.login`, `cicd.pipeline.task.run.sender.login`) as resource attributes.

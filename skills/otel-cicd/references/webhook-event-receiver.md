@@ -82,7 +82,9 @@ Source: [README configuration](https://github.com/open-telemetry/opentelemetry-c
 - `read_timeout` and `write_timeout` default to 500ms, with a 10s maximum.
 - It listens on its own endpoint, so GitHub or GitLab must deliver each event to it separately from
   the traces receiver. A GitHub App has one webhook URL, so the second delivery comes from an
-  organization or repository webhook, or a second App.
+  organization or repository webhook, or a second App. Set that webhook's content type to
+  `application/json`: a form-encoded GitHub delivery puts the URL-encoded JSON in a `payload` field,
+  which `ParseJSON` cannot read directly.
 
 The payloads hold the personal data that the traces receivers emit or keep behind options, and a
 `resource` processor does not touch a log body ([SKILL.md](../SKILL.md#security)). Store them only
