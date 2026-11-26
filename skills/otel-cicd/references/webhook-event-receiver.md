@@ -32,10 +32,12 @@ traces receivers keep only finished runs:
 - GitHub: the `github` receiver sets `cicd.pipeline.run.id` from `workflow_run.id` and
   `cicd.pipeline.task.run.id` from `workflow_job.id`. Earlier deliveries (`requested`, `queued`,
   `in_progress`) and re-run attempts share the ID, and traces carry no attempt attribute. Keep
-  `action: completed` deliveries and compute each one's trace ID from `workflow_run.id` and
-  `workflow_run.run_attempt` with the receiver's scheme, the first 32 hex characters of
-  `sha256("{run_id}{run_attempt}t")`
-  ([github-receiver.md](github-receiver.md#joining-in-job-telemetry-to-the-receivers-trace)).
+  `action: completed` deliveries and compute each one's trace ID with the receiver's scheme, the
+  first 32 hex characters of `sha256("{run_id}{run_attempt}t")`
+  ([github-receiver.md](github-receiver.md#joining-in-job-telemetry-to-the-receivers-trace)): from
+  `workflow_run.id` and `workflow_run.run_attempt` for run payloads, and from
+  `workflow_job.run_id` and `workflow_job.run_attempt` for job payloads, which have no
+  `workflow_run` object.
 - GitLab: the `gitlab` receiver sets `cicd.pipeline.run.id` from `object_attributes.id`, which
   repeats on every pipeline status event, so also match `object_attributes.status` and
   `finished_at` ([gitlab-receiver.md](gitlab-receiver.md#spans)).
