@@ -1,5 +1,6 @@
 accept = ["200..=299", "429"]
-# Give transient upstream failures time to recover before declaring a link dead.
+# lychee releases through 0.24.2 retry only timeouts and dropped connections;
+# lycheeverse/lychee#2324 adds 408 and 5xx responses.
 max_retries = 4
 retry_wait_time = 3
 timeout = 20
@@ -18,11 +19,11 @@ exclude_path = [
   "(^|/)\\.lycheecache/",
   # This config's own content is entirely link *patterns*, not links: lychee
   # reads `https://github/` and `https://api/` straight out of the regexes
-  # below (5 errors when this line is removed). Excluding those by URL would
-  # take one exclusion per pattern, each itself a pattern — so the file is
-  # excluded wholesale. Every other file is scanned; prefer a narrow URL
-  # exclusion to a path exclusion, which also hides whether a pattern still
-  # works.
+  # below and reports them as errors when this line is removed. Excluding
+  # those by URL would take one exclusion per pattern, each itself a pattern —
+  # so the file is excluded wholesale. Every other file is scanned; prefer a
+  # narrow URL exclusion to a path exclusion, which also hides whether a
+  # pattern still works.
   "(^|/)\\.github/lychee\\.toml$",
   # Eval fixtures are synthetic inputs, written to look hostile or malformed on
   # purpose; their URLs are payloads under test, not references to check.
@@ -45,9 +46,10 @@ exclude = [
   # printf and shell templates in skills/otel-semantic-conventions/scripts/. The
   # placeholders (%s, ${tag}, ${path}) are filled in at runtime, so the literal
   # string in the file is never a fetchable URL. lychee leaves `$` alone and
-  # percent-encodes the braces, hence the `%7B`/`%7D` below.
-  "^https://github\\.com/open-telemetry/semantic-conventions/(blob|tree)/",
-  "^https://raw\\.githubusercontent\\.com/open-telemetry/semantic-conventions/\\$%7Btag%7D/",
+  # percent-encodes the braces, hence the `%7B`/`%7D` below; the raw `%s` form
+  # is the printf blob template after `remap`.
+  "^https://github\\.com/open-telemetry/semantic-conventions/(blob/$|tree/%s/)",
+  "^https://raw\\.githubusercontent\\.com/open-telemetry/semantic-conventions/(\\$%7Btag%7D|%s)/",
   "^https://api\\.github\\.com/repos/open-telemetry/semantic-conventions/git/trees/\\$%7Btag%7D",
   # The lychee release URL in .github/workflows/link-check.yml, built from
   # ${LYCHEE_VERSION} at run time. Excluded by URL rather than by excluding the
@@ -63,6 +65,15 @@ exclude = [
   # Example in-cluster endpoint in skill prose and eval prompts; by design it
   # resolves only inside a user's own cluster, never from CI.
   "^http://otel-gateway:4318([/?#]|$)"
+]
+
+# GitHub blob pages return intermittent 503s to CI runners.
+# raw.githubusercontent.com serves the same file and 404s on the same missing
+# path, ref, or repository. Blob URLs that do not name a file — a directory, a
+# bare ref, a trailing slash — resolve on GitHub but 404 on raw. Remaps run
+# before excludes: exclude a blob URL by its raw form.
+remap = [
+  "^https://github\\.com/([^/]+/[^/]+)/blob/(.+)$ https://raw.githubusercontent.com/${1}/${2}"
 ]
 
 # Most references share this host. Pace requests to reduce transient GitHub 503s

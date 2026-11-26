@@ -51,7 +51,7 @@ If a change genuinely cannot alter agent behavior, say `Not applicable — no ha
 
 Both run in CI, so a miss here surfaces as a failed check rather than a review comment. `validate-skill.sh` shells out to `skills-ref`, which needs a one-time `uv tool install "$(cat bin/skills-ref.requirement)"` — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
-If your change adds or edits links, reproduce the CI link check locally with the same command it runs, from the repository root ([lychee](https://github.com/lycheeverse/lychee) 0.24.2):
+If your change adds or edits links, reproduce the CI link check locally with the same command it runs, from the repository root, using the [lychee](https://github.com/lycheeverse/lychee) release that `LYCHEE_VERSION` pins in `.github/workflows/link-check.yml`:
 
 ```bash
 lychee --no-progress --root-dir "$PWD" --config .github/lychee.toml .
