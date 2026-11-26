@@ -62,7 +62,7 @@ testns_gen_total{job="telemetrygen",otel_scope_name="",otel_scope_schema_url="",
 Each piece confirms a specific behavior:
 
 - **`namespace: testns`** → the `testns_` series prefix.
-- **`_total` suffix and `# TYPE … counter`** → `add_metric_suffixes` defaults to `true`, and this is a counter, so the type/unit suffix is appended.
+- **`_total` suffix and `# TYPE … counter`** → an unset `translation_strategy` behaves as `UnderscoreEscapingWithSuffixes`, and this is a counter, so the type/unit suffix is appended.
 - **`const_labels`** → the `verified_by="ollygarden"` label on the series.
 - **the telemetry attribute** → the `tg_label="v1"` label.
 - **scope labels present** (`otel_scope_name`/`otel_scope_version`/`otel_scope_schema_url`, empty here) → `without_scope_info` defaults to `false`.

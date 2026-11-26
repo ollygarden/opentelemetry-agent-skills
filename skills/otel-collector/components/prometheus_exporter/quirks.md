@@ -18,7 +18,7 @@ The exporter holds an in-memory accumulator. A series stays exposed only as long
 
 ## `add_metric_suffixes` is deprecated — prefer `translation_strategy`
 
-`add_metric_suffixes` (default `true`) appends type/unit suffixes (counters get `_total`), but it is **deprecated** and is **ignored** whenever `translation_strategy` is explicitly set. The `exporter.prometheusexporter.DisableAddMetricSuffixes` feature gate (stage `beta`, since v0.132.0) makes the collector ignore `add_metric_suffixes` entirely and always use `translation_strategy`. Migrate to `translation_strategy` for new configs.
+`add_metric_suffixes` is **deprecated** and, in v0.166.0, always **ignored**: the `exporter.prometheusexporter.DisableAddMetricSuffixes` feature gate is Stable, so `translation_strategy` is always used, and an unset strategy behaves as `UnderscoreEscapingWithSuffixes` (counters get `_total`). `add_metric_suffixes: false` no longer drops suffixes; set `translation_strategy` to a `WithoutSuffixes` value instead.
 
 ## Exemplars need OpenMetrics, and only on histograms/counters
 
