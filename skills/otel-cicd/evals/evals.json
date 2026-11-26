@@ -73,6 +73,30 @@
         "Chooses a `collection_interval` of roughly two minutes or longer (for example 300s), justified by GitHub's GraphQL rate limit (about 4 points per repository per scrape against 5,000 points per hour), rather than keeping the 1m default.",
         "Does not configure a `webhook` block or claim that metrics require webhooks."
       ]
+    },
+    {
+      "id": "github-receiver-query-keys",
+      "prompt": "No web lookups please, just your knowledge and skills. Our GitHub Actions traces come from the Collector `github` receiver in otelcol-contrib v0.166.0. Write the filters I need to find failed jobs on the `main` branch that ran on our `linux-large` runner group, and tell me which attribute keys those filters use and where those attributes live.",
+      "files": [],
+      "expectations": [
+        "Filters the job result on `cicd.pipeline.run.task.status` with the value `failure`, and says the receiver does not emit the conventions' `cicd.pipeline.task.run.result`.",
+        "Filters the branch on `vcs.ref.head` (the receiver's key), not the conventions' `vcs.ref.head.name`.",
+        "Filters the runner group on `cicd.pipeline.worker.group.name`, a receiver-specific key that the semantic-conventions registry does not define.",
+        "Says these keys are resource attributes of the job spans, not span attributes.",
+        "Notes that jobs ending with conclusions other than success, failure, skipped and cancelled (for example `timed_out`) carry `cicd.pipeline.run.status` on the job resource instead, so a filter on `cicd.pipeline.run.task.status` alone misses them."
+      ]
+    },
+    {
+      "id": "raw-webhook-payload-logs",
+      "prompt": "No web lookups please, just your knowledge and skills. We already turn GitHub Actions `workflow_run` and `workflow_job` webhooks into traces with the Collector `github` receiver (otelcol-contrib v0.166.0). For auditing we also want every raw webhook payload stored as a log in our backend, and we want to find a run's payload from its trace. Which Collector receiver and configuration do we need, and how do we relate the logs to the traces?",
+      "files": [],
+      "expectations": [
+        "Uses the contrib `webhook_event` receiver, not the `github` receiver's `include_span_events`, as the source of the logs.",
+        "Says the receiver emits one log record per request whose body is the whole raw payload, unparsed, and that the records carry no trace context.",
+        "Validates GitHub deliveries with `hmac_signature` using the `X-Hub-Signature-256` header and the `sha256=` prefix.",
+        "Relates logs to traces by matching `workflow_run.id` in the payload to the `github` receiver's `cicd.pipeline.run.id`, and notes that several payloads share that ID (earlier actions such as `requested` or `in_progress`, and re-run attempts), so the match also uses `action` or `run_attempt`.",
+        "Says GitHub must deliver each event to the `webhook_event` endpoint separately from the `github` receiver's endpoint, for example through a second webhook."
+      ]
     }
   ]
 }

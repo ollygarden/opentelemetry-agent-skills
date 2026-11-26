@@ -44,7 +44,8 @@ Source: [README configuration](https://github.com/open-telemetry/opentelemetry-c
 - `required_headers` enforces extra headers only when listed (for self-managed GitLab, for example
   `X-Gitlab-Instance`); it cannot override `X-Gitlab-Webhook-UUID`, `X-Gitlab-Event`,
   `X-Gitlab-Event-UUID` or `Idempotency-Key`.
-- `include_user_attributes: true` adds commit author and pipeline actor names and e-mails.
+- `include_user_attributes: true` adds `vcs.ref.head.revision.author.name`, `.author.email` and
+  `.message`, `cicd.pipeline.run.actor.id` and `.name`, and `gitlab.pipeline.run.actor.username`.
 - `service.name` is always the project's `path_with_namespace`; there is no override option.
 
 GitLab side: add a project or group webhook pointing at the receiver URL, set the secret token,
@@ -65,14 +66,18 @@ Pipeline events produce spans only for finished pipelines (`success`, `failed`, 
 There are no step or queue spans. Status: `success` is OK, `failed` and `canceled` are ERROR,
 others UNSET; a stage takes the status of its first job, not an aggregate.
 
-Attributes use the convention keys with raw GitLab values: resources carry `cicd.pipeline.name`,
-`cicd.pipeline.run.id`, `cicd.pipeline.run.url.full`, `cicd.pipeline.result` (for example
-`failed`, not the convention's `failure`), `vcs.repository.url.full`, `vcs.ref.head.name`,
-`vcs.ref.head.revision`, and for merge-request pipelines `vcs.change.id`, `vcs.change.state` and
-`vcs.ref.base.name`. Job spans carry `cicd.pipeline.task.name`, `cicd.pipeline.task.run.id`,
-`cicd.pipeline.task.run.result` (raw job status) and `cicd.worker.id` and `cicd.worker.name`, plus
-the receiver-specific `cicd.worker.type`, `cicd.worker.tags`, `cicd.worker.shared` and `gitlab.*`
-keys.
+Attributes use the convention keys with raw GitLab values: resources carry `cicd.pipeline.name`, `cicd.pipeline.run.id`, `cicd.pipeline.run.url.full`,
+`cicd.pipeline.result` (for example `failed`, not the convention's `failure`),
+`vcs.repository.url.full`, `vcs.ref.head.name`, `vcs.ref.head.revision`, and for merge-request
+pipelines `vcs.change.id`, `vcs.change.state` and `vcs.ref.base.name`. Job spans carry
+`cicd.pipeline.task.name`, `cicd.pipeline.task.run.id`, `cicd.pipeline.task.run.result` (raw job
+status), `cicd.worker.id` and `cicd.worker.name`. `cicd.pipeline.run.id`,
+`cicd.pipeline.task.run.id` and `cicd.worker.id` are integers; the conventions define strings.
+
+Keys the registry does not define: `vcs.repository.visibility`, `vcs.repository.ref.default`,
+`vcs.ref.head.revision.timestamp`, `cicd.pipeline.task.run.environment.name`, `cicd.worker.type`,
+`cicd.worker.tags`, `cicd.worker.shared`, the `gitlab.*` keys, and the `include_user_attributes`
+keys. Source: [traces_event_handling.go](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.166.0/receiver/gitlabreceiver/traces_event_handling.go).
 
 ## Limitations
 

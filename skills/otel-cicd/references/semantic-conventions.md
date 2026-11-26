@@ -12,6 +12,13 @@ OTEL_SEMCONV_TAG=v1.45.0 ./scripts/query-otel-semantic-conventions.sh cicd spans
 OTEL_SEMCONV_TAG=v1.45.0 ./scripts/query-otel-semantic-conventions.sh vcs metrics
 ```
 
+The `github` and `gitlab` receivers import v1.43.0, which defines the same `cicd` and `vcs`
+attributes, spans and metrics as v1.45.0
+([v1.43.0 model](https://github.com/open-telemetry/semantic-conventions/tree/v1.43.0/model/cicd)),
+but both receivers emit keys and types that differ from these tables
+([github-receiver.md](github-receiver.md#attribute-differences-from-semantic-conventions),
+[gitlab-receiver.md](gitlab-receiver.md#spans)).
+
 ## Stability
 
 The `cicd` and `vcs` conventions are **Release Candidate** at v1.45.0 (promoted from Development in

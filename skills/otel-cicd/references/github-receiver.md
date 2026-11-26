@@ -91,7 +91,10 @@ Span structure ([trace_event_handling.go](https://github.com/open-telemetry/open
 
 Queue and step spans are siblings under the job span. A re-run (`run_attempt > 1`) is a new trace
 with a link to the previous attempt's trace. Span status: `success` is OK, `failure` is ERROR,
-other conclusions (cancelled, skipped, timed out) are UNSET.
+other conclusions (cancelled, skipped, timed out) are UNSET. Job conclusions other than success,
+failure, skipped and cancelled (for example `timed_out`) go to `cicd.pipeline.run.status` on the
+job resource instead of the task status, and skipped steps get task status `failure` while their
+span status is UNSET, so step failure counts include skips.
 
 `service.name` for traces comes from, in order: `webhook.service_name`, the repository custom
 property `service_name`, the repository name, then `unknown_service`. Values are lowercased with
@@ -202,20 +205,37 @@ but no `service.name`.
 
 ## Attribute differences from semantic conventions
 
-The receiver emits receiver-specific keys
-([model.go](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.166.0/receiver/githubreceiver/model.go)).
-Queries written against the released conventions ([semantic-conventions.md](semantic-conventions.md))
+Source: [model.go](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.166.0/receiver/githubreceiver/model.go).
+`model.go` marks these keys subject to change, and the README records an earlier rename, so recheck
+them when upgrading. Queries written against the conventions
+([semantic-conventions.md](semantic-conventions.md), which also compares v1.43.0 with v1.45.0)
 miss these:
 
-| Receiver emits | Semantic conventions v1.45.0 |
-|---|---|
-| `cicd.pipeline.run.status` | `cicd.pipeline.result` |
-| `cicd.pipeline.run.task.status` | `cicd.pipeline.task.run.result` |
-| `cicd.pipeline.worker.*` | `cicd.worker.*` |
-| `vcs.ref.head` (branch) | `vcs.ref.head.name` |
-| run span named after the workflow run | `{action} {pipeline}` |
-| `vcs.change.count`, `vcs.ref.count`, `vcs.repository.count` as gauges | updowncounters |
+| Data | Receiver emits | Semantic conventions |
+|---|---|---|
+| Run result | `cicd.pipeline.run.status` | `cicd.pipeline.result` |
+| Task result | `cicd.pipeline.run.task.status` | `cicd.pipeline.task.run.result` |
+| Worker ID and name | `cicd.pipeline.worker.id`, `cicd.pipeline.worker.name` | `cicd.worker.id`, `cicd.worker.name` |
+| Head branch | `vcs.ref.head` | `vcs.ref.head.name` |
+| Run, task run and worker IDs | integers | strings |
+| Run span name | the workflow run name | `{action} {pipeline}` |
+| `vcs.change.count`, `vcs.ref.count`, `vcs.repository.count` | gauges | updowncounters |
 
-Run resources carry `cicd.pipeline.name` and `cicd.pipeline.run.id`. Job resources carry
-`cicd.pipeline.name` set to the job name and `cicd.pipeline.task.run.id`, but no
-`cicd.pipeline.run.id`; relate jobs to their run by trace ID.
+Keys the registry does not define: `cicd.pipeline.run.sender.login`,
+`cicd.pipeline.task.run.sender.login`, `cicd.pipeline.run.previous_attempt.url.full`,
+`cicd.pipeline.run.queue.duration` (on queue spans), `cicd.pipeline.worker.group.id` and `.name`,
+`cicd.pipeline.worker.node.id`, `cicd.pipeline.worker.labels`,
+`vcs.ref.head.revision.author.name` and `.author.email`,
+`github.reference.workflow.<name>.path`, `.revision` and `.version`,
+`github.repository.custom_properties.<property>`, and, with `include_span_events`, `event.payload`
+on the `github.workflow_run.event` and `github.workflow_job.event` span events.
+
+Where the keys live:
+
+- Run span resource: `cicd.pipeline.name`, `cicd.pipeline.run.id`, `cicd.pipeline.run.status`,
+  `vcs.ref.head`, the author and run sender keys, and `github.reference.workflow.*`.
+- Job span resource: `cicd.pipeline.name` (set to the job name), `cicd.pipeline.task.run.id`,
+  `cicd.pipeline.run.task.status`, `vcs.ref.head`, `cicd.pipeline.worker.*` and the task run sender
+  key, but no `cicd.pipeline.run.id`; relate jobs to their run by trace ID.
+- Span attributes: step spans carry `cicd.pipeline.task.name` and `cicd.pipeline.run.task.status`;
+  queue spans carry `cicd.pipeline.run.queue.duration` (a double, in nanoseconds).

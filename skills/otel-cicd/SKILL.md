@@ -1,6 +1,6 @@
 ---
 name: otel-cicd
-description: Observe CI/CD pipelines with OpenTelemetry. Use when turning GitHub Actions or GitLab CI/CD runs, jobs and steps into traces with the Collector `github` or `gitlab` receiver (workflow_run and pipeline webhooks, the GitHub scraper); collecting pull-request, branch and repository (VCS) or DORA metrics such as lead time for changes; joining build or test processes to the pipeline trace through `TRACEPARENT` or otel-cli; exporting OTLP from Jenkins, Argo Workflows, Tekton, Buildkite, Concourse or Dagger; or applying the `cicd.*` and `vcs.*` semantic conventions. Triggers on "trace our GitHub Actions workflows", "GitLab pipeline traces in the Collector", "make test spans join the CI trace", and "instrument our pipeline runner". Not for testing OpenTelemetry changes in CI, dependency-update automation, or deployment verification.
+description: Observe CI/CD pipelines with OpenTelemetry. Use when turning GitHub Actions or GitLab CI/CD runs, jobs and steps into traces with the Collector `github` or `gitlab` receiver (workflow_run and pipeline webhooks, the GitHub scraper), or keeping raw webhook payloads as logs with `webhook_event`; collecting pull-request, branch and repository (VCS) or DORA metrics such as lead time for changes; joining build or test processes to the pipeline trace through `TRACEPARENT` or otel-cli; exporting OTLP from Jenkins, Argo Workflows, Tekton, Buildkite, Concourse or Dagger; or applying the `cicd.*` and `vcs.*` semantic conventions. Triggers on "trace our GitHub Actions workflows", "GitLab pipeline traces in the Collector", "make test spans join the CI trace", and "instrument our pipeline runner". Not for testing OpenTelemetry changes in CI, dependency-update automation, or deployment verification.
 ---
 
 # OpenTelemetry for CI/CD pipelines
@@ -17,6 +17,7 @@ Use the `otel-collector` skill for other components and Collector-wide rules,
 | GitHub pull requests, branches, repositories | Collector `github` receiver, scraper | metrics | [github-receiver.md](references/github-receiver.md#metrics-from-the-scraper) |
 | Queue time, runner or worker load | `github` receiver queue spans, or `cicd.*` metrics | traces, metrics | [github-receiver.md](references/github-receiver.md#traces-from-webhooks), [semantic-conventions.md](references/semantic-conventions.md#metrics) |
 | GitLab CI/CD pipelines, stages, jobs | Collector `gitlab` receiver, webhook | traces only | [gitlab-receiver.md](references/gitlab-receiver.md) |
+| Raw GitHub or GitLab webhook payloads | Collector `webhook_event` receiver, next to the traces receiver | logs | [webhook-event-receiver.md](references/webhook-event-receiver.md) |
 | Commands inside a job (tests, builds, scripts) | SDK or CLI in the job, parent from `TRACEPARENT` | traces, logs, metrics | [context-propagation.md](references/context-propagation.md) |
 | GitHub Actions runs when no webhook endpoint is reachable | spans emitted by the workflow itself | traces | [github-actions-workflow-spans.md](references/github-actions-workflow-spans.md) |
 | CI/CD systems with built-in OTLP export (Jenkins, Argo Workflows, ...) | the tool's exporter | varies | [native-integrations.md](references/native-integrations.md) |
@@ -25,7 +26,7 @@ Use the `otel-collector` skill for other components and Collector-wide rules,
 Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conventions v1.45.0
 (values hold for the named releases; check the current release before relying on them):
 
-- Both receivers ship only in `otelcol-contrib`. `github` is alpha; `gitlab` is alpha in its
+- The `github` and `gitlab` receivers ship only in `otelcol-contrib`. `github` is alpha; `gitlab` is alpha in its
   metadata, but the v0.166.0 factory registers it as development. Webhooks are push-only: GitHub
   or GitLab must reach the Collector, and the default `localhost:8080` endpoint is loopback only.
 - The `github` receiver needs a `scrapers` entry even for traces only.
@@ -36,7 +37,8 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
   receiver's trace.
 - The `github` receiver emits receiver-specific keys (for example `cicd.pipeline.run.status`
   instead of `cicd.pipeline.result`); the `gitlab` receiver uses the convention keys with raw
-  GitLab values. Map them before writing queries against the released conventions.
+  GitLab values; both write run and task IDs as integers where the conventions define strings.
+  Map them before writing queries against the released conventions.
 - No SDK reads `TRACEPARENT` on its own: the child process extracts it with an environment
   carrier or a map built from the environment.
 - The CI/CD conventions are Release Candidate, not Stable. Pipeline name and run ID are resource
@@ -62,7 +64,8 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
 
 ## Security
 
-- Webhook endpoints face the internet: set `secret`, put a WAF or equivalent in front as the
+- Webhook endpoints face the internet: set the receiver's webhook authentication (`secret`, or
+  `hmac_signature` or `required_header` for `webhook_event`), put a WAF or equivalent in front as the
   `github` receiver README asks, and keep tokens and secrets in environment variables or a secret
   store.
 - The `github` receiver always records the head commit's committer name and e-mail, under the
@@ -70,7 +73,8 @@ Facts that most often go wrong, at collector-contrib v0.166.0 and semantic-conve
   (`cicd.pipeline.run.sender.login`, `cicd.pipeline.task.run.sender.login`) as resource attributes.
   Drop them before any exporter with a `resource` processor; the `attributes` processor does not
   touch resource attributes.
-- Off by default: the `github` receiver's `include_span_events` copies whole event payloads, which
-  a `resource` processor does not filter, and
-  the `gitlab` receiver's `include_user_attributes` adds author and actor names and e-mails.
+- Whole payloads (`webhook_event` log bodies, and the `github` receiver's `include_span_events`,
+  off by default) carry the same personal data, which a `resource` processor does not filter. The
+  `gitlab` receiver's `include_user_attributes` (off by default) adds commit author and pipeline
+  actor details ([gitlab-receiver.md](references/gitlab-receiver.md#configuration)).
 - Environment variables are visible to other processes and logs; keep secrets out of `BAGGAGE`.
