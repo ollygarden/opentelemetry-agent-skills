@@ -157,6 +157,7 @@ skills/
 bin/                     # the gates CI runs, runnable locally
   validate-skill.sh      # Agent Skills spec conformance + house rules
   check-skill-inventory.py
+  manifest-version.py    # one release version across the plugin manifests; bumps it
   skills-ref.requirement # pinned validator revision; the single source
 docs/
   preferred-workflow.md  # how a change moves through this repository
