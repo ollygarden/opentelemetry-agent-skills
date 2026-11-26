@@ -94,7 +94,7 @@
         "Uses the contrib `webhook_event` receiver, not the `github` receiver's `include_span_events`, as the source of the logs.",
         "Says the receiver emits one log record per request whose body is the whole raw payload, unparsed, and that the records carry no trace context.",
         "Validates GitHub deliveries with `hmac_signature` using the `X-Hub-Signature-256` header and the `sha256=` prefix.",
-        "Relates logs to traces by matching `workflow_run.id` in the payload to the `github` receiver's `cicd.pipeline.run.id`, and also matches `workflow_run.run_attempt` (each attempt is its own trace) and `action: completed` (earlier deliveries such as `requested` or `in_progress` share the ID).",
+        "Relates logs to traces by matching `workflow_run.id` in the payload to the `github` receiver's `cicd.pipeline.run.id`, keeps only `action: completed` deliveries, and ties each payload to its attempt's trace by computing the trace ID from `workflow_run.id` and `workflow_run.run_attempt` with the receiver's scheme (first 32 hex characters of sha256 of `{run_id}{run_attempt}t`), because the traces carry no attempt attribute.",
         "Says GitHub must deliver each event to the `webhook_event` endpoint separately from the `github` receiver's endpoint, for example through a second webhook."
       ]
     }
