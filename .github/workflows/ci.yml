@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  workflow_call: # Publish runs validation before releasing
+  workflow_call: # Publish and Release run validation first
   pull_request:
     branches:
       - main
@@ -41,6 +41,9 @@ jobs:
 
       - name: Check Skill Registration
         run: ./bin/check-skill-inventory.py
+
+      - name: Check Manifest Versions
+        run: ./bin/manifest-version.py check
 
   tool-tests:
     name: otel-agent-tools

@@ -47,9 +47,10 @@ If a change genuinely cannot alter agent behavior, say `Not applicable — no ha
 ```bash
 ./bin/validate-skill.sh              # spec conformance + under-500-lines
 ./bin/check-skill-inventory.py     # skills/, marketplace.json, README table + tree
+./bin/manifest-version.py check    # plugin manifests carry one release version
 ```
 
-Both run in CI, so a miss here surfaces as a failed check rather than a review comment. `validate-skill.sh` shells out to `skills-ref`, which needs a one-time `uv tool install "$(cat bin/skills-ref.requirement)"` — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+All three run in CI, so a miss here surfaces as a failed check rather than a review comment. `validate-skill.sh` shells out to `skills-ref`, which needs a one-time `uv tool install "$(cat bin/skills-ref.requirement)"` — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 If your change adds or edits links, reproduce the CI link check locally with the same command it runs, from the repository root, using the [lychee](https://github.com/lycheeverse/lychee) release that `LYCHEE_VERSION` pins in `.github/workflows/link-check.yml`:
 

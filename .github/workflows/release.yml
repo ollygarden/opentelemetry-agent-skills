@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Publish the GitHub release
+    needs: validate
+    runs-on: blacksmith
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check Tag
+        run: |
+          ./bin/manifest-version.py check --tag "$GITHUB_REF_NAME"
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not on main."
+            exit 1
+          fi
+          main_version="$(git show origin/main:plugin.json | jq -r .version)"
+          if [ "$GITHUB_REF_NAME" != "v${main_version}" ]; then
+            echo "::error::main is at ${main_version}; only that version can be released."
+            exit 1
+          fi
+
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
