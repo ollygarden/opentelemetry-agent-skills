@@ -38,24 +38,21 @@ jobs:
         id: bump
         env:
           BUMP: ${{ inputs.bump }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # ls-remote --exit-code returns 2 for no match; anything else but 0 is an error.
-          tag_exists() {
-            local status=0
-            git ls-remote --exit-code --tags origin "refs/tags/$1" > /dev/null || status=$?
-            [ "$status" -eq 0 ] || [ "$status" -eq 2 ] || exit "$status"
-            [ "$status" -eq 0 ]
-          }
-
+          # Bumping before the current version's Release run finishes would fail its main-version check.
           current="$(./bin/manifest-version.py check)"
-          if ! tag_exists "v${current}"; then
-            echo "::error::main is at ${current}, which has no v${current} tag. Tag it before preparing the next release."
+          if [ "$(gh release view "v${current}" --json isDraft --jq .isDraft)" != false ]; then
+            echo "::error::main is at ${current}, which has no published v${current} release. Finish releasing it first."
             exit 1
           fi
 
           version="$(./bin/manifest-version.py bump "$BUMP")"
-          if tag_exists "v${version}"; then
-            echo "::error::Tag v${version} already exists."
+          # ls-remote --exit-code returns 2 for no match; anything else but 0 is an error.
+          status=0
+          git ls-remote --exit-code --tags origin "refs/tags/v${version}" > /dev/null || status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "::error::Tag v${version} already exists, or the tag lookup failed (exit ${status})."
             exit 1
           fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"

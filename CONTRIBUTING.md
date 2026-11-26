@@ -174,7 +174,7 @@ Versions follow semver:
 
 To cut a release, a maintainer:
 
-1. Runs **Prepare Release** from `main` (Actions → Prepare Release → Run workflow) with `patch`, `minor`, or `major`. It bumps the three fields with `./bin/manifest-version.py bump`, opens a `chore(release): vX.Y.Z` pull request, and starts CI on it. It refuses to run while the current version has no tag.
+1. Runs **Prepare Release** from `main` (Actions → Prepare Release → Run workflow) with `patch`, `minor`, or `major`. It bumps the three fields with `./bin/manifest-version.py bump`, opens a `chore(release): vX.Y.Z` pull request, and starts CI on it. It refuses to run until the current version's GitHub release is published.
 2. Merges that pull request once CI passes.
 3. Tags the merge commit and pushes the tag:
 
