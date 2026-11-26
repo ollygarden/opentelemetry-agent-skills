@@ -13,6 +13,11 @@
       "skills": ["otel-collector", "otel-collector-builder", "otel-ottl", "otel-telemetrygen", "otel-profiles"]
     },
     {
+      "title": "CI/CD",
+      "description": "Observing CI/CD pipelines and repository activity with OpenTelemetry.",
+      "skills": ["otel-cicd"]
+    },
+    {
       "title": "Specifications and lifecycle",
       "description": "Semantic conventions, declarative configuration, versions, and migrations.",
       "skills": [
