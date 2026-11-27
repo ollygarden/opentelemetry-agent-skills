@@ -61,12 +61,13 @@ Prefer using the [`skill-creator`](https://github.com/anthropics/skills/tree/mai
 Skills live under `skills/<skill-name>/` and must follow the [Agent Skills specification](https://agentskills.io/specification). Each must include a `SKILL.md` with YAML frontmatter (`name` and `description`), where the directory name matches the `name` field. Optional subdirectories: `references/`, `scripts/`, `assets/`.
 
 Run the same gates CI runs, before opening a PR. They take no setup beyond the validator
-install above. Both scripts locate the repository root themselves, so any path spelling
+install above. The scripts locate the repository root themselves, so any path spelling
 works from any working directory; the `./` form below assumes you are at the root:
 
 ```bash
 ./bin/validate-skill.sh            # all skills; pass a path to check just one
 ./bin/check-skill-inventory.py     # README, marketplace, skills.sh.json, and skills/ in sync
+./bin/manifest-version.py check    # release version fields agree
 ```
 
 `validate-skill.sh` delegates spec conformance to the
@@ -160,6 +161,30 @@ edits. Pull requests are squash-merged after required checks, review feedback, a
 requirements are satisfied. There is no guaranteed response time, but contributors are
 welcome to leave a concise follow-up if a pull request has had no maintainer response for
 two weeks.
+
+## Releases
+
+A release is a `vX.Y.Z` tag on `main` with a GitHub release, and the npm package `@ollygarden/opentelemetry-agent-skills@X.Y.Z` on GitHub Packages. Marketplaces read the version from the manifests at the tagged commit and npm publishes `package.json`'s, so these fields must match the tag: `version` in `plugin.json`, `.claude-plugin/plugin.json`, and `package.json`, and `metadata.version` in `.claude-plugin/marketplace.json`. Only the Prepare Release workflow changes them, and `./bin/manifest-version.py check` fails when they disagree.
+
+Versions follow semver:
+
+- **patch** — reconciled SDK and Collector versions, fixes, or changes to a skill's references
+- **minor** — a new skill, or a change to a skill's scope
+- **major** — a layout change that breaks how the repository is installed
+
+To cut a release, a maintainer:
+
+1. Runs **Prepare Release** from `main` (Actions → Prepare Release → Run workflow) with `patch`, `minor`, or `major`. It bumps them with `./bin/manifest-version.py bump`, opens a `chore(release): vX.Y.Z` pull request, and starts CI on it. It refuses to run until the current version's GitHub release is published.
+2. Merges that pull request once CI passes.
+3. Tags the merge commit and pushes the tag:
+
+   ```bash
+   git fetch origin
+   git tag vX.Y.Z "$(gh pr view release/vX.Y.Z --json mergeCommit --jq .mergeCommit.oid)"
+   git push origin vX.Y.Z
+   ```
+
+The **Release** workflow then runs CI on the tag. It checks that the tag matches the version fields, is on `main`, and is the version `main` carries, then publishes the npm package and, last, the GitHub release with generated notes. If a job fails, re-run the failed jobs. If the tag check fails, nothing is published: delete the tag with `git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z` and tag the right commit.
 
 ## Contributor License Agreement
 

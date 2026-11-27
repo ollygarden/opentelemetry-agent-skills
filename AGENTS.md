@@ -14,11 +14,12 @@ For any change that adds, renames, moves, or removes a skill, or that alters wha
 
 ## Running the gates locally
 
-The two skill gates are scripts in `bin/`. Both resolve the repository root themselves, so any path spelling works from any working directory — the `./` form below assumes you are at the root:
+The gates are scripts in `bin/`. Each resolves the repository root itself, so any path spelling works from any working directory — the `./` form below assumes you are at the root:
 
 ```bash
 ./bin/validate-skill.sh            # spec conformance + house rules; a path checks one skill
 ./bin/check-skill-inventory.py     # skills/, marketplace.json, README, and skills.sh.json in sync
+./bin/manifest-version.py check    # release version fields agree
 ```
 
 CI enforces one further check that is not a `bin/` script: the `Link Check` workflow. Reproduce it locally with the `lychee` command in [`docs/preferred-workflow.md`](docs/preferred-workflow.md#5-run-the-gates).
@@ -32,6 +33,7 @@ CI enforces one further check that is not a `bin/` script: the `Link Check` work
 - `SKILL.md` stays under 500 lines — **automated**. Past that, move detail into `references/`.
 - No verification dates or "unchanged through" wording — **automated**, same script; see "Version facts name their release" below.
 - Registration across `skills/`, `marketplace.json`, `README.md`, and `skills.sh.json` — **automated** by `bin/check-skill-inventory.py`.
+- The release version fields agree — **automated** by `bin/manifest-version.py check`. Never edit them by hand; the Prepare Release workflow bumps them (see ["Releases" in `CONTRIBUTING.md`](CONTRIBUTING.md#releases)).
 - Links resolve — **automated** by the `Link Check` workflow, which scans the whole repository weekly and on every PR.
 - Keeping content vendor-neutral, DRY, and token-efficient — **review-enforced**, not automated. A green build says nothing about it.
 

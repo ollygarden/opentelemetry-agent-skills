@@ -89,7 +89,7 @@ See the [skills CLI documentation](https://github.com/vercel-labs/skills#support
 
 ### npm
 
-Each merge to `main` that changes `skills/` publishes `@ollygarden/opentelemetry-agent-skills@1.0.<run>` to GitHub Packages, without `evals/`. Installing needs a token with `read:packages`:
+Each release `vX.Y.Z` publishes `@ollygarden/opentelemetry-agent-skills@X.Y.Z` to GitHub Packages, without `evals/`. Installing needs a token with `read:packages`:
 
 ```bash
 echo '@ollygarden:registry=https://npm.pkg.github.com' >> .npmrc
@@ -157,6 +157,7 @@ skills/
 bin/                     # the gates CI runs, runnable locally
   validate-skill.sh      # Agent Skills spec conformance + house rules
   check-skill-inventory.py
+  manifest-version.py    # checks and bumps the release version fields
   skills-ref.requirement # pinned validator revision; the single source
 docs/
   preferred-workflow.md  # how a change moves through this repository

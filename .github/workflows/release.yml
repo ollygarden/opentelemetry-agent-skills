@@ -1,0 +1,79 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish to GitHub Packages
+    needs: validate
+    runs-on: blacksmith
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check Tag
+        run: |
+          ./bin/manifest-version.py check --tag "$GITHUB_REF_NAME"
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not on main."
+            exit 1
+          fi
+          main_version="$(git show origin/main:plugin.json | jq -r .version)"
+          if [ "$GITHUB_REF_NAME" != "v${main_version}" ]; then
+            echo "::error::main is at ${main_version}; only that version can be released."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@ollygarden"
+
+      # A rerun after npm accepted the package but the job still failed finds it already published.
+      - name: Publish Package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          package="$(jq -r '"\(.name)@\(.version)"' package.json)"
+          published_from="$(npm view "$package" gitHead 2> /dev/null || true)"
+          if [ -z "$published_from" ]; then
+            npm publish
+          elif [ "$published_from" = "$(git rev-parse HEAD)" ]; then
+            echo "${package} is already published from this commit."
+          else
+            echo "::error::${package} is already published from ${published_from}."
+            exit 1
+          fi
+
+  # Last, so a published GitHub release means the package is out too; Prepare Release relies on it.
+  release:
+    name: Publish the GitHub release
+    needs: publish
+    runs-on: blacksmith
+    permissions:
+      contents: write
+
+    steps:
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"

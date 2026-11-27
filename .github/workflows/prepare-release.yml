@@ -1,0 +1,88 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Part of the version to bump (see "Releases" in CONTRIBUTING.md)
+        type: choice
+        required: true
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Open the release pull request
+    runs-on: blacksmith
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Require main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run Prepare Release from main, not ${GITHUB_REF_NAME}."
+          exit 1
+
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Bump Manifest Versions
+        id: bump
+        env:
+          BUMP: ${{ inputs.bump }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Bumping before the current version's Release run finishes would fail its main-version check.
+          current="$(./bin/manifest-version.py check)"
+          if [ "$(gh release view "v${current}" --json isDraft --jq .isDraft)" != false ]; then
+            echo "::error::main is at ${current}, which has no published v${current} release. Finish releasing it first."
+            exit 1
+          fi
+
+          version="$(./bin/manifest-version.py bump "$BUMP")"
+          # ls-remote --exit-code returns 2 for no match; anything else but 0 is an error.
+          status=0
+          git ls-remote --exit-code --tags origin "refs/tags/v${version}" > /dev/null || status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "::error::Tag v${version} already exists, or the tag lookup failed (exit ${status})."
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Open Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          branch="release/v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -am "chore(release): v${VERSION}"
+          # Force, so a rerun after a later step failed can replace the branch.
+          git push --force origin "$branch"
+
+          # A pull request opened with GITHUB_TOKEN triggers no workflows; a dispatched run is the exception.
+          gh workflow run ci.yml --ref "$branch"
+
+          gh pr create --base main --head "$branch" \
+            --title "chore(release): v${VERSION}" \
+            --body-file - <<EOF
+          Bumps the release version to \`${VERSION}\`.
+
+          After merging, tag the merge commit. The Release workflow checks the tag and publishes the release (see "Releases" in CONTRIBUTING.md):
+
+          \`\`\`bash
+          git fetch origin
+          git tag v${VERSION} "\$(gh pr view ${branch} --json mergeCommit --jq .mergeCommit.oid)"
+          git push origin v${VERSION}
+          \`\`\`
+          EOF
