@@ -78,7 +78,7 @@ jobs:
             --body-file - <<EOF
           Bumps the release version to \`${VERSION}\`.
 
-          After merging, tag the merge commit. The Release workflow checks the tag and publishes the release ([Releases](https://github.com/${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md#releases)):
+          After merging, tag the merge commit. The Release workflow checks the tag and publishes the release (see "Releases" in CONTRIBUTING.md):
 
           \`\`\`bash
           git fetch origin

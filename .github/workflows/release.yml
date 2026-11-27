@@ -47,10 +47,21 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: "@ollygarden"
 
+      # A rerun after npm accepted the package but the job still failed finds it already published.
       - name: Publish Package
-        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          package="$(jq -r '"\(.name)@\(.version)"' package.json)"
+          published_from="$(npm view "$package" gitHead 2> /dev/null || true)"
+          if [ -z "$published_from" ]; then
+            npm publish
+          elif [ "$published_from" = "$(git rev-parse HEAD)" ]; then
+            echo "${package} is already published from this commit."
+          else
+            echo "::error::${package} is already published from ${published_from}."
+            exit 1
+          fi
 
   # Last, so a published GitHub release means the package is out too; Prepare Release relies on it.
   release:
