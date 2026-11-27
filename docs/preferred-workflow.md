@@ -47,7 +47,7 @@ If a change genuinely cannot alter agent behavior, say `Not applicable — no ha
 ```bash
 ./bin/validate-skill.sh              # spec conformance + under-500-lines
 ./bin/check-skill-inventory.py     # skills/, marketplace.json, README table + tree
-./bin/manifest-version.py check    # plugin manifests carry one release version
+./bin/manifest-version.py check    # release version fields agree
 ```
 
 All three run in CI, so a miss here surfaces as a failed check rather than a review comment. `validate-skill.sh` shells out to `skills-ref`, which needs a one-time `uv tool install "$(cat bin/skills-ref.requirement)"` — see [`CONTRIBUTING.md`](../CONTRIBUTING.md).

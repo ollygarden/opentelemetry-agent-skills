@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Check or bump the release version that the plugin manifests carry.
+"""Check or bump the release version that the plugin manifests and package.json carry.
 
-Marketplaces pin a release tag and read the version from these manifests at
-that commit, so they must all carry one MAJOR.MINOR.PATCH value, and a release
-tag must name it. See "Releases" in CONTRIBUTING.md.
+Marketplaces read the version from the plugin manifests at a release tag and npm
+publishes package.json's, so all must carry one MAJOR.MINOR.PATCH value that the
+tag names. See "Releases" in CONTRIBUTING.md.
 
 Usage: bin/manifest-version.py check [--tag vX.Y.Z]
        bin/manifest-version.py bump patch|minor|major
@@ -25,6 +25,7 @@ MANIFESTS = {
     "plugin.json": ("version",),
     ".claude-plugin/plugin.json": ("version",),
     ".claude-plugin/marketplace.json": ("metadata", "version"),
+    "package.json": ("version",),
 }
 SEMVER = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 

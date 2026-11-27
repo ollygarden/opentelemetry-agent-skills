@@ -67,7 +67,7 @@ works from any working directory; the `./` form below assumes you are at the roo
 ```bash
 ./bin/validate-skill.sh            # all skills; pass a path to check just one
 ./bin/check-skill-inventory.py     # README, marketplace, skills.sh.json, and skills/ in sync
-./bin/manifest-version.py check    # plugin manifests carry one release version
+./bin/manifest-version.py check    # release version fields agree
 ```
 
 `validate-skill.sh` delegates spec conformance to the
@@ -164,7 +164,7 @@ two weeks.
 
 ## Releases
 
-A release is a `vX.Y.Z` tag on `main` with a GitHub release. A marketplace that pins a release reads the version from the manifests at the tagged commit, so the three version fields must match the tag: `version` in `plugin.json` and `.claude-plugin/plugin.json`, and `metadata.version` in `.claude-plugin/marketplace.json`. Only the Prepare Release workflow changes them, and `./bin/manifest-version.py check` fails when they disagree.
+A release is a `vX.Y.Z` tag on `main` with a GitHub release, and the npm package `@ollygarden/opentelemetry-agent-skills@X.Y.Z` on GitHub Packages. Marketplaces read the version from the manifests at the tagged commit and npm publishes `package.json`'s, so these fields must match the tag: `version` in `plugin.json`, `.claude-plugin/plugin.json`, and `package.json`, and `metadata.version` in `.claude-plugin/marketplace.json`. Only the Prepare Release workflow changes them, and `./bin/manifest-version.py check` fails when they disagree.
 
 Versions follow semver:
 
@@ -174,7 +174,7 @@ Versions follow semver:
 
 To cut a release, a maintainer:
 
-1. Runs **Prepare Release** from `main` (Actions → Prepare Release → Run workflow) with `patch`, `minor`, or `major`. It bumps the three fields with `./bin/manifest-version.py bump`, opens a `chore(release): vX.Y.Z` pull request, and starts CI on it. It refuses to run until the current version's GitHub release is published.
+1. Runs **Prepare Release** from `main` (Actions → Prepare Release → Run workflow) with `patch`, `minor`, or `major`. It bumps them with `./bin/manifest-version.py bump`, opens a `chore(release): vX.Y.Z` pull request, and starts CI on it. It refuses to run until the current version's GitHub release is published.
 2. Merges that pull request once CI passes.
 3. Tags the merge commit and pushes the tag:
 
@@ -184,7 +184,7 @@ To cut a release, a maintainer:
    git push origin vX.Y.Z
    ```
 
-The **Release** workflow then runs CI on the tag. It checks that the tag matches the manifest version, is on `main`, and is the version `main` carries, then publishes the GitHub release with generated notes. If CI fails, re-run it. If the tag check fails, nothing is published: delete the tag with `git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z` and tag the right commit.
+The **Release** workflow then runs CI on the tag. It checks that the tag matches the version fields, is on `main`, and is the version `main` carries, then publishes the npm package and, last, the GitHub release with generated notes. If a job fails, re-run the failed jobs. If the tag check fails, nothing is published: delete the tag with `git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z` and tag the right commit.
 
 ## Contributor License Agreement
 

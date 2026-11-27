@@ -76,9 +76,9 @@ jobs:
           gh pr create --base main --head "$branch" \
             --title "chore(release): v${VERSION}" \
             --body-file - <<EOF
-          Bumps the plugin manifests to \`${VERSION}\`.
+          Bumps the release version to \`${VERSION}\`.
 
-          After merging, tag the merge commit. The Release workflow checks the tag and publishes the GitHub release:
+          After merging, tag the merge commit. The Release workflow checks the tag and publishes the release ([Releases](https://github.com/${GITHUB_REPOSITORY}/blob/main/CONTRIBUTING.md#releases)):
 
           \`\`\`bash
           git fetch origin

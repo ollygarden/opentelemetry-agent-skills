@@ -12,12 +12,13 @@ jobs:
   validate:
     uses: ./.github/workflows/ci.yml
 
-  release:
-    name: Publish the GitHub release
+  publish:
+    name: Publish to GitHub Packages
     needs: validate
     runs-on: blacksmith
     permissions:
-      contents: write
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Repo
@@ -39,7 +40,29 @@ jobs:
             exit 1
           fi
 
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: "@ollygarden"
+
+      - name: Publish Package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Last, so a published GitHub release means the package is out too; Prepare Release relies on it.
+  release:
+    name: Publish the GitHub release
+    needs: publish
+    runs-on: blacksmith
+    permissions:
+      contents: write
+
+    steps:
       - name: Publish Release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
