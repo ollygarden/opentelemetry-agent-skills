@@ -24,7 +24,7 @@ Use when:
 - You want to fan telemetry across a horizontally-scaled, dynamically-discovered pool of backend Collectors (DNS/headless-service/CloudMap) with stable affinity.
 
 Avoid when:
-- You just need plain round-robin/failover to a couple of static endpoints with no affinity requirement — a single `otlp` exporter (optionally with multiple DNS-resolved targets) is simpler.
+- You need ordered primary/backup failover — use the [`failover`](../failover/README.md) connector. For plain round-robin to a couple of static endpoints with no affinity requirement, a single `otlp_grpc` exporter (optionally with multiple DNS-resolved targets) is simpler.
 - You need to route by attribute to **different** pipelines/backends by rule — that is `routing` (a connector), not hash-based distribution.
 - Your only goal is throughput batching/retry to one backend — that is the `otlp` exporter's `sending_queue`/`retry_on_failure`.
 
