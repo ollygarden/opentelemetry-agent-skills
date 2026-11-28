@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on Collector component questions including receivers, processors, exporters, connectors, extensions, component renames, signal support, and pipeline wiring.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on Collector component questions including receivers, processors, exporters, connectors, extensions, component renames, signal support, and pipeline wiring; failover, fallback, or backup exporters and failing back to the primary; the ClickHouse exporter, `async_insert`, and `create_schema`; exporting or archiving telemetry to S3 or object storage; replaying or backfilling from S3; S3 event notifications via SQS; and `awss3` or `aws_s3`.
 ---
 
 # OpenTelemetry Collector
@@ -12,7 +12,7 @@ It does **not** cover OTTL expressions (see `otel-ottl`), declarative SDK config
 ## Workflow
 
 1. **Identify the component.** Find the `type` in the user's config or question (`log_dedup`, `interval`, `otlp`, …). Note that many components have been renamed to snake_case since v0.146.0 with deprecated aliases preserved — see [Recent renames](#recent-renames).
-2. **Load the component page before answering.** If the component is in the [Component index](#component-index), always read `components/<type>/README.md` first — the top-level index is only a routing aid, not enough evidence for an answer. Follow its **Details** index to the smallest relevant file: read `configuration.md` for versioned keys, defaults, or validation; `quirks.md` for stability, availability, failure behavior, or migration traps; and the other detail files only as the question requires. Do not infer exact configuration or status from the summary row or memory.
+2. **Load the component page before answering.** If the component is in the [Component index](#component-index), always read the `README.md` path in its index row first — the top-level index is only a routing aid, not enough evidence for an answer. Follow its **Details** index to the smallest relevant file: read `configuration.md` for versioned keys, defaults, or validation; `quirks.md` for stability, availability, failure behavior, or migration traps; and the other detail files only as the question requires. Do not infer exact configuration or status from the summary row or memory.
 3. **If the component is not indexed**, say so explicitly and fall back to the upstream README under `processor/<name>/`, `receiver/<name>/`, `exporter/<name>/`, `connector/<name>/`, or `extension/<name>/` in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib). Don't invent config keys from memory — Collector components evolve quickly.
 4. **Apply Collector-wide conventions.** Named instances (`type/name`), stability levels, and pipeline placement rules in [Collector-wide conventions](#collector-wide-conventions) apply to every component.
 5. **Verify.** Run the component page's **Verification** recipe — `telemetrygen` (see the `otel-telemetrygen` skill) plus a `debug` or `file` exporter — to confirm the component behaves as the docs claim. Alpha- and Development-stability components are common here, and behavior changes between releases. See [Verification harness](#verification-harness) for how to run a recipe end-to-end.
@@ -53,6 +53,10 @@ The v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelo
 | `prometheus` (receiver) | `components/prometheus/README.md` | receiver | metrics | Beta | Scrapes Prometheus-format HTTP endpoints and converts them to OTLP metrics, embedding `prometheus/prometheus`'s scrape manager — the `config:` block is the same YAML as `prometheus.yml` (`global`, `scrape_configs`, `scrape_config_files`, service discovery, relabeling). Extra keys: `trim_metric_suffixes`, `target_allocator` (sharded targets from the OTel Operator), `api_server` (debug API). Scrape-only: rejects `remote_write`/`remote_read`/`rule_files`/alerting. Stateful, does not auto-shard across replicas. |
 | `prometheus` (exporter) | `components/prometheus_exporter/README.md` | exporter | metrics | Beta | Exposes pipeline metrics for Prometheus to scrape. In-memory accumulator expires stale series after 5m. v0.160 adds `resource_constant_labels` and deprecates `resource_to_telemetry_conversion`; `add_metric_suffixes` remains deprecated in favor of `translation_strategy`. |
 | `prometheus_remote_write` (exporter) | `components/prometheus_remote_write/README.md` | exporter | metrics | Beta | Pushes OTLP metrics as Prometheus Remote Write. Nests HTTP client settings under `http`; uses `remote_write_queue` (not `sending_queue`). v0.160 adds `resource_constant_labels` and deprecates `resource_to_telemetry_conversion`; RW2 remains gated and in development. |
+| `failover` | `components/failover/README.md` | connector | traces, metrics, logs | Alpha | Sends same-signal telemetry to the first healthy `priority_levels` entry; fails over when a level returns an error synchronously and probes higher levels every `retry_interval` to fail back. An exporter `sending_queue` in a priority pipeline hides failures from it. |
+| `clickhouse` | `components/clickhouse/README.md` | exporter | traces, logs, metrics, profiles | Beta (traces/logs), Alpha (metrics), Development (profiles) | Inserts telemetry into ClickHouse tables over the native or HTTP protocol. `create_schema` (default `true`) runs DDL at start, and a DDL failure stops the Collector. No error is permanent, so failed inserts retry until `max_elapsed_time`. |
+| `awss3` (exporter) | `components/aws_s3_exporter/README.md` | exporter | traces, metrics, logs | Alpha | Writes each export request as one S3 object (OTLP JSON or Protobuf, logs-only formats, or an encoding extension) under an upload-time partition key; bucket and prefix can come from a resource attribute. |
+| `aws_s3` (receiver) | `components/aws_s3/README.md` | receiver | traces, metrics, logs | Alpha | Reads S3 objects into a pipeline, either as a one-shot time-range replay of `awss3` exporter partitions or driven by SQS `ObjectCreated` notifications. Renamed from `awss3` in v0.162.0; alias preserved. |
 
 ## Collector-wide conventions
 
@@ -77,6 +81,8 @@ service:
       processors: [log_dedup/access-logs]
 ```
 
+The Collector builds a receiver or exporter once per ID and pipeline signal (core v0.165.0 [`graph.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/service/internal/graph/graph.go)), and pipelines of one signal share it. Different signals share one instance only when the factory caches it, typically through `sharedcomponent` as the `otlp` receiver does; otherwise one ID in a `traces` and a `logs` pipeline runs twice.
+
 ### Stability levels
 
 Components publish a stability level per signal. Treat these as load-bearing when recommending production use:
@@ -92,17 +98,21 @@ Stability varies per component — and per signal for multi-signal components (e
 
 ### Recent renames
 
-Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. the `awss3` receiver → `aws_s3` in v0.162.0, `sqlserver` → `sql_server` in v0.163.0; receivers and exporters of one family rename separately, so check the component's `metadata.yaml` `type`). The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
+Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. the `awss3` receiver → `aws_s3` in v0.162.0, `sqlserver` → `sql_server` in v0.163.0; receivers and exporters of one family rename separately, so check the component's `metadata.yaml` `type`; the [`awss3` exporter](components/aws_s3_exporter/README.md) keeps its name). The legacy names remain as deprecated aliases — old configs keep working, and the configured name stays the component ID in the component's own telemetry (core v0.165.0 [`builders.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/service/internal/builders/builders.go) only logs a deprecation warning), but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
 
 Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
 
+### Exporter queue, retry, and timeout
+
+Exporters built on core's `exporterhelper` share `sending_queue`, `retry_on_failure`, and `timeout`. [references/exporterhelper.md](references/exporterhelper.md) holds their keys, the helper's defaults, validation, and how in-memory and persistent (`storage`) queues behave; each exporter's own defaults are on its component page.
+
 ### Pipeline placement
 
-Two rules of thumb that apply across components:
+Rules of thumb that apply across components:
 
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
-- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
-- Data a processor such as `batch` holds in memory is lost on a crash; an exporter persistent queue ([file_storage](components/file_storage/advanced.md)) protects only data that has reached it.
+- Exporter-side batching (`sending_queue.batch`) is opt-in for exporters that keep the helper default, such as `otlp_grpc` ([how to enable it](references/exporterhelper.md#sending_queuebatch)). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
+- The `batch` processor returns `nil` once it holds the data, so export errors never reach the components in front of it (core v0.165.0 [`batch_processor.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/processor/batchprocessor/batch_processor.go)); the same holds for an exporter's [sending queue](references/exporterhelper.md#what-the-caller-sees) unless it sets `wait_for_result: true`. Data it holds in memory is lost on a crash; an exporter persistent queue ([`storage`](references/exporterhelper.md#persistent-queue-storage)) protects only data that has reached it.
 
 ### Feature gates
 
@@ -118,6 +128,8 @@ Each component page's **Verification** section gives a config, a `telemetrygen` 
 
 The Verification configs are **minimal repros**: they omit `memory_limiter` and other production scaffolding on purpose, to isolate the component under test. Don't copy them verbatim into production.
 
+The `failover`, `clickhouse`, `awss3` exporter, and `aws_s3` recipes ran on `otel/opentelemetry-collector-contrib:0.165.0`, because no 0.165.1 image is published ([`otel-telemetrygen` preconditions](../otel-telemetrygen/references/collector-verification.md#preconditions)); those components differ between contrib v0.165.0 and v0.165.1 at most in `go.mod`. "Observed" in their pages marks behavior seen in that setup. Core v0.165.0 samples the Collector's own logs by default (per message, the first 10 entries every 10s, then every 100th), so a recipe that counts more log lines than that needs `service.telemetry.logs.sampling.enabled: false`.
+
 ## Adding a new component to this skill
 
 When extending coverage:
@@ -130,7 +142,7 @@ When extending coverage:
    - **Related components** — cross-links.
    - **Details index** — a bullet list where each item links a detail file followed by an em dash and a short description of its contents (e.g. `- [Configuration](configuration.md) — config keys, defaults, validation`), so the reader loads only what a question needs.
 3. **Split the rest into on-demand detail files** under the same directory:
-   - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables.
+   - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables. For an exporter, give only its own `sending_queue` / `retry_on_failure` / `timeout` defaults and link [references/exporterhelper.md](references/exporterhelper.md) for what they do.
    - **`verification.md`** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
    - **`advanced.md`** — named instances, multi-pipeline setups, combinations, and edge configs.
    - **`quirks.md`** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.

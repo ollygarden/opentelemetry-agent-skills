@@ -35,7 +35,7 @@ bbolt is generally durable, but on certain corruption panics the extension can e
 
 ## mmap space is not reclaimed until compaction
 
-bbolt is mmap-backed: after a usage spike (e.g. a persistent queue filling during an outage) the file's allocated size grows and does **not** shrink when the data is removed. Disk/mmap footprint stays high until a compaction runs. Enable `compaction.on_start` and/or `compaction.on_rebound` to reclaim it — see [advanced.md](advanced.md).
+bbolt is mmap-backed: after a usage spike (e.g. a persistent queue filling during an outage) the file's allocated size grows and does **not** shrink when the data is removed. Disk/mmap footprint stays high until a compaction runs. Enable `compaction.on_start` and/or `compaction.on_rebound` to reclaim it — see [advanced.md](advanced.md). Upstream reports on open time, drain speed, and memory with a multi-gigabyte persistent queue are collected in [Persistent queue](../../references/exporterhelper.md#persistent-queue-storage).
 
 ## `fsync` is a durability-vs-throughput trade-off
 

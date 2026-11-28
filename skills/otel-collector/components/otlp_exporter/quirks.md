@@ -6,9 +6,8 @@ The canonical type was renamed from `otlp` to **`otlp_grpc`** in core **v1.50.0*
 
 ## Exporter batching vs. the `batch` processor
 
-This exporter's `sending_queue` is enabled by default, but queue batching is **disabled by default**.
-Add `sending_queue.batch: {}` to activate the 200ms / 8192-item defaults, or enable the
-alpha `pkg.exporterhelper.queueBatchEnabled` migration gate. The separate `batch` processor is still
+This exporter's `sending_queue` is enabled by default, but queue batching is **disabled by default**;
+how to enable it is in the [shared reference](../../references/exporterhelper.md#sending_queuebatch). The separate `batch` processor is still
 Beta and supported; use it when batching must happen at pipeline level (for example, once before
 fan-out to several exporters), and place it after processors that may drop data. If both layers are
 enabled, tune them deliberately because double batching can add latency.
@@ -21,21 +20,9 @@ The factory sets `compression: gzip`. To send uncompressed gRPC (e.g. a CPU-cons
 
 A backend with no TLS (a sibling Collector on a trusted network, a local test) requires `tls: { insecure: true }`. Without it the exporter attempts a TLS handshake and the connection fails. Note the distinction from `insecure_skip_verify: true`, which keeps TLS but skips certificate verification — different setting, different behavior.
 
-## `wait_for_result` is incompatible with a persistent `storage` queue
-
-`sending_queue.wait_for_result: true` and `sending_queue.storage` (a `file_storage`-backed persistent queue) cannot both be set. Pick synchronous delivery confirmation **or** restart-durable persistence, not both.
-
 ## `wait_for_ready` only takes effect on v0.157.0 and newer
 
 Before core v0.157.0, `wait_for_ready: true` was accepted in the gRPC client config but was not added to the RPC call options, so sends still failed fast while the connection was not ready. v0.157.0 applies `grpc.WaitForReady` correctly. Do not rely on this setting for outage behavior on older Collectors.
-
-## `min_size` must be ≤ `queue_size`
-
-When batching is enabled and the sizers match, `sending_queue.batch.min_size` (default 8192) must not exceed `sending_queue.queue_size` (default 1000 in `requests` units — but if you switch `queue_size` to `items`, the 8192 default `min_size` can exceed it and fail validation). If you set `queue_size` in items, raise it above `min_size`, or lower `min_size`. Also: `batch.flush_timeout` must be > 0, and `batch.max_size` (when > 0) must be ≥ `min_size`.
-
-## Data is dropped after `max_elapsed_time`
-
-`retry_on_failure` retries with exponential backoff, but only until `max_elapsed_time` (default **5m**). After that budget is exhausted the data is **dropped** — retries are not infinite by default. Set `max_elapsed_time: 0` to retry forever (at the risk of unbounded queue growth), or pair with a persistent `storage` queue to survive longer outages.
 
 ## Stability is per signal
 
