@@ -6,8 +6,8 @@ One section per harness run, newest first.
 
 Run with Hermes Agent v0.22.5 in one-shot mode (`hermes -z`), driving `deepseek/deepseek-v4-flash`
 through OpenRouter with `-t todo --ignore-rules`. Four cases, three arms, three repetitions each:
-36 runs, plus a ×10 rerun of one case on two arms and reruns of the proposed arm on both
-review-round commits (all below). Every repetition was a fresh one-shot
+36 runs, plus a ×10 rerun of one case on two arms and reruns of the proposed arm on each
+review-round commit (all below). Every repetition was a fresh one-shot
 call in one of four pre-warmed `HERMES_HOME` directories, with the bundled and optional skill
 paths pointed at directories that do not exist, so no other skill was installed in any arm. The
 only tool was `todo`, so no arm could read upstream source, fetch a page or run a command. The
@@ -31,15 +31,16 @@ verdict is Unknown. No repetition was retried, and no repetition was excluded by
 | Proposed PR skill | `7efe65e56ba08a8ef562b2f052d43e3156057afe` | 4 × 3 | 5 | 7 | 0 |
 | Proposed PR skill, review round | `b6b3dd8c578d2f98a6c837bc8f173e8f8a2e814d` | 4 × 3 | 7 | 5 | 0 |
 | Proposed PR skill, second review round | `952d66dbb82778d757680ca1d2a248aef924fff3` | 4 × 3 | 6 | 6 | 0 |
+| Proposed PR skill, third review round | `e84253cc219779c12c568e41db88bc0f86054598` | 4 × 3 | 5 | 7 | 0 |
 
 By case, runs passed / expectations passed:
 
-| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` |
-|---|---|---|---|---|---|
-| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 |
-| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 |
-| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 |
-| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 |
+| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` | Proposed `e84253c` |
+|---|---|---|---|---|---|---|
+| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 | 0/3, 11/15 |
+| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 | 1/3, 10/12 |
+| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 | 2/3, 11/12 |
+| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 | 2/3, 11/12 |
 
 ### Per-attempt grading — `clickhouse-queue-fill-v01651`
 
@@ -118,6 +119,45 @@ was rerun ×10 on both arms with the same harness. The ×3 results above stand a
 
 The proposed columns count the nine graded runs. The Unknown run's verdict was truncated JSON (no
 closing brace). Its five reasons all read as passes, but it stays Unknown and was not regraded.
+
+### Rerun on the third review-round commit
+
+The third review round (`e84253c`) changed the receiver's sentence on when its counts change, and
+the clickhouse `send_failed_metric_points` and `sent_*` notes. The proposed arm was rerun on that
+commit, ×3 on all four cases, with the same harness in four fresh pre-warmed `HERMES_HOME`
+directories. It passed 5 of 12 runs and 43 of 51 expectations. No case passed fewer runs, and no
+expectation passed fewer times, than on `origin/main`. The withheld and `origin/main` arms were not
+rerun: their content did not change.
+
+Clickhouse went from 3 of 3 runs on `952d66d` to 0 of 3. Its misses were `A` (no comparison with
+`otelcol_exporter_queue_capacity`) twice, `C` (queue on by default) once, and `E` once, where the
+grader objected to the answer also naming exporterhelper v0.165.0. This round's edits touched none of
+those facts. The case was rerun ×10 on the proposed arm and compared with the `origin/main` ×10 rerun
+above, whose content is unchanged. The ×3 results stand as recorded.
+
+| Arm | Revision | Reps | Pass | Fail | Unknown | A | B | C | D | E |
+|---|---|---:|---:|---:|---:|---|---|---|---|---|
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 10 | 0 | 10 | 0 | 2/10 | 0/10 | 0/10 | 5/10 | 0/10 |
+| Proposed PR skill, third review round | `e84253cc219779c12c568e41db88bc0f86054598` | 10 | 3 | 7 | 0 | 6/10 | 10/10 | 5/10 | 10/10 | 9/10 |
+
+The failover misses were `C` (`exporter` set to the connector ID), the awss3 miss dropped the
+"detailed level" qualifier, and the receiver miss left out the `refused` counter, as in earlier
+rounds.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-e84253c-1` | fail | pass | pass | pass | fail | fail |
+| `clickhouse-proposed-e84253c-2` | fail | pass | pass | pass | pass | fail |
+| `clickhouse-proposed-e84253c-3` | pass | pass | fail | pass | pass | fail |
+| `failover-proposed-e84253c-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-e84253c-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-e84253c-1` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-e84253c-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-e84253c-1` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-e84253c-2` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
 
 ### Rerun on the second review-round commit
 
