@@ -1,0 +1,84 @@
+{
+  "skill": "otel-collector",
+  "runtime": "Hermes Agent v0.22.5 (hermes -z, -t todo --ignore-rules)",
+  "model": "deepseek/deepseek-v4-flash",
+  "cases": [
+    {
+      "id": "failover-exporter-queue-hides-outage",
+      "prompt": "No web lookups please, just your knowledge and skills. We run otelcol-contrib v0.165.1 and want automatic failover from our primary tracing backend to a backup gateway. Here is the relevant part of the config:\n\n```yaml\nconnectors:\n  failover:\n    priority_levels:\n      - [traces/primary]\n      - [traces/backup]\n    retry_interval: 2m\nexporters:\n  otlp_grpc/primary:\n    endpoint: primary-backend.internal:4317\n  otlp_grpc/backup:\n    endpoint: backup-gateway.internal:4317\nservice:\n  pipelines:\n    traces:\n      receivers: [otlp]\n      exporters: [failover]\n    traces/primary:\n      receivers: [failover]\n      exporters: [otlp_grpc/primary]\n    traces/backup:\n      receivers: [failover]\n      exporters: [otlp_grpc/backup]\n```\n\nIf the primary backend dies, will traffic switch to the backup right away? Anything I should change?",
+      "files": [],
+      "expectations": [
+        "Says traffic will not switch right away, because the primary `otlp_grpc` exporter's `sending_queue` is enabled by default and returns success to the connector as soon as a batch is enqueued, so the connector does not see the export failures.",
+        "States that the connector fails over only once the primary exporter's queue is full and rejects data (`sending queue is full`).",
+        "States that batches the primary exporter's queue already accepted are not resent to the backup: they are retried inside that exporter and then dropped.",
+        "Recommends disabling `sending_queue` on the priority pipelines' exporters (or setting `sending_queue.wait_for_result: true`) and keeping the queue in the failover connector, which has its own `sending_queue`."
+      ]
+    },
+    {
+      "id": "failover-every-level-fails",
+      "prompt": "No web lookups please, just your knowledge and skills. otelcol-contrib v0.165.1. Our gateway uses the `failover` connector with two levels, `[logs/primary]` and `[logs/secondary]`, each exporting with `otlp_grpc` that has `sending_queue.enabled: false` and `retry_on_failure.enabled: false`, like the upstream README suggests. The connector itself only sets `priority_levels` and `retry_interval: 5m`. Yesterday both backends were down for 20 minutes. What happened to the logs our apps sent during that window? Did the apps' OTLP exporters get errors so they could retry? And once the primary came back, how fast did traffic return to it?",
+      "files": [],
+      "expectations": [
+        "States that the connector's own `sending_queue` is enabled by default, so the gateway's receiver acknowledged the logs at enqueue and the apps' OTLP exporters got success, not errors.",
+        "States that when every level fails, the connector queue drops the batch (it has no retry), so logs sent during the outage were lost.",
+        "States that while every level is marked failed, later batches are rejected with `All provided pipelines return errors` without an export attempt until a probe succeeds.",
+        "States that traffic returns to the primary only after the next probe succeeds: up to one `retry_interval` (5m here) after the backend recovers, and only when a batch arrives to serve as the probe.",
+        "Says that setting the connector's `sending_queue.enabled: false` returns the error to the receiver, so the apps' OTLP exporters see an error (for example gRPC `Unavailable`) and can retry."
+      ]
+    },
+    {
+      "id": "clickhouse-insert-only-user-startup",
+      "prompt": "No web lookups please, just your knowledge and skills. Our DBA created the `otel` database and all OTel tables in ClickHouse up front, and gave the Collector a least-privilege user: `GRANT INSERT, SELECT ON otel.* TO otel_writer`. otelcol-contrib v0.165.1 config:\n\n```yaml\nexporters:\n  clickhouse:\n    endpoint: tcp://clickhouse.db.internal:9000\n    database: otel\n    username: otel_writer\n    password: ${env:CH_PASSWORD}\n```\n\nThe Collector exits right after start with `failed to start \"clickhouse\" exporter: create database: code: 497, message: ... Not enough privileges`. The database already exists, so why is it creating anything, and why does that stop the whole Collector? What's the fix that keeps the user least-privilege?",
+      "files": [],
+      "expectations": [
+        "Explains that `create_schema` defaults to `true`, so the exporter runs `CREATE DATABASE` / `CREATE TABLE ... IF NOT EXISTS` DDL when it starts.",
+        "States that ClickHouse checks the `CREATE` grant even for `IF NOT EXISTS` statements on a database or table that already exists, so an `INSERT, SELECT`-only user fails.",
+        "States that a schema DDL failure is returned from the exporter's start, so the Collector exits instead of starting and retrying.",
+        "Gives `create_schema: false` as the fix that keeps the user least-privilege, since the DBA manages the schema."
+      ]
+    },
+    {
+      "id": "clickhouse-failover-missing-column",
+      "prompt": "No web lookups please, just your knowledge and skills. otelcol-contrib v0.165.1. Logs go through a `failover` connector: level 1 is a pipeline with the `clickhouse` exporter (we set `sending_queue.enabled: false` on it; `retry_on_failure` is left at its defaults), level 2 writes a local `file` backup. The connector uses defaults apart from `priority_levels`. After a DBA swapped in an older `otel_logs` table, every insert fails with `code: 16, message: No such column ScopeSchemaUrl in table otel.otel_logs`. The first logs reached the backup file only about 5 minutes after the errors started, and every 10 minutes since then another batch shows up in the backup about 5 minutes late. Why, and what should we change?",
+      "files": [],
+      "expectations": [
+        "States that the `clickhouse` exporter marks no error as permanent, so even the missing-column error (code 16) is retried until `retry_on_failure.max_elapsed_time` (default 5m) before the error reaches the connector.",
+        "Explains the recurring delay: every `retry_interval` (default 10m) the connector probes the higher-priority ClickHouse level with a live batch, and that batch again waits through the exporter's retries before it goes to the backup.",
+        "Recommends disabling `retry_on_failure` on the ClickHouse exporter in the priority pipeline, or making its `max_elapsed_time` much shorter, so failures reach the connector quickly.",
+        "Says the table itself must be fixed, for example with `ALTER TABLE ... ADD COLUMN` or by recreating it, because the exporter's `IF NOT EXISTS` schema DDL never changes an existing table."
+      ]
+    },
+    {
+      "id": "awss3-bucket-routing-mixed-batches",
+      "prompt": "No web lookups please, just your knowledge and skills. Compliance requires that each tenant's logs land ONLY in that tenant's own S3 bucket. Our otelcol-contrib v0.165.1 gateway receives OTLP from many tenants' agents; every resource carries `tenant.bucket`. Config:\n\n```yaml\nprocessors:\n  batch: {}\nexporters:\n  awss3:\n    s3uploader:\n      region: eu-central-1\n      s3_bucket: shared-unassigned\n    resource_attrs_to_s3:\n      s3_bucket: tenant.bucket\nservice:\n  pipelines:\n    logs:\n      receivers: [otlp]\n      processors: [batch]\n      exporters: [awss3]\n```\n\nDoes this guarantee per-tenant buckets? If not, how do I get there?",
+      "files": [],
+      "expectations": [
+        "Says no: the exporter takes the bucket from the first resource of each export request, so a request that mixes tenants is written whole to the first tenant's bucket.",
+        "Explains that the `batch` processor merges data from different tenants into one request, which makes mixed requests likely.",
+        "States that `resource_attrs_to_s3.s3_bucket` does not split a request per attribute value; only `resource_attrs_to_s3.s3_prefix` splits requests per value.",
+        "Proposes a fix that separates tenants before upload instead of relying on `s3_bucket` routing, for example per-tenant pipelines (such as a `routing` connector) with one `awss3` exporter instance per bucket."
+      ]
+    },
+    {
+      "id": "awss3-renamed-exporter-body",
+      "prompt": "No web lookups please, just your knowledge and skills. We're upgrading to otelcol-contrib v0.165.1 and I read that components were renamed to snake_case, so I renamed our archive exporter. One exporter archives both traces and logs as plain text:\n\n```yaml\nexporters:\n  aws_s3:\n    s3uploader:\n      region: us-east-1\n      s3_bucket: telemetry-archive\n    marshaler: body\nservice:\n  pipelines:\n    traces:\n      receivers: [otlp]\n      exporters: [aws_s3]\n    logs:\n      receivers: [otlp]\n      exporters: [aws_s3]\n```\n\nIs this good to go?",
+      "files": [],
+      "expectations": [
+        "States that `aws_s3` is not an exporter type in contrib v0.165.1: the exporter is still `awss3`, and only the receiver was renamed to `aws_s3`.",
+        "States that `marshaler: body` supports logs only.",
+        "States that with `marshaler: body` in a traces pipeline the Collector crashes (panics) at the first trace export rather than failing config validation at startup.",
+        "Recommends using `otlp_json` or `otlp_proto` for traces, for example with a separate exporter instance per signal."
+      ]
+    },
+    {
+      "id": "aws-s3-receiver-shared-sqs-queue",
+      "prompt": "No web lookups please, just your knowledge and skills. Our agents archive traces and logs with the `awss3` exporter under prefix `otel/` in one bucket, and the bucket sends all `s3:ObjectCreated:*` events to a single SQS queue. A separate otelcol-contrib v0.165.1 Collector ingests them:\n\n```yaml\nreceivers:\n  aws_s3:\n    s3downloader:\n      region: eu-central-1\n      s3_bucket: telemetry-archive\n      s3_prefix: otel/\n    sqs:\n      queue_url: ${env:ARCHIVE_QUEUE_URL}\n      region: eu-central-1\nservice:\n  pipelines:\n    traces:\n      receivers: [aws_s3]\n      exporters: [otlp_grpc]\n    logs:\n      receivers: [aws_s3]\n      exporters: [otlp_grpc]\n```\n\nRoughly half of the archived logs and half of the traces never show up in the backend, and the queue has no backlog. What's going on, and how should this be set up?",
+      "files": [],
+      "expectations": [
+        "States that the Collector runs this receiver ID once per signal (the `aws_s3` receiver does not share one instance across signals), so the config creates two SQS pollers on the same queue.",
+        "Explains that in SQS mode a poller does not filter objects by signal, so the traces poller can receive a logs object (and vice versa), decode it as empty, and delete the message, losing that data.",
+        "Proposes giving each signal its own exporter prefix, S3 event-notification filter, SQS queue, and `aws_s3` receiver ID."
+      ]
+    }
+  ]
+}
