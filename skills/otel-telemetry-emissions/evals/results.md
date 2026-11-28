@@ -32,15 +32,16 @@ verdict is Unknown. No repetition was retried, and no repetition was excluded by
 | Proposed PR skill, review round | `b6b3dd8c578d2f98a6c837bc8f173e8f8a2e814d` | 4 × 3 | 7 | 5 | 0 |
 | Proposed PR skill, second review round | `952d66dbb82778d757680ca1d2a248aef924fff3` | 4 × 3 | 6 | 6 | 0 |
 | Proposed PR skill, third review round | `e84253cc219779c12c568e41db88bc0f86054598` | 4 × 3 | 5 | 7 | 0 |
+| Proposed PR skill, fourth review round | `339895306c809a7c94e5941087f48b56c12b87be` | 4 × 3 | 5 | 7 | 0 |
 
 By case, runs passed / expectations passed:
 
-| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` | Proposed `e84253c` |
-|---|---|---|---|---|---|---|
-| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 | 0/3, 11/15 |
-| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 | 1/3, 10/12 |
-| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 | 2/3, 11/12 |
-| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 | 2/3, 11/12 |
+| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` | Proposed `e84253c` | Proposed `3398953` |
+|---|---|---|---|---|---|---|---|
+| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 | 0/3, 11/15 | 1/3, 12/15 |
+| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 | 1/3, 10/12 | 1/3, 9/12 |
+| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 | 2/3, 11/12 | 3/3, 12/12 |
+| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 |
 
 ### Per-attempt grading — `clickhouse-queue-fill-v01651`
 
@@ -119,6 +120,48 @@ was rerun ×10 on both arms with the same harness. The ×3 results above stand a
 
 The proposed columns count the nine graded runs. The Unknown run's verdict was truncated JSON (no
 closing brace). Its five reasons all read as passes, but it stays Unknown and was not regraded.
+
+### Rerun on the fourth review-round commit
+
+The fourth review round (`3398953`) added the service's `otelcol.receiver.produced.items` and
+`otelcol.receiver.produced.size` rows to the receiver files, with their gate, outcome attribute,
+DEBUG log and the component scope attributes. No other component's files changed. The proposed arm
+was rerun on that commit, ×3 on all four cases, in the four `HERMES_HOME` directories created for
+the `e84253c` rerun. It passed 5 of 12 runs and 42 of 51 expectations. The withheld and
+`origin/main` arms were not rerun at ×3: their content did not change.
+
+The receiver case passed 0 of 3 runs, all three missing `A`. Expectation `A` (naming
+`otelcol_receiver_refused_metric_points`) passed 1 of 3 times on `origin/main`, the only
+expectation below `origin/main` this round, so the case was rerun ×10 on both arms. The ×3 results
+stand as recorded.
+
+| Arm | Revision | Reps | Pass | Fail | Unknown | A | B | C | D |
+|---|---|---:|---:|---:|---:|---|---|---|---|
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 10 | 0 | 10 | 0 | 0/10 | 0/10 | 0/10 | 0/10 |
+| Proposed PR skill, fourth review round | `339895306c809a7c94e5941087f48b56c12b87be` | 10 | 1 | 9 | 0 | 1/10 | 9/10 | 10/10 | 10/10 |
+
+At ×10 the proposed arm scored at or above `origin/main` on every expectation. `A` still fell
+from earlier proposed rounds (2 of 3 on `e84253c`). Every failing proposed answer named
+`otelcol_receiver_accepted_metric_points`, then recommended the new
+`otelcol.receiver.produced.items` for the data-point comparison the prompt asks for. They mentioned
+`refused` only as that counter's outcome and did not name `otelcol_receiver_refused_metric_points`.
+The one `B` miss left out `transport=s3`. The clickhouse and failover misses repeat earlier rounds:
+`A` and `C` for clickhouse; `C`, and once `B` (`pipeline_level`), for failover.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-3398953-1` | fail | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-3398953-2` | fail | pass | pass | pass | pass | fail |
+| `clickhouse-proposed-3398953-3` | pass | pass | pass | pass | pass | pass |
+| `failover-proposed-3398953-1` | pass | fail | fail | pass |  | fail |
+| `failover-proposed-3398953-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-3398953-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-1` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-3398953-1` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-3398953-2` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-3398953-3` | fail | pass | pass | pass |  | fail |
 
 ### Rerun on the third review-round commit
 
