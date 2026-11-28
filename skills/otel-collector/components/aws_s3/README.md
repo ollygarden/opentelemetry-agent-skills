@@ -34,4 +34,4 @@ Avoid when:
 - [Configuration](configuration.md) — keys per mode, defaults, time-range walk, decoding order, validation.
 - [Verification](verification.md) — time-range replay and SQS ingestion against local stores.
 - [Advanced use-cases](advanced.md) — exporter-to-receiver settings, SQS notification layout, tagging, OpAMP progress.
-- [Known quirks](quirks.md) — shared-queue data loss, SQS delete rules, a silent one-shot reader, prefix slashes, memory, log sampling.
+- [Known quirks](quirks.md) — shared-queue data loss, SQS delete rules, tagging before delivery, a silent one-shot reader, prefix slashes, memory, log sampling.

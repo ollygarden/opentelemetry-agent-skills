@@ -59,7 +59,7 @@ receivers:
       skip_ingesting_tagged_objects: true
 ```
 
-A restarted replay or a redelivered SQS message then skips already-ingested objects. A failed `PutObjectTagging` is only logged, so that object is ingested again next time. The `otel-collector:status=ingested` tag can also drive an S3 lifecycle rule that expires or transitions ingested objects.
+A restarted replay or a redelivered SQS message then skips already-ingested objects, including ones whose data was never delivered ([why](quirks.md#the-ingested-tag-marks-acceptance-not-delivery)). A failed `PutObjectTagging` is only logged, so that object is ingested again next time. The `otel-collector:status=ingested` tag can also drive an S3 lifecycle rule that expires or transitions ingested objects.
 
 ## OpAMP progress notifications
 

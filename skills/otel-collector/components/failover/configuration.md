@@ -37,7 +37,7 @@ service:
       exporters: [otlp_grpc/secondary]
 ```
 
-The exporters keep the default [`retry_on_failure`](../otlp_exporter/configuration.md#retry_on_failure), so a batch fails over only after its retries end (up to `max_elapsed_time`). Disable retry or shorten `max_elapsed_time` to fail over sooner ([why](quirks.md#async-stages-in-a-priority-pipeline-hide-failures)).
+The exporters keep the default [`retry_on_failure`](../otlp_exporter/configuration.md#retry_on_failure), so a batch fails over only after its retries end. Disable retry or shorten `max_elapsed_time` to fail over sooner ([why](quirks.md#async-stages-in-a-priority-pipeline-hide-failures)).
 
 ## Configuration reference
 

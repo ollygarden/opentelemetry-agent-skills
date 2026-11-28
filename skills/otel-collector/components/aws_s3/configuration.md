@@ -81,7 +81,7 @@ For each step from `starttime` while before `endtime`, the receiver lists:
 <s3_prefix>/<strftime(s3_partition_format, step in s3_partition_timezone)>/<file_prefix>[<signal>_]
 ```
 
-and fetches every listed object in order. An empty `s3_prefix` drops the first segment. The window selects partitions by key, never by record timestamp; for the `awss3` exporter the partition is upload time ([why](../aws_s3_exporter/quirks.md#partitions-are-upload-time-not-telemetry-time)), so late data sits in later partitions. One `ListObjectsV2` call (plus pagination) runs per step and signal: a day of minute partitions is 1,440 list calls per signal.
+and fetches every listed object in order. An empty `s3_prefix` drops the first segment. Steps start at `starttime`, not at a partition boundary, so unaligned bounds can skip the last partition that overlaps the window (hourly partitions, `00:30` to `01:15`: only `hour=00` is listed); align both bounds to the partition step. The window selects partitions by key, never by record timestamp; for the `awss3` exporter the partition is upload time ([why](../aws_s3_exporter/quirks.md#partitions-are-upload-time-not-telemetry-time)), so late data sits in later partitions. One `ListObjectsV2` call (plus pagination) runs per step and signal: a day of minute partitions is 1,440 list calls per signal.
 
 ## Decoding
 

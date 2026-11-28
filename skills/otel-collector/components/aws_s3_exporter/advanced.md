@@ -23,7 +23,7 @@ service:
       exporters: [awss3]
 ```
 
-Each object holds one tenant: `env/prod/<tenant.id>/year=…/logs_<n>.json`, as long as queue batching stays off and routing uses `s3_prefix`, not `s3_bucket` ([why](quirks.md#routing-reads-the-first-resource-of-each-request)).
+Each object holds one tenant: `env/prod/<tenant.id>/year=…/logs_<n>.json`, as long as queue batching stays off and routing uses `s3_prefix`, not `s3_bucket`; `tenant.id` must be a string without `/` or `..` ([routing limits](quirks.md#routing-reads-the-first-resource-of-each-request)).
 
 ## S3-compatible stores
 

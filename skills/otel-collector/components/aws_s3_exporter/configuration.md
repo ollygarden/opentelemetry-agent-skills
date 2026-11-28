@@ -72,7 +72,7 @@ Segments are joined with `path.Join`:
 [s3_base_prefix/][prefix/]<strftime(s3_partition_format, now in s3_partition_timezone)>/<file_prefix><signal>_<unique><.ext><.gz|.zst>
 ```
 
-- `prefix` is the `resource_attrs_to_s3.s3_prefix` attribute value when present, else `s3_prefix`.
+- `prefix` is the `resource_attrs_to_s3.s3_prefix` attribute value when non-empty, else `s3_prefix`.
 - `now` is the upload wall-clock time (`clock.Now`), not any telemetry timestamp.
 - `<signal>` is `traces`, `metrics`, or `logs`.
 - `<unique>` is a random integer in `[100000000, 999999999)` or, with `unique_key_func_name: uuidv7`, a UUIDv7.

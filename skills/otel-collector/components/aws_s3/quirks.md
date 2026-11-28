@@ -18,6 +18,10 @@ Failed, so the **whole** message is kept and redelivered after the queue's visib
 
 SQS hands each message to whichever poller receives it, so every poller on a queue must be able to ingest every object the queue announces: identical replicas are safe; pollers that differ in signal, bucket, or `s3_prefix` delete each other's data.
 
+## The ingested tag marks acceptance, not delivery
+
+`tag_object_after_ingestion` tags an object once the pipeline accepts it (its consumer returns `nil`). Data a `batch` processor or an in-memory exporter queue still holds is lost on a crash, and with `skip_ingesting_tagged_objects` the restart skips that object. An object with an unsupported suffix is skipped as handled and tagged too, so a later replay with a matching decoder skips it and a lifecycle rule acts on it.
+
 ## A silent, one-shot reader
 
 `Start` runs the reader once in a goroutine and discards its error, and the receiver reports no component status. Time-range mode returns on its first error, and the rest of the range is never read until a restart, which walks the whole range again (re-ingesting it unless `skip_ingesting_tagged_objects` is on). That error can be:

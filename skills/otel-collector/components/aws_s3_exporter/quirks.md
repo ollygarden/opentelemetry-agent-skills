@@ -18,6 +18,8 @@ Each upload takes its bucket and prefix from the request's **first** resource. O
 - `s3_prefix` routing behind a `batch` processor: one object per tenant (that batching happens before the split).
 - `s3_bucket` routing alone: a request with resources for two buckets was written whole to the first resource's bucket.
 
+The split groups by string values only, so resources with non-string values share one request, uploaded under the first resource's value. A `/` or `..` in the value moves the object to another prefix ([key layout](configuration.md#object-key-layout)): whoever sets the attribute chooses the prefix.
+
 ## No error is permanent
 
 The exporter wraps no marshaling, compression, or upload error as permanent, so [`retry_on_failure`](../otlp_exporter/configuration.md#retry_on_failure) retries every failed export until its `max_elapsed_time`, then drops the data. Inside each attempt the S3 client retries on its own (`retry_mode`, `retry_max_attempts`, `retry_max_backoff`), bounded by the per-attempt `timeout`; `retry_mode: nop` leaves retries to `retry_on_failure`. Cases that never succeed and are still retried:
