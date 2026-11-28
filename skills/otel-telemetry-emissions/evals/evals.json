@@ -60,7 +60,7 @@
       "expectations": [
         "States that the awss3 exporter emits neither `otelcol_exporter_awss3_upload_failures` nor `otelcol_exporter_awss3_uploaded_bytes` at v0.165.1, instead of describing a type or attributes for them.",
         "Recommends alerting on the exporterhelper `otelcol_exporter_send_failed_*` counters (for example `otelcol_exporter_send_failed_log_records`), with the `exporter` attribute set to the exporter ID.",
-        "States that `error.type` and `error.permanent` appear on the send-failed counters only at the detailed telemetry level.",
+        "States that, with the default metric views, `error.type` and `error.permanent` appear on the send-failed counters only at the detailed telemetry level.",
         "Answers from a source pinned to awss3 exporter v0.165.1 and names v0.165.1 as the verified version."
       ]
     },
