@@ -6,8 +6,8 @@ One section per harness run, newest first.
 
 Run with Hermes Agent v0.22.5 in one-shot mode (`hermes -z`), driving `deepseek/deepseek-v4-flash`
 through OpenRouter with `-t todo --ignore-rules`. Four cases, three arms, three repetitions each:
-36 runs, plus a ×10 rerun of one case on two arms and a rerun of the proposed arm on the
-review-round commit (both below). Every repetition was a fresh one-shot
+36 runs, plus a ×10 rerun of one case on two arms and reruns of the proposed arm on both
+review-round commits (all below). Every repetition was a fresh one-shot
 call in one of four pre-warmed `HERMES_HOME` directories, with the bundled and optional skill
 paths pointed at directories that do not exist, so no other skill was installed in any arm. The
 only tool was `todo`, so no arm could read upstream source, fetch a page or run a command. The
@@ -30,15 +30,16 @@ verdict is Unknown. No repetition was retried, and no repetition was excluded by
 | Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 4 × 3 | 0 | 12 | 0 |
 | Proposed PR skill | `7efe65e56ba08a8ef562b2f052d43e3156057afe` | 4 × 3 | 5 | 7 | 0 |
 | Proposed PR skill, review round | `b6b3dd8c578d2f98a6c837bc8f173e8f8a2e814d` | 4 × 3 | 7 | 5 | 0 |
+| Proposed PR skill, second review round | `952d66dbb82778d757680ca1d2a248aef924fff3` | 4 × 3 | 6 | 6 | 0 |
 
 By case, runs passed / expectations passed:
 
-| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` |
-|---|---|---|---|---|
-| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 |
-| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 |
-| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 |
-| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 |
+| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` |
+|---|---|---|---|---|---|
+| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 |
+| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 |
+| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 |
+| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 |
 
 ### Per-attempt grading — `clickhouse-queue-fill-v01651`
 
@@ -118,6 +119,36 @@ was rerun ×10 on both arms with the same harness. The ×3 results above stand a
 The proposed columns count the nine graded runs. The Unknown run's verdict was truncated JSON (no
 closing brace). Its five reasons all read as passes, but it stays Unknown and was not regraded.
 
+### Rerun on the second review-round commit
+
+The second review round (`952d66d`) changed the `send_failed` notes in the awss3 exporter and
+clickhouse files, and the receiver's `format` sentence. The proposed arm was rerun on that commit,
+×3 on all four cases, with the same harness in four fresh pre-warmed `HERMES_HOME` directories. It
+passed 6 of 12 runs and 44 of 51 expectations. No case passed fewer runs, and no expectation passed
+fewer times, than on `origin/main`, so no ×10 rerun was needed. The withheld and `origin/main` arms
+were not rerun: their content did not change.
+
+This round did not touch the failover files, so the failover prompt was byte-identical to the
+`b6b3dd8` rerun. It still went from 2 of 3 runs to 0 of 3, all three missing `C` (`exporter` set to
+the connector ID), which the file states: that swing is ×3 noise. The receiver misses left out the
+`refused` counter, and the awss3 miss dropped the "detailed level" qualifier. This round's edits
+changed neither fact.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-952d66d-1` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-952d66d-2` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-952d66d-3` | pass | pass | pass | pass | pass | pass |
+| `failover-proposed-952d66d-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-952d66d-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-952d66d-3` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-952d66d-1` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-952d66d-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-952d66d-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-952d66d-1` | fail | fail | pass | pass |  | fail |
+| `awss3receiver-proposed-952d66d-2` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-952d66d-3` | fail | pass | pass | pass |  | fail |
+
 ### Rerun on the review-round commit
 
 The review round (`b6b3dd8`) changed notes in the awss3 exporter, clickhouse and receiver files, and
@@ -184,9 +215,10 @@ at ×10.
 ### Failing and unknown runs kept, and why
 
 All 31 failing runs at ×3 (12 withheld, 12 `origin/main`, 7 proposed), the ×10 rerun's 15
-failures and one Unknown, and the review-round rerun's 5 failures are preserved. None was retried. The withheld and `origin/main` failures
-are genuine misses: no data for these components. The proposed failures are the omissions listed
-above.
+failures and one Unknown, the review-round rerun's 5 failures and the second review-round rerun's
+6 failures are preserved. None was retried, and no run needed an infra retry. The withheld and
+`origin/main` failures are genuine misses: no data for these components. The proposed failures are
+the omissions listed above.
 
 ### Limitations
 
