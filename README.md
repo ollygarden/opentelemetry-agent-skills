@@ -134,6 +134,7 @@ skills/
   otel-collector/
     SKILL.md
     components/        # one directory per Collector component (log_dedup, interval, …)
+    references/        # exporterhelper: shared exporter queue, retry, and timeout
   otel-collector-builder/
     SKILL.md
     references/        # manifest, workflows, troubleshooting

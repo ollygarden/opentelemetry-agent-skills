@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.66.0 / v0.160.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`); `sending_queue.batch.partition` rows also hold for v1.68.0 / v0.162.0.
+All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Top-level and `tls` facts trace to core **v1.66.0 / v0.160.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`). The `timeout`, `retry_on_failure`, and `sending_queue` defaults trace to core **v0.165.0** [`factory.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/exporter/otlpexporter/factory.go) and [`metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/exporter/otlpexporter/metadata.yaml).
 
 ## Top-level (gRPC client) keys
 
@@ -10,7 +10,7 @@ All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }
 | `compression` | string | `gzip` | `gzip`, `snappy`, `zstd`, or none/empty to disable. Default set by the factory. |
 | `tls` | object | — | gRPC client TLS (see [tls](#tls)). |
 | `headers` | map[string]string | — | Static headers added to every gRPC request. |
-| `timeout` | duration | `5s` | Per-attempt send timeout. |
+| `timeout` | duration | `5s` | Per-attempt send timeout ([`timeout`](../../references/exporterhelper.md#timeout)). |
 | `keepalive` | object | — | gRPC client keepalive: `time`, `timeout`, `permit_without_stream`. |
 | `read_buffer_size` | int | 0 (gRPC default) | gRPC read buffer. The factory leaves this unset (the exporter reads almost nothing). |
 | `write_buffer_size` | int | `524288` (512 KiB) | gRPC write buffer. |
@@ -40,62 +40,16 @@ All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }
 
 ## `retry_on_failure`
 
-`configretry.BackOffConfig` — exponential backoff with jitter. After `max_elapsed_time` the data is **dropped**.
-
-| Key | Type | Default | Meaning |
-|-----|------|---------|---------|
-| `enabled` | bool | `true` | Whether to retry failed sends. |
-| `initial_interval` | duration | `5s` | Wait before the first retry. |
-| `randomization_factor` | float | `0.5` | Jitter applied to each interval. |
-| `multiplier` | float | `1.5` | Growth factor per retry. |
-| `max_interval` | duration | `30s` | Cap on the per-retry interval. |
-| `max_elapsed_time` | duration | `5m` | Total retry budget; after this, the data is dropped. Set `0` to retry forever. |
+`otlp_grpc` uses the helper default unchanged (`configretry.NewDefaultBackOffConfig`): `enabled: true`, `initial_interval: 5s`, `randomization_factor: 0.5`, `multiplier: 1.5`, `max_interval: 30s`, `max_elapsed_time: 5m`. Backoff, the drop after `max_elapsed_time`, and validation: [`retry_on_failure`](../../references/exporterhelper.md#retry_on_failure).
 
 ## `sending_queue`
 
-The buffer between the pipeline and the gRPC sender. **Enabled by default.** Its optional `batch`
-sub-block uses defaults from `NewDefaultQueueConfig`, but batching itself is disabled by default
-unless the `pkg.exporterhelper.queueBatchEnabled` feature gate is enabled.
-
-| Key | Type | Default | Meaning |
-|-----|------|---------|---------|
-| `enabled` | bool | `true` | Whether to enqueue before sending. |
-| `num_consumers` | int | `10` | Concurrent senders draining the queue. |
-| `queue_size` | int | `1000` | Max items buffered, in `sizer` units. Must be > 0. |
-| `sizer` | string | `requests` | Unit for `queue_size`: `requests`, `items`, or `bytes`. |
-| `block_on_overflow` | bool | `false` | `false` → overflow returns a retryable error immediately; `true` → enqueue blocks until space frees. |
-| `wait_for_result` | bool | `false` | Block the caller until the export result is known. **Not supported with a persistent `storage` queue.** |
-| `storage` | component ID | — | A `file_storage` extension ID; turns the queue **persistent** (survives restarts). |
-| `batch` | object | disabled | Built-in batching (see [batch](#sending_queuebatch)). Add `batch: {}` to enable it with defaults, or enable the migration gate globally. |
-
-> `storage` references a [`file_storage`](../file_storage/README.md) extension. Persistence survives Collector restarts at the cost of disk I/O; see [advanced.md](advanced.md).
-
-### `sending_queue.batch`
-
-When enabled, flushes at `flush_timeout` or when `min_size` is reached, whichever comes first.
-Add `batch: {}` beneath `sending_queue` to opt in with these defaults. The alpha
-`pkg.exporterhelper.queueBatchEnabled` feature gate also enables batching by default for exporters
-using `NewDefaultQueueConfig`; this is phase 1 of the Collector batching migration. A separate
-`batch` processor remains supported for pipeline-level batching.
-
-| Key | Type | Default | Meaning |
-|-----|------|---------|---------|
-| `flush_timeout` | duration | `200ms` | Max time a partial batch waits before flushing. Must be > 0. |
-| `sizer` | string | `items` | Unit for the batch sizes: only `items` or `bytes`. |
-| `min_size` | int | `8192` | Flush once the batch reaches this many items (the soft trigger). |
-| `max_size` | int | `0` (unlimited) | Hard cap; when > 0, a batch is split to never exceed it. |
-| `partition.metadata_keys` | list of string | — | One batcher per distinct combination of these client-metadata values. |
-| `partition.cache_size` | int | `10000` | Max active partition batchers (LRU); must be > 0. Exposed as `otelcol_exporter_queue_batch_partition_cache_size` / `_capacity`. Core v0.162.0+. |
-| `partition.idle_timeout` | duration | `90s` | How long an empty partition lives before removal; must be > 0. Configurable (and default raised to 90s) in core v0.162.0. |
+`metadata.yaml` declares `sending_queue: support: default`, so `otlp_grpc` uses the helper queue default unchanged: `enabled: true`, `num_consumers: 10`, `queue_size: 1000`, `sizer: requests`, `block_on_overflow: false`, `wait_for_result: false`, no `storage` (in-memory), and batching off unless a `batch` block or the alpha `pkg.exporterhelper.queueBatchEnabled` gate turns it on (`flush_timeout: 200ms`, `sizer: items`, `min_size: 8192`, `max_size: 0`). What each key does, the `batch` and `partition` sub-keys, the persistent queue via [`file_storage`](../file_storage/README.md), and validation: [`sending_queue`](../../references/exporterhelper.md#sending_queue).
 
 ## Validation summary
 
 | Condition | Error / rule | When |
 |-----------|--------------|------|
 | empty `endpoint` | `requires a non-empty "endpoint"` | config validation |
-| `sending_queue.batch.flush_timeout` ≤ 0 | rejected | config validation |
-| `batch.sizer` not `items`/`bytes` | rejected | config validation |
-| `batch.min_size` > `queue_size` (matching sizers) | rejected | config validation |
-| `batch.max_size` < `min_size` (when `max_size` > 0) | rejected | config validation |
-| `queue_size` ≤ 0 | `` `queue_size` must be positive `` | config validation |
-| `num_consumers` ≤ 0 | `` `num_consumers` must be positive `` | config validation |
+
+Queue, batch, retry, and timeout errors are in the shared [validation table](../../references/exporterhelper.md#validation-and-startup-errors).

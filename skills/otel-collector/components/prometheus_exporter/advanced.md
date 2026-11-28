@@ -70,4 +70,4 @@ Note the content-negotiation caveat: Prometheus may still apply underscore escap
 
 ## The `sending_queue` caveat
 
-This exporter accumulates in memory and is scraped, so the standard `exporterhelper` `sending_queue` has far less meaning here than for a pushing exporter — there is no downstream send to queue against. Don't over-tune it. If you do need the full queue reference, it is documented on the [`otlp_grpc` exporter](../otlp_exporter/configuration.md#sending_queue).
+This exporter accumulates in memory and is scraped, so the standard `exporterhelper` `sending_queue` has far less meaning here than for a pushing exporter — there is no downstream send to queue against. It is off by default; see [configuration.md](configuration.md#sending_queue).

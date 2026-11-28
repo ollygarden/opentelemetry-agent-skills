@@ -14,12 +14,9 @@
 
 Sends telemetry in **OTLP over gRPC** to a downstream OTLP endpoint — another Collector's `otlp` receiver, or any OTLP/gRPC backend. It is the standard egress for a pipeline and supports traces, metrics, and logs at **Stable** stability (profiles are **Alpha**). The canonical type is **`otlp_grpc`**, renamed from `otlp` in core v1.50.0 to disambiguate it from the separate `otlphttp` exporter (OTLP over HTTP). The old name **`otlp` still works** as a deprecated alias — and is what the vast majority of existing configs use — so both `exporters: { otlp: … }` and `exporters: { otlp_grpc: … }` configure this component. Only `endpoint` is required; gRPC requests are **gzip-compressed by default**.
 
-The exporter's `sending_queue` and `retry_on_failure` are enabled by default. Queue **batching is
-opt-in**: add a `sending_queue.batch` block, or enable the alpha
-`pkg.exporterhelper.queueBatchEnabled` migration gate to make the factory's 200ms / 8192-item
-batch defaults active. The separate `batch` processor remains Beta and supported for pipeline-level
-batching (for example, once before fan-out to several exporters). See
-[configuration.md](configuration.md) and [quirks.md](quirks.md).
+The exporter's `sending_queue` and `retry_on_failure` are enabled by default; queue **batching is
+opt-in** ([configuration.md](configuration.md#sending_queue)). The separate `batch` processor
+remains Beta and supported for pipeline-level batching; see [quirks.md](quirks.md).
 
 ## Main use-cases
 
@@ -37,13 +34,13 @@ Avoid when:
 
 - [`otlp` receiver](../otlp/README.md) — the receiving counterpart; a Collector-to-Collector hop is this exporter on one end and the `otlp` receiver on the other.
 - `otlphttp` exporter — the sibling that speaks OTLP over **HTTP** instead of gRPC; pick it when the backend has no gRPC endpoint.
-- [`load_balancing`](../load_balancing/README.md) — wraps a per-backend `otlp` exporter under `protocol.otlp`; its queue/retry/TLS semantics are this exporter's.
+- [`load_balancing`](../load_balancing/README.md) — wraps a per-backend `otlp` exporter under `protocol.otlp`; its queue/retry defaults and TLS settings are this exporter's.
 - [`memory_limiter`](../memory_limiter/README.md) — the back-pressure guard at the **front** of the pipeline this exporter terminates.
 - The **`batch` processor** — still supported for pipeline-level batching; distinct from the exporter's opt-in `sending_queue.batch`.
 
 ## Details
 
-- [Configuration](configuration.md) — `endpoint`, `compression`, `tls`, `headers`, `timeout`, the `retry_on_failure` block, and the full `sending_queue` (+ `batch`) reference with every default and validation rule.
+- [Configuration](configuration.md) — `endpoint`, `compression`, `tls`, `headers`, `timeout`, and this exporter's `retry_on_failure` and `sending_queue` (+ `batch`) defaults; key semantics and queue validation are in the [shared exporterhelper reference](../../references/exporterhelper.md).
 - [Verification](verification.md) — a two-collector chain (A exports to B) proving spans sent to A arrive in B's `debug` log.
-- [Advanced use-cases](advanced.md) — tuning the queue for throughput vs. latency, the persistent queue via `storage`, `wait_for_result`, mTLS to a secure backend, named instances, and the relationship to `load_balancing`.
-- [Known quirks](quirks.md) — the `otlp`→`otlp_grpc` rename and `otlphttp` distinction (top item), exporter batching vs. the `batch` processor, default gzip, `insecure: true` for plaintext, the pre-v0.157.0 `wait_for_ready` bug, `wait_for_result` vs. persistent `storage`, `min_size` ≤ `queue_size`, drop-after-`max_elapsed_time`, and per-signal stability.
+- [Advanced use-cases](advanced.md) — a queue-tuning example, a persistent queue via `storage`, mTLS to a secure backend, named instances, and the relationship to `load_balancing`.
+- [Known quirks](quirks.md) — the `otlp`→`otlp_grpc` rename and `otlphttp` distinction (top item), exporter batching vs. the `batch` processor, default gzip, `insecure: true` for plaintext, the pre-v0.157.0 `wait_for_ready` bug, and per-signal stability.

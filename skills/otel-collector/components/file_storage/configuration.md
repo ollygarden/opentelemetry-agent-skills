@@ -37,10 +37,11 @@ When `max_size` is set (> 0) **and** `on_rebound: true`, both rebound thresholds
 
 ## Per-consumer files and naming
 
-The extension creates **one bbolt file per consuming component**, named `<kind>_<type>_<name>` inside `directory`:
+The extension creates **one bbolt file per consuming component**, named `<kind>_<type>_<name>` inside `directory` (exporter queues add `_<signal>`):
 
 - A `file_log` receiver with no instance name → `receiver_filelog_` (note the on-disk name uses the deprecated `filelog` type spelling and a trailing `_` for the empty name; see [quirks.md](quirks.md)).
 - A named `journald/myservice` receiver → `receiver_journald_myservice`.
+- An exporter's persistent queue gets one file per signal, named `<kind>_<type>_<name>_<signal>`: an unnamed `otlp_grpc` exporter in a traces pipeline → `exporter_otlp_grpc__traces` (contrib v0.165.1 [`extension.go`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/extension/storage/filestorage/extension.go)).
 
 Only `A-Za-z0-9._-` are safe in the name; any other character (including `~` itself) is escaped as `~<hex unicode>`. Over-long names are truncated to stay within OS filename limits, and the component→filename mapping is written to the Collector logs.
 
