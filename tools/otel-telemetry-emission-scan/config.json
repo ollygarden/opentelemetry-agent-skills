@@ -131,6 +131,22 @@
       "path": "exporter/prometheusremotewriteexporter"
     },
     {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "connector/failoverconnector"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "exporter/clickhouseexporter"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "exporter/awss3exporter"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/awss3receiver"
+    },
+    {
       "repo": "open-telemetry/opentelemetry-go-contrib",
       "path": "instrumentation/github.com/gin-gonic/gin/otelgin",
       "tag_prefix": "instrumentation/github.com/gin-gonic/gin/otelgin/"

@@ -2,6 +2,12 @@
 
 | File | Version | Last verified |
 |---|---|---|
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.163.0.md | v0.163.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.164.0.md | v0.164.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.164.1.md | v0.164.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.165.0.md | v0.165.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.165.1.md | v0.165.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/connector/failoverconnector/v0.166.0.md | v0.166.0 | 2026-11-28 |
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.153.0.md | v0.153.0 | 2026-10-14 |
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.154.0.md | v0.154.0 | 2026-10-14 |
 | opentelemetry-collector-contrib/connector/servicegraphconnector/v0.155.0.md | v0.155.0 | 2026-10-14 |
@@ -32,6 +38,18 @@
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.164.1.md | v0.164.1 | 2026-11-23 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.165.0.md | v0.165.0 | 2026-11-23 |
 | opentelemetry-collector-contrib/connector/spanmetricsconnector/v0.165.1.md | v0.165.1 | 2026-11-23 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.163.0.md | v0.163.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.164.0.md | v0.164.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.164.1.md | v0.164.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.165.0.md | v0.165.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.165.1.md | v0.165.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/awss3exporter/v0.166.0.md | v0.166.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.163.0.md | v0.163.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.164.0.md | v0.164.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.164.1.md | v0.164.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.165.0.md | v0.165.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.165.1.md | v0.165.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/exporter/clickhouseexporter/v0.166.0.md | v0.166.0 | 2026-11-28 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.154.0.md | v0.154.0 | 2026-09-02 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.155.0.md | v0.155.0 | 2026-09-02 |
 | opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter/v0.156.0.md | v0.156.0 | 2026-09-02 |
@@ -106,6 +124,12 @@
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.164.1.md | v0.164.1 | 2026-11-23 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.165.0.md | v0.165.0 | 2026-11-23 |
 | opentelemetry-collector-contrib/processor/tailsamplingprocessor/v0.165.1.md | v0.165.1 | 2026-11-23 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.163.0.md | v0.163.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.164.0.md | v0.164.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.164.1.md | v0.164.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.165.0.md | v0.165.0 | 2026-11-28 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.165.1.md | v0.165.1 | 2026-11-28 |
+| opentelemetry-collector-contrib/receiver/awss3receiver/v0.166.0.md | v0.166.0 | 2026-11-28 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.153.0.md | v0.153.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.154.0.md | v0.154.0 | 2026-08-11 |
 | opentelemetry-collector-contrib/receiver/dockerstatsreceiver/v0.155.0.md | v0.155.0 | 2026-08-11 |

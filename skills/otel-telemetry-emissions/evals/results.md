@@ -2,6 +2,327 @@
 
 One section per harness run, newest first.
 
+## PR #329 — failover, clickhouse and S3 inventories
+
+Run with Hermes Agent v0.22.5 in one-shot mode (`hermes -z`), driving `deepseek/deepseek-v4-flash`
+through OpenRouter with `-t todo --ignore-rules`. Four cases, three arms, three repetitions each:
+36 runs, plus a ×10 rerun of one case on two arms and reruns of the proposed arm on each
+review-round commit (all below). Every repetition was a fresh one-shot
+call in one of four pre-warmed `HERMES_HOME` directories, with the bundled and optional skill
+paths pointed at directories that do not exist, so no other skill was installed in any arm. The
+only tool was `todo`, so no arm could read upstream source, fetch a page or run a command. The
+prompt preamble, model, tools and grading were identical in all three arms. Only the target skill
+changed.
+
+The agent did not discover the skill itself. A fixed routing rule, the same for every arm,
+inlined `SKILL.md`, the `index.md` header plus every row matching
+`opentelemetry-collector-contrib/<kind>/*/v0.165.1.md`, and the component's `v0.165.1.md` when the
+arm's snapshot has one. The withheld arm inlined nothing. The `evals/` directory was removed from
+both snapshots. These runs therefore measure answers given the routed files, not triggering.
+
+The same model graded every answer blind, in shuffled order, with one JSON verdict per prose
+expectation in `evals.json`. A run passes only when every expectation passes. An unparseable
+verdict is Unknown. No repetition was retried, and no repetition was excluded by outcome.
+
+| Arm | Target-skill revision / state | Cases × reps | Pass | Fail | Unknown |
+|---|---|---:|---:|---:|---:|
+| Target skill withheld | `Withheld` | 4 × 3 | 0 | 12 | 0 |
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 4 × 3 | 0 | 12 | 0 |
+| Proposed PR skill | `7efe65e56ba08a8ef562b2f052d43e3156057afe` | 4 × 3 | 5 | 7 | 0 |
+| Proposed PR skill, review round | `b6b3dd8c578d2f98a6c837bc8f173e8f8a2e814d` | 4 × 3 | 7 | 5 | 0 |
+| Proposed PR skill, second review round | `952d66dbb82778d757680ca1d2a248aef924fff3` | 4 × 3 | 6 | 6 | 0 |
+| Proposed PR skill, third review round | `e84253cc219779c12c568e41db88bc0f86054598` | 4 × 3 | 5 | 7 | 0 |
+| Proposed PR skill, fourth review round | `339895306c809a7c94e5941087f48b56c12b87be` | 4 × 3 | 5 | 7 | 0 |
+
+By case, runs passed / expectations passed:
+
+| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` | Proposed `952d66d` | Proposed `e84253c` | Proposed `3398953` |
+|---|---|---|---|---|---|---|---|
+| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 | 3/3, 15/15 | 0/3, 11/15 | 1/3, 12/15 |
+| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 | 1/3, 10/12 | 1/3, 9/12 |
+| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 | 2/3, 11/12 | 2/3, 11/12 | 3/3, 12/12 |
+| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 | 1/3, 9/12 | 2/3, 11/12 | 0/3, 9/12 |
+
+### Per-attempt grading — `clickhouse-queue-fill-v01651`
+
+`A` is `otelcol_exporter_queue_size` as a gauge read against `otelcol_exporter_queue_capacity`, `B` is its attributes (`exporter`, `data_type`, nothing else), `C` is the queue being enabled by default, `D` is the `otelcol_exporter_enqueue_failed_*` counters, and `E` is answering from v0.165.1.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-withheld-1` | pass | fail | fail | fail | pass | fail |
+| `clickhouse-withheld-2` | fail | fail | pass | fail | pass | fail |
+| `clickhouse-withheld-3` | pass | fail | fail | fail | fail | fail |
+| `clickhouse-current-1` | pass | fail | fail | pass | pass | fail |
+| `clickhouse-current-2` | fail | fail | fail | pass | fail | fail |
+| `clickhouse-current-3` | fail | fail | pass | fail | fail | fail |
+| `clickhouse-proposed-1` | pass | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-2` | pass | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-3` | fail | pass | fail | pass | pass | fail |
+
+### Per-attempt grading — `failover-active-level-v01651`
+
+`A` is that no metric reports the active level, `B` is the DEBUG log with `pipeline_level` and its `condition` requirement, `C` is the exporterhelper metrics with `exporter` set to the connector ID, and `D` is answering from v0.165.1.
+
+| Attempt | A | B | C | D | Result |
+|---|---|---|---|---|---|
+| `failover-withheld-1` | pass | fail | fail | pass | fail |
+| `failover-withheld-2` | fail | fail | fail | pass | fail |
+| `failover-withheld-3` | fail | fail | fail | fail | fail |
+| `failover-current-1` | fail | fail | fail | fail | fail |
+| `failover-current-2` | fail | fail | fail | fail | fail |
+| `failover-current-3` | fail | fail | fail | fail | fail |
+| `failover-proposed-1` | pass | pass | fail | pass | fail |
+| `failover-proposed-2` | pass | pass | pass | pass | pass |
+| `failover-proposed-3` | pass | fail | fail | pass | fail |
+
+### Per-attempt grading — `awss3-nonexistent-metric-v01651`
+
+`A` is that neither dashboard metric exists, `B` is alerting on `otelcol_exporter_send_failed_*` with `exporter`, `C` is `error.type` and `error.permanent` appearing only at detailed level, and `D` is answering from v0.165.1.
+
+| Attempt | A | B | C | D | Result |
+|---|---|---|---|---|---|
+| `awss3-withheld-1` | fail | fail | fail | fail | fail |
+| `awss3-withheld-2` | fail | fail | fail | fail | fail |
+| `awss3-withheld-3` | fail | fail | fail | fail | fail |
+| `awss3-current-1` | fail | fail | fail | fail | fail |
+| `awss3-current-2` | fail | fail | fail | fail | fail |
+| `awss3-current-3` | fail | fail | fail | fail | fail |
+| `awss3-proposed-1` | pass | pass | fail | pass | fail |
+| `awss3-proposed-2` | pass | pass | pass | pass | pass |
+| `awss3-proposed-3` | pass | pass | pass | pass | pass |
+
+### Per-attempt grading — `awss3receiver-metric-count-v01651`
+
+`A` is `otelcol_receiver_accepted_metric_points` with `otelcol_receiver_refused_metric_points`, `B` is `receiver` and `transport=s3`, `C` is that the counters count metrics, not data points, and `D` is answering from v0.165.1.
+
+| Attempt | A | B | C | D | Result |
+|---|---|---|---|---|---|
+| `awss3receiver-withheld-1` | fail | pass | fail | fail | fail |
+| `awss3receiver-withheld-2` | fail | fail | fail | fail | fail |
+| `awss3receiver-withheld-3` | pass | fail | fail | pass | fail |
+| `awss3receiver-current-1` | fail | fail | fail | fail | fail |
+| `awss3receiver-current-2` | fail | fail | fail | fail | fail |
+| `awss3receiver-current-3` | pass | pass | fail | fail | fail |
+| `awss3receiver-proposed-1` | pass | pass | pass | pass | pass |
+| `awss3receiver-proposed-2` | fail | pass | pass | pass | fail |
+| `awss3receiver-proposed-3` | pass | pass | pass | pass | pass |
+
+### ×10 rerun — `clickhouse-queue-fill-v01651`
+
+At ×3, expectation `C` (the queue is enabled by default) passed once on `origin/main` and never
+on the proposed arm. It was the only expectation where `origin/main` scored higher, so the case
+was rerun ×10 on both arms with the same harness. The ×3 results above stand as recorded.
+
+| Arm | Revision | Reps | Pass | Fail | Unknown | A | B | C | D | E |
+|---|---|---:|---:|---:|---:|---|---|---|---|---|
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 10 | 0 | 10 | 0 | 2/10 | 0/10 | 0/10 | 5/10 | 0/10 |
+| Proposed PR skill | `7efe65e56ba08a8ef562b2f052d43e3156057afe` | 10 | 4 | 5 | 1 | 7/9 | 9/9 | 6/9 | 9/9 | 9/9 |
+
+The proposed columns count the nine graded runs. The Unknown run's verdict was truncated JSON (no
+closing brace). Its five reasons all read as passes, but it stays Unknown and was not regraded.
+
+### Rerun on the fourth review-round commit
+
+The fourth review round (`3398953`) added the service's `otelcol.receiver.produced.items` and
+`otelcol.receiver.produced.size` rows to the receiver files, with their gate, outcome attribute,
+DEBUG log and the component scope attributes. No other component's files changed. The proposed arm
+was rerun on that commit, ×3 on all four cases, in the four `HERMES_HOME` directories created for
+the `e84253c` rerun. It passed 5 of 12 runs and 42 of 51 expectations. The withheld and
+`origin/main` arms were not rerun at ×3: their content did not change.
+
+The receiver case passed 0 of 3 runs, all three missing `A`. Expectation `A` (naming
+`otelcol_receiver_refused_metric_points`) passed 1 of 3 times on `origin/main`, the only
+expectation below `origin/main` this round, so the case was rerun ×10 on both arms. The ×3 results
+stand as recorded.
+
+| Arm | Revision | Reps | Pass | Fail | Unknown | A | B | C | D |
+|---|---|---:|---:|---:|---:|---|---|---|---|
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 10 | 0 | 10 | 0 | 0/10 | 0/10 | 0/10 | 0/10 |
+| Proposed PR skill, fourth review round | `339895306c809a7c94e5941087f48b56c12b87be` | 10 | 1 | 9 | 0 | 1/10 | 9/10 | 10/10 | 10/10 |
+
+At ×10 the proposed arm scored at or above `origin/main` on every expectation. `A` still fell
+from earlier proposed rounds (2 of 3 on `e84253c`). Every failing proposed answer named
+`otelcol_receiver_accepted_metric_points`, then recommended the new
+`otelcol.receiver.produced.items` for the data-point comparison the prompt asks for. They mentioned
+`refused` only as that counter's outcome and did not name `otelcol_receiver_refused_metric_points`.
+The one `B` miss left out `transport=s3`. The clickhouse and failover misses repeat earlier rounds:
+`A` and `C` for clickhouse; `C`, and once `B` (`pipeline_level`), for failover.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-3398953-1` | fail | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-3398953-2` | fail | pass | pass | pass | pass | fail |
+| `clickhouse-proposed-3398953-3` | pass | pass | pass | pass | pass | pass |
+| `failover-proposed-3398953-1` | pass | fail | fail | pass |  | fail |
+| `failover-proposed-3398953-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-3398953-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-1` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-3398953-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-3398953-1` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-3398953-2` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-3398953-3` | fail | pass | pass | pass |  | fail |
+
+### Rerun on the third review-round commit
+
+The third review round (`e84253c`) changed the receiver's sentence on when its counts change, and
+the clickhouse `send_failed_metric_points` and `sent_*` notes. The proposed arm was rerun on that
+commit, ×3 on all four cases, with the same harness in four fresh pre-warmed `HERMES_HOME`
+directories. It passed 5 of 12 runs and 43 of 51 expectations. No case passed fewer runs, and no
+expectation passed fewer times, than on `origin/main`. The withheld and `origin/main` arms were not
+rerun: their content did not change.
+
+Clickhouse went from 3 of 3 runs on `952d66d` to 0 of 3. Its misses were `A` (no comparison with
+`otelcol_exporter_queue_capacity`) twice, `C` (queue on by default) once, and `E` once, where the
+grader objected to the answer also naming exporterhelper v0.165.0. This round's edits touched none of
+those facts. The case was rerun ×10 on the proposed arm and compared with the `origin/main` ×10 rerun
+above, whose content is unchanged. The ×3 results stand as recorded.
+
+| Arm | Revision | Reps | Pass | Fail | Unknown | A | B | C | D | E |
+|---|---|---:|---:|---:|---:|---|---|---|---|---|
+| Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 10 | 0 | 10 | 0 | 2/10 | 0/10 | 0/10 | 5/10 | 0/10 |
+| Proposed PR skill, third review round | `e84253cc219779c12c568e41db88bc0f86054598` | 10 | 3 | 7 | 0 | 6/10 | 10/10 | 5/10 | 10/10 | 9/10 |
+
+The failover misses were `C` (`exporter` set to the connector ID), the awss3 miss dropped the
+"detailed level" qualifier, and the receiver miss left out the `refused` counter, as in earlier
+rounds.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-e84253c-1` | fail | pass | pass | pass | fail | fail |
+| `clickhouse-proposed-e84253c-2` | fail | pass | pass | pass | pass | fail |
+| `clickhouse-proposed-e84253c-3` | pass | pass | fail | pass | pass | fail |
+| `failover-proposed-e84253c-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-e84253c-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-e84253c-1` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-e84253c-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-e84253c-1` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-e84253c-2` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-e84253c-3` | pass | pass | pass | pass |  | pass |
+
+### Rerun on the second review-round commit
+
+The second review round (`952d66d`) changed the `send_failed` notes in the awss3 exporter and
+clickhouse files, and the receiver's `format` sentence. The proposed arm was rerun on that commit,
+×3 on all four cases, with the same harness in four fresh pre-warmed `HERMES_HOME` directories. It
+passed 6 of 12 runs and 44 of 51 expectations. No case passed fewer runs, and no expectation passed
+fewer times, than on `origin/main`, so no ×10 rerun was needed. The withheld and `origin/main` arms
+were not rerun: their content did not change.
+
+This round did not touch the failover files, so the failover prompt was byte-identical to the
+`b6b3dd8` rerun. It still went from 2 of 3 runs to 0 of 3, all three missing `C` (`exporter` set to
+the connector ID), which the file states: that swing is ×3 noise. The receiver misses left out the
+`refused` counter, and the awss3 miss dropped the "detailed level" qualifier. This round's edits
+changed neither fact.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-952d66d-1` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-952d66d-2` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-952d66d-3` | pass | pass | pass | pass | pass | pass |
+| `failover-proposed-952d66d-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-952d66d-2` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-952d66d-3` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-952d66d-1` | pass | pass | fail | pass |  | fail |
+| `awss3-proposed-952d66d-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-952d66d-3` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-952d66d-1` | fail | fail | pass | pass |  | fail |
+| `awss3receiver-proposed-952d66d-2` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-952d66d-3` | fail | pass | pass | pass |  | fail |
+
+### Rerun on the review-round commit
+
+The review round (`b6b3dd8`) changed notes in the awss3 exporter, clickhouse and receiver files, and
+linked each core Sources line to its release tag. The proposed arm was rerun on that commit, ×3 on
+all four cases, with the same harness. It passed 7 of 12 runs and 44 of 51 expectations. No case
+passed fewer runs than on `origin/main` or on `7efe65e`. The other arms were not rerun: their
+content did not change.
+
+The same round qualified the committed awss3 expectation `C` with "with the default metric views".
+Every arm, including this rerun, was graded with the original wording, so grading stays identical
+across arms. No graded answer mentioned custom views, so the qualifier would not have changed a
+verdict.
+
+Letters follow each case's legend below. The four-expectation cases leave `E` blank.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-b6b3dd8-1` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-b6b3dd8-2` | pass | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-b6b3dd8-3` | fail | pass | fail | pass | pass | fail |
+| `failover-proposed-b6b3dd8-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `failover-proposed-b6b3dd8-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-1` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-3` | pass | fail | fail | pass |  | fail |
+| `awss3receiver-proposed-b6b3dd8-1` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-b6b3dd8-3` | pass | pass | pass | pass |  | pass |
+
+### What differed
+
+**The withheld arm invented component metrics.** All three `awss3` runs gave a type and
+attributes for the dashboard's `otelcol_exporter_awss3_upload_failures` and
+`otelcol_exporter_awss3_uploaded_bytes`, which do not exist. Failover runs described
+`otelcol_connector_failover_priority_level` and `otelcol_connector_failover_failures_total`.
+Receiver runs described `otelcol_aws_s3_receiver_objects_processed`, and clickhouse runs named
+`otelcol_exporter_enqueue_failed_items`. None of these exists.
+
+**`origin/main` has no inventory for these four components.** Most runs said so and answered in
+general terms or declined, which fails nearly every expectation. That is why `origin/main` scored
+7 of 51 expectations, below the withheld arm's 11 of 51: declining is graded the same as being
+wrong.
+
+**The proposed arm answered from the pinned files.** It passed 42 of 51 expectations. Every metric
+a proposed run named exists at v0.165.1. Its mentions of the dashboard's metrics, and of an
+active-level metric, were all denials. All 12 proposed runs named v0.165.1, and five of them also
+cited the file's `commit_sha`.
+
+**The remaining misses are omissions, graded strictly.** Clickhouse runs left out that the queue
+is on by default (3 of 3 at ×3; 3 of 9 at ×10), and one also left out `queue_capacity`. Failover
+runs omitted that `exporter` carries the connector ID (2 of 3), and one omitted `pipeline_level`.
+One awss3 run dropped the "detailed level" qualifier. One receiver run did not mention the
+`refused` counter. The files contain every one of these facts.
+
+**One factual slip went ungraded.** `awss3-proposed-1` said the exporter has "no byte-oriented
+counter or histogram at all", but the file lists `otelcol_exporter_enqueue_size_bytes` and
+`otelcol_exporter_queue_batch_send_size_bytes` at detailed level. No expectation covers bytes.
+
+**No regression.** No case passed fewer runs on the proposed arm than on `origin/main`. The one
+expectation where `origin/main` led at ×3 (clickhouse `C`, 1/3 against 0/3) went 0/10 against 6/9
+at ×10.
+
+### Failing and unknown runs kept, and why
+
+All failing and Unknown runs are preserved:
+
+- ×3: 31 failures (12 withheld, 12 `origin/main`, 7 proposed).
+- First clickhouse ×10 rerun: 15 failures (10 `origin/main`, 5 proposed) and one Unknown.
+- Review-round rerun: 5 failures.
+- Second review-round rerun: 6 failures.
+- Third review-round rerun: 7 failures, plus 7 in its clickhouse ×10 rerun (proposed arm only; its
+  `origin/main` row is the first rerun's).
+- Fourth review-round rerun: 7 failures, plus 19 in its receiver ×10 rerun (10 `origin/main`, 9
+  proposed).
+
+None was retried, and no run needed an infra retry. The withheld and
+`origin/main` failures are genuine misses: no data for these components. The proposed failures are
+the omissions listed above.
+
+### Limitations
+
+- One model, `deepseek-v4-flash`, which also grades. No frontier-model arm was run; adding one is a
+  maintainer decision.
+- The grader is lenient on the "answers from v0.165.1" expectation. Withheld runs, with no source
+  at all, passed it in 5 of 12 runs.
+- The routing rule inlines the files, so these runs do not test whether an agent finds the
+  inventory on its own.
+- One case per component, each pinned to v0.165.1. The other five versions per component are not
+  exercised.
+
 ## PR #242 — written-counts response headers
 
 Run with Claude Code 2.1.259 driving `claude-sonnet-5`. Three cases, three arms, three

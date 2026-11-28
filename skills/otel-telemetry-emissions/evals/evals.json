@@ -32,6 +32,47 @@
         "States that the nine wal_* metrics are emitted only when the wal config block is set, and carry the exporter attribute at v0.160.0.",
         "States that written_samples, written_histograms and written_exemplars need Remote Write 2.0 — the exporter.prometheusremotewritexporter.enableSendingRW2 feature gate together with protobuf_message: io.prometheus.write.v2.Request — and that each one is read from its own X-Prometheus-Remote-Write-*-Written response header."
       ]
+    },
+    {
+      "id": "clickhouse-queue-fill-v01651",
+      "prompt": "Our gateway Collectors run otelcol-contrib v0.165.1 with the `clickhouse` exporter left at its default queue settings. Which of the Collector's own internal metrics tells me the exporter's sending queue is filling up, what are its type, unit and attributes, and which metric counts data rejected once the queue is full? State the exact component version your answer is verified against. Do not modify files or contact an endpoint.",
+      "expectations": [
+        "Names `otelcol_exporter_queue_size` as the queue-fill metric: a gauge to compare with `otelcol_exporter_queue_capacity`.",
+        "Gives the queue-size attributes as `exporter` (the exporter ID, for example `clickhouse`) and `data_type`, without adding `server.address`, `server.port` or other attributes.",
+        "States that the clickhouse exporter's sending queue is enabled by default, so these metrics are emitted without extra configuration.",
+        "Names the `otelcol_exporter_enqueue_failed_*` counters (for example `otelcol_exporter_enqueue_failed_spans`) as the metrics for data rejected when the queue is full.",
+        "Answers from a source pinned to clickhouse exporter v0.165.1 and names v0.165.1 as the verified version, rather than falling back to another component or version."
+      ]
+    },
+    {
+      "id": "failover-active-level-v01651",
+      "prompt": "We put the `failover` connector in front of a ClickHouse pipeline, with an S3 pipeline as the second priority level, on otelcol-contrib v0.165.1. Does the connector emit any metric that tells me which priority level is currently active? If not, what telemetry does it produce that would show a failover happening or its own queue backing up? State the exact component version your answer is verified against. Do not modify files or contact an endpoint.",
+      "expectations": [
+        "States that the failover connector emits no metric that reports the currently active priority level.",
+        "Names the DEBUG log `Downstream error matched failover condition; moving to the next pipeline level` with its `pipeline_level` field, and states that it is emitted only when `condition` is configured.",
+        "States that with `sending_queue` enabled (the default) the connector emits exporterhelper metrics such as `otelcol_exporter_queue_size` and `otelcol_exporter_send_failed_*`, with `exporter` set to the connector ID (for example `failover`).",
+        "Answers from a source pinned to failover connector v0.165.1 and names v0.165.1 as the verified version."
+      ]
+    },
+    {
+      "id": "awss3-nonexistent-metric-v01651",
+      "prompt": "A dashboard someone handed me for the `awss3` exporter on otelcol-contrib v0.165.1 charts `otelcol_exporter_awss3_upload_failures` and `otelcol_exporter_awss3_uploaded_bytes`. What instrument type and attributes do those two metrics have, and which one should I alert on when uploads to S3 fail? State the exact component version your answer is verified against. Do not modify files or contact an endpoint.",
+      "expectations": [
+        "States that the awss3 exporter emits neither `otelcol_exporter_awss3_upload_failures` nor `otelcol_exporter_awss3_uploaded_bytes` at v0.165.1, instead of describing a type or attributes for them.",
+        "Recommends alerting on the exporterhelper `otelcol_exporter_send_failed_*` counters (for example `otelcol_exporter_send_failed_log_records`), with the `exporter` attribute set to the exporter ID.",
+        "States that, with the default metric views, `error.type` and `error.permanent` appear on the send-failed counters only at the detailed telemetry level.",
+        "Answers from a source pinned to awss3 exporter v0.165.1 and names v0.165.1 as the verified version."
+      ]
+    },
+    {
+      "id": "awss3receiver-metric-count-v01651",
+      "prompt": "We replay metrics from S3 with the `aws_s3` receiver (otelcol-contrib v0.165.1, `starttime`/`endtime` mode) and want to compare how many data points the receiver accepted with what the exporter wrote. Which receiver metrics should we use, what attributes do they carry, and is there anything we should know about what they count? State the exact component version your answer is verified against. Do not modify files or contact an endpoint.",
+      "expectations": [
+        "Names `otelcol_receiver_accepted_metric_points` (and `otelcol_receiver_refused_metric_points` for rejected data) as the receiver's metrics for metrics data.",
+        "Gives their attributes as `receiver` and `transport`, with `transport` set to `s3`.",
+        "States that for this receiver these counters count metrics, not data points, so they cannot be compared directly with data-point counts.",
+        "Answers from a source pinned to aws_s3 receiver v0.165.1 and names v0.165.1 as the verified version."
+      ]
     }
   ]
 }
