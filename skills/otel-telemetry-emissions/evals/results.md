@@ -2,11 +2,12 @@
 
 One section per harness run, newest first.
 
-## Issue #326 — failover, clickhouse and S3 inventories
+## PR #329 — failover, clickhouse and S3 inventories
 
 Run with Hermes Agent v0.22.5 in one-shot mode (`hermes -z`), driving `deepseek/deepseek-v4-flash`
 through OpenRouter with `-t todo --ignore-rules`. Four cases, three arms, three repetitions each:
-36 runs, plus a ×10 rerun of one case on two arms (below). Every repetition was a fresh one-shot
+36 runs, plus a ×10 rerun of one case on two arms and a rerun of the proposed arm on the
+review-round commit (both below). Every repetition was a fresh one-shot
 call in one of four pre-warmed `HERMES_HOME` directories, with the bundled and optional skill
 paths pointed at directories that do not exist, so no other skill was installed in any arm. The
 only tool was `todo`, so no arm could read upstream source, fetch a page or run a command. The
@@ -28,15 +29,16 @@ verdict is Unknown. No repetition was retried, and no repetition was excluded by
 | Target skill withheld | `Withheld` | 4 × 3 | 0 | 12 | 0 |
 | Current `origin/main` skill | `e11b5da0e3e71b082a126634ff29ccf854e5c78b` | 4 × 3 | 0 | 12 | 0 |
 | Proposed PR skill | `7efe65e56ba08a8ef562b2f052d43e3156057afe` | 4 × 3 | 5 | 7 | 0 |
+| Proposed PR skill, review round | `b6b3dd8c578d2f98a6c837bc8f173e8f8a2e814d` | 4 × 3 | 7 | 5 | 0 |
 
 By case, runs passed / expectations passed:
 
-| Case | Withheld | `origin/main` | Proposed |
-|---|---|---|---|
-| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 |
-| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 |
-| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 |
-| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 |
+| Case | Withheld | `origin/main` | Proposed `7efe65e` | Proposed `b6b3dd8` |
+|---|---|---|---|---|
+| `clickhouse-queue-fill-v01651` | 0/3, 5/15 | 0/3, 5/15 | 0/3, 11/15 | 1/3, 12/15 |
+| `failover-active-level-v01651` | 0/3, 3/12 | 0/3, 0/12 | 1/3, 9/12 | 2/3, 11/12 |
+| `awss3-nonexistent-metric-v01651` | 0/3, 0/12 | 0/3, 0/12 | 2/3, 11/12 | 2/3, 10/12 |
+| `awss3receiver-metric-count-v01651` | 0/3, 3/12 | 0/3, 2/12 | 2/3, 11/12 | 2/3, 11/12 |
 
 ### Per-attempt grading — `clickhouse-queue-fill-v01651`
 
@@ -116,6 +118,36 @@ was rerun ×10 on both arms with the same harness. The ×3 results above stand a
 The proposed columns count the nine graded runs. The Unknown run's verdict was truncated JSON (no
 closing brace). Its five reasons all read as passes, but it stays Unknown and was not regraded.
 
+### Rerun on the review-round commit
+
+The review round (`b6b3dd8`) changed notes in the awss3 exporter, clickhouse and receiver files, and
+linked each core Sources line to its release tag. The proposed arm was rerun on that commit, ×3 on
+all four cases, with the same harness. It passed 7 of 12 runs and 44 of 51 expectations. No case
+passed fewer runs than on `origin/main` or on `7efe65e`. The other arms were not rerun: their
+content did not change.
+
+The same round qualified the committed awss3 expectation `C` with "with the default metric views".
+Every arm, including this rerun, was graded with the original wording, so grading stays identical
+across arms. No graded answer mentioned custom views, so the qualifier would not have changed a
+verdict.
+
+Letters follow each case's legend below. The four-expectation cases leave `E` blank.
+
+| Attempt | A | B | C | D | E | Result |
+|---|---|---|---|---|---|---|
+| `clickhouse-proposed-b6b3dd8-1` | pass | pass | pass | pass | pass | pass |
+| `clickhouse-proposed-b6b3dd8-2` | pass | pass | fail | pass | pass | fail |
+| `clickhouse-proposed-b6b3dd8-3` | fail | pass | fail | pass | pass | fail |
+| `failover-proposed-b6b3dd8-1` | pass | pass | fail | pass |  | fail |
+| `failover-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `failover-proposed-b6b3dd8-3` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-1` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `awss3-proposed-b6b3dd8-3` | pass | fail | fail | pass |  | fail |
+| `awss3receiver-proposed-b6b3dd8-1` | fail | pass | pass | pass |  | fail |
+| `awss3receiver-proposed-b6b3dd8-2` | pass | pass | pass | pass |  | pass |
+| `awss3receiver-proposed-b6b3dd8-3` | pass | pass | pass | pass |  | pass |
+
 ### What differed
 
 **The withheld arm invented component metrics.** All three `awss3` runs gave a type and
@@ -151,8 +183,8 @@ at ×10.
 
 ### Failing and unknown runs kept, and why
 
-All 31 failing runs at ×3 (12 withheld, 12 `origin/main`, 7 proposed) and the ×10 rerun's 15
-failures and one Unknown are preserved. None was retried. The withheld and `origin/main` failures
+All 31 failing runs at ×3 (12 withheld, 12 `origin/main`, 7 proposed), the ×10 rerun's 15
+failures and one Unknown, and the review-round rerun's 5 failures are preserved. None was retried. The withheld and `origin/main` failures
 are genuine misses: no data for these components. The proposed failures are the omissions listed
 above.
 
