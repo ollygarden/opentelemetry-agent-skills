@@ -1,6 +1,6 @@
 ---
 name: otel-collector
-description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on Collector component questions including receivers, processors, exporters, connectors, extensions, component renames, signal support, and pipeline wiring.
+description: OpenTelemetry Collector component configuration. Use when authoring, reviewing, or debugging Collector YAML for a specific receiver, processor, exporter, connector, or extension — config keys, defaults, validation rules, signal support, stability levels, and component-level gotchas. Triggers on Collector component questions including receivers, processors, exporters, connectors, extensions, component renames, signal support, and pipeline wiring; failover, fallback, or backup exporters and failing back to the primary; the ClickHouse exporter, `async_insert`, and `create_schema`; exporting or archiving telemetry to S3 or object storage; replaying or backfilling from S3; S3 event notifications via SQS; and `awss3` or `aws_s3`.
 ---
 
 # OpenTelemetry Collector
@@ -53,6 +53,10 @@ The v0.164.0 notes in component pages (`PermissiveLabelSanitization` and `filelo
 | `prometheus` (receiver) | `components/prometheus/README.md` | receiver | metrics | Beta | Scrapes Prometheus-format HTTP endpoints and converts them to OTLP metrics, embedding `prometheus/prometheus`'s scrape manager — the `config:` block is the same YAML as `prometheus.yml` (`global`, `scrape_configs`, `scrape_config_files`, service discovery, relabeling). Extra keys: `trim_metric_suffixes`, `target_allocator` (sharded targets from the OTel Operator), `api_server` (debug API). Scrape-only: rejects `remote_write`/`remote_read`/`rule_files`/alerting. Stateful, does not auto-shard across replicas. |
 | `prometheus` (exporter) | `components/prometheus_exporter/README.md` | exporter | metrics | Beta | Exposes pipeline metrics for Prometheus to scrape. In-memory accumulator expires stale series after 5m. v0.160 adds `resource_constant_labels` and deprecates `resource_to_telemetry_conversion`; `add_metric_suffixes` remains deprecated in favor of `translation_strategy`. |
 | `prometheus_remote_write` (exporter) | `components/prometheus_remote_write/README.md` | exporter | metrics | Beta | Pushes OTLP metrics as Prometheus Remote Write. Nests HTTP client settings under `http`; uses `remote_write_queue` (not `sending_queue`). v0.160 adds `resource_constant_labels` and deprecates `resource_to_telemetry_conversion`; RW2 remains gated and in development. |
+| `failover` | `components/failover/README.md` | connector | traces, metrics, logs | Alpha | Sends same-signal telemetry to the first healthy `priority_levels` entry; fails over when a level returns an error synchronously and probes higher levels every `retry_interval` to fail back. An exporter `sending_queue` in a priority pipeline hides failures from it. |
+| `clickhouse` | `components/clickhouse/README.md` | exporter | traces, logs, metrics, profiles | Beta (traces/logs), Alpha (metrics), Development (profiles) | Inserts telemetry into ClickHouse tables over the native or HTTP protocol. `create_schema` (default `true`) runs DDL at start, and a DDL failure stops the Collector. No error is permanent, so failed inserts retry until `max_elapsed_time`. |
+| `awss3` (exporter) | `components/aws_s3_exporter/README.md` | exporter | traces, metrics, logs | Alpha | Writes each export request as one S3 object (OTLP JSON or Protobuf, logs-only formats, or an encoding extension) under an upload-time partition key; bucket and prefix can come from a resource attribute. |
+| `aws_s3` (receiver) | `components/aws_s3/README.md` | receiver | traces, metrics, logs | Alpha | Reads S3 objects into a pipeline, either as a one-shot time-range replay of `awss3` exporter partitions or driven by SQS `ObjectCreated` notifications. Renamed from `awss3` in v0.162.0; alias preserved. |
 
 ## Collector-wide conventions
 
@@ -77,6 +81,8 @@ service:
       processors: [log_dedup/access-logs]
 ```
 
+The Collector builds a receiver or exporter once per ID and pipeline signal (core v0.165.0 [`graph.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/service/internal/graph/graph.go)), and pipelines of one signal share it. Different signals share one instance only when the factory caches it, typically through `sharedcomponent` as the `otlp` receiver does; otherwise one ID in a `traces` and a `logs` pipeline runs twice.
+
 ### Stability levels
 
 Components publish a stability level per signal. Treat these as load-bearing when recommending production use:
@@ -92,7 +98,7 @@ Stability varies per component — and per signal for multi-signal components (e
 
 ### Recent renames
 
-Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. the `awss3` receiver → `aws_s3` in v0.162.0, `sqlserver` → `sql_server` in v0.163.0; receivers and exporters of one family rename separately, so check the component's `metadata.yaml` `type`). The legacy names remain as deprecated aliases — old configs keep working but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
+Many components have been renamed to snake_case since v0.146.0, and renames are still landing (e.g. the `awss3` receiver → `aws_s3` in v0.162.0, `sqlserver` → `sql_server` in v0.163.0; receivers and exporters of one family rename separately, so check the component's `metadata.yaml` `type`; the [`awss3` exporter](components/aws_s3_exporter/README.md) keeps its name). The legacy names remain as deprecated aliases — old configs keep working, and the configured name stays the component ID in the component's own telemetry (core v0.165.0 [`builders.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/service/internal/builders/builders.go) only logs a deprecation warning), but new configs should use the new names. Check the upstream component README for the exact rename version before flagging a config as broken.
 
 Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
 
@@ -117,6 +123,8 @@ Each component page's **Verification** section gives a config, a `telemetrygen` 
 3. Watch the `debug` exporter's stdout (or the `file` exporter's output) for the expected result.
 
 The Verification configs are **minimal repros**: they omit `memory_limiter` and other production scaffolding on purpose, to isolate the component under test. Don't copy them verbatim into production.
+
+The `failover`, `clickhouse`, `awss3` exporter, and `aws_s3` recipes ran on `otel/opentelemetry-collector-contrib:0.165.0`, because no 0.165.1 image is published ([`otel-telemetrygen` preconditions](../otel-telemetrygen/references/collector-verification.md#preconditions)); those components differ between contrib v0.165.0 and v0.165.1 at most in `go.mod`. "Observed" in their pages marks behavior seen in that setup. Core v0.165.0 samples the Collector's own logs by default (per message, the first 10 entries every 10s, then every 100th), so a recipe that counts more log lines than that needs `service.telemetry.logs.sampling.enabled: false`.
 
 ## Adding a new component to this skill
 
