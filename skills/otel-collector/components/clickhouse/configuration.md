@@ -7,7 +7,7 @@ All keys live under `exporters: { clickhouse: { … } }`. Exporter facts come fr
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
 | `endpoint` | string | — (**required**) | DSN URL. `http` selects HTTP. `https` selects HTTP over TLS, and the exporter adds `secure=true`. Any other scheme (`tcp`, `clickhouse`) selects the native protocol. A path (`/db`) names a database. Query parameters go to the driver (see [DSN and settings](#dsn-and-settings)). Several hosts (`tcp://h1:9000,h2:9000`): each connection dials one, chosen by the driver's `connection_open_strategy` (`in_order` default, `round_robin`, `random`). |
-| `username` | string | `""` | When set, replaces any user info in the DSN; a `username` or `password` query parameter in `endpoint` or `connection_params` still wins, because the driver reads query parameters after user info. When empty, the DSN user applies, or the driver default `default`. |
+| `username` | string | `""` | Precedence per field, highest first: a `username` or `password` query parameter in `endpoint` or `connection_params` (the driver reads them after user info); this key and `password`, when `username` is set (they replace the DSN user info); the DSN user info; the driver default user `default`. |
 | `password` | opaque string | `""` | Password for `username` ([ignored alone](quirks.md#silently-ignored-settings)). |
 | `database` | string | `default` | Target database for DDL and `INSERT`. A value other than `default` wins over the DSN path. |
 | `connection_params` | map[string]string | `{}` | Merged into the DSN query, replacing endpoint parameters with the same name. |
@@ -36,7 +36,7 @@ All keys live under `exporters: { clickhouse: { … } }`. Exporter facts come fr
 
 `sending_queue` and `retry_on_failure` keep the core v0.165.0 defaults (`NewDefaultQueueConfig`, `NewDefaultBackOffConfig`); keys and validation are in [`sending_queue`](../otlp_exporter/configuration.md#sending_queue) and [`retry_on_failure`](../otlp_exporter/configuration.md#retry_on_failure).
 
-**Connection pool.** Since v0.165.0, with the queue enabled, `max_open_conns` defaults to `num_consumers` and `max_idle_conns` to the smaller of `num_consumers` and `max_open_conns`; the metrics exporter multiplies both by 5, one per metric type. A value in `endpoint` or `connection_params` wins. With the queue disabled, the driver defaults apply: 5 idle and 10 open connections. Each signal's exporter [instance](../../SKILL.md#named-instances) opens its own pool.
+**Connection pool.** Since v0.165.0, with the queue enabled, `max_open_conns` defaults to `num_consumers`, times 5 for the metrics exporter because it inserts its five metric types concurrently, and `max_idle_conns` to the same value, capped at the final `max_open_conns`. A positive value in `endpoint` or `connection_params` wins; zero or a negative value gets the default without the metrics ×5. So 10 consumers with `max_open_conns=3` cap metrics at 3 open and 3 idle connections. With the queue disabled, unset or non-positive values get the driver defaults: 5 idle, and idle + 5 open. Each signal's exporter [instance](../../SKILL.md#named-instances) opens its own pool.
 
 ## DSN and settings
 

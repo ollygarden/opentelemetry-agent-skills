@@ -34,7 +34,7 @@ Since v0.157.0, the metric tables declare `StartTimeUnix`, `TimeUnix`, and exemp
 
 None of these logs a warning:
 
-- `password` without `username`: the DSN user info, or the driver default user `default`, applies.
+- `password` without `username`: it is dropped; the DSN's credentials apply, or the driver default user `default`.
 - `metrics_table_name`: it applies only when every `metrics_tables.<type>.name` is empty, and the factory fills all five, so `metrics_table_name: legacy` still creates `otel_metrics_*` tables (observed).
 - `tls.ca_pem`, `cert_pem`, or `key_pem` alone: they do not trigger the `tls` block (below).
 - An unrecognized `compress` value, such as `snappy`: compression is disabled.
