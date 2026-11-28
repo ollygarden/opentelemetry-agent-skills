@@ -40,9 +40,9 @@ check the current release before relying on them.
   ([resource.rb](https://github.com/open-telemetry/opentelemetry-ruby/blob/opentelemetry-sdk/v1.13.1/sdk/lib/opentelemetry/sdk/resources/resource.rb)),
   so values free of `,`, `=` and `%` work everywhere (spaces are fine).
 - **A Collector inside a job.** It must be listening before senders start (poll its OTLP port or
-  health check). An in-memory `sending_queue` loses data still queued at shutdown; the exporter's
+  health check). An in-memory `sending_queue` gives data still queued at shutdown one send attempt and loses it if the Collector is killed; the exporter's
   `wait_for_result` makes senders wait for the export result instead (its limits are in the
-  `otel-collector` skill's [`otlp_exporter` quirks](../../otel-collector/components/otlp_exporter/quirks.md)).
+  `otel-collector` skill's [exporter queue reference](../../otel-collector/references/exporterhelper.md#sending_queue)).
 - **Tools.** Spans can come from an SDK, from OTLP/JSON posted with `curl`, or from `otel-cli`
   ([context-propagation.md](context-propagation.md#command-line-spans) covers its flags and the
   integer-typing trap).

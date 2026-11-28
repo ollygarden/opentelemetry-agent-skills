@@ -17,7 +17,7 @@ All keys live under the exporter instance — `exporters: { prometheus: { … } 
 | `without_scope_info` | bool | `false` | When `true`, omits instrumentation-scope labels (`otel_scope_name`, `otel_scope_version`, `otel_scope_schema_url`, and scope attributes). |
 | `add_metric_suffixes` | bool | `true` | **Deprecated** (use `translation_strategy`). When `true`, appends type/unit suffixes (e.g. counters get `_total`). **Ignored** when `translation_strategy` is explicitly set. |
 | `translation_strategy` | string (enum) | — | When set, takes precedence over `add_metric_suffixes`; controls how OTLP metric/attribute names are translated to Prometheus names. See [translation_strategy](#translation_strategy). |
-| `sending_queue` | object | — | The standard `exporterhelper` queue block. Far less meaningful here than for a pushing exporter (see [advanced.md](advanced.md) and [quirks.md](quirks.md)). |
+| `sending_queue` | object | disabled | The standard `exporterhelper` queue block. Far less meaningful here than for a pushing exporter (see [advanced.md](advanced.md) and [quirks.md](quirks.md)). |
 
 The exporter also accepts all standard HTTP **server** options from the embedded `confighttp.ServerConfig` (`tls`, `cors`, `auth`, `response_headers`, `compression_algorithms`, `max_request_body_size`, and others — cross-reference the confighttp documentation rather than enumerating exhaustively). Server defaults from `NewDefaultServerConfig()`:
 
@@ -47,7 +47,7 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 
 ## `sending_queue`
 
-Optional. The standard `exporterhelper` queue block. Because this is a **pull** exporter that accumulates in memory and is scraped, queue/retry semantics are far less meaningful here than for a pushing exporter. Tune it only if you have a specific reason; for the full queue reference see the [`otlp_grpc` exporter's configuration](../otlp_exporter/configuration.md#sending_queue).
+Optional. The standard `exporterhelper` queue block, **disabled by default** together with its batching: contrib v0.165.1 [`metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/exporter/prometheusexporter/metadata.yaml) declares `support: has_overrides` because the exporter is pull-based, and the exporter has no `retry_on_failure` or `timeout` keys. Writing any `sending_queue` key turns the queue on. For what each key does, see the [shared exporterhelper reference](../../references/exporterhelper.md#sending_queue).
 
 ## Validation summary
 

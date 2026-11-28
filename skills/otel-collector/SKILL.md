@@ -96,13 +96,17 @@ Many components have been renamed to snake_case since v0.146.0, and renames are 
 
 Examples: `logdedup` → `log_dedup`, `hostmetrics` → `host_metrics`, `spanmetrics` → `span_metrics`, `servicegraph` → `service_graph`, `k8sattributes` → `k8s_attributes`, plus several `_log` and `_check` receivers.
 
+### Exporter queue, retry, and timeout
+
+Exporters built on core's `exporterhelper` share `sending_queue`, `retry_on_failure`, and `timeout`. [references/exporterhelper.md](references/exporterhelper.md) holds their keys, the helper's defaults, validation, and how in-memory and persistent (`storage`) queues behave; each exporter's own defaults are on its component page.
+
 ### Pipeline placement
 
-Two rules of thumb that apply across components:
+Rules of thumb that apply across components:
 
 - `memory_limiter` belongs first in any processor list, before anything that allocates buffers (`log_dedup`, `transform`, `tail_sampling`, …).
-- The `otlp_grpc` exporter's sending queue is enabled by default, but its `sending_queue.batch` sub-block is opt-in. Enable exporter-side batching explicitly (or with the alpha `pkg.exporterhelper.queueBatchEnabled` migration gate). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
-- Data a processor such as `batch` holds in memory is lost on a crash; an exporter persistent queue ([file_storage](components/file_storage/advanced.md)) protects only data that has reached it.
+- Exporter-side batching (`sending_queue.batch`) is opt-in for exporters that keep the helper default, such as `otlp_grpc` ([how to enable it](references/exporterhelper.md#sending_queuebatch)). The separate `batch` processor remains Beta and supported; use it when pipeline-level batching is needed and place it after data-dropping processors. Since core v0.165.0 the Collector warns at startup when one pipeline has both: `Pipeline has both a batch processor and an exporter with batching enabled; this will cause double batching`. The check does not follow data through connectors.
+- The `batch` processor returns `nil` once it holds the data, so export errors never reach the components in front of it (core v0.165.0 [`batch_processor.go`](https://github.com/open-telemetry/opentelemetry-collector/blob/v0.165.0/processor/batchprocessor/batch_processor.go)); the same holds for an exporter's [sending queue](references/exporterhelper.md#what-the-caller-sees). Data it holds in memory is lost on a crash; an exporter persistent queue ([`storage`](references/exporterhelper.md#persistent-queue-storage)) protects only data that has reached it.
 
 ### Feature gates
 
@@ -130,7 +134,7 @@ When extending coverage:
    - **Related components** — cross-links.
    - **Details index** — a bullet list where each item links a detail file followed by an em dash and a short description of its contents (e.g. `- [Configuration](configuration.md) — config keys, defaults, validation`), so the reader loads only what a question needs.
 3. **Split the rest into on-demand detail files** under the same directory:
-   - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables.
+   - **`configuration.md`** — full config-reference table (key, type, default, validation) plus any mechanism/reference tables. For an exporter, give only its own `sending_queue` / `retry_on_failure` / `timeout` defaults and link [references/exporterhelper.md](references/exporterhelper.md) for what they do.
    - **`verification.md`** — a `telemetrygen` + `debug`/`file` exporter recipe that proves the documented behavior; cross-reference the `otel-telemetrygen` skill. **Verify every `telemetrygen` flag against that skill — never assert a flag that doesn't exist.** If `telemetrygen` can't produce the input the component needs, say so and point to an alternative (OTTL/`transform`, a custom emitter). Keep the config a minimal repro (see [Verification harness](#verification-harness)).
    - **`advanced.md`** — named instances, multi-pipeline setups, combinations, and edge configs.
    - **`quirks.md`** — gotchas, stability caveats, memory model, a validation-error→fix table, anti-patterns, and troubleshooting.

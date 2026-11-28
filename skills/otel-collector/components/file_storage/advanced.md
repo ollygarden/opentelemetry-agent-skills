@@ -2,7 +2,7 @@
 
 ## Persistent exporter queue (survives restart)
 
-By default an exporter's `sending_queue` is in-memory: data still queued at shutdown (or lost in a crash) is gone. Point the queue at `file_storage` and it becomes a **persistent queue** that survives a Collector restart:
+By default an exporter's `sending_queue` is in-memory: data still queued is lost in a crash, and at a graceful shutdown gets one send attempt before it is dropped. Point the queue at `file_storage` and it becomes a **persistent queue** that survives a Collector restart:
 
 ```yaml
 extensions:
@@ -14,7 +14,7 @@ receivers:
     protocols:
       grpc:
 exporters:
-  otlp:
+  otlp_grpc:
     endpoint: backend:4317
     tls:
       insecure: true
@@ -26,10 +26,10 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [otlp]
+      exporters: [otlp_grpc]
 ```
 
-If the backend is unreachable and the queue fills disk during an outage, the still-undelivered batches are replayed after a restart instead of being dropped. See the [`otlp` exporter](../otlp_exporter/README.md) for the queue's own sizing knobs.
+Queued requests are sent after a restart instead of being lost. Capacity, retry-budget drops, drain order and concurrency, redelivery, and upstream reports on large backlogs: [Persistent queue](../../references/exporterhelper.md#persistent-queue-storage).
 
 ## Multiple named storage instances
 
@@ -48,7 +48,7 @@ receivers:
     include: [/var/log/app/*.log]
     storage: file_storage/offsets
 exporters:
-  otlp:
+  otlp_grpc:
     endpoint: backend:4317
     sending_queue:
       enabled: true
@@ -58,7 +58,7 @@ service:
   pipelines:
     logs:
       receivers: [file_log]
-      exporters: [otlp]
+      exporters: [otlp_grpc]
 ```
 
 Each instance still writes one bbolt file per consuming component inside its own `directory`.

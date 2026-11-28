@@ -25,8 +25,8 @@ All keys live under the exporter instance — `exporters: { prometheus_remote_wr
 | `resource_to_telemetry_conversion` | object | see below | **Deprecated** in v0.160.0; use `resource_constant_labels`. |
 | `wal` | object | off unless `directory` set | Write-ahead log. See [wal](#wal). |
 | `target_info` | object | `enabled: true` | Emit a `target_info` metric per resource for resource-attribute joins. |
-| `retry_on_failure` | object | `configretry.BackOffConfig` | Standard retry block; the factory overrides `InitialInterval` to `50ms`. Cross-reference the [exporterhelper retry docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md). Transport errors and 5xx retry until `max_elapsed_time`, as does `429` with the [`RetryOn429` gate](advanced.md#retrying-on-http-429); other non-2xx responses fail on the first attempt. |
-| `timeout` | duration | per exporterhelper | From the embedded `exporterhelper.TimeoutConfig` (squashed). Since v0.164.0 the exporter applies it to each send attempt, not the whole retry loop. |
+| `retry_on_failure` | object | `configretry.BackOffConfig` | The standard [`retry_on_failure` keys](../../references/exporterhelper.md#retry_on_failure); the factory overrides `InitialInterval` to `50ms`. The exporter runs its own backoff loop with these settings, not the helper's retry sender. Transport errors and 5xx retry until `max_elapsed_time`, as does `429` with the [`RetryOn429` gate](advanced.md#retrying-on-http-429); other non-2xx responses fail on the first attempt. |
+| `timeout` | duration | `5s` (v0.165.1 factory) | From the embedded `exporterhelper.TimeoutConfig` (squashed). The exporter switches the helper timeout off and, since v0.164.0, applies this value itself to each send attempt, not the whole retry loop. |
 
 The `http` block accepts the standard HTTP **client** options from `confighttp.ClientConfig`, such
 as `endpoint`, `headers`, `tls`, `compression`, and `auth`. Deprecated flat HTTP settings still
@@ -37,7 +37,7 @@ exporterhelper send timeout at top level.) Cross-reference rather than enumerati
 
 - [HTTP client settings (confighttp)](https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/confighttp/README.md) — note only `snappy` compression is accepted (required by the Remote Write protocol). Headers `Content-Encoding`, `Content-Type`, `X-Prometheus-Remote-Write-Version`, and `User-Agent` cannot be overridden via `headers`.
 - [TLS / mTLS settings (configtls)](https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/configtls/README.md) — **TLS is on by default**; set `http.tls.insecure: true` for plaintext.
-- [Retry and timeout settings (exporterhelper)](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md) — note the exporter does **not** support `sending_queue`; it provides `remote_write_queue` instead.
+- [`retry_on_failure` keys (exporterhelper)](../../references/exporterhelper.md#retry_on_failure) — key names and validation only, since this exporter runs its own retry loop; it does **not** support `sending_queue` and provides `remote_write_queue` instead.
 
 ## `remote_write_queue`
 

@@ -2,11 +2,7 @@
 
 ## Tuning the queue for throughput vs. latency
 
-The queue defaults are `num_consumers: 10` and `queue_size: 1000`. If you opt into queue batching,
-its defaults are `batch.min_size: 8192` and `batch.flush_timeout: 200ms`. The levers:
-
-- **Throughput** — raise `num_consumers` (more parallel senders) and `queue_size` (deeper buffer to absorb bursts). Larger `batch.min_size` packs more per request, reducing per-RPC overhead.
-- **Latency** — when batching is enabled, lower `batch.flush_timeout` (flush sooner) and `batch.min_size` (smaller batches leave the queue faster). The trade-off is more, smaller RPCs.
+`num_consumers` sets how many exports run at once, `queue_size` how much a burst or outage can buffer, and, once batching is enabled, `batch.min_size` and `batch.flush_timeout` trade fewer, fuller RPCs against latency. Key meanings and validation: [`sending_queue`](../../references/exporterhelper.md#sending_queue).
 
 ```yaml
 exporters:
@@ -22,32 +18,9 @@ exporters:
         min_size: 16384
 ```
 
-`batch.min_size` must be ≤ `queue_size` when their sizers match — see [quirks.md](quirks.md).
-
 ## Persistent queue via `storage`
 
-By default the queue is in-memory: data buffered at a crash or restart is lost. Point `sending_queue.storage` at a `file_storage` extension to persist the queue to disk so it survives restarts:
-
-```yaml
-extensions:
-  file_storage:
-    directory: /var/lib/otelcol/queue
-
-exporters:
-  otlp_grpc:
-    endpoint: backend:4317
-    sending_queue:
-      storage: file_storage      # queue persists across restarts
-
-service:
-  extensions: [file_storage]
-```
-
-> The [`file_storage`](../file_storage/README.md) extension backs persistent queues. Persistence trades durability for disk I/O. **`wait_for_result` is not supported with a persistent `storage` queue** (see below).
-
-## `wait_for_result` trade-off
-
-`sending_queue.wait_for_result: true` makes the caller block until the export result is known, so the pipeline learns about failures synchronously instead of fire-and-forget. It costs throughput (the producer waits) and is **incompatible with a persistent `storage` queue** — enabling both is a config error. Use it only when you need synchronous delivery confirmation and an in-memory queue.
+By default the queue is in-memory: buffered data is lost in a crash, and at a graceful shutdown each queued request gets one attempt. Set `sending_queue.storage` to a `file_storage` extension to keep it on disk across restarts — see the [`file_storage` example](../file_storage/advanced.md#persistent-exporter-queue-survives-restart) and how the queue then behaves in [Persistent queue](../../references/exporterhelper.md#persistent-queue-storage).
 
 ## mTLS to a secure backend
 

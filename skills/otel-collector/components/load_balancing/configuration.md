@@ -1,6 +1,6 @@
 # `load_balancing`: configuration
 
-All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.157.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files); routing-key and k8s-resolver rows also hold for `v0.162.0`.
+All keys live under the exporter instance (e.g. `exporters: { load_balancing: { … } }`). Facts below are traced to the `v0.157.0` contrib source (`config.go`, `factory.go`, `loadbalancer.go`, the per-signal `*_exporter.go` files, and the resolver files); routing-key and k8s-resolver rows also hold for `v0.162.0`, and the `timeout`, `retry_on_failure`, and `sending_queue` defaults trace to [`factory.go` at `v0.165.1`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/exporter/loadbalancingexporter/factory.go).
 
 ## Top-level keys
 
@@ -10,11 +10,11 @@ All keys live under the exporter instance (e.g. `exporters: { load_balancing: { 
 | `routing_attributes` | list of string | — | Attribute names to build the key from; **only** valid with `routing_key: attributes`. |
 | `protocol.otlp` | otlp exporter config | otlp defaults | The per-backend transport (see [protocol.otlp](#protocolotlp)). |
 | `resolver` | object | — (required) | Exactly **one** of `static` / `dns` / `k8s` / `aws_cloud_map` (see [Resolvers](#resolvers)). |
-| `timeout` | duration | exporter-helper default | Timeout for the load-balancer's **own** queue, before per-backend dispatch. |
-| `retry_on_failure` | object | exporter-helper `retry_on_failure` | Retry for the load-balancer level (data bounced back from a sub-exporter). |
-| `sending_queue` | object | exporter-helper `sending_queue` | Queue at the load-balancer level, ahead of distribution. |
+| `timeout` | duration | effectively `5s` (the factory's `0` is not passed on, so the helper default applies; `timeout: 0` cannot disable it) | Timeout for each load-balancer-level send attempt, before per-backend dispatch. |
+| `retry_on_failure` | object | disabled; every key `0`, so `enabled: true` alone keeps zero intervals and no `max_elapsed_time` | Retry at the load-balancer level for errors a sub-exporter returns. |
+| `sending_queue` | object | enabled with the helper defaults (`1000` requests, `10` consumers, batching off) | Queue at the load-balancer level, ahead of distribution. |
 
-`timeout`, `retry_on_failure`, and `sending_queue` are the standard exporter-helper knobs — see the `otlp` exporter page for their sub-keys. Here they apply to the **load balancer's own** buffer (the outer level); the **per-backend** queue/retry/timeout are configured separately inside `protocol.otlp` (the inner level). The two levels form the resiliency model described in [advanced.md](advanced.md).
+`timeout`, `retry_on_failure`, and `sending_queue` are the standard exporter-helper knobs; their sub-keys and behavior are in the [shared exporterhelper reference](../../references/exporterhelper.md). The upstream README says these load-balancer-level options are off by default; at `v0.165.1` only retry is. Here they apply to the **load balancer's own** buffer (the outer level); the **per-backend** queue/retry/timeout are configured separately inside `protocol.otlp` (the inner level), starting from the [`otlp_grpc` defaults](../otlp_exporter/configuration.md#sending_queue). The two levels form the resiliency model described in [advanced.md](advanced.md).
 
 ### `routing_key` support per signal
 
