@@ -2,7 +2,7 @@
 
 ## Persistent exporter queue (survives restart)
 
-By default an exporter's `sending_queue` is in-memory: data still queued is lost in a crash, and at a graceful shutdown gets one send attempt before it is dropped. Point the queue at `file_storage` and it becomes a **persistent queue** that survives a Collector restart:
+By default an exporter's `sending_queue` is in-memory, so a crash or shutdown can lose queued data ([in-memory shutdown](../../references/exporterhelper.md#concurrency-order-overflow-and-shutdown)). Point the queue at `file_storage` and it becomes a **persistent queue** that survives a Collector restart:
 
 ```yaml
 extensions:

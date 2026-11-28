@@ -26,14 +26,14 @@ All keys live under the exporter instance — `exporters: { prometheus_remote_wr
 | `wal` | object | off unless `directory` set | Write-ahead log. See [wal](#wal). |
 | `target_info` | object | `enabled: true` | Emit a `target_info` metric per resource for resource-attribute joins. |
 | `retry_on_failure` | object | `configretry.BackOffConfig` | The standard [`retry_on_failure` keys](../../references/exporterhelper.md#retry_on_failure); the factory overrides `InitialInterval` to `50ms`. The exporter runs its own backoff loop with these settings, not the helper's retry sender. Transport errors and 5xx retry until `max_elapsed_time`, as does `429` with the [`RetryOn429` gate](advanced.md#retrying-on-http-429); other non-2xx responses fail on the first attempt. |
-| `timeout` | duration | `5s` (v0.165.1 factory) | From the embedded `exporterhelper.TimeoutConfig` (squashed). The exporter switches the helper timeout off and, since v0.164.0, applies this value itself to each send attempt, not the whole retry loop. |
+| `timeout` | duration | `5s` | From the embedded `exporterhelper.TimeoutConfig` (squashed). Since v0.164.0 the factory switches the helper timeout off and the exporter applies `timeout` to each send attempt, as the HTTP client applies `http.timeout`. When only one of the two keys is written and its value is above `0`, the other takes that value, and `0` disables only the one it is set on, so with an `http` block `timeout: 0` leaves `http.timeout` at `5s` ([`factory.go` and `config.go` at v0.165.1](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.165.1/exporter/prometheusremotewriteexporter)). Through v0.163.0 the factory passes it to the exporterhelper, so it bounds the whole push, including the exporter's own retries ([v0.163.0 `factory.go`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.163.0/exporter/prometheusremotewriteexporter/factory.go)). |
 
 The `http` block accepts the standard HTTP **client** options from `confighttp.ClientConfig`, such
 as `endpoint`, `headers`, `tls`, `compression`, and `auth`. Deprecated flat HTTP settings still
 work when `http` is absent; when `http` is present it takes precedence. The alpha
 `exporter.prometheusremotewritexporter.removeTopLevelHTTPSettings` gate rejects flat HTTP client
-settings so migrations can be tested before their eventual removal. (`timeout` remains the
-exporterhelper send timeout at top level.) Cross-reference rather than enumerating:
+settings so migrations can be tested before their eventual removal. For `http.timeout`, see the
+[`timeout` row](#top-level-keys). Cross-reference rather than enumerating:
 
 - [HTTP client settings (confighttp)](https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/confighttp/README.md) — note only `snappy` compression is accepted (required by the Remote Write protocol). Headers `Content-Encoding`, `Content-Type`, `X-Prometheus-Remote-Write-Version`, and `User-Agent` cannot be overridden via `headers`.
 - [TLS / mTLS settings (configtls)](https://github.com/open-telemetry/opentelemetry-collector/blob/main/config/configtls/README.md) — **TLS is on by default**; set `http.tls.insecure: true` for plaintext.

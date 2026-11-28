@@ -20,7 +20,7 @@ exporters:
 
 ## Persistent queue via `storage`
 
-By default the queue is in-memory: buffered data is lost in a crash, and at a graceful shutdown each queued request gets one attempt. Set `sending_queue.storage` to a `file_storage` extension to keep it on disk across restarts — see the [`file_storage` example](../file_storage/advanced.md#persistent-exporter-queue-survives-restart) and how the queue then behaves in [Persistent queue](../../references/exporterhelper.md#persistent-queue-storage).
+By default the queue is in-memory, so a crash or shutdown can lose queued data ([in-memory shutdown](../../references/exporterhelper.md#concurrency-order-overflow-and-shutdown)). Set `sending_queue.storage` to a `file_storage` extension to keep it on disk across restarts — see the [`file_storage` example](../file_storage/advanced.md#persistent-exporter-queue-survives-restart) and how the queue then behaves in [Persistent queue](../../references/exporterhelper.md#persistent-queue-storage).
 
 ## mTLS to a secure backend
 

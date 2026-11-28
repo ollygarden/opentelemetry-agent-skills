@@ -47,7 +47,7 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 
 ## `sending_queue`
 
-Optional. The standard `exporterhelper` queue block, **disabled by default** together with its batching: contrib v0.165.1 [`metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/exporter/prometheusexporter/metadata.yaml) declares `support: has_overrides` because the exporter is pull-based, and the exporter has no `retry_on_failure` or `timeout` keys. Writing any `sending_queue` key turns the queue on. For what each key does, see the [shared exporterhelper reference](../../references/exporterhelper.md#sending_queue).
+Optional. The standard `exporterhelper` queue block, **disabled by default** together with its batching: contrib v0.165.1 [`metadata.yaml`](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.165.1/exporter/prometheusexporter/metadata.yaml) declares `support: has_overrides` because the exporter is pull-based, and the exporter has no `retry_on_failure` or `timeout` keys. Writing the block turns the queue on unless it sets `enabled: false` ([optional blocks](../../references/exporterhelper.md#defaults-belong-to-each-exporter)). For what each key does, see the [shared exporterhelper reference](../../references/exporterhelper.md#sending_queue).
 
 ## Validation summary
 

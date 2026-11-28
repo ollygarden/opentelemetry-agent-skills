@@ -15,7 +15,7 @@ For an exporter without a page, read its factory's `createDefaultConfig` at the 
 | Key | Helper default | Meaning |
 |-----|----------------|---------|
 | `enabled` | `true` | `false` removes the queue; see [What the caller sees](#what-the-caller-sees). |
-| `num_consumers` | `10` | Concurrent exports from the queue; see [Concurrency, order, and overflow](#concurrency-order-and-overflow). |
+| `num_consumers` | `10` | Concurrent exports from the queue; see [Concurrency, order, overflow, and shutdown](#concurrency-order-overflow-and-shutdown). |
 | `queue_size` | `1000` | Capacity in `sizer` units. A request counts from enqueue until its export finishes, including while it is being sent or retried. |
 | `sizer` | `requests` | `requests` (each incoming request counts 1), `items` (spans, metric data points, log records), or `bytes` (serialized size). |
 | `block_on_overflow` | `false` | On a full queue, `false` rejects the data at once with `sending queue is full`; `true` waits for space until the caller's context ends. |
@@ -35,17 +35,17 @@ What the exporter's consume call returns to the component in front of it (a proc
 | `wait_for_result: true` | the export's final result, after retries |
 | queue off (`enabled: false`) | the export's final result; with retry on, the caller blocks until success, `max_elapsed_time`, or its context deadline |
 
-### Concurrency, order, and overflow
+### Concurrency, order, overflow, and shutdown
 
 - With batching off, `num_consumers` workers each take one request and export it, so at most that many exports run at once per exporter instance and signal, and a request waiting between retries keeps its worker busy. With batching on and no `partition.metadata_keys`, one reader feeds the batcher and up to `num_consumers` batches export at once.
 - Both queues hand out requests first in, first out. With several workers, exports finish out of order.
 - Data the queue rejects goes back up the pipeline as a retryable error and never reaches the retry logic; an `otlp` receiver passes it to its client as gRPC `Unavailable` or HTTP 503. It is counted in `otelcol_exporter_enqueue_failed_spans`, `_metric_points`, and `_log_records`. `otelcol_exporter_queue_size` and `otelcol_exporter_queue_capacity` report the fill level.
-- A single request larger than `queue_size` never fits: the in-memory queue rejects it with `element size too large`, the persistent queue with `sending queue is full`, or waits indefinitely with `block_on_overflow`.
-- On shutdown the in-memory queue drains: each remaining request gets one attempt, because retries stop first, and requests that fail are dropped.
+- With the `items` or `bytes` sizer, a single request larger than `queue_size` never fits, however often it is retried. The in-memory queue rejects it with `element size too large`, even with `block_on_overflow`. Without `block_on_overflow` the persistent queue rejects it with `sending queue is full`; with it, it waits until the caller's context ends.
+- On shutdown the in-memory queue drains: each remaining request gets one attempt, because retries stop first, and requests that fail are dropped. A crash loses everything still in the in-memory queue.
 
 ### `sending_queue.batch`
 
-Batching is disabled unless a `batch` block is present (`batch: {}` takes the defaults) or the alpha `pkg.exporterhelper.queueBatchEnabled` feature gate (since v0.158.0) is enabled, which turns it on for exporters whose factory keeps the helper default. A `batch` processor in the same pipeline triggers a startup warning; see [Pipeline placement](../SKILL.md#pipeline-placement).
+Batching is disabled unless a `batch` block is present (`batch: {}` takes the defaults) or the alpha `pkg.exporterhelper.queueBatchEnabled` feature gate (since v0.158.0) is enabled, which turns it on for exporters whose factory keeps the helper default. Batching moves each queued request's resources into the current batch of its partition. A batch that merged requests is exported with a new context holding span links to them and, with `partition.metadata_keys`, those keys' values from the first request; other client metadata and auth context are dropped unless the exporter supplies its own context merge. Without `partition.metadata_keys` or an exporter-supplied partitioner there is one partition, so requests an exporter split before queuing (for example by a resource attribute) are merged back; `max_size` re-splits by size only. A `batch` processor in the same pipeline triggers a startup warning; see [Pipeline placement](../SKILL.md#pipeline-placement).
 
 | Key | Helper default | Meaning |
 |-----|----------------|---------|
@@ -62,10 +62,10 @@ Batching is disabled unless a `batch` block is present (`batch: {}` takes the de
 | Key | Helper default | Meaning |
 |-----|----------------|---------|
 | `enabled` | `true` | Retry retryable errors with exponential backoff. |
-| `initial_interval` | `5s` | Wait before the first retry. |
+| `initial_interval` | `5s` | Wait before the first retry; `0` keeps every backoff interval at `0`. |
 | `randomization_factor` | `0.5` | Each interval varies by ± this fraction (0–1). |
 | `multiplier` | `1.5` | Interval growth per retry. |
-| `max_interval` | `30s` | Cap on the interval. |
+| `max_interval` | `30s` | Cap on the interval before randomization, so with the defaults one wait can reach 45s. |
 | `max_elapsed_time` | `5m` | Retry budget per request; `0` retries forever. |
 
 - Permanent errors are not retried; the error is final.
@@ -83,7 +83,7 @@ Set `sending_queue.storage` to a storage extension, usually [`file_storage`](../
 
 - **One queue per exporter instance and signal, on one Collector.** The queue asks the extension for a client keyed by exporter ID and signal; `file_storage` keeps one file per exporter and signal in its local `directory` ([naming](../components/file_storage/configuration.md#per-consumer-files-and-naming)). A backlog drains only through the Collector that wrote it: added replicas start with empty queues and take only new traffic. Renaming the exporter, including switching from a deprecated alias to the new type name (`otlp` → `otlp_grpc`, `otlphttp` → `otlp_http`), opens a new, empty queue and leaves the old backlog unread ([core#14988](https://github.com/open-telemetry/opentelemetry-collector/issues/14988)).
 - **First in, first out.** Requests are read in write order, so data arriving after an outage waits behind the backlog. A request to prioritize new data is open as [core#12788](https://github.com/open-telemetry/opentelemetry-collector/issues/12788).
-- **Drain concurrency.** Exports run as described in [Concurrency, order, and overflow](#concurrency-order-and-overflow). Every enqueue, read, and acknowledgement is a storage transaction made while holding the queue's lock, so raising `num_consumers` adds concurrent exports but not concurrent storage access.
+- **Drain concurrency.** Exports run as described in [Concurrency, order, overflow, and shutdown](#concurrency-order-overflow-and-shutdown). Every enqueue, read, and acknowledgement is a storage transaction made while holding the queue's lock, so raising `num_consumers` adds concurrent exports but not concurrent storage access.
 - **Capacity.** As for the in-memory queue, `queue_size` includes in-flight requests. A failed storage write, such as a full disk or a `file_storage` file at its `max_size`, also rejects the data.
 - **Retry budget.** Storage protects queued data across restarts, not past a spent retry budget: requests read during an outage are still dropped after `max_elapsed_time` ([`retry_on_failure`](#retry_on_failure)).
 - **Restart.** On shutdown the queue stops reading, and queued requests stay in storage. Requests that were read but not finished — in flight when the process was killed, or with a retry interrupted by a graceful shutdown — go to the back of the queue at the next start and are sent again. A request the backend had already accepted is then delivered twice. Client metadata and span context are stored with each request; context set by auth extensions is not.
