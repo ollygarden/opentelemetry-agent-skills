@@ -297,9 +297,18 @@ at ×10.
 
 ### Failing and unknown runs kept, and why
 
-All 31 failing runs at ×3 (12 withheld, 12 `origin/main`, 7 proposed), the ×10 rerun's 15
-failures and one Unknown, the review-round rerun's 5 failures and the second review-round rerun's
-6 failures are preserved. None was retried, and no run needed an infra retry. The withheld and
+All failing and Unknown runs are preserved:
+
+- ×3: 31 failures (12 withheld, 12 `origin/main`, 7 proposed).
+- First clickhouse ×10 rerun: 15 failures (10 `origin/main`, 5 proposed) and one Unknown.
+- Review-round rerun: 5 failures.
+- Second review-round rerun: 6 failures.
+- Third review-round rerun: 7 failures, plus 7 in its clickhouse ×10 rerun (proposed arm only; its
+  `origin/main` row is the first rerun's).
+- Fourth review-round rerun: 7 failures, plus 19 in its receiver ×10 rerun (10 `origin/main`, 9
+  proposed).
+
+None was retried, and no run needed an infra retry. The withheld and
 `origin/main` failures are genuine misses: no data for these components. The proposed failures are
 the omissions listed above.
 
